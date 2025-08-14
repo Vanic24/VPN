@@ -1,9 +1,14 @@
-name: Update VPN Subscription
+name: Update VPN Subscription (Clash YAML + Dry Run)
 
 on:
   schedule:
     - cron: "0 */3 * * *"  # Runs every 3 hours
-  workflow_dispatch:       # Allows manual run
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'If true, only generate YAML locally without pushing'
+        required: false
+        default: 'false'
 
 jobs:
   update:
@@ -27,57 +32,145 @@ jobs:
         const axios = require('axios');
         const yaml = require('js-yaml');
         const fs = require('fs');
+        const { URL } = require('url');
 
-        const subUrl = process.env.SUB_URL;
-        const githubFilePath = "9PB";
-        const igduxEditUrl = process.env.IGDUX_EDIT_URL;
+        const SUB_URL = process.env.SUB_URL;
+        const GH_TOKEN = process.env.GH_TOKEN;
+        const GITHUB_FILE = "9PB";
+        const IGDUX_EDIT_URL = process.env.IGDUX_EDIT_URL;
+        const dryRun = process.env.DRY_RUN === "true";
 
-        async function main() {
-          // 1. Fetch subscription (Base64 encoded)
-          const res = await axios.get(subUrl, { responseType: 'text' });
-          const decoded = Buffer.from(res.data, 'base64').toString('utf8');
-
-          // 2. Remove first two lines
-          const lines = decoded.split('\n').slice(2).filter(l => l.trim() !== '');
-
-          // 3. Convert to Clash YAML (placeholder)
-          // TODO: Replace placeholder parser with real v2ray→Clash parser for exact FlClash format
-          const proxies = lines.map((line, idx) => ({
-            name: `Proxy-${idx + 1}`,
-            type: "v2ray",
-            server: "example.com",
-            port: 443
-          }));
-          const clashConfig = { proxies };
-          const yamlData = yaml.dump(clashConfig);
-
-          // 4. Commit & push updated file to GitHub
-          const fileInfo = await axios.get(
-            `https://api.github.com/repos/Vanic24/VPN/contents/${githubFilePath}`,
-            { headers: { Authorization: `token ${process.env.GH_TOKEN}` } }
-          );
-          await axios.put(
-            `https://api.github.com/repos/Vanic24/VPN/contents/${githubFilePath}`,
-            {
-              message: "Auto update VPN subscription",
-              content: Buffer.from(yamlData).toString('base64'),
-              sha: fileInfo.data.sha
-            },
-            { headers: { Authorization: `token ${process.env.GH_TOKEN}` } }
-          );
-
-          // 5. Update igdux paste
-          await axios.post(igduxEditUrl, yamlData, { headers: { 'Content-Type': 'text/plain' } });
-
-          console.log("✅ Updated GitHub & igdux successfully");
+        function b64decode(s) {
+          if (s.length % 4) s += "=".repeat(4 - (s.length % 4));
+          return Buffer.from(s, 'base64').toString('utf8');
         }
 
-        main().catch(err => {
-          console.error("❌ Error updating:", err.message);
-          process.exit(1);
-        });
+        function parseVmess(link) {
+          try {
+            const conf = JSON.parse(b64decode(link.slice(8)));
+            const net = (conf.net || "tcp").toLowerCase();
+            const tls = (conf.tls || "").toLowerCase() === "tls";
+            const proxy = {
+              name: conf.ps || "vmess",
+              type: "vmess",
+              server: conf.add,
+              port: Number(conf.port),
+              uuid: conf.id,
+              alterId: Number(conf.aid || 0),
+              cipher: conf.type || "auto",
+              tls,
+              network: net,
+            };
+            if (net === "ws") proxy["ws-opts"] = { path: conf.path || "", headers: { Host: conf.host || "" } };
+            if (net === "grpc") proxy["grpc-opts"] = { "grpc-service-name": conf.path || "" };
+            if (conf.sni) proxy.servername = conf.sni;
+            return proxy;
+          } catch { return null; }
+        }
+
+        function parseVless(link) {
+          try {
+            const u = new URL(link);
+            const q = Object.fromEntries(u.searchParams.entries());
+            const net = (q.type || q.transport || "tcp").toLowerCase();
+            const tls = (q.security || "").toLowerCase() === "tls";
+            const proxy = {
+              name: decodeURIComponent(u.hash.slice(1)) || "vless",
+              type: "vless",
+              server: u.hostname,
+              port: Number(u.port || 443),
+              uuid: decodeURIComponent(u.username),
+              tls,
+              network: net
+            };
+            if (net === "ws") proxy["ws-opts"] = { path: q.path || "", headers: { Host: q.host || "" } };
+            if (net === "grpc") proxy["grpc-opts"] = { "grpc-service-name": q.serviceName || q["service-name"] || "" };
+            return proxy;
+          } catch { return null; }
+        }
+
+        function parseTrojan(link) {
+          try {
+            const u = new URL(link);
+            const q = Object.fromEntries(u.searchParams.entries());
+            const net = (q.type || q.transport || "tcp").toLowerCase();
+            const tls = (q.security || "").toLowerCase() === "tls";
+            const proxy = {
+              name: decodeURIComponent(u.hash.slice(1)) || "trojan",
+              type: "trojan",
+              server: u.hostname,
+              port: Number(u.port || 443),
+              password: decodeURIComponent(u.username),
+              tls,
+              network: net
+            };
+            if (net === "ws") proxy["ws-opts"] = { path: q.path || "", headers: { Host: q.host || "" } };
+            if (net === "grpc") proxy["grpc-opts"] = { "grpc-service-name": q.serviceName || q["service-name"] || "" };
+            return proxy;
+          } catch { return null; }
+        }
+
+        async function main() {
+          // 1. Fetch subscription
+          const res = await axios.get(SUB_URL, { responseType: 'text' });
+          let lines = b64decode(res.data.trim()).split(/\r?\n/).slice(2).filter(Boolean);
+
+          // 2. Parse nodes
+          const proxies = [];
+          for (const line of lines) {
+            if (line.startsWith("vmess://")) proxies.push(parseVmess(line));
+            else if (line.startsWith("vless://")) proxies.push(parseVless(line));
+            else if (line.startsWith("trojan://")) proxies.push(parseTrojan(line));
+          }
+
+          // 3. Build Clash YAML
+          const clashConfig = {
+            proxies,
+            "proxy-groups": [
+              {
+                name: "Auto",
+                type: "url-test",
+                proxies: proxies.map(p => p.name),
+                url: "http://www.gstatic.com/generate_204",
+                interval: 300
+              }
+            ],
+            rules: ["MATCH,Auto"]
+          };
+
+          const yamlData = yaml.dump(clashConfig, { noRefs: true, forceQuotes: false, lineWidth: 120 });
+          fs.writeFileSync(GITHUB_FILE, yamlData, "utf8");
+          console.log("✅ YAML generated successfully");
+
+          if (!dryRun) {
+            // 4. Commit & push to GitHub
+            const fileInfo = await axios.get(
+              `https://api.github.com/repos/Vanic24/VPN/contents/${GITHUB_FILE}`,
+              { headers: { Authorization: `token ${GH_TOKEN}` } }
+            );
+            await axios.put(
+              `https://api.github.com/repos/Vanic24/VPN/contents/${GITHUB_FILE}`,
+              {
+                message: "Auto update Clash YAML",
+                content: Buffer.from(yamlData).toString('base64'),
+                sha: fileInfo.data.sha
+              },
+              { headers: { Authorization: `token ${GH_TOKEN}` } }
+            );
+
+            // 5. Update igdux paste
+            await axios.post(IGDUX_EDIT_URL, yamlData, { headers: { 'Content-Type': 'text/plain' } });
+
+            console.log("✅ Updated GitHub & igdux successfully");
+          } else {
+            console.log("⚠️ Dry run enabled — YAML generated but not pushed.");
+          }
+        }
+
+        main().catch(e => { console.error("❌ Error:", e); process.exit(1); });
         EOF
       env:
         GH_TOKEN: ${{ secrets.GH_TOKEN }}
         SUB_URL: ${{ secrets.SUB_URL }}
         IGDUX_EDIT_URL: ${{ secrets.IGDUX_EDIT_URL }}
+        DRY_RUN: ${{ github.event.inputs.dry_run }}
