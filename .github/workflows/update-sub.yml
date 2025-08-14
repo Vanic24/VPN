@@ -109,16 +109,17 @@ jobs:
         }
 
         const subscriptions = [
-          { url: process.env.SUB_URL_1, file: "9PB", push: true },
-          { url: process.env.SUB_URL_2, file: "Sub3", push: true },
-          { url: process.env.SUB_URL_3, file: "Future", push: false }
+          { url: process.env.SUB_URL_1, file: "9PB", push: true, skip: 2 },
+          { url: process.env.SUB_URL_2, file: "Sub3", push: true, skip: 3 },
+          { url: process.env.SUB_URL_3, file: "Future", push: false, skip: 0 }
         ];
 
         for (const sub of subscriptions) {
           (async () => {
             try {
               const res = await axios.get(sub.url, { responseType: 'text' });
-              let lines = b64decode(res.data.trim()).split(/\r?\n/).slice(2).filter(Boolean);
+              let lines = b64decode(res.data.trim()).split(/\r?\n/).slice(sub.skip).filter(Boolean);
+
               const proxies = [];
               for (const line of lines) {
                 if (line.startsWith("vmess://")) proxies.push(parseVmess(line));
@@ -136,7 +137,7 @@ jobs:
                 rules: ["MATCH,Auto"]
               };
 
-              const yamlData = yaml.dump(clashConfig, { noRefs: true, forceQuotes: false, lineWidth: 120 });
+              const yamlData = require('js-yaml').dump(clashConfig, { noRefs: true, forceQuotes: false, lineWidth: 120 });
               fs.writeFileSync(sub.file, yamlData, "utf8");
               fs.writeFileSync(path.join(process.cwd(), `${sub.file}.yml`), yamlData, "utf8"); // artifact
 
