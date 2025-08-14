@@ -33,6 +33,7 @@ jobs:
         const axios = require('axios');
         const yaml = require('js-yaml');
         const fs = require('fs');
+        const { URL } = require('url');
         const path = require('path');
 
         const SUB_URL = process.env.SUB_9PB;
@@ -172,7 +173,7 @@ jobs:
         EOF
 
       env:
-        GH_TOKEN: ${{ secrets.SUB_9PB }}
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
         SUB_9PB: ${{ secrets.SUB_9PB }}
         DRY_RUN: ${{ github.event.inputs.dry_run }}
 
@@ -184,26 +185,20 @@ jobs:
 
     - name: Delete old artifacts (keep latest 9PB only)
       run: |
-        latest_id=$(gh api repos/${{ github.repository }}/actions/artifacts \
-          --jq '.artifacts[] | select(.name=="9PB") | .id' | head -n 1)
-        for id in $(gh api repos/${{ github.repository }}/actions/artifacts \
-          --jq '.artifacts[] | select(.name=="9PB") | .id' | tail -n +2); do
-          gh api --method DELETE repos/${{ github.repository }}/actions/artifacts/$id
-          echo "🗑 Deleted artifact $id"
-        done
-      env:
-        GH_TOKEN: ${{ secrets.WorkFlows_Delete }}
+        echo "🔍 Checking for old artifacts..."
+        artifact_ids=$(gh api repos/${{ github.repository }}/actions/artifacts \
+          --jq '.artifacts[] | select(.name=="9PB") | .id')
 
-    - name: Delete old workflow runs (keep latest)
-      run: |
-        workflow_id=9876543  # <-- Replace this number with your workflow numeric ID
-        echo "🔹 Workflow numeric ID: $workflow_id"
-        runs=$(gh api repos/${{ github.repository }}/actions/workflows/$workflow_id/runs --jq '.workflow_runs[].id')
-        latest=$(echo "$runs" | head -n 1)
-        echo "✅ Latest run ID: $latest"
-        for run_id in $(echo "$runs" | tail -n +2); do
-          echo "🗑 Deleting workflow run ID: $run_id"
-          gh api --method DELETE repos/${{ github.repository }}/actions/runs/$run_id || echo "⚠️ Failed to delete run $run_id"
-        done
+        keep_id=$(echo "$artifact_ids" | head -n 1)
+        delete_ids=$(echo "$artifact_ids" | tail -n +2)
+
+        if [ -z "$delete_ids" ]; then
+          echo "✅ No old artifacts to delete."
+        else
+          for id in $delete_ids; do
+            gh api --method DELETE repos/${{ github.repository }}/actions/artifacts/$id
+            echo "🗑 Deleted old artifact $id"
+          done
+        fi
       env:
-        GH_TOKEN: ${{ secrets.WorkFlows_Delete }}
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
