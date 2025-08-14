@@ -1,4 +1,4 @@
-name: Update VPN Subscription (Clash YAML + Dry Run + Artifact)
+name: Update VPN Subscription (Clash YAML + Dry Run + Artifact + Cleanup)
 
 on:
   workflow_dispatch:
@@ -8,7 +8,7 @@ on:
         required: false
         default: 'false'
   schedule:
-    - cron: '0 */4 * * *' # Runs every 4 hours
+    - cron: '0 */6 * * *' # every 6 hours
 
 permissions:
   contents: write
@@ -17,6 +17,7 @@ permissions:
 jobs:
   update:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -30,11 +31,17 @@ jobs:
         run: npm install axios js-base64 yaml
 
       - name: Fetch, convert, and update
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          SUB_URL: ${{ secrets.SUB_URL }}
+          IGDUX_EDIT_URL: ${{ secrets.IGDUX_EDIT_URL }}
+          DRY_RUN: ${{ github.event.inputs.dry_run }}
         run: |
           node <<'EOF'
           const axios = require('axios');
           const { Base64 } = require('js-base64');
           const yaml = require('yaml');
+          const fs = require('fs');
 
           const GH_TOKEN = process.env.GH_TOKEN;
           const SUB_URL = process.env.SUB_URL;
@@ -42,68 +49,85 @@ jobs:
           const GITHUB_FILE = "9PB";
           const dryRun = process.env.DRY_RUN === "true";
 
+          // ---- Parsers ----
           function parseVmess(url) {
             try {
               const decoded = JSON.parse(Base64.decode(url.replace("vmess://", "")));
-              return {
-                name: decoded.ps || "Unnamed",
+              const net = (decoded.net || "tcp").toLowerCase();
+              const p = {
+                name: decoded.ps || "vmess",
                 type: "vmess",
                 server: decoded.add,
                 port: Number(decoded.port),
                 uuid: decoded.id,
                 alterId: Number(decoded.aid || 0),
                 cipher: "auto",
-                tls: decoded.tls === "tls",
-                network: decoded.net || "tcp"
+                tls: (decoded.tls || "").toLowerCase() === "tls",
+                network: net,
               };
-            } catch {
-              return null;
-            }
+              if (decoded.sni) p.servername = decoded.sni;
+              if (net === "ws") p["ws-opts"] = { path: decoded.path || "", headers: { Host: decoded.host || "" } };
+              if (net === "grpc") p["grpc-opts"] = { "grpc-service-name": decoded.path || "" };
+              return p;
+            } catch { return null; }
           }
 
           function parseVless(url) {
             try {
-              const [idPart, hostPart] = url.replace("vless://", "").split("@");
-              const [host, params] = hostPart.split("?");
-              const [server, port] = host.split(":");
-              return {
-                name: idPart.split("#")[1] || "Unnamed",
+              const u = new URL(url);
+              const q = Object.fromEntries(u.searchParams.entries());
+              const net = (q.type || q.transport || "tcp").toLowerCase();
+              const p = {
+                name: decodeURIComponent(u.hash.slice(1)) || "vless",
                 type: "vless",
-                server,
-                port: Number(port),
-                uuid: idPart.split("#")[0],
-                tls: params.includes("security=tls")
+                server: u.hostname,
+                port: Number(u.port || 443),
+                uuid: decodeURIComponent(u.username),
+                tls: (q.security || "").toLowerCase() === "tls",
+                network: net
               };
-            } catch {
-              return null;
-            }
+              if (q.sni) p.servername = q.sni;
+              if (net === "ws") p["ws-opts"] = { path: q.path || "", headers: { Host: q.host || "" } };
+              if (net === "grpc") p["grpc-opts"] = { "grpc-service-name": q.serviceName || q["service-name"] || "" };
+              return p;
+            } catch { return null; }
           }
 
           function parseTrojan(url) {
             try {
-              const [passPart, hostPart] = url.replace("trojan://", "").split("@");
-              const [server, params] = hostPart.split("?");
-              const [hostname, port] = server.split(":");
-              return {
-                name: passPart.split("#")[1] || "Unnamed",
+              const u = new URL(url);
+              const q = Object.fromEntries(u.searchParams.entries());
+              const net = (q.type || q.transport || "tcp").toLowerCase();
+              const p = {
+                name: decodeURIComponent(u.hash.slice(1)) || "trojan",
                 type: "trojan",
-                server: hostname,
-                port: Number(port),
-                password: passPart.split("#")[0],
-                sni: params.match(/sni=([^&]+)/)?.[1] || ""
+                server: u.hostname,
+                port: Number(u.port || 443),
+                password: decodeURIComponent(u.username),
+                tls: (q.security || "tls").toLowerCase() === "tls", // trojan usually with tls
+                network: net
               };
-            } catch {
-              return null;
-            }
+              if (q.sni) p.sni = q.sni;
+              if (net === "ws") p["ws-opts"] = { path: q.path || "", headers: { Host: q.host || "" } };
+              if (net === "grpc") p["grpc-opts"] = { "grpc-service-name": q.serviceName || q["service-name"] || "" };
+              return p;
+            } catch { return null; }
           }
 
           (async () => {
             try {
               console.log("📥 Fetching subscription...");
-              const res = await axios.get(SUB_URL);
-              let lines = Base64.decode(res.data).split("\n").map(l => l.trim()).filter(Boolean);
+              const res = await axios.get(SUB_URL, { responseType: 'text' });
+              let decoded;
+              try {
+                decoded = Base64.decode(res.data.trim());
+              } catch (e) {
+                throw new Error("Subscription was not valid Base64 or was empty.");
+              }
 
-              // Remove first 2 nodes (traffic info / Chinese nodes)
+              let lines = decoded.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+
+              // Remove first two non-proxy lines per your requirement
               lines = lines.slice(2);
 
               const proxies = [];
@@ -112,21 +136,34 @@ jobs:
                 else if (line.startsWith("vless://")) proxies.push(parseVless(line));
                 else if (line.startsWith("trojan://")) proxies.push(parseTrojan(line));
               }
+              const valid = proxies.filter(Boolean);
+              console.log(`🔹 Total proxies parsed: ${valid.length}`);
 
-              console.log(`🔹 Total proxies parsed: ${proxies.length}`);
-
+              // Minimal Clash YAML compatible with FlClash
               const clashConfig = {
-                proxies: proxies.filter(Boolean),
-                'proxy-groups': [],
-                rules: []
+                proxies: valid,
+                "proxy-groups": [
+                  {
+                    name: "Auto",
+                    type: "url-test",
+                    proxies: valid.map(p => p.name),
+                    url: "http://www.gstatic.com/generate_204",
+                    interval: 300
+                  }
+                ],
+                rules: ["MATCH,Auto"]
               };
 
               const yamlData = yaml.stringify(clashConfig);
-              require('fs').writeFileSync("9PB", yamlData);
+
+              // Save as repo file name and as artifact
+              fs.writeFileSync("9PB", yamlData, "utf8");
+              console.log("✅ YAML generated to ./9PB");
 
               if (!dryRun) {
+                // --- Update GitHub file ---
                 try {
-                  console.log("📤 Updating GitHub...");
+                  console.log("📤 Updating GitHub file...");
                   const fileInfo = await axios.get(
                     `https://api.github.com/repos/Vanic24/VPN/contents/${GITHUB_FILE}`,
                     { headers: { Authorization: `token ${GH_TOKEN}` } }
@@ -140,34 +177,47 @@ jobs:
                     },
                     { headers: { Authorization: `token ${GH_TOKEN}` } }
                   );
-                  console.log("✅ GitHub updated successfully");
+                  console.log("✅ GitHub updated");
                 } catch (e) {
-                  console.error("⚠️ Warning: Failed to update GitHub:", e.message);
+                  console.error("⚠️ GitHub update failed:", e.message);
                 }
 
-                try {
-                  console.log("📤 Updating igdux...");
-                  await axios.put(IGDUX_EDIT_URL, yamlData, {
-                    headers: { 'Content-Type': 'text/plain' }
-                  });
-                  console.log("✅ igdux updated successfully");
-                } catch (e) {
-                  console.error("⚠️ Warning: Failed to update igdux:", e.message);
+                // --- Update igdux with retries ---
+                const headers = {
+                  'Content-Type': 'text/plain',
+                  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+                  'Referer': 'https://igdux.top/',
+                  'Origin': 'https://igdux.top',
+                  'Accept': '*/*'
+                };
+
+                let success = false;
+                for (let attempt = 1; attempt <= 3; attempt++) {
+                  try {
+                    console.log(`📤 Updating igdux (attempt ${attempt}/3)...`);
+                    await axios.put(IGDUX_EDIT_URL, yamlData, { headers, timeout: 15000 });
+                    console.log("✅ igdux updated");
+                    success = true;
+                    break;
+                  } catch (e) {
+                    console.error(`⚠️ igdux update failed (attempt ${attempt}):`, e.message);
+                    if (attempt < 3) {
+                      await new Promise(r => setTimeout(r, 2000 * attempt)); // backoff
+                    }
+                  }
+                }
+                if (!success) {
+                  console.error("❗ Gave up updating igdux after 3 attempts.");
                 }
               } else {
-                console.log("⚠️ Dry run enabled — YAML generated but not pushed.");
+                console.log("⚠️ Dry run enabled — not pushing to GitHub or igdux.");
               }
             } catch (err) {
-              console.error("❌ Error:", err.message);
+              console.error("❌ Fatal error:", err.message);
               process.exit(1);
             }
           })();
           EOF
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-          SUB_URL: ${{ secrets.SUB_URL }}
-          IGDUX_EDIT_URL: ${{ secrets.IGDUX_EDIT_URL }}
-          DRY_RUN: ${{ github.event.inputs.dry_run }}
 
       - name: Upload Clash YAML artifact
         uses: actions/upload-artifact@v4
@@ -176,21 +226,49 @@ jobs:
           path: 9PB
           retention-days: 1
 
-      - name: Delete old artifacts
+      - name: Delete old artifacts (keep newest named 9PB)
         uses: actions/github-script@v7
         with:
           script: |
-            const artifacts = await github.rest.actions.listArtifactsForRepo({
+            const all = await github.rest.actions.listArtifactsForRepo({
               owner: context.repo.owner,
-              repo: context.repo.repo
+              repo: context.repo.repo,
+              per_page: 100
             });
-            for (const artifact of artifacts.data.artifacts) {
-              if (artifact.name === "9PB" && artifact.expired === false && artifact.id !== artifacts.data.artifacts[0].id) {
-                await github.rest.actions.deleteArtifact({
+            const targets = all.data.artifacts
+              .filter(a => a.name === '9PB' && !a.expired)
+              .sort((a, b) => new Date(b.created_at) - new Date(a.created_at)); // newest first
+            for (const [i, art] of targets.entries()) {
+              if (i === 0) continue; // keep newest
+              await github.rest.actions.deleteArtifact({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                artifact_id: art.id
+              });
+              core.info(`🗑 Deleted old artifact ${art.id} (${art.name}) created ${art.created_at}`);
+            }
+
+      - name: Delete old workflow runs (keep latest)
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const runs = await github.rest.actions.listWorkflowRuns({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: context.workflow,
+              per_page: 50
+            });
+            const sorted = runs.data.workflow_runs
+              .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+            for (const [i, run] of sorted.entries()) {
+              if (i === 0 || run.id === context.runId) continue; // keep latest & current
+              try {
+                await github.rest.actions.deleteWorkflowRun({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
-                  artifact_id: artifact.id
+                  run_id: run.id
                 });
-                console.log(`🗑 Deleted old artifact: ${artifact.name} (ID: ${artifact.id})`);
+                core.info(`🗑 Deleted old run ${run.id} from ${run.created_at}`);
+              } catch (e) {
+                core.warning(`Could not delete run ${run.id}: ${e.message}`);
               }
-            }
