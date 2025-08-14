@@ -146,31 +146,32 @@ jobs:
           console.log("✅ YAML generated successfully");
 
           if (!dryRun) {
-  try {
-    const fileInfo = await axios.get(
-      `https://api.github.com/repos/Vanic24/VPN/contents/${GITHUB_FILE}`,
-      { headers: { Authorization: `token ${GH_TOKEN}` } }
-    );
-    await axios.put(
-      `https://api.github.com/repos/Vanic24/VPN/contents/${GITHUB_FILE}`,
-      {
-        message: "Auto update Clash YAML",
-        content: Buffer.from(yamlData).toString('base64'),
-        sha: fileInfo.data.sha
-      },
-      { headers: { Authorization: `token ${GH_TOKEN}` } }
-    );
-    console.log("✅ GitHub updated successfully");
+            try {
+              const fileInfo = await axios.get(
+                `https://api.github.com/repos/Vanic24/VPN/contents/${GITHUB_FILE}`,
+                { headers: { Authorization: `token ${GH_TOKEN}` } }
+              );
+              await axios.put(
+                `https://api.github.com/repos/Vanic24/VPN/contents/${GITHUB_FILE}`,
+                {
+                  message: "Auto update Clash YAML",
+                  content: Buffer.from(yamlData).toString('base64'),
+                  sha: fileInfo.data.sha
+                },
+                { headers: { Authorization: `token ${GH_TOKEN}` } }
+              );
+              console.log("✅ GitHub updated successfully");
 
-    await axios.post(IGDUX_EDIT_URL, yamlData, { headers: { 'Content-Type': 'text/plain' } });
-    console.log("✅ igdux updated successfully");
+              await axios.post(IGDUX_EDIT_URL, yamlData, { headers: { 'Content-Type': 'text/plain' } });
+              console.log("✅ igdux updated successfully");
 
-  } catch (e) {
-    console.error("⚠️ Warning: Failed to update GitHub or igdux:", e.message);
-  }
-} else {
-  console.log("⚠️ Dry run enabled — YAML generated but not pushed.");
-}
+            } catch (e) {
+              console.error("⚠️ Warning: Failed to update GitHub or igdux:", e.message);
+            }
+          } else {
+            console.log("⚠️ Dry run enabled — YAML generated but not pushed.");
+          }
+        }
 
         main().catch(e => { console.error("❌ Error:", e); process.exit(1); });
         EOF
