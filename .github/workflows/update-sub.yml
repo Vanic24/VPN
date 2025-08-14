@@ -2,12 +2,12 @@ name: Update VPN Subscription (Clash YAML + Dry Run + Artifact)
 
 on:
   schedule:
-    - cron: "0 */6 * * *"  # Runs every 6 hours
+    - cron: "0 */3 * * *"  # Runs every 3 hours
   workflow_dispatch:
     inputs:
       dry_run:
         description: 'If true, only generate YAML locally without pushing'
-        required: true
+        required: false
         default: 'false'
 
 jobs:
@@ -16,10 +16,10 @@ jobs:
 
     steps:
     - name: Checkout repo
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Set up Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: "20"
 
