@@ -187,10 +187,11 @@ jobs:
       uses: actions/github-script@v7
       with:
         script: |
+          const workflowFileName = 'update-sub.yml'; // Use workflow file name instead of display name
           const runs = await github.rest.actions.listWorkflowRuns({
             owner: context.repo.owner,
             repo: context.repo.repo,
-            workflow_id: context.workflow,
+            workflow_id: workflowFileName,
             per_page: 100,
           });
           const sortedRuns = runs.data.workflow_runs
