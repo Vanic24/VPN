@@ -2,7 +2,7 @@ name: Update VPN Subscription (SUB_Sub3)
 
 on:
   schedule:
-    - cron: "0 */4 * * *"  #Run every 4 hour
+    - cron: "0 */4 * * *"  # Runs every 4 hours
   workflow_dispatch:
     inputs:
       dry_run:
@@ -46,6 +46,71 @@ jobs:
           return Buffer.from(s, 'base64').toString('utf8');
         }
 
+        function parseVmess(link) {
+          try {
+            const conf = JSON.parse(b64decode(link.slice(8)));
+            const net = (conf.net || "tcp").toLowerCase();
+            const tls = (conf.tls || "").toLowerCase() === "tls";
+            const proxy = {
+              name: conf.ps || "vmess",
+              type: "vmess",
+              server: conf.add,
+              port: Number(conf.port),
+              uuid: conf.id,
+              alterId: Number(conf.aid || 0),
+              cipher: conf.type || "auto",
+              tls,
+              network: net,
+            };
+            if (net === "ws") proxy["ws-opts"] = { path: conf.path || "", headers: { Host: conf.host || "" } };
+            if (net === "grpc") proxy["grpc-opts"] = { "grpc-service-name": conf.path || "" };
+            if (conf.sni) proxy.servername = conf.sni;
+            return proxy;
+          } catch { return null; }
+        }
+
+        function parseVless(link) {
+          try {
+            const u = new URL(link);
+            const q = Object.fromEntries(u.searchParams.entries());
+            const net = (q.type || q.transport || "tcp").toLowerCase();
+            const tls = (q.security || "").toLowerCase() === "tls";
+            const proxy = {
+              name: decodeURIComponent(u.hash.slice(1)) || "vless",
+              type: "vless",
+              server: u.hostname,
+              port: Number(u.port || 443),
+              uuid: decodeURIComponent(u.username),
+              tls,
+              network: net
+            };
+            if (net === "ws") proxy["ws-opts"] = { path: q.path || "", headers: { Host: q.host || "" } };
+            if (net === "grpc") proxy["grpc-opts"] = { "grpc-service-name": q.serviceName || q["service-name"] || "" };
+            return proxy;
+          } catch { return null; }
+        }
+
+        function parseTrojan(link) {
+          try {
+            const u = new URL(link);
+            const q = Object.fromEntries(u.searchParams.entries());
+            const net = (q.type || q.transport || "tcp").toLowerCase();
+            const tls = (q.security || "").toLowerCase() === "tls";
+            const proxy = {
+              name: decodeURIComponent(u.hash.slice(1)) || "trojan",
+              type: "trojan",
+              server: u.hostname,
+              port: Number(u.port || 443),
+              password: decodeURIComponent(u.username),
+              tls,
+              network: net
+            };
+            if (net === "ws") proxy["ws-opts"] = { path: q.path || "", headers: { Host: q.host || "" } };
+            if (net === "grpc") proxy["grpc-opts"] = { "grpc-service-name": q.serviceName || q["service-name"] || "" };
+            return proxy;
+          } catch { return null; }
+        }
+
         function parseHysteria2(link) {
           try {
             const u = new URL(link);
@@ -80,16 +145,13 @@ jobs:
           } catch { return null; }
         }
 
-        function parseVmess(link) { /* previous parser code */ return null; }
-        function parseVless(link) { /* previous parser code */ return null; }
-        function parseTrojan(link) { /* previous parser code */ return null; }
-
         async function main() {
           const res = await axios.get(SUB_URL, { responseType: 'text' });
+          // Decode Base64 and remove first 3 lines (info nodes)
           let lines = b64decode(res.data.trim())
                         .split(/\r?\n/)
                         .filter(Boolean)
-                        .slice(3); // remove first 3 nodes
+                        .slice(3);
 
           const proxies = [];
           for (const line of lines) {
