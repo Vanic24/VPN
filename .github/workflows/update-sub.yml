@@ -1,4 +1,4 @@
-name: Update VPN Subscription (Clash YAML + Dry Run + Artifact)
+name: Update VPN Subscription (Clash YAML + Dry Run + Artifact + Logs)
 
 on:
   schedule:
@@ -113,67 +113,80 @@ jobs:
         }
 
         async function main() {
-          const res = await axios.get(SUB_URL, { responseType: 'text' });
-          let lines = b64decode(res.data.trim()).split(/\r?\n/).slice(2).filter(Boolean);
+          try {
+            const res = await axios.get(SUB_URL, { responseType: 'text' });
+            let lines = b64decode(res.data.trim()).split(/\r?\n/).slice(2).filter(Boolean);
 
-          const proxies = [];
-          for (const line of lines) {
-            if (line.startsWith("vmess://")) proxies.push(parseVmess(line));
-            else if (line.startsWith("vless://")) proxies.push(parseVless(line));
-            else if (line.startsWith("trojan://")) proxies.push(parseTrojan(line));
-          }
-
-          const clashConfig = {
-            proxies,
-            "proxy-groups": [
-              {
-                name: "Auto",
-                type: "url-test",
-                proxies: proxies.map(p => p.name),
-                url: "http://www.gstatic.com/generate_204",
-                interval: 300
-              }
-            ],
-            rules: ["MATCH,Auto"]
-          };
-
-          const yamlData = yaml.dump(clashConfig, { noRefs: true, forceQuotes: false, lineWidth: 120 });
-          fs.writeFileSync(GITHUB_FILE, yamlData, "utf8");
-
-          // Save artifact file as 9PB.yml for logs / dry run
-          const artifactFile = path.join(process.cwd(), `9PB.yml`);
-          fs.writeFileSync(artifactFile, yamlData, "utf8");
-          console.log("✅ YAML generated successfully");
-
-          if (!dryRun) {
-            try {
-              const fileInfo = await axios.get(
-                `https://api.github.com/repos/Vanic24/VPN/contents/${GITHUB_FILE}`,
-                { headers: { Authorization: `token ${GH_TOKEN}` } }
-              );
-              await axios.put(
-                `https://api.github.com/repos/Vanic24/VPN/contents/${GITHUB_FILE}`,
-                {
-                  message: "Auto update Clash YAML",
-                  content: Buffer.from(yamlData).toString('base64'),
-                  sha: fileInfo.data.sha
-                },
-                { headers: { Authorization: `token ${GH_TOKEN}` } }
-              );
-              console.log("✅ GitHub updated successfully");
-
-              await axios.post(IGDUX_EDIT_URL, yamlData, { headers: { 'Content-Type': 'text/plain' } });
-              console.log("✅ igdux updated successfully");
-
-            } catch (e) {
-              console.error("⚠️ Warning: Failed to update GitHub or igdux:", e.message);
+            const proxies = [];
+            for (const line of lines) {
+              if (line.startsWith("vmess://")) proxies.push(parseVmess(line));
+              else if (line.startsWith("vless://")) proxies.push(parseVless(line));
+              else if (line.startsWith("trojan://")) proxies.push(parseTrojan(line));
             }
-          } else {
-            console.log("⚠️ Dry run enabled — YAML generated but not pushed.");
+
+            console.log(`🔹 Total proxies parsed: ${proxies.length}`);
+
+            const clashConfig = {
+              proxies,
+              "proxy-groups": [
+                {
+                  name: "Auto",
+                  type: "url-test",
+                  proxies: proxies.map(p => p.name),
+                  url: "http://www.gstatic.com/generate_204",
+                  interval: 300
+                }
+              ],
+              rules: ["MATCH,Auto"]
+            };
+
+            const yamlData = yaml.dump(clashConfig, { noRefs: true, forceQuotes: false, lineWidth: 120 });
+            fs.writeFileSync(GITHUB_FILE, yamlData, "utf8");
+
+            const artifactFile = path.join(process.cwd(), `9PB.yml`);
+            fs.writeFileSync(artifactFile, yamlData, "utf8");
+            console.log("✅ YAML generated successfully");
+
+            if (!dryRun) {
+              try {
+                // GitHub update
+                const fileInfo = await axios.get(
+                  `https://api.github.com/repos/Vanic24/VPN/contents/${GITHUB_FILE}`,
+                  { headers: { Authorization: `token ${GH_TOKEN}` } }
+                );
+                console.log("GitHub file SHA:", fileInfo.data.sha);
+
+                const putRes = await axios.put(
+                  `https://api.github.com/repos/Vanic24/VPN/contents/${GITHUB_FILE}`,
+                  {
+                    message: "Auto update Clash YAML",
+                    content: Buffer.from(yamlData).toString('base64'),
+                    sha: fileInfo.data.sha
+                  },
+                  { headers: { Authorization: `token ${GH_TOKEN}` } }
+                );
+                console.log("GitHub PUT response status:", putRes.status);
+                console.log("GitHub PUT response data:", putRes.data);
+
+                // igdux update
+                const igduxRes = await axios.post(IGDUX_EDIT_URL, yamlData, { headers: { 'Content-Type': 'text/plain' } });
+                console.log("igdux POST response status:", igduxRes.status);
+                console.log("igdux POST response data:", igduxRes.data);
+
+              } catch (e) {
+                console.error("⚠️ Warning: Failed to update GitHub or igdux:", e.message);
+              }
+            } else {
+              console.log("⚠️ Dry run enabled — YAML generated but not pushed.");
+            }
+
+          } catch (e) {
+            console.error("❌ Error during processing:", e.message);
+            process.exit(1);
           }
         }
 
-        main().catch(e => { console.error("❌ Error:", e); process.exit(1); });
+        main();
         EOF
 
       env:
