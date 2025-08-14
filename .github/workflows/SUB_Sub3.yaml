@@ -48,7 +48,7 @@ jobs:
 
         function parseVmess(link) {
           try {
-            const conf = JSON.parse(b64decode(link.slice(8)));
+            const conf = JSON.parse(b64decode(link.slice(3)));
             const net = (conf.net || "tcp").toLowerCase();
             const tls = (conf.tls || "").toLowerCase() === "tls";
             const proxy = {
