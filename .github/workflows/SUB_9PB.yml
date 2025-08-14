@@ -1,8 +1,8 @@
-name: Update VPN Subscription (Clash YAML + Dry Run + Artifact)
+name: Update VPN Subscription (SUB_9PB)
 
 on:
   schedule:
-    - cron: "0 */6 * * *"  # Runs every 6 hours
+    - cron: "0 */4 * * *"  # Runs every 4 hours
   workflow_dispatch:
     inputs:
       dry_run:
@@ -36,7 +36,7 @@ jobs:
         const { URL } = require('url');
         const path = require('path');
 
-        const SUB_URL = process.env.SUB_URL;
+        const SUB_URL = process.env.SUB_9PB;
         const GH_TOKEN = process.env.GH_TOKEN;
         const GITHUB_FILE = "9PB";
         const dryRun = process.env.DRY_RUN === "true";
@@ -175,7 +175,7 @@ jobs:
 
       env:
         GH_TOKEN: ${{ secrets.GH_TOKEN }}
-        SUB_URL: ${{ secrets.SUB_URL }}
+        SUB_9PB: ${{ secrets.SUB_9PB }}
         DRY_RUN: ${{ github.event.inputs.dry_run }}
 
     - name: Upload Clash YAML artifact
