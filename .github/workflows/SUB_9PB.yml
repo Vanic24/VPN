@@ -2,7 +2,7 @@ name: Update VPN Subscription (SUB_9PB)
 
 on:
   schedule:
-    - cron: "0 */4 * * *"  # Runs every 4 hours
+    - cron: "0 */6 * * *"  # Runs every 6 hours
   workflow_dispatch:
     inputs:
       dry_run:
@@ -141,7 +141,6 @@ jobs:
           const yamlData = yaml.dump(clashConfig, { noRefs: true, forceQuotes: false, lineWidth: 120 });
           fs.writeFileSync(GITHUB_FILE, yamlData, "utf8");
 
-          // Save artifact file as 9PB.yml for logs / dry run
           const artifactFile = path.join(process.cwd(), `9PB.yml`);
           fs.writeFileSync(artifactFile, yamlData, "utf8");
           console.log("✅ YAML generated successfully");
@@ -183,3 +182,23 @@ jobs:
       with:
         name: 9PB
         path: 9PB.yml
+
+    - name: Delete old artifacts (keep latest 9PB only)
+      run: |
+        echo "🔍 Checking for old artifacts..."
+        artifact_ids=$(gh api repos/${{ github.repository }}/actions/artifacts \
+          --jq '.artifacts[] | select(.name=="9PB") | .id')
+
+        keep_id=$(echo "$artifact_ids" | head -n 1)
+        delete_ids=$(echo "$artifact_ids" | tail -n +2)
+
+        if [ -z "$delete_ids" ]; then
+          echo "✅ No old artifacts to delete."
+        else
+          for id in $delete_ids; do
+            gh api --method DELETE repos/${{ github.repository }}/actions/artifacts/$id
+            echo "🗑 Deleted old artifact $id"
+          done
+        fi
+      env:
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
