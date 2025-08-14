@@ -2,7 +2,7 @@ name: Update VPN Subscription (Clash YAML + Dry Run + Artifact)
 
 on:
   schedule:
-    - cron: "0 */3 * * *"  # Runs every 3 hours
+    - cron: "0 */4 * * *"  # Runs every 4 hours
   workflow_dispatch:
     inputs:
       dry_run:
@@ -79,7 +79,7 @@ jobs:
           const artifactFile = path.join(process.cwd(), `9BP-${timestamp}.yml`);
           fs.writeFileSync(artifactFile, yamlData, "utf8");
           console.log(`✅ YAML generated successfully: ${artifactFile}`);
-          console.log(`::set-output name=artifact::${artifactFile}`);
+          fs.appendFileSync(process.env.GITHUB_ENV, `ARTIFACT_FILE=${artifactFile}\n`);
 
           if (!dryRun) {
             // Update GitHub file & igdux
@@ -100,8 +100,8 @@ jobs:
     - name: Upload Clash YAML artifact
       uses: actions/upload-artifact@v4
       with:
-        name: clash-yaml
-        path: ${{ steps.generate_yaml.outputs.artifact }}
+        name: 9PB.yaml
+        path: ${{ env.ARTIFACT_FILE }}
 
     - name: Cleanup old artifacts
       env:
