@@ -2,7 +2,7 @@ name: Update VPN Subscription (Clash YAML + Dry Run + Artifact)
 
 on:
   schedule:
-    - cron: "0 */6 * * *"  # Runs every 6 hours
+    - cron: "0 */4 * * *"  # Runs every 4 hours
   workflow_dispatch:
     inputs:
       dry_run:
@@ -33,13 +33,11 @@ jobs:
         const axios = require('axios');
         const yaml = require('js-yaml');
         const fs = require('fs');
-        const { URL } = require('url');
         const path = require('path');
 
         const SUB_URL = process.env.SUB_URL;
         const GH_TOKEN = process.env.GH_TOKEN;
         const GITHUB_FILE = "9PB";
-        const IGDUX_EDIT_URL = process.env.IGDUX_EDIT_URL;
         const dryRun = process.env.DRY_RUN === "true";
 
         function b64decode(s) {
@@ -123,6 +121,8 @@ jobs:
             else if (line.startsWith("trojan://")) proxies.push(parseTrojan(line));
           }
 
+          console.log(`🔹 Total proxies parsed: ${proxies.length}`);
+
           const clashConfig = {
             proxies,
             "proxy-groups": [
@@ -140,7 +140,7 @@ jobs:
           const yamlData = yaml.dump(clashConfig, { noRefs: true, forceQuotes: false, lineWidth: 120 });
           fs.writeFileSync(GITHUB_FILE, yamlData, "utf8");
 
-          // Save artifact file as 9PB.yml for logs / dry run
+          // Save artifact file as 9PB.yml
           const artifactFile = path.join(process.cwd(), `9PB.yml`);
           fs.writeFileSync(artifactFile, yamlData, "utf8");
           console.log("✅ YAML generated successfully");
@@ -161,12 +161,8 @@ jobs:
                 { headers: { Authorization: `token ${GH_TOKEN}` } }
               );
               console.log("✅ GitHub updated successfully");
-
-              await axios.post(IGDUX_EDIT_URL, yamlData, { headers: { 'Content-Type': 'text/plain' } });
-              console.log("✅ igdux updated successfully");
-
             } catch (e) {
-              console.error("⚠️ Warning: Failed to update GitHub or igdux:", e.message);
+              console.error("⚠️ Warning: Failed to update GitHub:", e.message);
             }
           } else {
             console.log("⚠️ Dry run enabled — YAML generated but not pushed.");
@@ -179,7 +175,6 @@ jobs:
       env:
         GH_TOKEN: ${{ secrets.GH_TOKEN }}
         SUB_URL: ${{ secrets.SUB_URL }}
-        IGDUX_EDIT_URL: ${{ secrets.IGDUX_EDIT_URL }}
         DRY_RUN: ${{ github.event.inputs.dry_run }}
 
     - name: Upload Clash YAML artifact
@@ -187,3 +182,25 @@ jobs:
       with:
         name: 9PB
         path: 9PB.yml
+
+    - name: Cleanup old workflow runs (keep only latest)
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const runs = await github.rest.actions.listWorkflowRuns({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            workflow_id: context.workflow,
+            per_page: 100,
+          });
+          const sortedRuns = runs.data.workflow_runs
+            .filter(r => r.id !== context.runId)
+            .sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+          for (const run of sortedRuns) {
+            console.log(`Deleting old workflow run: ${run.id}`);
+            await github.rest.actions.deleteWorkflowRun({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: run.id
+            });
+          }
