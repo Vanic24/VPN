@@ -1,1569 +1,696 @@
+mixed-port: 7897
+allow-lan: false
+mode: rule
+log-level: info
+external-controller: '127.0.0.1:9097'
+unified-delay: true
+ipv6: true
+profile:
+    store-selected: true
+tun:
+    mtu: 1500
+dns:
+    enable: true
+    ipv6: true
+    use-system-hosts: false
+    listen: '127.0.0.1:5335'
+    default-nameserver: [180.76.76.76, 182.254.118.118, 8.8.8.8, 180.184.2.2]
+    enhanced-mode: fake-ip
+    fake-ip-range: 198.18.0.1/16
+    fake-ip-filter: ['*.lan', 'stun.*.*.*', 'stun.*.*', time.windows.com, time.nist.gov, time.apple.com, time.asia.apple.com, '*.ntp.org.cn', '*.openwrt.pool.ntp.org', time1.cloud.tencent.com, time.ustc.edu.cn, pool.ntp.org, ntp.ubuntu.com, ntp.aliyun.com, ntp1.aliyun.com, ntp2.aliyun.com, ntp3.aliyun.com, ntp4.aliyun.com, ntp5.aliyun.com, ntp6.aliyun.com, ntp7.aliyun.com, time1.aliyun.com, time2.aliyun.com, time3.aliyun.com, time4.aliyun.com, time5.aliyun.com, time6.aliyun.com, time7.aliyun.com, '*.time.edu.cn', time1.apple.com, time2.apple.com, time3.apple.com, time4.apple.com, time5.apple.com, time6.apple.com, time7.apple.com, time1.google.com, time2.google.com, time3.google.com, time4.google.com, music.163.com, '*.music.163.com', '*.126.net', musicapi.taihe.com, music.taihe.com, songsearch.kugou.com, trackercdn.kugou.com, '*.kuwo.cn', api-jooxtt.sanook.com, api.joox.com, joox.com, y.qq.com, '*.y.qq.com', streamoc.music.tc.qq.com, mobileoc.music.tc.qq.com, isure.stream.qqmusic.qq.com, dl.stream.qqmusic.qq.com, aqqmusic.tc.qq.com, amobile.music.tc.qq.com, '*.xiami.com', '*.music.migu.cn', music.migu.cn, '*.msftconnecttest.com', '*.msftncsi.com', localhost.ptlogin2.qq.com, '*.*.*.srv.nintendo.net', '*.*.stun.playstation.net', 'xbox.*.*.microsoft.com', '*.ipv6.microsoft.com', '*.*.xboxlive.com', speedtest.cros.wr.pvp.net]
+    nameserver: [180.76.76.76, 119.29.29.29, 180.184.1.1, 223.5.5.5, 8.8.8.8, 'https://223.6.6.6/dns-query#h3=true', 'https://dns.alidns.com/dns-query', 'https://cloudflare-dns.com/dns-query', 'https://doh.pub/dns-query']
+    fallback-filter: { geoip: true, ipcidr: [240.0.0.0/4, 0.0.0.0/32, 127.0.0.1/32], domain: [+.google.com, +.facebook.com, +.twitter.com, +.youtube.com, +.xn--ngstr-lra8j.com, +.google.cn, +.googleapis.cn, +.googleapis.com, +.gvt1.com] }
 proxies:
-  - name: 🇺🇸美国-三网优化1.1-TK|D+|NF|GPT
-    type: vless
-    server: zz1.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-us1-wXiButbaSt.1095830.xyz
-  - name: 🇺🇸美国-三网优化1.2-TK|D+|NF|GPT
-    type: vless
-    server: zz2.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-us1-wXiButbaSt.1095830.xyz
-  - name: 🇺🇸美国-三网优化1.3-TK|D+|NF|GPT
-    type: vless
-    server: zz3.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-us1-wXiButbaSt.1095830.xyz
-  - name: 🇺🇸美国-三网优化1.4-TK|D+|NF|GPT
-    type: vless
-    server: zz4.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-us1-wXiButbaSt.1095830.xyz
-  - name: 🇺🇸美国-三网优化1.5-TK|D+|NF|GPT
-    type: vless
-    server: zz5.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-us1-wXiButbaSt.1095830.xyz
-  - name: 🇺🇸美国-三网优化2.1-TK|D+|NF|GPT
-    type: vless
-    server: zz1.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-us2-wXiButbaSt.1095830.xyz
-  - name: 🇺🇸美国-三网优化2.2-TK|D+|NF|GPT
-    type: vless
-    server: zz2.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-us2-wXiButbaSt.1095830.xyz
-  - name: 🇺🇸美国-三网优化2.3-TK|D+|NF|GPT
-    type: vless
-    server: zz3.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-us2-wXiButbaSt.1095830.xyz
-  - name: 🇺🇸美国-三网优化2.4-TK|D+|NF|GPT
-    type: vless
-    server: zz4.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-us2-wXiButbaSt.1095830.xyz
-  - name: 🇺🇸美国-三网优化2.5-TK|D+|NF|GPT
-    type: vless
-    server: zz5.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-us2-wXiButbaSt.1095830.xyz
-  - name: 🇭🇰香港-三网优化1.1-TK|NF
-    type: vless
-    server: zz1.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-hk1-wXiButbaSt.1095829.xyz
-  - name: 🇭🇰香港-三网优化1.2-TK|NF
-    type: vless
-    server: zz2.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-hk1-wXiButbaSt.1095829.xyz
-  - name: 🇭🇰香港-三网优化1.3-TK|NF
-    type: vless
-    server: zz3.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-hk1-wXiButbaSt.1095829.xyz
-  - name: 🇭🇰香港-三网优化1.4-TK|NF
-    type: vless
-    server: zz4.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-hk1-wXiButbaSt.1095829.xyz
-  - name: 🇭🇰香港-三网优化1.5-TK|NF
-    type: vless
-    server: zz5.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-hk1-wXiButbaSt.1095829.xyz
-  - name: 🇯🇵日本-三网优化1.1-TK|NF|GPT
-    type: vless
-    server: zz1.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-jp1-wXiButbaSt.1095828.xyz
-  - name: 🇯🇵日本-三网优化1.2-TK|NF|GPT
-    type: vless
-    server: zz2.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-jp1-wXiButbaSt.1095828.xyz
-  - name: 🇯🇵日本-三网优化1.3-TK|NF|GPT
-    type: vless
-    server: zz3.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-jp1-wXiButbaSt.1095828.xyz
-  - name: 🇯🇵日本-三网优化1.4-TK|NF|GPT
-    type: vless
-    server: zz4.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-jp1-wXiButbaSt.1095828.xyz
-  - name: 🇯🇵日本-三网优化1.5-TK|NF|GPT
-    type: vless
-    server: zz5.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-jp1-wXiButbaSt.1095828.xyz
-  - name: 🇯🇵日本-三网优化2.1-TK|NF|GPT
-    type: vless
-    server: zz1.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-jp2-wXiButbaSt.1095828.xyz
-  - name: 🇯🇵日本-三网优化2.2-TK|NF|GPT
-    type: vless
-    server: zz2.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-jp2-wXiButbaSt.1095828.xyz
-  - name: 🇯🇵日本-三网优化2.3-TK|NF|GPT
-    type: vless
-    server: zz3.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-jp2-wXiButbaSt.1095828.xyz
-  - name: 🇯🇵日本-三网优化2.4-TK|NF|GPT
-    type: vless
-    server: zz4.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-jp2-wXiButbaSt.1095828.xyz
-  - name: 🇯🇵日本-三网优化2.5-TK|NF|GPT
-    type: vless
-    server: zz5.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-jp2-wXiButbaSt.1095828.xyz
-  - name: 🇸🇬新加坡-三网优化1.1-TK|NF|GPT
-    type: vless
-    server: zz1.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-sg1-wXiButbaSt.1095827.xyz
-  - name: 🇸🇬新加坡-三网优化1.2-TK|NF|GPT
-    type: vless
-    server: zz2.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-sg1-wXiButbaSt.1095827.xyz
-  - name: 🇸🇬新加坡-三网优化1.3-TK|NF|GPT
-    type: vless
-    server: zz3.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-sg1-wXiButbaSt.1095827.xyz
-  - name: 🇸🇬新加坡-三网优化1.4-TK|NF|GPT
-    type: vless
-    server: zz4.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-sg1-wXiButbaSt.1095827.xyz
-  - name: 🇸🇬新加坡-三网优化1.5-TK|NF|GPT
-    type: vless
-    server: zz5.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-sg1-wXiButbaSt.1095827.xyz
-  - name: 🇸🇬新加坡-三网优化2.1-TK|D+|NF|GPT
-    type: vless
-    server: zz1.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-sg2-wXiButbaSt.1095827.xyz
-  - name: 🇸🇬新加坡-三网优化2.2-TK|D+|NF|GPT
-    type: vless
-    server: zz2.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-sg2-wXiButbaSt.1095827.xyz
-  - name: 🇸🇬新加坡-三网优化2.3-TK|D+|NF|GPT
-    type: vless
-    server: zz3.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-sg2-wXiButbaSt.1095827.xyz
-  - name: 🇸🇬新加坡-三网优化2.4-TK|D+|NF|GPT
-    type: vless
-    server: zz4.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-sg2-wXiButbaSt.1095827.xyz
-  - name: 🇸🇬新加坡-三网优化2.5-TK|D+|NF|GPT
-    type: vless
-    server: zz5.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-sg2-wXiButbaSt.1095827.xyz
-  - name: 🇨🇳台湾家宽-三网优化1.1-TK|D+|NF|GPT
-    type: vless
-    server: zz1.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-tw1-wXiButbaSt.1095829.xyz
-  - name: 🇨🇳台湾家宽-三网优化1.2-TK|D+|NF|GPT
-    type: vless
-    server: zz2.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-tw1-wXiButbaSt.1095829.xyz
-  - name: 🇨🇳台湾家宽-三网优化1.3-TK|D+|NF|GPT
-    type: vless
-    server: zz3.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-tw1-wXiButbaSt.1095829.xyz
-  - name: 🇨🇳台湾家宽-三网优化1.4-TK|D+|NF|GPT
-    type: vless
-    server: zz4.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-tw1-wXiButbaSt.1095829.xyz
-  - name: 🇨🇳台湾家宽-三网优化1.5-TK|D+|NF|GPT
-    type: vless
-    server: zz5.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-tw1-wXiButbaSt.1095829.xyz
-  - name: 🇩🇪德国家宽-三网优化1.1-TK|D+|NF|GPT
-    type: vless
-    server: zz1.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-de1-wXiButbaSt.1095826.xyz
-  - name: 🇩🇪德国家宽-三网优化1.2-TK|D+|NF|GPT
-    type: vless
-    server: zz2.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-de1-wXiButbaSt.1095826.xyz
-  - name: 🇩🇪德国家宽-三网优化1.3-TK|D+|NF|GPT
-    type: vless
-    server: zz3.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-de1-wXiButbaSt.1095826.xyz
-  - name: 🇩🇪德国家宽-三网优化1.4-TK|D+|NF|GPT
-    type: vless
-    server: zz4.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-de1-wXiButbaSt.1095826.xyz
-  - name: 🇩🇪德国家宽-三网优化1.5-TK|D+|NF|GPT
-    type: vless
-    server: zz5.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-de1-wXiButbaSt.1095826.xyz
-  - name: 🇮🇹意大利-三网优化1.1-TK|NF|GPT
-    type: vless
-    server: zz1.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-it1-wXiButbaSt.1095826.xyz
-  - name: 🇮🇹意大利-三网优化1.2-TK|NF|GPT
-    type: vless
-    server: zz2.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-it1-wXiButbaSt.1095826.xyz
-  - name: 🇮🇹意大利-三网优化1.3-TK|NF|GPT
-    type: vless
-    server: zz3.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-it1-wXiButbaSt.1095826.xyz
-  - name: 🇮🇹意大利-三网优化1.4-TK|NF|GPT
-    type: vless
-    server: zz4.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-it1-wXiButbaSt.1095826.xyz
-  - name: 🇮🇹意大利-三网优化1.5-TK|NF|GPT
-    type: vless
-    server: zz5.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-it1-wXiButbaSt.1095826.xyz
-  - name: 🇦🇪阿联酋-三网优化1.1-TK|NF|GPT
-    type: vless
-    server: zz1.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-ae1-wXiButbaSt.1095825.xyz
-  - name: 🇦🇪阿联酋-三网优化1.2-TK|NF|GPT
-    type: vless
-    server: zz2.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-ae1-wXiButbaSt.1095825.xyz
-  - name: 🇦🇪阿联酋-三网优化1.3-TK|NF|GPT
-    type: vless
-    server: zz3.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-ae1-wXiButbaSt.1095825.xyz
-  - name: 🇦🇪阿联酋-三网优化1.4-TK|NF|GPT
-    type: vless
-    server: zz4.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-ae1-wXiButbaSt.1095825.xyz
-  - name: 🇦🇪阿联酋-三网优化1.5-TK|NF|GPT
-    type: vless
-    server: zz5.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-ae1-wXiButbaSt.1095825.xyz
-  - name: 🇦🇺澳大利亚-三网优化1.1-TK|D+|NF|GPT
-    type: vless
-    server: zz1.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-au1-wXiButbaSt.1095825.xyz
-  - name: 🇦🇺澳大利亚-三网优化1.2-TK|D+|NF|GPT
-    type: vless
-    server: zz2.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-au1-wXiButbaSt.1095825.xyz
-  - name: 🇦🇺澳大利亚-三网优化1.3-TK|D+|NF|GPT
-    type: vless
-    server: zz3.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-au1-wXiButbaSt.1095825.xyz
-  - name: 🇦🇺澳大利亚-三网优化1.4-TK|D+|NF|GPT
-    type: vless
-    server: zz4.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-au1-wXiButbaSt.1095825.xyz
-  - name: 🇦🇺澳大利亚-三网优化1.5-TK|D+|NF|GPT
-    type: vless
-    server: zz5.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-au1-wXiButbaSt.1095825.xyz
-  - name: 🇮🇳印度-三网优化1.1-TK|NF|GPT
-    type: vless
-    server: zz1.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-in1-wXiButbaSt.1095824.xyz
-  - name: 🇮🇳印度-三网优化1.2-TK|NF|GPT
-    type: vless
-    server: zz2.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-in1-wXiButbaSt.1095824.xyz
-  - name: 🇮🇳印度-三网优化1.3-TK|NF|GPT
-    type: vless
-    server: zz3.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-in1-wXiButbaSt.1095824.xyz
-  - name: 🇮🇳印度-三网优化1.4-TK|NF|GPT
-    type: vless
-    server: zz4.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-in1-wXiButbaSt.1095824.xyz
-  - name: 🇮🇳印度-三网优化1.5-TK|NF|GPT
-    type: vless
-    server: zz5.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-in1-wXiButbaSt.1095824.xyz
-  - name: 🇨🇱智利-三网优化1.1-TK|NF|GPT
-    type: vless
-    server: zz1.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-cl1-wXiButbaSt.1095824.xyz
-  - name: 🇨🇱智利-三网优化1.2-TK|NF|GPT
-    type: vless
-    server: zz2.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-cl1-wXiButbaSt.1095824.xyz
-  - name: 🇨🇱智利-三网优化1.3-TK|NF|GPT
-    type: vless
-    server: zz3.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-cl1-wXiButbaSt.1095824.xyz
-  - name: 🇨🇱智利-三网优化1.4-TK|NF|GPT
-    type: vless
-    server: zz4.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-cl1-wXiButbaSt.1095824.xyz
-  - name: 🇨🇱智利-三网优化1.5-TK|NF|GPT
-    type: vless
-    server: zz5.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-cl1-wXiButbaSt.1095824.xyz
-  - name: 🇫🇮芬兰-三网优化1.1-TK|D+|NF|GPT
-    type: vless
-    server: zz1.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-fi1-wXiButbaSt.1095823.xyz
-  - name: 🇫🇮芬兰-三网优化1.2-TK|D+|NF|GPT
-    type: vless
-    server: zz2.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-fi1-wXiButbaSt.1095823.xyz
-  - name: 🇫🇮芬兰-三网优化1.3-TK|D+|NF|GPT
-    type: vless
-    server: zz3.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-fi1-wXiButbaSt.1095823.xyz
-  - name: 🇫🇮芬兰-三网优化1.4-TK|D+|NF|GPT
-    type: vless
-    server: zz4.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-fi1-wXiButbaSt.1095823.xyz
-  - name: 🇫🇮芬兰-三网优化1.5-TK|D+|NF|GPT
-    type: vless
-    server: zz5.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-fi1-wXiButbaSt.1095823.xyz
-  - name: 🇻🇳越南家宽-三网优化1.1-TK|NF|GPT
-    type: vless
-    server: zz1.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-vn1-wXiButbaSt.1095823.xyz
-  - name: 🇻🇳越南家宽-三网优化1.2-TK|NF|GPT
-    type: vless
-    server: zz2.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-vn1-wXiButbaSt.1095823.xyz
-  - name: 🇻🇳越南家宽-三网优化1.3-TK|NF|GPT
-    type: vless
-    server: zz3.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-vn1-wXiButbaSt.1095823.xyz
-  - name: 🇻🇳越南家宽-三网优化1.4-TK|NF|GPT
-    type: vless
-    server: zz4.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-vn1-wXiButbaSt.1095823.xyz
-  - name: 🇻🇳越南家宽-三网优化1.5-TK|NF|GPT
-    type: vless
-    server: zz5.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-vn1-wXiButbaSt.1095823.xyz
-  - name: 🇲🇽墨西哥-三网优化1.1-TK|NF|GPT
-    type: vless
-    server: zz1.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-mx1-wXiButbaSt.1095822.xyz
-  - name: 🇲🇽墨西哥-三网优化1.2-TK|NF|GPT
-    type: vless
-    server: zz2.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-mx1-wXiButbaSt.1095822.xyz
-  - name: 🇲🇽墨西哥-三网优化1.3-TK|NF|GPT
-    type: vless
-    server: zz3.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-mx1-wXiButbaSt.1095822.xyz
-  - name: 🇲🇽墨西哥-三网优化1.4-TK|NF|GPT
-    type: vless
-    server: zz4.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-mx1-wXiButbaSt.1095822.xyz
-  - name: 🇲🇽墨西哥-三网优化1.5-TK|NF|GPT
-    type: vless
-    server: zz5.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-mx1-wXiButbaSt.1095822.xyz
-  - name: 🇧🇷巴西-三网优化1.1-TK|D+|NF|GPT
-    type: vless
-    server: zz1.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-br1-wXiButbaSt.1095822.xyz
-  - name: 🇧🇷巴西-三网优化1.2-TK|D+|NF|GPT
-    type: vless
-    server: zz2.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-br1-wXiButbaSt.1095822.xyz
-  - name: 🇧🇷巴西-三网优化1.3-TK|D+|NF|GPT
-    type: vless
-    server: zz3.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-br1-wXiButbaSt.1095822.xyz
-  - name: 🇧🇷巴西-三网优化1.4-TK|D+|NF|GPT
-    type: vless
-    server: zz4.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-br1-wXiButbaSt.1095822.xyz
-  - name: 🇧🇷巴西-三网优化1.5-TK|D+|NF|GPT
-    type: vless
-    server: zz5.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-br1-wXiButbaSt.1095822.xyz
-  - name: 🇫🇷法国-三网优化1.1-TK|D+|NF|GPT
-    type: vless
-    server: zz1.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-fr1-wXiButbaSt.1095821.xyz
-  - name: 🇫🇷法国-三网优化1.2-TK|D+|NF|GPT
-    type: vless
-    server: zz2.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-fr1-wXiButbaSt.1095821.xyz
-  - name: 🇫🇷法国-三网优化1.3-TK|D+|NF|GPT
-    type: vless
-    server: zz3.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-fr1-wXiButbaSt.1095821.xyz
-  - name: 🇫🇷法国-三网优化1.4-TK|D+|NF|GPT
-    type: vless
-    server: zz4.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-fr1-wXiButbaSt.1095821.xyz
-  - name: 🇫🇷法国-三网优化1.5-TK|D+|NF|GPT
-    type: vless
-    server: zz5.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-fr1-wXiButbaSt.1095821.xyz
-  - name: 🇬🇷希腊家宽-三网优化1.1-TK|D+|NF|GPT
-    type: vless
-    server: zz1.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-gr1-wXiButbaSt.1095821.xyz
-  - name: 🇬🇷希腊家宽-三网优化1.2-TK|D+|NF|GPT
-    type: vless
-    server: zz2.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-gr1-wXiButbaSt.1095821.xyz
-  - name: 🇬🇷希腊家宽-三网优化1.3-TK|D+|NF|GPT
-    type: vless
-    server: zz3.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-gr1-wXiButbaSt.1095821.xyz
-  - name: 🇬🇷希腊家宽-三网优化1.4-TK|D+|NF|GPT
-    type: vless
-    server: zz4.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-gr1-wXiButbaSt.1095821.xyz
-  - name: 🇬🇷希腊家宽-三网优化1.5-TK|D+|NF|GPT
-    type: vless
-    server: zz5.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-gr1-wXiButbaSt.1095821.xyz
-  - name: 🇱🇹立陶宛家宽-三网优化1.1-TK|D+|NF|GPT
-    type: vless
-    server: zz1.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-lt1-wXiButbaSt.1095820.xyz
-  - name: 🇱🇹立陶宛家宽-三网优化1.2-TK|D+|NF|GPT
-    type: vless
-    server: zz2.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-lt1-wXiButbaSt.1095820.xyz
-  - name: 🇱🇹立陶宛家宽-三网优化1.3-TK|D+|NF|GPT
-    type: vless
-    server: zz3.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-lt1-wXiButbaSt.1095820.xyz
-  - name: 🇱🇹立陶宛家宽-三网优化1.4-TK|D+|NF|GPT
-    type: vless
-    server: zz4.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-lt1-wXiButbaSt.1095820.xyz
-  - name: 🇱🇹立陶宛家宽-三网优化1.5-TK|D+|NF|GPT
-    type: vless
-    server: zz5.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-lt1-wXiButbaSt.1095820.xyz
-  - name: 🇲🇰北马其顿-三网优化1.1-TK|D+|GPT
-    type: vless
-    server: zz1.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-mk1-wXiButbaSt.1095820.xyz
-  - name: 🇲🇰北马其顿-三网优化1.2-TK|D+|GPT
-    type: vless
-    server: zz2.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-mk1-wXiButbaSt.1095820.xyz
-  - name: 🇲🇰北马其顿-三网优化1.3-TK|D+|GPT
-    type: vless
-    server: zz3.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-mk1-wXiButbaSt.1095820.xyz
-  - name: 🇲🇰北马其顿-三网优化1.4-TK|D+|GPT
-    type: vless
-    server: zz4.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-mk1-wXiButbaSt.1095820.xyz
-  - name: 🇲🇰北马其顿-三网优化1.5-TK|D+|GPT
-    type: vless
-    server: zz5.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-mk1-wXiButbaSt.1095820.xyz
-  - name: 🇹🇭泰国-三网优化1.1-TK|NF|GPT
-    type: vless
-    server: zz1.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-th1-wXiButbaSt.1095819.xyz
-  - name: 🇹🇭泰国-三网优化1.2-TK|NF|GPT
-    type: vless
-    server: zz2.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-th1-wXiButbaSt.1095819.xyz
-  - name: 🇹🇭泰国-三网优化1.3-TK|NF|GPT
-    type: vless
-    server: zz3.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-th1-wXiButbaSt.1095819.xyz
-  - name: 🇹🇭泰国-三网优化1.4-TK|NF|GPT
-    type: vless
-    server: zz4.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-th1-wXiButbaSt.1095819.xyz
-  - name: 🇹🇭泰国-三网优化1.5-TK|NF|GPT
-    type: vless
-    server: zz5.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-th1-wXiButbaSt.1095819.xyz
-  - name: 🇰🇷韩国-三网优化1.1-TK|NF|GPT
-    type: vless
-    server: zz1.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-kr1-wXiButbaSt.1095818.xyz
-  - name: 🇰🇷韩国-三网优化1.2-TK|NF|GPT
-    type: vless
-    server: zz2.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-kr1-wXiButbaSt.1095818.xyz
-  - name: 🇰🇷韩国-三网优化1.3-TK|NF|GPT
-    type: vless
-    server: zz3.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-kr1-wXiButbaSt.1095818.xyz
-  - name: 🇰🇷韩国-三网优化1.4-TK|NF|GPT
-    type: vless
-    server: zz4.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-kr1-wXiButbaSt.1095818.xyz
-  - name: 🇰🇷韩国-三网优化1.5-TK|NF|GPT
-    type: vless
-    server: zz5.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-kr1-wXiButbaSt.1095818.xyz
-  - name: 🇰🇭柬埔寨家宽-三网优化1.1-TK|NF|GPT
-    type: vless
-    server: zz1.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-kh1-wXiButbaSt.1095818.xyz
-  - name: 🇰🇭柬埔寨家宽-三网优化1.2-TK|NF|GPT
-    type: vless
-    server: zz2.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-kh1-wXiButbaSt.1095818.xyz
-  - name: 🇰🇭柬埔寨家宽-三网优化1.3-TK|NF|GPT
-    type: vless
-    server: zz3.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-kh1-wXiButbaSt.1095818.xyz
-  - name: 🇰🇭柬埔寨家宽-三网优化1.4-TK|NF|GPT
-    type: vless
-    server: zz4.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-kh1-wXiButbaSt.1095818.xyz
-  - name: 🇰🇭柬埔寨家宽-三网优化1.5-TK|NF|GPT
-    type: vless
-    server: zz5.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-kh1-wXiButbaSt.1095818.xyz
-  - name: 🇬🇧英国-三网优化1.1-TK|D+|NF|GPT
-    type: vless
-    server: zz1.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-uk1-wXiButbaSt.1095819.xyz
-  - name: 🇬🇧英国-三网优化1.2-TK|D+|NF|GPT
-    type: vless
-    server: zz2.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-uk1-wXiButbaSt.1095819.xyz
-  - name: 🇬🇧英国-三网优化1.3-TK|D+|NF|GPT
-    type: vless
-    server: zz3.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-uk1-wXiButbaSt.1095819.xyz
-  - name: 🇬🇧英国-三网优化1.4-TK|D+|NF|GPT
-    type: vless
-    server: zz4.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-uk1-wXiButbaSt.1095819.xyz
-  - name: 🇬🇧英国-三网优化1.5-TK|D+|NF|GPT
-    type: vless
-    server: zz5.1010991.xyz
-    port: 2052
-    uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    tls: false
-    network: ws
-    ws-opts:
-      path: ''
-      headers:
-        Host: syyn-uk1-wXiButbaSt.1095819.xyz
+    - { name: 🇺🇸美国-UDP1-TK|D+|NF|GPT, server: us1.1010991.xyz, port: 3001, udp: true, skip-cert-verify: false, sni: us1.1010991.xyz, type: hysteria2, password: de8854c7-fa17-4266-ae18-50a9732a0c4e }
+    - { name: 🇺🇸美国-UDP2-TK|D+|NF|GPT, server: us2.1010991.xyz, port: 3001, udp: true, skip-cert-verify: false, sni: us2.1010991.xyz, type: hysteria2, password: de8854c7-fa17-4266-ae18-50a9732a0c4e }
+    - { name: 🇺🇸美国-UDP3-TK|D+|NF|GPT, server: us3.1010991.xyz, port: 3001, udp: true, skip-cert-verify: false, sni: us3.1010991.xyz, type: hysteria2, password: de8854c7-fa17-4266-ae18-50a9732a0c4e }
+    - { name: 🇺🇸美国-UDP4-TK|D+|NF|GPT, server: us4.1010991.xyz, port: 3001, udp: true, skip-cert-verify: false, sni: us4.1010991.xyz, type: hysteria2, password: de8854c7-fa17-4266-ae18-50a9732a0c4e }
+    - { name: 🇺🇸美国-UDP5-TK|D+|NF|GPT, server: us5.1010991.xyz, port: 3001, udp: true, skip-cert-verify: false, sni: us5.1010991.xyz, type: hysteria2, password: de8854c7-fa17-4266-ae18-50a9732a0c4e }
+    - { name: 🇺🇸美国-UDP6-TK|D+|NF|GPT, server: us6.1010991.xyz, port: 3001, udp: true, skip-cert-verify: false, sni: us6.1010991.xyz, type: hysteria2, password: de8854c7-fa17-4266-ae18-50a9732a0c4e }
+    - { name: 🇭🇰香港-UDP1-TK|NF, server: hk1.1010991.xyz, port: 3001, udp: true, skip-cert-verify: false, sni: hk1.1010991.xyz, type: hysteria2, password: de8854c7-fa17-4266-ae18-50a9732a0c4e }
+    - { name: 🇯🇵日本-UDP1-TK|NF|GPT, server: jp1.1010991.xyz, port: 3001, udp: true, skip-cert-verify: false, sni: jp1.1010991.xyz, type: hysteria2, password: de8854c7-fa17-4266-ae18-50a9732a0c4e }
+    - { name: 🇨🇦加拿大-UDP1-TK|NF|GPT, server: ca1.1010991.xyz, port: 3001, udp: true, skip-cert-verify: false, sni: ca1.1010991.xyz, type: hysteria2, password: de8854c7-fa17-4266-ae18-50a9732a0c4e }
+    - { name: 🇲🇽墨西哥-UDP1-TK|NF|GPT, server: mx1.1010991.xyz, port: 3001, udp: true, skip-cert-verify: false, sni: mx1.1010991.xyz, type: hysteria2, password: de8854c7-fa17-4266-ae18-50a9732a0c4e }
+    - { name: 🇦🇷阿根廷-UDP1-TK|NF|GPT, server: ar1.1010991.xyz, port: 3001, udp: true, skip-cert-verify: false, sni: ar1.1010991.xyz, type: hysteria2, password: de8854c7-fa17-4266-ae18-50a9732a0c4e }
+    - { name: 🇧🇷巴西-UDP1-TK|D+|NF|GPT, server: br1.1010991.xyz, port: 3001, udp: true, skip-cert-verify: false, sni: br1.1010991.xyz, type: hysteria2, password: de8854c7-fa17-4266-ae18-50a9732a0c4e }
+    - { name: 🇹🇷土耳其-UDP1-TK|NF|GPT, server: cl1.1010991.xyz, port: 3001, udp: true, skip-cert-verify: false, sni: cl1.1010991.xyz, type: hysteria2, password: de8854c7-fa17-4266-ae18-50a9732a0c4e }
+    - { name: 🇩🇰丹麦-UDP1-TK|NF|GPT, server: dk1.1010991.xyz, port: 3001, udp: true, skip-cert-verify: false, sni: dk1.1010991.xyz, type: hysteria2, password: de8854c7-fa17-4266-ae18-50a9732a0c4e }
+    - { name: 🇬🇧英国-UDP1-TK|NF|GPT, server: uk1.1010991.xyz, port: 3001, udp: true, skip-cert-verify: false, sni: uk1.1010991.xyz, type: hysteria2, password: de8854c7-fa17-4266-ae18-50a9732a0c4e }
+    - { name: 🇩🇪德国-UDP1-TK|NF|GPT, server: de1.1010991.xyz, port: 3001, udp: true, skip-cert-verify: false, sni: de1.1010991.xyz, type: hysteria2, password: de8854c7-fa17-4266-ae18-50a9732a0c4e }
+    - { name: 🇫🇷法国-UDP1-TK|NF|GPT, server: fr1.1010991.xyz, port: 3001, udp: true, skip-cert-verify: false, sni: fr1.1010991.xyz, type: hysteria2, password: de8854c7-fa17-4266-ae18-50a9732a0c4e }
+    - { name: 🇮🇹意大利-UDP1-TK|NF|GPT, server: it1.1010991.xyz, port: 3001, udp: true, skip-cert-verify: false, sni: it1.1010991.xyz, type: hysteria2, password: de8854c7-fa17-4266-ae18-50a9732a0c4e }
+    - { name: 🇪🇪爱沙尼亚-UDP1-TK|NF|GPT, server: at1.1010991.xyz, port: 3001, udp: true, skip-cert-verify: false, sni: at1.1010991.xyz, type: hysteria2, password: de8854c7-fa17-4266-ae18-50a9732a0c4e }
+    - { name: 🇦🇺澳大利亚-UDP1-TK|NF|GPT, server: au1.1010991.xyz, port: 3001, udp: true, skip-cert-verify: false, sni: au1.1010991.xyz, type: hysteria2, password: de8854c7-fa17-4266-ae18-50a9732a0c4e }
+    - { name: 🇧🇪比利时-UDP1-TK|NF|GPT, server: be1.1010991.xyz, port: 3001, udp: true, skip-cert-verify: false, sni: be1.1010991.xyz, type: hysteria2, password: de8854c7-fa17-4266-ae18-50a9732a0c4e }
+    - { name: 🇪🇸西班牙-UDP1-TK|NF|GPT, server: es1.1010991.xyz, port: 3001, udp: true, skip-cert-verify: false, sni: es1.1010991.xyz, type: hysteria2, password: de8854c7-fa17-4266-ae18-50a9732a0c4e }
+    - { name: 🇳🇱荷兰-UDP1-TK|NF|GPT, server: nl1.1010991.xyz, port: 3001, udp: true, skip-cert-verify: false, sni: nl1.1010991.xyz, type: hysteria2, password: de8854c7-fa17-4266-ae18-50a9732a0c4e }
+    - { name: 🇺🇦乌克兰-UDP1-TK|NF|GPT, server: no1.1010991.xyz, port: 3001, udp: true, skip-cert-verify: false, sni: no1.1010991.xyz, type: hysteria2, password: de8854c7-fa17-4266-ae18-50a9732a0c4e }
+    - { name: 🇵🇱波兰-UDP1-TK|NF|GPT, server: pl1.1010991.xyz, port: 3001, udp: true, skip-cert-verify: false, sni: pl1.1010991.xyz, type: hysteria2, password: de8854c7-fa17-4266-ae18-50a9732a0c4e }
+    - { name: 🇸🇪瑞典-UDP1-TK|NF|GPT, server: se1.1010991.xyz, port: 3001, udp: true, skip-cert-verify: false, sni: se1.1010991.xyz, type: hysteria2, password: de8854c7-fa17-4266-ae18-50a9732a0c4e }
+    - { name: 🇺🇸美国-三网优化1.1-TK|D+|NF|GPT, type: vless, server: zz1.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-us1-wXiButbNSt.1095830.xyz } } }
+    - { name: 🇺🇸美国-三网优化1.2-TK|D+|NF|GPT, type: vless, server: zz2.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-us1-wXiButbNSt.1095830.xyz } } }
+    - { name: 🇺🇸美国-三网优化1.3-TK|D+|NF|GPT, type: vless, server: zz3.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-us1-wXiButbNSt.1095830.xyz } } }
+    - { name: 🇺🇸美国-三网优化1.4-TK|D+|NF|GPT, type: vless, server: zz4.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-us1-wXiButbNSt.1095830.xyz } } }
+    - { name: 🇺🇸美国-三网优化1.5-TK|D+|NF|GPT, type: vless, server: zz5.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-us1-wXiButbNSt.1095830.xyz } } }
+    - { name: 🇺🇸美国-三网优化2.1-TK|D+|NF|GPT, type: vless, server: zz1.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-us2-wXiButbNSt.1095830.xyz } } }
+    - { name: 🇺🇸美国-三网优化2.2-TK|D+|NF|GPT, type: vless, server: zz2.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-us2-wXiButbNSt.1095830.xyz } } }
+    - { name: 🇺🇸美国-三网优化2.3-TK|D+|NF|GPT, type: vless, server: zz3.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-us2-wXiButbNSt.1095830.xyz } } }
+    - { name: 🇺🇸美国-三网优化2.4-TK|D+|NF|GPT, type: vless, server: zz4.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-us2-wXiButbNSt.1095830.xyz } } }
+    - { name: 🇺🇸美国-三网优化2.5-TK|D+|NF|GPT, type: vless, server: zz5.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-us2-wXiButbNSt.1095830.xyz } } }
+    - { name: 🇭🇰香港-三网优化1.1-TK|NF, type: vless, server: zz1.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-hk1-wXiButbNSt.1095829.xyz } } }
+    - { name: 🇭🇰香港-三网优化1.2-TK|NF, type: vless, server: zz2.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-hk1-wXiButbNSt.1095829.xyz } } }
+    - { name: 🇭🇰香港-三网优化1.3-TK|NF, type: vless, server: zz3.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-hk1-wXiButbNSt.1095829.xyz } } }
+    - { name: 🇭🇰香港-三网优化1.4-TK|NF, type: vless, server: zz4.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-hk1-wXiButbNSt.1095829.xyz } } }
+    - { name: 🇭🇰香港-三网优化1.5-TK|NF, type: vless, server: zz5.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-hk1-wXiButbNSt.1095829.xyz } } }
+    - { name: 🇯🇵日本-三网优化1.1-TK|NF|GPT, type: vless, server: zz1.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-jp1-wXiButbNSt.1095828.xyz } } }
+    - { name: 🇯🇵日本-三网优化1.2-TK|NF|GPT, type: vless, server: zz2.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-jp1-wXiButbNSt.1095828.xyz } } }
+    - { name: 🇯🇵日本-三网优化1.3-TK|NF|GPT, type: vless, server: zz3.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-jp1-wXiButbNSt.1095828.xyz } } }
+    - { name: 🇯🇵日本-三网优化1.4-TK|NF|GPT, type: vless, server: zz4.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-jp1-wXiButbNSt.1095828.xyz } } }
+    - { name: 🇯🇵日本-三网优化1.5-TK|NF|GPT, type: vless, server: zz5.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-jp1-wXiButbNSt.1095828.xyz } } }
+    - { name: 🇯🇵日本-三网优化2.1-TK|NF|GPT, type: vless, server: zz1.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-jp2-wXiButbNSt.1095828.xyz } } }
+    - { name: 🇯🇵日本-三网优化2.2-TK|NF|GPT, type: vless, server: zz2.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-jp2-wXiButbNSt.1095828.xyz } } }
+    - { name: 🇯🇵日本-三网优化2.3-TK|NF|GPT, type: vless, server: zz3.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-jp2-wXiButbNSt.1095828.xyz } } }
+    - { name: 🇯🇵日本-三网优化2.4-TK|NF|GPT, type: vless, server: zz4.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-jp2-wXiButbNSt.1095828.xyz } } }
+    - { name: 🇯🇵日本-三网优化2.5-TK|NF|GPT, type: vless, server: zz5.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-jp2-wXiButbNSt.1095828.xyz } } }
+    - { name: 🇸🇬新加坡-三网优化1.1-TK|NF|GPT, type: vless, server: zz1.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-sg1-wXiButbNSt.1095827.xyz } } }
+    - { name: 🇸🇬新加坡-三网优化1.2-TK|NF|GPT, type: vless, server: zz2.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-sg1-wXiButbNSt.1095827.xyz } } }
+    - { name: 🇸🇬新加坡-三网优化1.3-TK|NF|GPT, type: vless, server: zz3.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-sg1-wXiButbNSt.1095827.xyz } } }
+    - { name: 🇸🇬新加坡-三网优化1.4-TK|NF|GPT, type: vless, server: zz4.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-sg1-wXiButbNSt.1095827.xyz } } }
+    - { name: 🇸🇬新加坡-三网优化1.5-TK|NF|GPT, type: vless, server: zz5.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-sg1-wXiButbNSt.1095827.xyz } } }
+    - { name: 🇸🇬新加坡-三网优化2.1-TK|D+|NF|GPT, type: vless, server: zz1.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-sg2-wXiButbNSt.1095827.xyz } } }
+    - { name: 🇸🇬新加坡-三网优化2.2-TK|D+|NF|GPT, type: vless, server: zz2.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-sg2-wXiButbNSt.1095827.xyz } } }
+    - { name: 🇸🇬新加坡-三网优化2.3-TK|D+|NF|GPT, type: vless, server: zz3.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-sg2-wXiButbNSt.1095827.xyz } } }
+    - { name: 🇸🇬新加坡-三网优化2.4-TK|D+|NF|GPT, type: vless, server: zz4.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-sg2-wXiButbNSt.1095827.xyz } } }
+    - { name: 🇸🇬新加坡-三网优化2.5-TK|D+|NF|GPT, type: vless, server: zz5.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-sg2-wXiButbNSt.1095827.xyz } } }
+    - { name: 🇨🇳台湾家宽-三网优化1.1-TK|D+|NF|GPT, type: vless, server: zz1.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-tw1-wXiButbNSt.1095829.xyz } } }
+    - { name: 🇨🇳台湾家宽-三网优化1.2-TK|D+|NF|GPT, type: vless, server: zz2.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-tw1-wXiButbNSt.1095829.xyz } } }
+    - { name: 🇨🇳台湾家宽-三网优化1.3-TK|D+|NF|GPT, type: vless, server: zz3.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-tw1-wXiButbNSt.1095829.xyz } } }
+    - { name: 🇨🇳台湾家宽-三网优化1.4-TK|D+|NF|GPT, type: vless, server: zz4.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-tw1-wXiButbNSt.1095829.xyz } } }
+    - { name: 🇨🇳台湾家宽-三网优化1.5-TK|D+|NF|GPT, type: vless, server: zz5.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-tw1-wXiButbNSt.1095829.xyz } } }
+    - { name: 🇩🇪德国家宽-三网优化1.1-TK|D+|NF|GPT, type: vless, server: zz1.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-de1-wXiButbNSt.1095826.xyz } } }
+    - { name: 🇩🇪德国家宽-三网优化1.2-TK|D+|NF|GPT, type: vless, server: zz2.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-de1-wXiButbNSt.1095826.xyz } } }
+    - { name: 🇩🇪德国家宽-三网优化1.3-TK|D+|NF|GPT, type: vless, server: zz3.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-de1-wXiButbNSt.1095826.xyz } } }
+    - { name: 🇩🇪德国家宽-三网优化1.4-TK|D+|NF|GPT, type: vless, server: zz4.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-de1-wXiButbNSt.1095826.xyz } } }
+    - { name: 🇩🇪德国家宽-三网优化1.5-TK|D+|NF|GPT, type: vless, server: zz5.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-de1-wXiButbNSt.1095826.xyz } } }
+    - { name: 🇮🇹意大利-三网优化1.1-TK|NF|GPT, type: vless, server: zz1.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-it1-wXiButbNSt.1095826.xyz } } }
+    - { name: 🇮🇹意大利-三网优化1.2-TK|NF|GPT, type: vless, server: zz2.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-it1-wXiButbNSt.1095826.xyz } } }
+    - { name: 🇮🇹意大利-三网优化1.3-TK|NF|GPT, type: vless, server: zz3.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-it1-wXiButbNSt.1095826.xyz } } }
+    - { name: 🇮🇹意大利-三网优化1.4-TK|NF|GPT, type: vless, server: zz4.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-it1-wXiButbNSt.1095826.xyz } } }
+    - { name: 🇮🇹意大利-三网优化1.5-TK|NF|GPT, type: vless, server: zz5.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-it1-wXiButbNSt.1095826.xyz } } }
+    - { name: 🇦🇪阿联酋-三网优化1.1-TK|NF|GPT, type: vless, server: zz1.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-ae1-wXiButbNSt.1095825.xyz } } }
+    - { name: 🇦🇪阿联酋-三网优化1.2-TK|NF|GPT, type: vless, server: zz2.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-ae1-wXiButbNSt.1095825.xyz } } }
+    - { name: 🇦🇪阿联酋-三网优化1.3-TK|NF|GPT, type: vless, server: zz3.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-ae1-wXiButbNSt.1095825.xyz } } }
+    - { name: 🇦🇪阿联酋-三网优化1.4-TK|NF|GPT, type: vless, server: zz4.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-ae1-wXiButbNSt.1095825.xyz } } }
+    - { name: 🇦🇪阿联酋-三网优化1.5-TK|NF|GPT, type: vless, server: zz5.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-ae1-wXiButbNSt.1095825.xyz } } }
+    - { name: 🇦🇺澳大利亚-三网优化1.1-TK|D+|NF|GPT, type: vless, server: zz1.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-au1-wXiButbNSt.1095825.xyz } } }
+    - { name: 🇦🇺澳大利亚-三网优化1.2-TK|D+|NF|GPT, type: vless, server: zz2.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-au1-wXiButbNSt.1095825.xyz } } }
+    - { name: 🇦🇺澳大利亚-三网优化1.3-TK|D+|NF|GPT, type: vless, server: zz3.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-au1-wXiButbNSt.1095825.xyz } } }
+    - { name: 🇦🇺澳大利亚-三网优化1.4-TK|D+|NF|GPT, type: vless, server: zz4.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-au1-wXiButbNSt.1095825.xyz } } }
+    - { name: 🇦🇺澳大利亚-三网优化1.5-TK|D+|NF|GPT, type: vless, server: zz5.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-au1-wXiButbNSt.1095825.xyz } } }
+    - { name: 🇮🇳印度-三网优化1.1-TK|NF|GPT, type: vless, server: zz1.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-in1-wXiButbNSt.1095824.xyz } } }
+    - { name: 🇮🇳印度-三网优化1.2-TK|NF|GPT, type: vless, server: zz2.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-in1-wXiButbNSt.1095824.xyz } } }
+    - { name: 🇮🇳印度-三网优化1.3-TK|NF|GPT, type: vless, server: zz3.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-in1-wXiButbNSt.1095824.xyz } } }
+    - { name: 🇮🇳印度-三网优化1.4-TK|NF|GPT, type: vless, server: zz4.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-in1-wXiButbNSt.1095824.xyz } } }
+    - { name: 🇮🇳印度-三网优化1.5-TK|NF|GPT, type: vless, server: zz5.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-in1-wXiButbNSt.1095824.xyz } } }
+    - { name: 🇨🇱智利-三网优化1.1-TK|NF|GPT, type: vless, server: zz1.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-cl1-wXiButbNSt.1095824.xyz } } }
+    - { name: 🇨🇱智利-三网优化1.2-TK|NF|GPT, type: vless, server: zz2.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-cl1-wXiButbNSt.1095824.xyz } } }
+    - { name: 🇨🇱智利-三网优化1.3-TK|NF|GPT, type: vless, server: zz3.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-cl1-wXiButbNSt.1095824.xyz } } }
+    - { name: 🇨🇱智利-三网优化1.4-TK|NF|GPT, type: vless, server: zz4.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-cl1-wXiButbNSt.1095824.xyz } } }
+    - { name: 🇨🇱智利-三网优化1.5-TK|NF|GPT, type: vless, server: zz5.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-cl1-wXiButbNSt.1095824.xyz } } }
+    - { name: 🇫🇮芬兰-三网优化1.1-TK|D+|NF|GPT, type: vless, server: zz1.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-fi1-wXiButbNSt.1095823.xyz } } }
+    - { name: 🇫🇮芬兰-三网优化1.2-TK|D+|NF|GPT, type: vless, server: zz2.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-fi1-wXiButbNSt.1095823.xyz } } }
+    - { name: 🇫🇮芬兰-三网优化1.3-TK|D+|NF|GPT, type: vless, server: zz3.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-fi1-wXiButbNSt.1095823.xyz } } }
+    - { name: 🇫🇮芬兰-三网优化1.4-TK|D+|NF|GPT, type: vless, server: zz4.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-fi1-wXiButbNSt.1095823.xyz } } }
+    - { name: 🇫🇮芬兰-三网优化1.5-TK|D+|NF|GPT, type: vless, server: zz5.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-fi1-wXiButbNSt.1095823.xyz } } }
+    - { name: 🇻🇳越南家宽-三网优化1.1-TK|NF|GPT, type: vless, server: zz1.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-vn1-wXiButbNSt.1095823.xyz } } }
+    - { name: 🇻🇳越南家宽-三网优化1.2-TK|NF|GPT, type: vless, server: zz2.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-vn1-wXiButbNSt.1095823.xyz } } }
+    - { name: 🇻🇳越南家宽-三网优化1.3-TK|NF|GPT, type: vless, server: zz3.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-vn1-wXiButbNSt.1095823.xyz } } }
+    - { name: 🇻🇳越南家宽-三网优化1.4-TK|NF|GPT, type: vless, server: zz4.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-vn1-wXiButbNSt.1095823.xyz } } }
+    - { name: 🇻🇳越南家宽-三网优化1.5-TK|NF|GPT, type: vless, server: zz5.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-vn1-wXiButbNSt.1095823.xyz } } }
+    - { name: 🇲🇽墨西哥-三网优化1.1-TK|NF|GPT, type: vless, server: zz1.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-mx1-wXiButbNSt.1095822.xyz } } }
+    - { name: 🇲🇽墨西哥-三网优化1.2-TK|NF|GPT, type: vless, server: zz2.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-mx1-wXiButbNSt.1095822.xyz } } }
+    - { name: 🇲🇽墨西哥-三网优化1.3-TK|NF|GPT, type: vless, server: zz3.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-mx1-wXiButbNSt.1095822.xyz } } }
+    - { name: 🇲🇽墨西哥-三网优化1.4-TK|NF|GPT, type: vless, server: zz4.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-mx1-wXiButbNSt.1095822.xyz } } }
+    - { name: 🇲🇽墨西哥-三网优化1.5-TK|NF|GPT, type: vless, server: zz5.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-mx1-wXiButbNSt.1095822.xyz } } }
+    - { name: 🇧🇷巴西-三网优化1.1-TK|D+|NF|GPT, type: vless, server: zz1.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-br1-wXiButbNSt.1095822.xyz } } }
+    - { name: 🇧🇷巴西-三网优化1.2-TK|D+|NF|GPT, type: vless, server: zz2.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-br1-wXiButbNSt.1095822.xyz } } }
+    - { name: 🇧🇷巴西-三网优化1.3-TK|D+|NF|GPT, type: vless, server: zz3.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-br1-wXiButbNSt.1095822.xyz } } }
+    - { name: 🇧🇷巴西-三网优化1.4-TK|D+|NF|GPT, type: vless, server: zz4.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-br1-wXiButbNSt.1095822.xyz } } }
+    - { name: 🇧🇷巴西-三网优化1.5-TK|D+|NF|GPT, type: vless, server: zz5.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-br1-wXiButbNSt.1095822.xyz } } }
+    - { name: 🇫🇷法国-三网优化1.1-TK|D+|NF|GPT, type: vless, server: zz1.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-fr1-wXiButbNSt.1095821.xyz } } }
+    - { name: 🇫🇷法国-三网优化1.2-TK|D+|NF|GPT, type: vless, server: zz2.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-fr1-wXiButbNSt.1095821.xyz } } }
+    - { name: 🇫🇷法国-三网优化1.3-TK|D+|NF|GPT, type: vless, server: zz3.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-fr1-wXiButbNSt.1095821.xyz } } }
+    - { name: 🇫🇷法国-三网优化1.4-TK|D+|NF|GPT, type: vless, server: zz4.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-fr1-wXiButbNSt.1095821.xyz } } }
+    - { name: 🇫🇷法国-三网优化1.5-TK|D+|NF|GPT, type: vless, server: zz5.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-fr1-wXiButbNSt.1095821.xyz } } }
+    - { name: 🇬🇷希腊家宽-三网优化1.1-TK|D+|NF|GPT, type: vless, server: zz1.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-gr1-wXiButbNSt.1095821.xyz } } }
+    - { name: 🇬🇷希腊家宽-三网优化1.2-TK|D+|NF|GPT, type: vless, server: zz2.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-gr1-wXiButbNSt.1095821.xyz } } }
+    - { name: 🇬🇷希腊家宽-三网优化1.3-TK|D+|NF|GPT, type: vless, server: zz3.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-gr1-wXiButbNSt.1095821.xyz } } }
+    - { name: 🇬🇷希腊家宽-三网优化1.4-TK|D+|NF|GPT, type: vless, server: zz4.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-gr1-wXiButbNSt.1095821.xyz } } }
+    - { name: 🇬🇷希腊家宽-三网优化1.5-TK|D+|NF|GPT, type: vless, server: zz5.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-gr1-wXiButbNSt.1095821.xyz } } }
+    - { name: 🇱🇹立陶宛家宽-三网优化1.1-TK|D+|NF|GPT, type: vless, server: zz1.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-lt1-wXiButbNSt.1095820.xyz } } }
+    - { name: 🇱🇹立陶宛家宽-三网优化1.2-TK|D+|NF|GPT, type: vless, server: zz2.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-lt1-wXiButbNSt.1095820.xyz } } }
+    - { name: 🇱🇹立陶宛家宽-三网优化1.3-TK|D+|NF|GPT, type: vless, server: zz3.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-lt1-wXiButbNSt.1095820.xyz } } }
+    - { name: 🇱🇹立陶宛家宽-三网优化1.4-TK|D+|NF|GPT, type: vless, server: zz4.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-lt1-wXiButbNSt.1095820.xyz } } }
+    - { name: 🇱🇹立陶宛家宽-三网优化1.5-TK|D+|NF|GPT, type: vless, server: zz5.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-lt1-wXiButbNSt.1095820.xyz } } }
+    - { name: 🇲🇰北马其顿-三网优化1.1-TK|D+|GPT, type: vless, server: zz1.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-mk1-wXiButbNSt.1095820.xyz } } }
+    - { name: 🇲🇰北马其顿-三网优化1.2-TK|D+|GPT, type: vless, server: zz2.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-mk1-wXiButbNSt.1095820.xyz } } }
+    - { name: 🇲🇰北马其顿-三网优化1.3-TK|D+|GPT, type: vless, server: zz3.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-mk1-wXiButbNSt.1095820.xyz } } }
+    - { name: 🇲🇰北马其顿-三网优化1.4-TK|D+|GPT, type: vless, server: zz4.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-mk1-wXiButbNSt.1095820.xyz } } }
+    - { name: 🇲🇰北马其顿-三网优化1.5-TK|D+|GPT, type: vless, server: zz5.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-mk1-wXiButbNSt.1095820.xyz } } }
+    - { name: 🇹🇭泰国-三网优化1.1-TK|NF|GPT, type: vless, server: zz1.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-th1-wXiButbNSt.1095819.xyz } } }
+    - { name: 🇹🇭泰国-三网优化1.2-TK|NF|GPT, type: vless, server: zz2.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-th1-wXiButbNSt.1095819.xyz } } }
+    - { name: 🇹🇭泰国-三网优化1.3-TK|NF|GPT, type: vless, server: zz3.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-th1-wXiButbNSt.1095819.xyz } } }
+    - { name: 🇹🇭泰国-三网优化1.4-TK|NF|GPT, type: vless, server: zz4.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-th1-wXiButbNSt.1095819.xyz } } }
+    - { name: 🇹🇭泰国-三网优化1.5-TK|NF|GPT, type: vless, server: zz5.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-th1-wXiButbNSt.1095819.xyz } } }
+    - { name: 🇰🇷韩国-三网优化1.1-TK|NF|GPT, type: vless, server: zz1.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-kr1-wXiButbNSt.1095818.xyz } } }
+    - { name: 🇰🇷韩国-三网优化1.2-TK|NF|GPT, type: vless, server: zz2.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-kr1-wXiButbNSt.1095818.xyz } } }
+    - { name: 🇰🇷韩国-三网优化1.3-TK|NF|GPT, type: vless, server: zz3.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-kr1-wXiButbNSt.1095818.xyz } } }
+    - { name: 🇰🇷韩国-三网优化1.4-TK|NF|GPT, type: vless, server: zz4.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-kr1-wXiButbNSt.1095818.xyz } } }
+    - { name: 🇰🇷韩国-三网优化1.5-TK|NF|GPT, type: vless, server: zz5.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-kr1-wXiButbNSt.1095818.xyz } } }
+    - { name: 🇰🇭柬埔寨家宽-三网优化1.1-TK|NF|GPT, type: vless, server: zz1.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-kh1-wXiButbNSt.1095818.xyz } } }
+    - { name: 🇰🇭柬埔寨家宽-三网优化1.2-TK|NF|GPT, type: vless, server: zz2.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-kh1-wXiButbNSt.1095818.xyz } } }
+    - { name: 🇰🇭柬埔寨家宽-三网优化1.3-TK|NF|GPT, type: vless, server: zz3.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-kh1-wXiButbNSt.1095818.xyz } } }
+    - { name: 🇰🇭柬埔寨家宽-三网优化1.4-TK|NF|GPT, type: vless, server: zz4.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-kh1-wXiButbNSt.1095818.xyz } } }
+    - { name: 🇰🇭柬埔寨家宽-三网优化1.5-TK|NF|GPT, type: vless, server: zz5.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-kh1-wXiButbNSt.1095818.xyz } } }
+    - { name: 🇬🇧英国-三网优化1.1-TK|D+|NF|GPT, type: vless, server: zz1.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-uk1-wXiButbNSt.1095819.xyz } } }
+    - { name: 🇬🇧英国-三网优化1.2-TK|D+|NF|GPT, type: vless, server: zz2.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-uk1-wXiButbNSt.1095819.xyz } } }
+    - { name: 🇬🇧英国-三网优化1.3-TK|D+|NF|GPT, type: vless, server: zz3.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-uk1-wXiButbNSt.1095819.xyz } } }
+    - { name: 🇬🇧英国-三网优化1.4-TK|D+|NF|GPT, type: vless, server: zz4.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-uk1-wXiButbNSt.1095819.xyz } } }
+    - { name: 🇬🇧英国-三网优化1.5-TK|D+|NF|GPT, type: vless, server: zz5.1010991.xyz, port: 2052, uuid: de8854c7-fa17-4266-ae18-50a9732a0c4e, udp: true, network: ws, ws-opts: { headers: { Host: syyn-uk1-wXiButbNSt.1095819.xyz } } }
 proxy-groups:
-  - name: Auto
-    type: url-test
-    proxies:
-      - 🇺🇸美国-三网优化1.1-TK|D+|NF|GPT
-      - 🇺🇸美国-三网优化1.2-TK|D+|NF|GPT
-      - 🇺🇸美国-三网优化1.3-TK|D+|NF|GPT
-      - 🇺🇸美国-三网优化1.4-TK|D+|NF|GPT
-      - 🇺🇸美国-三网优化1.5-TK|D+|NF|GPT
-      - 🇺🇸美国-三网优化2.1-TK|D+|NF|GPT
-      - 🇺🇸美国-三网优化2.2-TK|D+|NF|GPT
-      - 🇺🇸美国-三网优化2.3-TK|D+|NF|GPT
-      - 🇺🇸美国-三网优化2.4-TK|D+|NF|GPT
-      - 🇺🇸美国-三网优化2.5-TK|D+|NF|GPT
-      - 🇭🇰香港-三网优化1.1-TK|NF
-      - 🇭🇰香港-三网优化1.2-TK|NF
-      - 🇭🇰香港-三网优化1.3-TK|NF
-      - 🇭🇰香港-三网优化1.4-TK|NF
-      - 🇭🇰香港-三网优化1.5-TK|NF
-      - 🇯🇵日本-三网优化1.1-TK|NF|GPT
-      - 🇯🇵日本-三网优化1.2-TK|NF|GPT
-      - 🇯🇵日本-三网优化1.3-TK|NF|GPT
-      - 🇯🇵日本-三网优化1.4-TK|NF|GPT
-      - 🇯🇵日本-三网优化1.5-TK|NF|GPT
-      - 🇯🇵日本-三网优化2.1-TK|NF|GPT
-      - 🇯🇵日本-三网优化2.2-TK|NF|GPT
-      - 🇯🇵日本-三网优化2.3-TK|NF|GPT
-      - 🇯🇵日本-三网优化2.4-TK|NF|GPT
-      - 🇯🇵日本-三网优化2.5-TK|NF|GPT
-      - 🇸🇬新加坡-三网优化1.1-TK|NF|GPT
-      - 🇸🇬新加坡-三网优化1.2-TK|NF|GPT
-      - 🇸🇬新加坡-三网优化1.3-TK|NF|GPT
-      - 🇸🇬新加坡-三网优化1.4-TK|NF|GPT
-      - 🇸🇬新加坡-三网优化1.5-TK|NF|GPT
-      - 🇸🇬新加坡-三网优化2.1-TK|D+|NF|GPT
-      - 🇸🇬新加坡-三网优化2.2-TK|D+|NF|GPT
-      - 🇸🇬新加坡-三网优化2.3-TK|D+|NF|GPT
-      - 🇸🇬新加坡-三网优化2.4-TK|D+|NF|GPT
-      - 🇸🇬新加坡-三网优化2.5-TK|D+|NF|GPT
-      - 🇨🇳台湾家宽-三网优化1.1-TK|D+|NF|GPT
-      - 🇨🇳台湾家宽-三网优化1.2-TK|D+|NF|GPT
-      - 🇨🇳台湾家宽-三网优化1.3-TK|D+|NF|GPT
-      - 🇨🇳台湾家宽-三网优化1.4-TK|D+|NF|GPT
-      - 🇨🇳台湾家宽-三网优化1.5-TK|D+|NF|GPT
-      - 🇩🇪德国家宽-三网优化1.1-TK|D+|NF|GPT
-      - 🇩🇪德国家宽-三网优化1.2-TK|D+|NF|GPT
-      - 🇩🇪德国家宽-三网优化1.3-TK|D+|NF|GPT
-      - 🇩🇪德国家宽-三网优化1.4-TK|D+|NF|GPT
-      - 🇩🇪德国家宽-三网优化1.5-TK|D+|NF|GPT
-      - 🇮🇹意大利-三网优化1.1-TK|NF|GPT
-      - 🇮🇹意大利-三网优化1.2-TK|NF|GPT
-      - 🇮🇹意大利-三网优化1.3-TK|NF|GPT
-      - 🇮🇹意大利-三网优化1.4-TK|NF|GPT
-      - 🇮🇹意大利-三网优化1.5-TK|NF|GPT
-      - 🇦🇪阿联酋-三网优化1.1-TK|NF|GPT
-      - 🇦🇪阿联酋-三网优化1.2-TK|NF|GPT
-      - 🇦🇪阿联酋-三网优化1.3-TK|NF|GPT
-      - 🇦🇪阿联酋-三网优化1.4-TK|NF|GPT
-      - 🇦🇪阿联酋-三网优化1.5-TK|NF|GPT
-      - 🇦🇺澳大利亚-三网优化1.1-TK|D+|NF|GPT
-      - 🇦🇺澳大利亚-三网优化1.2-TK|D+|NF|GPT
-      - 🇦🇺澳大利亚-三网优化1.3-TK|D+|NF|GPT
-      - 🇦🇺澳大利亚-三网优化1.4-TK|D+|NF|GPT
-      - 🇦🇺澳大利亚-三网优化1.5-TK|D+|NF|GPT
-      - 🇮🇳印度-三网优化1.1-TK|NF|GPT
-      - 🇮🇳印度-三网优化1.2-TK|NF|GPT
-      - 🇮🇳印度-三网优化1.3-TK|NF|GPT
-      - 🇮🇳印度-三网优化1.4-TK|NF|GPT
-      - 🇮🇳印度-三网优化1.5-TK|NF|GPT
-      - 🇨🇱智利-三网优化1.1-TK|NF|GPT
-      - 🇨🇱智利-三网优化1.2-TK|NF|GPT
-      - 🇨🇱智利-三网优化1.3-TK|NF|GPT
-      - 🇨🇱智利-三网优化1.4-TK|NF|GPT
-      - 🇨🇱智利-三网优化1.5-TK|NF|GPT
-      - 🇫🇮芬兰-三网优化1.1-TK|D+|NF|GPT
-      - 🇫🇮芬兰-三网优化1.2-TK|D+|NF|GPT
-      - 🇫🇮芬兰-三网优化1.3-TK|D+|NF|GPT
-      - 🇫🇮芬兰-三网优化1.4-TK|D+|NF|GPT
-      - 🇫🇮芬兰-三网优化1.5-TK|D+|NF|GPT
-      - 🇻🇳越南家宽-三网优化1.1-TK|NF|GPT
-      - 🇻🇳越南家宽-三网优化1.2-TK|NF|GPT
-      - 🇻🇳越南家宽-三网优化1.3-TK|NF|GPT
-      - 🇻🇳越南家宽-三网优化1.4-TK|NF|GPT
-      - 🇻🇳越南家宽-三网优化1.5-TK|NF|GPT
-      - 🇲🇽墨西哥-三网优化1.1-TK|NF|GPT
-      - 🇲🇽墨西哥-三网优化1.2-TK|NF|GPT
-      - 🇲🇽墨西哥-三网优化1.3-TK|NF|GPT
-      - 🇲🇽墨西哥-三网优化1.4-TK|NF|GPT
-      - 🇲🇽墨西哥-三网优化1.5-TK|NF|GPT
-      - 🇧🇷巴西-三网优化1.1-TK|D+|NF|GPT
-      - 🇧🇷巴西-三网优化1.2-TK|D+|NF|GPT
-      - 🇧🇷巴西-三网优化1.3-TK|D+|NF|GPT
-      - 🇧🇷巴西-三网优化1.4-TK|D+|NF|GPT
-      - 🇧🇷巴西-三网优化1.5-TK|D+|NF|GPT
-      - 🇫🇷法国-三网优化1.1-TK|D+|NF|GPT
-      - 🇫🇷法国-三网优化1.2-TK|D+|NF|GPT
-      - 🇫🇷法国-三网优化1.3-TK|D+|NF|GPT
-      - 🇫🇷法国-三网优化1.4-TK|D+|NF|GPT
-      - 🇫🇷法国-三网优化1.5-TK|D+|NF|GPT
-      - 🇬🇷希腊家宽-三网优化1.1-TK|D+|NF|GPT
-      - 🇬🇷希腊家宽-三网优化1.2-TK|D+|NF|GPT
-      - 🇬🇷希腊家宽-三网优化1.3-TK|D+|NF|GPT
-      - 🇬🇷希腊家宽-三网优化1.4-TK|D+|NF|GPT
-      - 🇬🇷希腊家宽-三网优化1.5-TK|D+|NF|GPT
-      - 🇱🇹立陶宛家宽-三网优化1.1-TK|D+|NF|GPT
-      - 🇱🇹立陶宛家宽-三网优化1.2-TK|D+|NF|GPT
-      - 🇱🇹立陶宛家宽-三网优化1.3-TK|D+|NF|GPT
-      - 🇱🇹立陶宛家宽-三网优化1.4-TK|D+|NF|GPT
-      - 🇱🇹立陶宛家宽-三网优化1.5-TK|D+|NF|GPT
-      - 🇲🇰北马其顿-三网优化1.1-TK|D+|GPT
-      - 🇲🇰北马其顿-三网优化1.2-TK|D+|GPT
-      - 🇲🇰北马其顿-三网优化1.3-TK|D+|GPT
-      - 🇲🇰北马其顿-三网优化1.4-TK|D+|GPT
-      - 🇲🇰北马其顿-三网优化1.5-TK|D+|GPT
-      - 🇹🇭泰国-三网优化1.1-TK|NF|GPT
-      - 🇹🇭泰国-三网优化1.2-TK|NF|GPT
-      - 🇹🇭泰国-三网优化1.3-TK|NF|GPT
-      - 🇹🇭泰国-三网优化1.4-TK|NF|GPT
-      - 🇹🇭泰国-三网优化1.5-TK|NF|GPT
-      - 🇰🇷韩国-三网优化1.1-TK|NF|GPT
-      - 🇰🇷韩国-三网优化1.2-TK|NF|GPT
-      - 🇰🇷韩国-三网优化1.3-TK|NF|GPT
-      - 🇰🇷韩国-三网优化1.4-TK|NF|GPT
-      - 🇰🇷韩国-三网优化1.5-TK|NF|GPT
-      - 🇰🇭柬埔寨家宽-三网优化1.1-TK|NF|GPT
-      - 🇰🇭柬埔寨家宽-三网优化1.2-TK|NF|GPT
-      - 🇰🇭柬埔寨家宽-三网优化1.3-TK|NF|GPT
-      - 🇰🇭柬埔寨家宽-三网优化1.4-TK|NF|GPT
-      - 🇰🇭柬埔寨家宽-三网优化1.5-TK|NF|GPT
-      - 🇬🇧英国-三网优化1.1-TK|D+|NF|GPT
-      - 🇬🇧英国-三网优化1.2-TK|D+|NF|GPT
-      - 🇬🇧英国-三网优化1.3-TK|D+|NF|GPT
-      - 🇬🇧英国-三网优化1.4-TK|D+|NF|GPT
-      - 🇬🇧英国-三网优化1.5-TK|D+|NF|GPT
-    url: http://www.gstatic.com/generate_204
-    interval: 300
+    - { name: 选择线路, type: select, proxies: [自动选择⚡️, 🇺🇸美国-UDP1-TK|D+|NF|GPT, 🇺🇸美国-UDP2-TK|D+|NF|GPT, 🇺🇸美国-UDP3-TK|D+|NF|GPT, 🇺🇸美国-UDP4-TK|D+|NF|GPT, 🇺🇸美国-UDP5-TK|D+|NF|GPT, 🇺🇸美国-UDP6-TK|D+|NF|GPT, 🇭🇰香港-UDP1-TK|NF, 🇯🇵日本-UDP1-TK|NF|GPT, 🇨🇦加拿大-UDP1-TK|NF|GPT, 🇲🇽墨西哥-UDP1-TK|NF|GPT, 🇦🇷阿根廷-UDP1-TK|NF|GPT, 🇧🇷巴西-UDP1-TK|D+|NF|GPT, 🇹🇷土耳其-UDP1-TK|NF|GPT, 🇩🇰丹麦-UDP1-TK|NF|GPT, 🇬🇧英国-UDP1-TK|NF|GPT, 🇩🇪德国-UDP1-TK|NF|GPT, 🇫🇷法国-UDP1-TK|NF|GPT, 🇮🇹意大利-UDP1-TK|NF|GPT, 🇪🇪爱沙尼亚-UDP1-TK|NF|GPT, 🇦🇺澳大利亚-UDP1-TK|NF|GPT, 🇧🇪比利时-UDP1-TK|NF|GPT, 🇪🇸西班牙-UDP1-TK|NF|GPT, 🇳🇱荷兰-UDP1-TK|NF|GPT, 🇺🇦乌克兰-UDP1-TK|NF|GPT, 🇵🇱波兰-UDP1-TK|NF|GPT, 🇸🇪瑞典-UDP1-TK|NF|GPT, 🇺🇸美国-三网优化1.1-TK|D+|NF|GPT, 🇺🇸美国-三网优化1.2-TK|D+|NF|GPT, 🇺🇸美国-三网优化1.3-TK|D+|NF|GPT, 🇺🇸美国-三网优化1.4-TK|D+|NF|GPT, 🇺🇸美国-三网优化1.5-TK|D+|NF|GPT, 🇺🇸美国-三网优化2.1-TK|D+|NF|GPT, 🇺🇸美国-三网优化2.2-TK|D+|NF|GPT, 🇺🇸美国-三网优化2.3-TK|D+|NF|GPT, 🇺🇸美国-三网优化2.4-TK|D+|NF|GPT, 🇺🇸美国-三网优化2.5-TK|D+|NF|GPT, 🇭🇰香港-三网优化1.1-TK|NF, 🇭🇰香港-三网优化1.2-TK|NF, 🇭🇰香港-三网优化1.3-TK|NF, 🇭🇰香港-三网优化1.4-TK|NF, 🇭🇰香港-三网优化1.5-TK|NF, 🇯🇵日本-三网优化1.1-TK|NF|GPT, 🇯🇵日本-三网优化1.2-TK|NF|GPT, 🇯🇵日本-三网优化1.3-TK|NF|GPT, 🇯🇵日本-三网优化1.4-TK|NF|GPT, 🇯🇵日本-三网优化1.5-TK|NF|GPT, 🇯🇵日本-三网优化2.1-TK|NF|GPT, 🇯🇵日本-三网优化2.2-TK|NF|GPT, 🇯🇵日本-三网优化2.3-TK|NF|GPT, 🇯🇵日本-三网优化2.4-TK|NF|GPT, 🇯🇵日本-三网优化2.5-TK|NF|GPT, 🇸🇬新加坡-三网优化1.1-TK|NF|GPT, 🇸🇬新加坡-三网优化1.2-TK|NF|GPT, 🇸🇬新加坡-三网优化1.3-TK|NF|GPT, 🇸🇬新加坡-三网优化1.4-TK|NF|GPT, 🇸🇬新加坡-三网优化1.5-TK|NF|GPT, 🇸🇬新加坡-三网优化2.1-TK|D+|NF|GPT, 🇸🇬新加坡-三网优化2.2-TK|D+|NF|GPT, 🇸🇬新加坡-三网优化2.3-TK|D+|NF|GPT, 🇸🇬新加坡-三网优化2.4-TK|D+|NF|GPT, 🇸🇬新加坡-三网优化2.5-TK|D+|NF|GPT, 🇨🇳台湾家宽-三网优化1.1-TK|D+|NF|GPT, 🇨🇳台湾家宽-三网优化1.2-TK|D+|NF|GPT, 🇨🇳台湾家宽-三网优化1.3-TK|D+|NF|GPT, 🇨🇳台湾家宽-三网优化1.4-TK|D+|NF|GPT, 🇨🇳台湾家宽-三网优化1.5-TK|D+|NF|GPT, 🇩🇪德国家宽-三网优化1.1-TK|D+|NF|GPT, 🇩🇪德国家宽-三网优化1.2-TK|D+|NF|GPT, 🇩🇪德国家宽-三网优化1.3-TK|D+|NF|GPT, 🇩🇪德国家宽-三网优化1.4-TK|D+|NF|GPT, 🇩🇪德国家宽-三网优化1.5-TK|D+|NF|GPT, 🇮🇹意大利-三网优化1.1-TK|NF|GPT, 🇮🇹意大利-三网优化1.2-TK|NF|GPT, 🇮🇹意大利-三网优化1.3-TK|NF|GPT, 🇮🇹意大利-三网优化1.4-TK|NF|GPT, 🇮🇹意大利-三网优化1.5-TK|NF|GPT, 🇦🇪阿联酋-三网优化1.1-TK|NF|GPT, 🇦🇪阿联酋-三网优化1.2-TK|NF|GPT, 🇦🇪阿联酋-三网优化1.3-TK|NF|GPT, 🇦🇪阿联酋-三网优化1.4-TK|NF|GPT, 🇦🇪阿联酋-三网优化1.5-TK|NF|GPT, 🇦🇺澳大利亚-三网优化1.1-TK|D+|NF|GPT, 🇦🇺澳大利亚-三网优化1.2-TK|D+|NF|GPT, 🇦🇺澳大利亚-三网优化1.3-TK|D+|NF|GPT, 🇦🇺澳大利亚-三网优化1.4-TK|D+|NF|GPT, 🇦🇺澳大利亚-三网优化1.5-TK|D+|NF|GPT, 🇮🇳印度-三网优化1.1-TK|NF|GPT, 🇮🇳印度-三网优化1.2-TK|NF|GPT, 🇮🇳印度-三网优化1.3-TK|NF|GPT, 🇮🇳印度-三网优化1.4-TK|NF|GPT, 🇮🇳印度-三网优化1.5-TK|NF|GPT, 🇨🇱智利-三网优化1.1-TK|NF|GPT, 🇨🇱智利-三网优化1.2-TK|NF|GPT, 🇨🇱智利-三网优化1.3-TK|NF|GPT, 🇨🇱智利-三网优化1.4-TK|NF|GPT, 🇨🇱智利-三网优化1.5-TK|NF|GPT, 🇫🇮芬兰-三网优化1.1-TK|D+|NF|GPT, 🇫🇮芬兰-三网优化1.2-TK|D+|NF|GPT, 🇫🇮芬兰-三网优化1.3-TK|D+|NF|GPT, 🇫🇮芬兰-三网优化1.4-TK|D+|NF|GPT, 🇫🇮芬兰-三网优化1.5-TK|D+|NF|GPT, 🇻🇳越南家宽-三网优化1.1-TK|NF|GPT, 🇻🇳越南家宽-三网优化1.2-TK|NF|GPT, 🇻🇳越南家宽-三网优化1.3-TK|NF|GPT, 🇻🇳越南家宽-三网优化1.4-TK|NF|GPT, 🇻🇳越南家宽-三网优化1.5-TK|NF|GPT, 🇲🇽墨西哥-三网优化1.1-TK|NF|GPT, 🇲🇽墨西哥-三网优化1.2-TK|NF|GPT, 🇲🇽墨西哥-三网优化1.3-TK|NF|GPT, 🇲🇽墨西哥-三网优化1.4-TK|NF|GPT, 🇲🇽墨西哥-三网优化1.5-TK|NF|GPT, 🇧🇷巴西-三网优化1.1-TK|D+|NF|GPT, 🇧🇷巴西-三网优化1.2-TK|D+|NF|GPT, 🇧🇷巴西-三网优化1.3-TK|D+|NF|GPT, 🇧🇷巴西-三网优化1.4-TK|D+|NF|GPT, 🇧🇷巴西-三网优化1.5-TK|D+|NF|GPT, 🇫🇷法国-三网优化1.1-TK|D+|NF|GPT, 🇫🇷法国-三网优化1.2-TK|D+|NF|GPT, 🇫🇷法国-三网优化1.3-TK|D+|NF|GPT, 🇫🇷法国-三网优化1.4-TK|D+|NF|GPT, 🇫🇷法国-三网优化1.5-TK|D+|NF|GPT, 🇬🇷希腊家宽-三网优化1.1-TK|D+|NF|GPT, 🇬🇷希腊家宽-三网优化1.2-TK|D+|NF|GPT, 🇬🇷希腊家宽-三网优化1.3-TK|D+|NF|GPT, 🇬🇷希腊家宽-三网优化1.4-TK|D+|NF|GPT, 🇬🇷希腊家宽-三网优化1.5-TK|D+|NF|GPT, 🇱🇹立陶宛家宽-三网优化1.1-TK|D+|NF|GPT, 🇱🇹立陶宛家宽-三网优化1.2-TK|D+|NF|GPT, 🇱🇹立陶宛家宽-三网优化1.3-TK|D+|NF|GPT, 🇱🇹立陶宛家宽-三网优化1.4-TK|D+|NF|GPT, 🇱🇹立陶宛家宽-三网优化1.5-TK|D+|NF|GPT, 🇲🇰北马其顿-三网优化1.1-TK|D+|GPT, 🇲🇰北马其顿-三网优化1.2-TK|D+|GPT, 🇲🇰北马其顿-三网优化1.3-TK|D+|GPT, 🇲🇰北马其顿-三网优化1.4-TK|D+|GPT, 🇲🇰北马其顿-三网优化1.5-TK|D+|GPT, 🇹🇭泰国-三网优化1.1-TK|NF|GPT, 🇹🇭泰国-三网优化1.2-TK|NF|GPT, 🇹🇭泰国-三网优化1.3-TK|NF|GPT, 🇹🇭泰国-三网优化1.4-TK|NF|GPT, 🇹🇭泰国-三网优化1.5-TK|NF|GPT, 🇰🇷韩国-三网优化1.1-TK|NF|GPT, 🇰🇷韩国-三网优化1.2-TK|NF|GPT, 🇰🇷韩国-三网优化1.3-TK|NF|GPT, 🇰🇷韩国-三网优化1.4-TK|NF|GPT, 🇰🇷韩国-三网优化1.5-TK|NF|GPT, 🇰🇭柬埔寨家宽-三网优化1.1-TK|NF|GPT, 🇰🇭柬埔寨家宽-三网优化1.2-TK|NF|GPT, 🇰🇭柬埔寨家宽-三网优化1.3-TK|NF|GPT, 🇰🇭柬埔寨家宽-三网优化1.4-TK|NF|GPT, 🇰🇭柬埔寨家宽-三网优化1.5-TK|NF|GPT, 🇬🇧英国-三网优化1.1-TK|D+|NF|GPT, 🇬🇧英国-三网优化1.2-TK|D+|NF|GPT, 🇬🇧英国-三网优化1.3-TK|D+|NF|GPT, 🇬🇧英国-三网优化1.4-TK|D+|NF|GPT, 🇬🇧英国-三网优化1.5-TK|D+|NF|GPT] }
+    - { name: 自动选择⚡️, type: url-test, proxies: [🇺🇸美国-UDP1-TK|D+|NF|GPT, 🇺🇸美国-UDP2-TK|D+|NF|GPT, 🇺🇸美国-UDP3-TK|D+|NF|GPT, 🇺🇸美国-UDP4-TK|D+|NF|GPT, 🇺🇸美国-UDP5-TK|D+|NF|GPT, 🇺🇸美国-UDP6-TK|D+|NF|GPT, 🇭🇰香港-UDP1-TK|NF, 🇯🇵日本-UDP1-TK|NF|GPT, 🇨🇦加拿大-UDP1-TK|NF|GPT, 🇲🇽墨西哥-UDP1-TK|NF|GPT, 🇦🇷阿根廷-UDP1-TK|NF|GPT, 🇧🇷巴西-UDP1-TK|D+|NF|GPT, 🇹🇷土耳其-UDP1-TK|NF|GPT, 🇩🇰丹麦-UDP1-TK|NF|GPT, 🇬🇧英国-UDP1-TK|NF|GPT, 🇩🇪德国-UDP1-TK|NF|GPT, 🇫🇷法国-UDP1-TK|NF|GPT, 🇮🇹意大利-UDP1-TK|NF|GPT, 🇪🇪爱沙尼亚-UDP1-TK|NF|GPT, 🇦🇺澳大利亚-UDP1-TK|NF|GPT, 🇧🇪比利时-UDP1-TK|NF|GPT, 🇪🇸西班牙-UDP1-TK|NF|GPT, 🇳🇱荷兰-UDP1-TK|NF|GPT, 🇺🇦乌克兰-UDP1-TK|NF|GPT, 🇵🇱波兰-UDP1-TK|NF|GPT, 🇸🇪瑞典-UDP1-TK|NF|GPT, 🇺🇸美国-三网优化1.1-TK|D+|NF|GPT, 🇺🇸美国-三网优化1.2-TK|D+|NF|GPT, 🇺🇸美国-三网优化1.3-TK|D+|NF|GPT, 🇺🇸美国-三网优化1.4-TK|D+|NF|GPT, 🇺🇸美国-三网优化1.5-TK|D+|NF|GPT, 🇺🇸美国-三网优化2.1-TK|D+|NF|GPT, 🇺🇸美国-三网优化2.2-TK|D+|NF|GPT, 🇺🇸美国-三网优化2.3-TK|D+|NF|GPT, 🇺🇸美国-三网优化2.4-TK|D+|NF|GPT, 🇺🇸美国-三网优化2.5-TK|D+|NF|GPT, 🇭🇰香港-三网优化1.1-TK|NF, 🇭🇰香港-三网优化1.2-TK|NF, 🇭🇰香港-三网优化1.3-TK|NF, 🇭🇰香港-三网优化1.4-TK|NF, 🇭🇰香港-三网优化1.5-TK|NF, 🇯🇵日本-三网优化1.1-TK|NF|GPT, 🇯🇵日本-三网优化1.2-TK|NF|GPT, 🇯🇵日本-三网优化1.3-TK|NF|GPT, 🇯🇵日本-三网优化1.4-TK|NF|GPT, 🇯🇵日本-三网优化1.5-TK|NF|GPT, 🇯🇵日本-三网优化2.1-TK|NF|GPT, 🇯🇵日本-三网优化2.2-TK|NF|GPT, 🇯🇵日本-三网优化2.3-TK|NF|GPT, 🇯🇵日本-三网优化2.4-TK|NF|GPT, 🇯🇵日本-三网优化2.5-TK|NF|GPT, 🇸🇬新加坡-三网优化1.1-TK|NF|GPT, 🇸🇬新加坡-三网优化1.2-TK|NF|GPT, 🇸🇬新加坡-三网优化1.3-TK|NF|GPT, 🇸🇬新加坡-三网优化1.4-TK|NF|GPT, 🇸🇬新加坡-三网优化1.5-TK|NF|GPT, 🇸🇬新加坡-三网优化2.1-TK|D+|NF|GPT, 🇸🇬新加坡-三网优化2.2-TK|D+|NF|GPT, 🇸🇬新加坡-三网优化2.3-TK|D+|NF|GPT, 🇸🇬新加坡-三网优化2.4-TK|D+|NF|GPT, 🇸🇬新加坡-三网优化2.5-TK|D+|NF|GPT, 🇨🇳台湾家宽-三网优化1.1-TK|D+|NF|GPT, 🇨🇳台湾家宽-三网优化1.2-TK|D+|NF|GPT, 🇨🇳台湾家宽-三网优化1.3-TK|D+|NF|GPT, 🇨🇳台湾家宽-三网优化1.4-TK|D+|NF|GPT, 🇨🇳台湾家宽-三网优化1.5-TK|D+|NF|GPT, 🇩🇪德国家宽-三网优化1.1-TK|D+|NF|GPT, 🇩🇪德国家宽-三网优化1.2-TK|D+|NF|GPT, 🇩🇪德国家宽-三网优化1.3-TK|D+|NF|GPT, 🇩🇪德国家宽-三网优化1.4-TK|D+|NF|GPT, 🇩🇪德国家宽-三网优化1.5-TK|D+|NF|GPT, 🇮🇹意大利-三网优化1.1-TK|NF|GPT, 🇮🇹意大利-三网优化1.2-TK|NF|GPT, 🇮🇹意大利-三网优化1.3-TK|NF|GPT, 🇮🇹意大利-三网优化1.4-TK|NF|GPT, 🇮🇹意大利-三网优化1.5-TK|NF|GPT, 🇦🇪阿联酋-三网优化1.1-TK|NF|GPT, 🇦🇪阿联酋-三网优化1.2-TK|NF|GPT, 🇦🇪阿联酋-三网优化1.3-TK|NF|GPT, 🇦🇪阿联酋-三网优化1.4-TK|NF|GPT, 🇦🇪阿联酋-三网优化1.5-TK|NF|GPT, 🇦🇺澳大利亚-三网优化1.1-TK|D+|NF|GPT, 🇦🇺澳大利亚-三网优化1.2-TK|D+|NF|GPT, 🇦🇺澳大利亚-三网优化1.3-TK|D+|NF|GPT, 🇦🇺澳大利亚-三网优化1.4-TK|D+|NF|GPT, 🇦🇺澳大利亚-三网优化1.5-TK|D+|NF|GPT, 🇮🇳印度-三网优化1.1-TK|NF|GPT, 🇮🇳印度-三网优化1.2-TK|NF|GPT, 🇮🇳印度-三网优化1.3-TK|NF|GPT, 🇮🇳印度-三网优化1.4-TK|NF|GPT, 🇮🇳印度-三网优化1.5-TK|NF|GPT, 🇨🇱智利-三网优化1.1-TK|NF|GPT, 🇨🇱智利-三网优化1.2-TK|NF|GPT, 🇨🇱智利-三网优化1.3-TK|NF|GPT, 🇨🇱智利-三网优化1.4-TK|NF|GPT, 🇨🇱智利-三网优化1.5-TK|NF|GPT, 🇫🇮芬兰-三网优化1.1-TK|D+|NF|GPT, 🇫🇮芬兰-三网优化1.2-TK|D+|NF|GPT, 🇫🇮芬兰-三网优化1.3-TK|D+|NF|GPT, 🇫🇮芬兰-三网优化1.4-TK|D+|NF|GPT, 🇫🇮芬兰-三网优化1.5-TK|D+|NF|GPT, 🇻🇳越南家宽-三网优化1.1-TK|NF|GPT, 🇻🇳越南家宽-三网优化1.2-TK|NF|GPT, 🇻🇳越南家宽-三网优化1.3-TK|NF|GPT, 🇻🇳越南家宽-三网优化1.4-TK|NF|GPT, 🇻🇳越南家宽-三网优化1.5-TK|NF|GPT, 🇲🇽墨西哥-三网优化1.1-TK|NF|GPT, 🇲🇽墨西哥-三网优化1.2-TK|NF|GPT, 🇲🇽墨西哥-三网优化1.3-TK|NF|GPT, 🇲🇽墨西哥-三网优化1.4-TK|NF|GPT, 🇲🇽墨西哥-三网优化1.5-TK|NF|GPT, 🇧🇷巴西-三网优化1.1-TK|D+|NF|GPT, 🇧🇷巴西-三网优化1.2-TK|D+|NF|GPT, 🇧🇷巴西-三网优化1.3-TK|D+|NF|GPT, 🇧🇷巴西-三网优化1.4-TK|D+|NF|GPT, 🇧🇷巴西-三网优化1.5-TK|D+|NF|GPT, 🇫🇷法国-三网优化1.1-TK|D+|NF|GPT, 🇫🇷法国-三网优化1.2-TK|D+|NF|GPT, 🇫🇷法国-三网优化1.3-TK|D+|NF|GPT, 🇫🇷法国-三网优化1.4-TK|D+|NF|GPT, 🇫🇷法国-三网优化1.5-TK|D+|NF|GPT, 🇬🇷希腊家宽-三网优化1.1-TK|D+|NF|GPT, 🇬🇷希腊家宽-三网优化1.2-TK|D+|NF|GPT, 🇬🇷希腊家宽-三网优化1.3-TK|D+|NF|GPT, 🇬🇷希腊家宽-三网优化1.4-TK|D+|NF|GPT, 🇬🇷希腊家宽-三网优化1.5-TK|D+|NF|GPT, 🇱🇹立陶宛家宽-三网优化1.1-TK|D+|NF|GPT, 🇱🇹立陶宛家宽-三网优化1.2-TK|D+|NF|GPT, 🇱🇹立陶宛家宽-三网优化1.3-TK|D+|NF|GPT, 🇱🇹立陶宛家宽-三网优化1.4-TK|D+|NF|GPT, 🇱🇹立陶宛家宽-三网优化1.5-TK|D+|NF|GPT, 🇲🇰北马其顿-三网优化1.1-TK|D+|GPT, 🇲🇰北马其顿-三网优化1.2-TK|D+|GPT, 🇲🇰北马其顿-三网优化1.3-TK|D+|GPT, 🇲🇰北马其顿-三网优化1.4-TK|D+|GPT, 🇲🇰北马其顿-三网优化1.5-TK|D+|GPT, 🇹🇭泰国-三网优化1.1-TK|NF|GPT, 🇹🇭泰国-三网优化1.2-TK|NF|GPT, 🇹🇭泰国-三网优化1.3-TK|NF|GPT, 🇹🇭泰国-三网优化1.4-TK|NF|GPT, 🇹🇭泰国-三网优化1.5-TK|NF|GPT, 🇰🇷韩国-三网优化1.1-TK|NF|GPT, 🇰🇷韩国-三网优化1.2-TK|NF|GPT, 🇰🇷韩国-三网优化1.3-TK|NF|GPT, 🇰🇷韩国-三网优化1.4-TK|NF|GPT, 🇰🇷韩国-三网优化1.5-TK|NF|GPT, 🇰🇭柬埔寨家宽-三网优化1.1-TK|NF|GPT, 🇰🇭柬埔寨家宽-三网优化1.2-TK|NF|GPT, 🇰🇭柬埔寨家宽-三网优化1.3-TK|NF|GPT, 🇰🇭柬埔寨家宽-三网优化1.4-TK|NF|GPT, 🇰🇭柬埔寨家宽-三网优化1.5-TK|NF|GPT, 🇬🇧英国-三网优化1.1-TK|D+|NF|GPT, 🇬🇧英国-三网优化1.2-TK|D+|NF|GPT, 🇬🇧英国-三网优化1.3-TK|D+|NF|GPT, 🇬🇧英国-三网优化1.4-TK|D+|NF|GPT, 🇬🇧英国-三网优化1.5-TK|D+|NF|GPT], url: 'https://www.gstatic.com/generate_204', interval: 300 }
 rules:
-  - MATCH,Auto
+    - 'DOMAIN-SUFFIX,services.googleapis.cn,选择线路'
+    - 'DOMAIN-SUFFIX,xn--ngstr-lra8j.com,选择线路'
+    - 'DOMAIN,safebrowsing.urlsec.qq.com,DIRECT'
+    - 'DOMAIN,safebrowsing.googleapis.com,DIRECT'
+    - 'DOMAIN,developer.apple.com,选择线路'
+    - 'DOMAIN-SUFFIX,digicert.com,选择线路'
+    - 'DOMAIN,ocsp.apple.com,选择线路'
+    - 'DOMAIN,ocsp.comodoca.com,选择线路'
+    - 'DOMAIN,ocsp.usertrust.com,选择线路'
+    - 'DOMAIN,ocsp.sectigo.com,选择线路'
+    - 'DOMAIN,ocsp.verisign.net,选择线路'
+    - 'DOMAIN-SUFFIX,apple-dns.net,选择线路'
+    - 'DOMAIN,testflight.apple.com,选择线路'
+    - 'DOMAIN,sandbox.itunes.apple.com,选择线路'
+    - 'DOMAIN,itunes.apple.com,选择线路'
+    - 'DOMAIN-SUFFIX,apps.apple.com,选择线路'
+    - 'DOMAIN-SUFFIX,blobstore.apple.com,选择线路'
+    - 'DOMAIN,cvws.icloud-content.com,选择线路'
+    - 'DOMAIN-SUFFIX,mzstatic.com,DIRECT'
+    - 'DOMAIN-SUFFIX,itunes.apple.com,DIRECT'
+    - 'DOMAIN-SUFFIX,icloud.com,DIRECT'
+    - 'DOMAIN-SUFFIX,icloud-content.com,DIRECT'
+    - 'DOMAIN-SUFFIX,me.com,DIRECT'
+    - 'DOMAIN-SUFFIX,aaplimg.com,DIRECT'
+    - 'DOMAIN-SUFFIX,cdn20.com,DIRECT'
+    - 'DOMAIN-SUFFIX,cdn-apple.com,DIRECT'
+    - 'DOMAIN-SUFFIX,akadns.net,DIRECT'
+    - 'DOMAIN-SUFFIX,akamaiedge.net,DIRECT'
+    - 'DOMAIN-SUFFIX,edgekey.net,DIRECT'
+    - 'DOMAIN-SUFFIX,mwcloudcdn.com,DIRECT'
+    - 'DOMAIN-SUFFIX,mwcname.com,DIRECT'
+    - 'DOMAIN-SUFFIX,apple.com,DIRECT'
+    - 'DOMAIN-SUFFIX,apple-cloudkit.com,DIRECT'
+    - 'DOMAIN-SUFFIX,apple-mapkit.com,DIRECT'
+    - 'DOMAIN-SUFFIX,126.com,DIRECT'
+    - 'DOMAIN-SUFFIX,126.net,DIRECT'
+    - 'DOMAIN-SUFFIX,127.net,DIRECT'
+    - 'DOMAIN-SUFFIX,163.com,DIRECT'
+    - 'DOMAIN-SUFFIX,360buyimg.com,DIRECT'
+    - 'DOMAIN-SUFFIX,36kr.com,DIRECT'
+    - 'DOMAIN-SUFFIX,acfun.tv,DIRECT'
+    - 'DOMAIN-SUFFIX,air-matters.com,DIRECT'
+    - 'DOMAIN-SUFFIX,aixifan.com,DIRECT'
+    - 'DOMAIN-KEYWORD,alicdn,DIRECT'
+    - 'DOMAIN-KEYWORD,alipay,DIRECT'
+    - 'DOMAIN-KEYWORD,taobao,DIRECT'
+    - 'DOMAIN-SUFFIX,amap.com,DIRECT'
+    - 'DOMAIN-SUFFIX,autonavi.com,DIRECT'
+    - 'DOMAIN-KEYWORD,baidu,DIRECT'
+    - 'DOMAIN-SUFFIX,bdimg.com,DIRECT'
+    - 'DOMAIN-SUFFIX,bdstatic.com,DIRECT'
+    - 'DOMAIN-SUFFIX,bilibili.com,DIRECT'
+    - 'DOMAIN-SUFFIX,bilivideo.com,DIRECT'
+    - 'DOMAIN-SUFFIX,caiyunapp.com,DIRECT'
+    - 'DOMAIN-SUFFIX,clouddn.com,DIRECT'
+    - 'DOMAIN-SUFFIX,cnbeta.com,DIRECT'
+    - 'DOMAIN-SUFFIX,cnbetacdn.com,DIRECT'
+    - 'DOMAIN-SUFFIX,cootekservice.com,DIRECT'
+    - 'DOMAIN-SUFFIX,csdn.net,DIRECT'
+    - 'DOMAIN-SUFFIX,ctrip.com,DIRECT'
+    - 'DOMAIN-SUFFIX,dgtle.com,DIRECT'
+    - 'DOMAIN-SUFFIX,dianping.com,DIRECT'
+    - 'DOMAIN-SUFFIX,douban.com,DIRECT'
+    - 'DOMAIN-SUFFIX,doubanio.com,DIRECT'
+    - 'DOMAIN-SUFFIX,duokan.com,DIRECT'
+    - 'DOMAIN-SUFFIX,easou.com,DIRECT'
+    - 'DOMAIN-SUFFIX,ele.me,DIRECT'
+    - 'DOMAIN-SUFFIX,feng.com,DIRECT'
+    - 'DOMAIN-SUFFIX,fir.im,DIRECT'
+    - 'DOMAIN-SUFFIX,frdic.com,DIRECT'
+    - 'DOMAIN-SUFFIX,g-cores.com,DIRECT'
+    - 'DOMAIN-SUFFIX,godic.net,DIRECT'
+    - 'DOMAIN-SUFFIX,gtimg.com,DIRECT'
+    - 'DOMAIN,cdn.hockeyapp.net,DIRECT'
+    - 'DOMAIN-SUFFIX,hongxiu.com,DIRECT'
+    - 'DOMAIN-SUFFIX,hxcdn.net,DIRECT'
+    - 'DOMAIN-SUFFIX,iciba.com,DIRECT'
+    - 'DOMAIN-SUFFIX,ifeng.com,DIRECT'
+    - 'DOMAIN-SUFFIX,ifengimg.com,DIRECT'
+    - 'DOMAIN-SUFFIX,ipip.net,DIRECT'
+    - 'DOMAIN-SUFFIX,iqiyi.com,DIRECT'
+    - 'DOMAIN-SUFFIX,jd.com,DIRECT'
+    - 'DOMAIN-SUFFIX,jianshu.com,DIRECT'
+    - 'DOMAIN-SUFFIX,knewone.com,DIRECT'
+    - 'DOMAIN-SUFFIX,le.com,DIRECT'
+    - 'DOMAIN-SUFFIX,lecloud.com,DIRECT'
+    - 'DOMAIN-SUFFIX,lemicp.com,DIRECT'
+    - 'DOMAIN-SUFFIX,licdn.com,DIRECT'
+    - 'DOMAIN-SUFFIX,luoo.net,DIRECT'
+    - 'DOMAIN-SUFFIX,meituan.com,DIRECT'
+    - 'DOMAIN-SUFFIX,meituan.net,DIRECT'
+    - 'DOMAIN-SUFFIX,mi.com,DIRECT'
+    - 'DOMAIN-SUFFIX,miaopai.com,DIRECT'
+    - 'DOMAIN-SUFFIX,microsoft.com,DIRECT'
+    - 'DOMAIN-SUFFIX,microsoftonline.com,DIRECT'
+    - 'DOMAIN-SUFFIX,miui.com,DIRECT'
+    - 'DOMAIN-SUFFIX,miwifi.com,DIRECT'
+    - 'DOMAIN-SUFFIX,mob.com,DIRECT'
+    - 'DOMAIN-SUFFIX,netease.com,DIRECT'
+    - 'DOMAIN-SUFFIX,office.com,DIRECT'
+    - 'DOMAIN-SUFFIX,office365.com,DIRECT'
+    - 'DOMAIN-KEYWORD,officecdn,DIRECT'
+    - 'DOMAIN-SUFFIX,oschina.net,DIRECT'
+    - 'DOMAIN-SUFFIX,ppsimg.com,DIRECT'
+    - 'DOMAIN-SUFFIX,pstatp.com,DIRECT'
+    - 'DOMAIN-SUFFIX,qcloud.com,DIRECT'
+    - 'DOMAIN-SUFFIX,qdaily.com,DIRECT'
+    - 'DOMAIN-SUFFIX,qdmm.com,DIRECT'
+    - 'DOMAIN-SUFFIX,qhimg.com,DIRECT'
+    - 'DOMAIN-SUFFIX,qhres.com,DIRECT'
+    - 'DOMAIN-SUFFIX,qidian.com,DIRECT'
+    - 'DOMAIN-SUFFIX,qihucdn.com,DIRECT'
+    - 'DOMAIN-SUFFIX,qiniu.com,DIRECT'
+    - 'DOMAIN-SUFFIX,qiniucdn.com,DIRECT'
+    - 'DOMAIN-SUFFIX,qiyipic.com,DIRECT'
+    - 'DOMAIN-SUFFIX,qq.com,DIRECT'
+    - 'DOMAIN-SUFFIX,qqurl.com,DIRECT'
+    - 'DOMAIN-SUFFIX,rarbg.to,DIRECT'
+    - 'DOMAIN-SUFFIX,ruguoapp.com,DIRECT'
+    - 'DOMAIN-SUFFIX,segmentfault.com,DIRECT'
+    - 'DOMAIN-SUFFIX,sinaapp.com,DIRECT'
+    - 'DOMAIN-SUFFIX,smzdm.com,DIRECT'
+    - 'DOMAIN-SUFFIX,snapdrop.net,DIRECT'
+    - 'DOMAIN-SUFFIX,sogou.com,DIRECT'
+    - 'DOMAIN-SUFFIX,sogoucdn.com,DIRECT'
+    - 'DOMAIN-SUFFIX,sohu.com,DIRECT'
+    - 'DOMAIN-SUFFIX,soku.com,DIRECT'
+    - 'DOMAIN-SUFFIX,speedtest.net,DIRECT'
+    - 'DOMAIN-SUFFIX,sspai.com,DIRECT'
+    - 'DOMAIN-SUFFIX,suning.com,DIRECT'
+    - 'DOMAIN-SUFFIX,taobao.com,DIRECT'
+    - 'DOMAIN-SUFFIX,tencent.com,DIRECT'
+    - 'DOMAIN-SUFFIX,tenpay.com,DIRECT'
+    - 'DOMAIN-SUFFIX,tianyancha.com,DIRECT'
+    - 'DOMAIN-SUFFIX,tmall.com,DIRECT'
+    - 'DOMAIN-SUFFIX,tudou.com,DIRECT'
+    - 'DOMAIN-SUFFIX,umetrip.com,DIRECT'
+    - 'DOMAIN-SUFFIX,upaiyun.com,DIRECT'
+    - 'DOMAIN-SUFFIX,upyun.com,DIRECT'
+    - 'DOMAIN-SUFFIX,veryzhun.com,DIRECT'
+    - 'DOMAIN-SUFFIX,weather.com,DIRECT'
+    - 'DOMAIN-SUFFIX,weibo.com,DIRECT'
+    - 'DOMAIN-SUFFIX,xiami.com,DIRECT'
+    - 'DOMAIN-SUFFIX,xiami.net,DIRECT'
+    - 'DOMAIN-SUFFIX,xiaomicp.com,DIRECT'
+    - 'DOMAIN-SUFFIX,ximalaya.com,DIRECT'
+    - 'DOMAIN-SUFFIX,xmcdn.com,DIRECT'
+    - 'DOMAIN-SUFFIX,xunlei.com,DIRECT'
+    - 'DOMAIN-SUFFIX,yhd.com,DIRECT'
+    - 'DOMAIN-SUFFIX,yihaodianimg.com,DIRECT'
+    - 'DOMAIN-SUFFIX,yinxiang.com,DIRECT'
+    - 'DOMAIN-SUFFIX,ykimg.com,DIRECT'
+    - 'DOMAIN-SUFFIX,youdao.com,DIRECT'
+    - 'DOMAIN-SUFFIX,youku.com,DIRECT'
+    - 'DOMAIN-SUFFIX,zealer.com,DIRECT'
+    - 'DOMAIN-SUFFIX,zhihu.com,DIRECT'
+    - 'DOMAIN-SUFFIX,zhimg.com,DIRECT'
+    - 'DOMAIN-SUFFIX,zimuzu.tv,DIRECT'
+    - 'DOMAIN-SUFFIX,zoho.com,DIRECT'
+    - 'DOMAIN-KEYWORD,amazon,选择线路'
+    - 'DOMAIN-KEYWORD,google,选择线路'
+    - 'DOMAIN-KEYWORD,gmail,选择线路'
+    - 'DOMAIN-KEYWORD,youtube,选择线路'
+    - 'DOMAIN-KEYWORD,facebook,选择线路'
+    - 'DOMAIN-SUFFIX,fb.me,选择线路'
+    - 'DOMAIN-SUFFIX,fbcdn.net,选择线路'
+    - 'DOMAIN-KEYWORD,twitter,选择线路'
+    - 'DOMAIN-KEYWORD,instagram,选择线路'
+    - 'DOMAIN-KEYWORD,dropbox,选择线路'
+    - 'DOMAIN-SUFFIX,twimg.com,选择线路'
+    - 'DOMAIN-KEYWORD,blogspot,选择线路'
+    - 'DOMAIN-SUFFIX,youtu.be,选择线路'
+    - 'DOMAIN-KEYWORD,whatsapp,选择线路'
+    - 'DOMAIN-KEYWORD,admarvel,REJECT'
+    - 'DOMAIN-KEYWORD,admaster,REJECT'
+    - 'DOMAIN-KEYWORD,adsage,REJECT'
+    - 'DOMAIN-KEYWORD,adsmogo,REJECT'
+    - 'DOMAIN-KEYWORD,adsrvmedia,REJECT'
+    - 'DOMAIN-KEYWORD,adwords,REJECT'
+    - 'DOMAIN-KEYWORD,adservice,REJECT'
+    - 'DOMAIN-SUFFIX,appsflyer.com,REJECT'
+    - 'DOMAIN-KEYWORD,domob,REJECT'
+    - 'DOMAIN-SUFFIX,doubleclick.net,REJECT'
+    - 'DOMAIN-KEYWORD,duomeng,REJECT'
+    - 'DOMAIN-KEYWORD,dwtrack,REJECT'
+    - 'DOMAIN-KEYWORD,guanggao,REJECT'
+    - 'DOMAIN-KEYWORD,lianmeng,REJECT'
+    - 'DOMAIN-SUFFIX,mmstat.com,REJECT'
+    - 'DOMAIN-KEYWORD,mopub,REJECT'
+    - 'DOMAIN-KEYWORD,omgmta,REJECT'
+    - 'DOMAIN-KEYWORD,openx,REJECT'
+    - 'DOMAIN-KEYWORD,partnerad,REJECT'
+    - 'DOMAIN-KEYWORD,pingfore,REJECT'
+    - 'DOMAIN-KEYWORD,supersonicads,REJECT'
+    - 'DOMAIN-KEYWORD,uedas,REJECT'
+    - 'DOMAIN-KEYWORD,umeng,REJECT'
+    - 'DOMAIN-KEYWORD,usage,REJECT'
+    - 'DOMAIN-SUFFIX,vungle.com,REJECT'
+    - 'DOMAIN-KEYWORD,wlmonitor,REJECT'
+    - 'DOMAIN-KEYWORD,zjtoolbar,REJECT'
+    - 'DOMAIN-SUFFIX,9to5mac.com,选择线路'
+    - 'DOMAIN-SUFFIX,abpchina.org,选择线路'
+    - 'DOMAIN-SUFFIX,adblockplus.org,选择线路'
+    - 'DOMAIN-SUFFIX,adobe.com,选择线路'
+    - 'DOMAIN-SUFFIX,akamaized.net,选择线路'
+    - 'DOMAIN-SUFFIX,alfredapp.com,选择线路'
+    - 'DOMAIN-SUFFIX,amplitude.com,选择线路'
+    - 'DOMAIN-SUFFIX,ampproject.org,选择线路'
+    - 'DOMAIN-SUFFIX,android.com,选择线路'
+    - 'DOMAIN-SUFFIX,angularjs.org,选择线路'
+    - 'DOMAIN-SUFFIX,aolcdn.com,选择线路'
+    - 'DOMAIN-SUFFIX,apkpure.com,选择线路'
+    - 'DOMAIN-SUFFIX,appledaily.com,选择线路'
+    - 'DOMAIN-SUFFIX,appshopper.com,选择线路'
+    - 'DOMAIN-SUFFIX,appspot.com,选择线路'
+    - 'DOMAIN-SUFFIX,arcgis.com,选择线路'
+    - 'DOMAIN-SUFFIX,archive.org,选择线路'
+    - 'DOMAIN-SUFFIX,armorgames.com,选择线路'
+    - 'DOMAIN-SUFFIX,aspnetcdn.com,选择线路'
+    - 'DOMAIN-SUFFIX,att.com,选择线路'
+    - 'DOMAIN-SUFFIX,awsstatic.com,选择线路'
+    - 'DOMAIN-SUFFIX,azureedge.net,选择线路'
+    - 'DOMAIN-SUFFIX,azurewebsites.net,选择线路'
+    - 'DOMAIN-SUFFIX,bing.com,选择线路'
+    - 'DOMAIN-SUFFIX,bintray.com,选择线路'
+    - 'DOMAIN-SUFFIX,bit.com,选择线路'
+    - 'DOMAIN-SUFFIX,bit.ly,选择线路'
+    - 'DOMAIN-SUFFIX,bitbucket.org,选择线路'
+    - 'DOMAIN-SUFFIX,bjango.com,选择线路'
+    - 'DOMAIN-SUFFIX,bkrtx.com,选择线路'
+    - 'DOMAIN-SUFFIX,blog.com,选择线路'
+    - 'DOMAIN-SUFFIX,blogcdn.com,选择线路'
+    - 'DOMAIN-SUFFIX,blogger.com,选择线路'
+    - 'DOMAIN-SUFFIX,blogsmithmedia.com,选择线路'
+    - 'DOMAIN-SUFFIX,blogspot.com,选择线路'
+    - 'DOMAIN-SUFFIX,blogspot.hk,选择线路'
+    - 'DOMAIN-SUFFIX,bloomberg.com,选择线路'
+    - 'DOMAIN-SUFFIX,box.com,选择线路'
+    - 'DOMAIN-SUFFIX,box.net,选择线路'
+    - 'DOMAIN-SUFFIX,cachefly.net,选择线路'
+    - 'DOMAIN-SUFFIX,chromium.org,选择线路'
+    - 'DOMAIN-SUFFIX,cl.ly,选择线路'
+    - 'DOMAIN-SUFFIX,cloudflare.com,选择线路'
+    - 'DOMAIN-SUFFIX,cloudfront.net,选择线路'
+    - 'DOMAIN-SUFFIX,cloudmagic.com,选择线路'
+    - 'DOMAIN-SUFFIX,cmail19.com,选择线路'
+    - 'DOMAIN-SUFFIX,cnet.com,选择线路'
+    - 'DOMAIN-SUFFIX,cocoapods.org,选择线路'
+    - 'DOMAIN-SUFFIX,comodoca.com,选择线路'
+    - 'DOMAIN-SUFFIX,crashlytics.com,选择线路'
+    - 'DOMAIN-SUFFIX,culturedcode.com,选择线路'
+    - 'DOMAIN-SUFFIX,d.pr,选择线路'
+    - 'DOMAIN-SUFFIX,danilo.to,选择线路'
+    - 'DOMAIN-SUFFIX,dayone.me,选择线路'
+    - 'DOMAIN-SUFFIX,db.tt,选择线路'
+    - 'DOMAIN-SUFFIX,deskconnect.com,选择线路'
+    - 'DOMAIN-SUFFIX,disq.us,选择线路'
+    - 'DOMAIN-SUFFIX,disqus.com,选择线路'
+    - 'DOMAIN-SUFFIX,disquscdn.com,选择线路'
+    - 'DOMAIN-SUFFIX,dnsimple.com,选择线路'
+    - 'DOMAIN-SUFFIX,docker.com,选择线路'
+    - 'DOMAIN-SUFFIX,dribbble.com,选择线路'
+    - 'DOMAIN-SUFFIX,droplr.com,选择线路'
+    - 'DOMAIN-SUFFIX,duckduckgo.com,选择线路'
+    - 'DOMAIN-SUFFIX,dueapp.com,选择线路'
+    - 'DOMAIN-SUFFIX,dytt8.net,选择线路'
+    - 'DOMAIN-SUFFIX,edgecastcdn.net,选择线路'
+    - 'DOMAIN-SUFFIX,edgekey.net,选择线路'
+    - 'DOMAIN-SUFFIX,edgesuite.net,选择线路'
+    - 'DOMAIN-SUFFIX,engadget.com,选择线路'
+    - 'DOMAIN-SUFFIX,entrust.net,选择线路'
+    - 'DOMAIN-SUFFIX,eurekavpt.com,选择线路'
+    - 'DOMAIN-SUFFIX,evernote.com,选择线路'
+    - 'DOMAIN-SUFFIX,fabric.io,选择线路'
+    - 'DOMAIN-SUFFIX,fast.com,选择线路'
+    - 'DOMAIN-SUFFIX,fastly.net,选择线路'
+    - 'DOMAIN-SUFFIX,fc2.com,选择线路'
+    - 'DOMAIN-SUFFIX,feedburner.com,选择线路'
+    - 'DOMAIN-SUFFIX,feedly.com,选择线路'
+    - 'DOMAIN-SUFFIX,feedsportal.com,选择线路'
+    - 'DOMAIN-SUFFIX,fiftythree.com,选择线路'
+    - 'DOMAIN-SUFFIX,firebaseio.com,选择线路'
+    - 'DOMAIN-SUFFIX,flexibits.com,选择线路'
+    - 'DOMAIN-SUFFIX,flickr.com,选择线路'
+    - 'DOMAIN-SUFFIX,flipboard.com,选择线路'
+    - 'DOMAIN-SUFFIX,g.co,选择线路'
+    - 'DOMAIN-SUFFIX,gabia.net,选择线路'
+    - 'DOMAIN-SUFFIX,geni.us,选择线路'
+    - 'DOMAIN-SUFFIX,gfx.ms,选择线路'
+    - 'DOMAIN-SUFFIX,ggpht.com,选择线路'
+    - 'DOMAIN-SUFFIX,ghostnoteapp.com,选择线路'
+    - 'DOMAIN-SUFFIX,git.io,选择线路'
+    - 'DOMAIN-KEYWORD,github,选择线路'
+    - 'DOMAIN-SUFFIX,globalsign.com,选择线路'
+    - 'DOMAIN-SUFFIX,gmodules.com,选择线路'
+    - 'DOMAIN-SUFFIX,godaddy.com,选择线路'
+    - 'DOMAIN-SUFFIX,golang.org,选择线路'
+    - 'DOMAIN-SUFFIX,gongm.in,选择线路'
+    - 'DOMAIN-SUFFIX,goo.gl,选择线路'
+    - 'DOMAIN-SUFFIX,goodreaders.com,选择线路'
+    - 'DOMAIN-SUFFIX,goodreads.com,选择线路'
+    - 'DOMAIN-SUFFIX,gravatar.com,选择线路'
+    - 'DOMAIN-SUFFIX,gstatic.com,选择线路'
+    - 'DOMAIN-SUFFIX,gvt0.com,选择线路'
+    - 'DOMAIN-SUFFIX,hockeyapp.net,选择线路'
+    - 'DOMAIN-SUFFIX,hotmail.com,选择线路'
+    - 'DOMAIN-SUFFIX,icons8.com,选择线路'
+    - 'DOMAIN-SUFFIX,ifixit.com,选择线路'
+    - 'DOMAIN-SUFFIX,ift.tt,选择线路'
+    - 'DOMAIN-SUFFIX,ifttt.com,选择线路'
+    - 'DOMAIN-SUFFIX,iherb.com,选择线路'
+    - 'DOMAIN-SUFFIX,imageshack.us,选择线路'
+    - 'DOMAIN-SUFFIX,img.ly,选择线路'
+    - 'DOMAIN-SUFFIX,imgur.com,选择线路'
+    - 'DOMAIN-SUFFIX,imore.com,选择线路'
+    - 'DOMAIN-SUFFIX,instapaper.com,选择线路'
+    - 'DOMAIN-SUFFIX,ipn.li,选择线路'
+    - 'DOMAIN-SUFFIX,is.gd,选择线路'
+    - 'DOMAIN-SUFFIX,issuu.com,选择线路'
+    - 'DOMAIN-SUFFIX,itgonglun.com,选择线路'
+    - 'DOMAIN-SUFFIX,itun.es,选择线路'
+    - 'DOMAIN-SUFFIX,ixquick.com,选择线路'
+    - 'DOMAIN-SUFFIX,j.mp,选择线路'
+    - 'DOMAIN-SUFFIX,js.revsci.net,选择线路'
+    - 'DOMAIN-SUFFIX,jshint.com,选择线路'
+    - 'DOMAIN-SUFFIX,jtvnw.net,选择线路'
+    - 'DOMAIN-SUFFIX,justgetflux.com,选择线路'
+    - 'DOMAIN-SUFFIX,kat.cr,选择线路'
+    - 'DOMAIN-SUFFIX,klip.me,选择线路'
+    - 'DOMAIN-SUFFIX,libsyn.com,选择线路'
+    - 'DOMAIN-SUFFIX,linkedin.com,选择线路'
+    - 'DOMAIN-SUFFIX,line-apps.com,选择线路'
+    - 'DOMAIN-SUFFIX,linode.com,选择线路'
+    - 'DOMAIN-SUFFIX,lithium.com,选择线路'
+    - 'DOMAIN-SUFFIX,littlehj.com,选择线路'
+    - 'DOMAIN-SUFFIX,live.com,选择线路'
+    - 'DOMAIN-SUFFIX,live.net,选择线路'
+    - 'DOMAIN-SUFFIX,livefilestore.com,选择线路'
+    - 'DOMAIN-SUFFIX,llnwd.net,选择线路'
+    - 'DOMAIN-SUFFIX,macid.co,选择线路'
+    - 'DOMAIN-SUFFIX,macromedia.com,选择线路'
+    - 'DOMAIN-SUFFIX,macrumors.com,选择线路'
+    - 'DOMAIN-SUFFIX,mashable.com,选择线路'
+    - 'DOMAIN-SUFFIX,mathjax.org,选择线路'
+    - 'DOMAIN-SUFFIX,medium.com,选择线路'
+    - 'DOMAIN-SUFFIX,mega.co.nz,选择线路'
+    - 'DOMAIN-SUFFIX,mega.nz,选择线路'
+    - 'DOMAIN-SUFFIX,megaupload.com,选择线路'
+    - 'DOMAIN-SUFFIX,microsofttranslator.com,选择线路'
+    - 'DOMAIN-SUFFIX,mindnode.com,选择线路'
+    - 'DOMAIN-SUFFIX,mobile01.com,选择线路'
+    - 'DOMAIN-SUFFIX,modmyi.com,选择线路'
+    - 'DOMAIN-SUFFIX,msedge.net,选择线路'
+    - 'DOMAIN-SUFFIX,myfontastic.com,选择线路'
+    - 'DOMAIN-SUFFIX,name.com,选择线路'
+    - 'DOMAIN-SUFFIX,nextmedia.com,选择线路'
+    - 'DOMAIN-SUFFIX,nsstatic.net,选择线路'
+    - 'DOMAIN-SUFFIX,nssurge.com,选择线路'
+    - 'DOMAIN-SUFFIX,nyt.com,选择线路'
+    - 'DOMAIN-SUFFIX,nytimes.com,选择线路'
+    - 'DOMAIN-SUFFIX,omnigroup.com,选择线路'
+    - 'DOMAIN-SUFFIX,onedrive.com,选择线路'
+    - 'DOMAIN-SUFFIX,onenote.com,选择线路'
+    - 'DOMAIN-SUFFIX,ooyala.com,选择线路'
+    - 'DOMAIN-SUFFIX,openvpn.net,选择线路'
+    - 'DOMAIN-SUFFIX,openwrt.org,选择线路'
+    - 'DOMAIN-SUFFIX,orkut.com,选择线路'
+    - 'DOMAIN-SUFFIX,osxdaily.com,选择线路'
+    - 'DOMAIN-SUFFIX,outlook.com,选择线路'
+    - 'DOMAIN-SUFFIX,ow.ly,选择线路'
+    - 'DOMAIN-SUFFIX,paddleapi.com,选择线路'
+    - 'DOMAIN-SUFFIX,parallels.com,选择线路'
+    - 'DOMAIN-SUFFIX,parse.com,选择线路'
+    - 'DOMAIN-SUFFIX,pdfexpert.com,选择线路'
+    - 'DOMAIN-SUFFIX,periscope.tv,选择线路'
+    - 'DOMAIN-SUFFIX,pinboard.in,选择线路'
+    - 'DOMAIN-SUFFIX,pinterest.com,选择线路'
+    - 'DOMAIN-SUFFIX,pixelmator.com,选择线路'
+    - 'DOMAIN-SUFFIX,pixiv.net,选择线路'
+    - 'DOMAIN-SUFFIX,playpcesor.com,选择线路'
+    - 'DOMAIN-SUFFIX,playstation.com,选择线路'
+    - 'DOMAIN-SUFFIX,playstation.com.hk,选择线路'
+    - 'DOMAIN-SUFFIX,playstation.net,选择线路'
+    - 'DOMAIN-SUFFIX,playstationnetwork.com,选择线路'
+    - 'DOMAIN-SUFFIX,pushwoosh.com,选择线路'
+    - 'DOMAIN-SUFFIX,rime.im,选择线路'
+    - 'DOMAIN-SUFFIX,servebom.com,选择线路'
+    - 'DOMAIN-SUFFIX,sfx.ms,选择线路'
+    - 'DOMAIN-SUFFIX,shadowsocks.org,选择线路'
+    - 'DOMAIN-SUFFIX,sharethis.com,选择线路'
+    - 'DOMAIN-SUFFIX,shazam.com,选择线路'
+    - 'DOMAIN-SUFFIX,skype.com,选择线路'
+    - 'DOMAIN-SUFFIX,smartdns选择线路.com,选择线路'
+    - 'DOMAIN-SUFFIX,smartmailcloud.com,选择线路'
+    - 'DOMAIN-SUFFIX,sndcdn.com,选择线路'
+    - 'DOMAIN-SUFFIX,sony.com,选择线路'
+    - 'DOMAIN-SUFFIX,soundcloud.com,选择线路'
+    - 'DOMAIN-SUFFIX,sourceforge.net,选择线路'
+    - 'DOMAIN-SUFFIX,spotify.com,选择线路'
+    - 'DOMAIN-SUFFIX,squarespace.com,选择线路'
+    - 'DOMAIN-SUFFIX,sstatic.net,选择线路'
+    - 'DOMAIN-SUFFIX,st.luluku.pw,选择线路'
+    - 'DOMAIN-SUFFIX,stackoverflow.com,选择线路'
+    - 'DOMAIN-SUFFIX,startpage.com,选择线路'
+    - 'DOMAIN-SUFFIX,staticflickr.com,选择线路'
+    - 'DOMAIN-SUFFIX,steamcommunity.com,选择线路'
+    - 'DOMAIN-SUFFIX,symauth.com,选择线路'
+    - 'DOMAIN-SUFFIX,symcb.com,选择线路'
+    - 'DOMAIN-SUFFIX,symcd.com,选择线路'
+    - 'DOMAIN-SUFFIX,tapbots.com,选择线路'
+    - 'DOMAIN-SUFFIX,tapbots.net,选择线路'
+    - 'DOMAIN-SUFFIX,tdesktop.com,选择线路'
+    - 'DOMAIN-SUFFIX,techcrunch.com,选择线路'
+    - 'DOMAIN-SUFFIX,techsmith.com,选择线路'
+    - 'DOMAIN-SUFFIX,thepiratebay.org,选择线路'
+    - 'DOMAIN-SUFFIX,theverge.com,选择线路'
+    - 'DOMAIN-SUFFIX,time.com,选择线路'
+    - 'DOMAIN-SUFFIX,timeinc.net,选择线路'
+    - 'DOMAIN-SUFFIX,tiny.cc,选择线路'
+    - 'DOMAIN-SUFFIX,tinypic.com,选择线路'
+    - 'DOMAIN-SUFFIX,tmblr.co,选择线路'
+    - 'DOMAIN-SUFFIX,todoist.com,选择线路'
+    - 'DOMAIN-SUFFIX,trello.com,选择线路'
+    - 'DOMAIN-SUFFIX,trustasiassl.com,选择线路'
+    - 'DOMAIN-SUFFIX,tumblr.co,选择线路'
+    - 'DOMAIN-SUFFIX,tumblr.com,选择线路'
+    - 'DOMAIN-SUFFIX,tweetdeck.com,选择线路'
+    - 'DOMAIN-SUFFIX,tweetmarker.net,选择线路'
+    - 'DOMAIN-SUFFIX,twitch.tv,选择线路'
+    - 'DOMAIN-SUFFIX,txmblr.com,选择线路'
+    - 'DOMAIN-SUFFIX,typekit.net,选择线路'
+    - 'DOMAIN-SUFFIX,ubertags.com,选择线路'
+    - 'DOMAIN-SUFFIX,ublock.org,选择线路'
+    - 'DOMAIN-SUFFIX,ubnt.com,选择线路'
+    - 'DOMAIN-SUFFIX,ulyssesapp.com,选择线路'
+    - 'DOMAIN-SUFFIX,urchin.com,选择线路'
+    - 'DOMAIN-SUFFIX,usertrust.com,选择线路'
+    - 'DOMAIN-SUFFIX,v.gd,选择线路'
+    - 'DOMAIN-SUFFIX,v2ex.com,选择线路'
+    - 'DOMAIN-SUFFIX,vimeo.com,选择线路'
+    - 'DOMAIN-SUFFIX,vimeocdn.com,选择线路'
+    - 'DOMAIN-SUFFIX,vine.co,选择线路'
+    - 'DOMAIN-SUFFIX,vivaldi.com,选择线路'
+    - 'DOMAIN-SUFFIX,vox-cdn.com,选择线路'
+    - 'DOMAIN-SUFFIX,vsco.co,选择线路'
+    - 'DOMAIN-SUFFIX,vultr.com,选择线路'
+    - 'DOMAIN-SUFFIX,w.org,选择线路'
+    - 'DOMAIN-SUFFIX,w3schools.com,选择线路'
+    - 'DOMAIN-SUFFIX,webtype.com,选择线路'
+    - 'DOMAIN-SUFFIX,wikiwand.com,选择线路'
+    - 'DOMAIN-SUFFIX,wikileaks.org,选择线路'
+    - 'DOMAIN-SUFFIX,wikimedia.org,选择线路'
+    - 'DOMAIN-SUFFIX,wikipedia.com,选择线路'
+    - 'DOMAIN-SUFFIX,wikipedia.org,选择线路'
+    - 'DOMAIN-SUFFIX,windows.com,选择线路'
+    - 'DOMAIN-SUFFIX,windows.net,选择线路'
+    - 'DOMAIN-SUFFIX,wire.com,选择线路'
+    - 'DOMAIN-SUFFIX,wordpress.com,选择线路'
+    - 'DOMAIN-SUFFIX,workflowy.com,选择线路'
+    - 'DOMAIN-SUFFIX,wp.com,选择线路'
+    - 'DOMAIN-SUFFIX,wsj.com,选择线路'
+    - 'DOMAIN-SUFFIX,wsj.net,选择线路'
+    - 'DOMAIN-SUFFIX,xda-developers.com,选择线路'
+    - 'DOMAIN-SUFFIX,xeeno.com,选择线路'
+    - 'DOMAIN-SUFFIX,xiti.com,选择线路'
+    - 'DOMAIN-SUFFIX,yahoo.com,选择线路'
+    - 'DOMAIN-SUFFIX,yimg.com,选择线路'
+    - 'DOMAIN-SUFFIX,ying.com,选择线路'
+    - 'DOMAIN-SUFFIX,yoyo.org,选择线路'
+    - 'DOMAIN-SUFFIX,ytimg.com,选择线路'
+    - 'DOMAIN-SUFFIX,telegra.ph,选择线路'
+    - 'DOMAIN-SUFFIX,telegram.org,选择线路'
+    - 'IP-CIDR,91.108.4.0/22,选择线路,no-resolve'
+    - 'IP-CIDR,91.108.8.0/21,选择线路,no-resolve'
+    - 'IP-CIDR,91.108.16.0/22,选择线路,no-resolve'
+    - 'IP-CIDR,91.108.56.0/22,选择线路,no-resolve'
+    - 'IP-CIDR,149.154.160.0/20,选择线路,no-resolve'
+    - 'IP-CIDR6,2001:67c:4e8::/48,选择线路,no-resolve'
+    - 'IP-CIDR6,2001:b28:f23d::/48,选择线路,no-resolve'
+    - 'IP-CIDR6,2001:b28:f23f::/48,选择线路,no-resolve'
+    - 'IP-CIDR,120.232.181.162/32,选择线路,no-resolve'
+    - 'IP-CIDR,120.241.147.226/32,选择线路,no-resolve'
+    - 'IP-CIDR,120.253.253.226/32,选择线路,no-resolve'
+    - 'IP-CIDR,120.253.255.162/32,选择线路,no-resolve'
+    - 'IP-CIDR,120.253.255.34/32,选择线路,no-resolve'
+    - 'IP-CIDR,120.253.255.98/32,选择线路,no-resolve'
+    - 'IP-CIDR,180.163.150.162/32,选择线路,no-resolve'
+    - 'IP-CIDR,180.163.150.34/32,选择线路,no-resolve'
+    - 'IP-CIDR,180.163.151.162/32,选择线路,no-resolve'
+    - 'IP-CIDR,180.163.151.34/32,选择线路,no-resolve'
+    - 'IP-CIDR,203.208.39.0/24,选择线路,no-resolve'
+    - 'IP-CIDR,203.208.40.0/24,选择线路,no-resolve'
+    - 'IP-CIDR,203.208.41.0/24,选择线路,no-resolve'
+    - 'IP-CIDR,203.208.43.0/24,选择线路,no-resolve'
+    - 'IP-CIDR,203.208.50.0/24,选择线路,no-resolve'
+    - 'IP-CIDR,220.181.174.162/32,选择线路,no-resolve'
+    - 'IP-CIDR,220.181.174.226/32,选择线路,no-resolve'
+    - 'IP-CIDR,220.181.174.34/32,选择线路,no-resolve'
+    - 'DOMAIN,injections.adguard.org,DIRECT'
+    - 'DOMAIN,local.adguard.org,DIRECT'
+    - 'DOMAIN-SUFFIX,local,DIRECT'
+    - 'IP-CIDR,127.0.0.0/8,DIRECT'
+    - 'IP-CIDR,172.16.0.0/12,DIRECT'
+    - 'IP-CIDR,192.168.0.0/16,DIRECT'
+    - 'IP-CIDR,10.0.0.0/8,DIRECT'
+    - 'IP-CIDR,17.0.0.0/8,DIRECT'
+    - 'IP-CIDR,100.64.0.0/10,DIRECT'
+    - 'IP-CIDR,224.0.0.0/4,DIRECT'
+    - 'IP-CIDR6,fe80::/10,DIRECT'
+    - 'DOMAIN-SUFFIX,cn,DIRECT'
+    - 'DOMAIN-KEYWORD,-cn,DIRECT'
+    - 'GEOIP,CN,DIRECT'
+    - 'MATCH,选择线路'
