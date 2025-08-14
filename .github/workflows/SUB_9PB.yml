@@ -202,3 +202,16 @@ jobs:
         fi
       env:
         GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
+    - name: Delete old workflow runs (keep latest)
+      run: |
+        echo "🔹 Getting list of workflow run IDs for ${{ github.workflow }}..."
+        runs=$(gh api repos/${{ github.repository }}/actions/workflows/${{ github.workflow }}/runs --jq '.workflow_runs[].id')
+        latest=$(echo "$runs" | head -n 1)
+        echo "✅ Latest run ID: $latest"
+        for run_id in $(echo "$runs" | tail -n +2); do
+          echo "🗑 Deleting workflow run ID: $run_id"
+          gh api --method DELETE repos/${{ github.repository }}/actions/runs/$run_id || echo "⚠️ Failed to delete run $run_id"
+        done
+      env:
+        GH_TOKEN: ${{ secrets.SUB_9PB }}
