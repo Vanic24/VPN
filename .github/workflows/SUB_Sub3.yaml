@@ -147,11 +147,12 @@ jobs:
 
         async function main() {
           const res = await axios.get(SUB_URL, { responseType: 'text' });
+          // Decode Base64, trim spaces, remove first 3 nodes
           let lines = b64decode(res.data.trim())
                         .split(/\r?\n/)
+                        .map(l => l.trim())
                         .filter(Boolean)
-                        // Remove any line with "剩余流量", "距离下次重置", "套餐到期"
-                        .filter(line => !/剩余流量|距离下次重置|套餐到期/.test(line));
+                        .slice(3);
 
           const proxies = [];
           for (const line of lines) {
@@ -160,6 +161,7 @@ jobs:
             else if (line.startsWith("trojan://")) proxies.push(parseTrojan(line));
             else if (line.startsWith("hysteria2://")) proxies.push(parseHysteria2(line));
             else if (line.startsWith("anytls://")) proxies.push(parseAnytls(line));
+            else console.log("⚠️ Unknown line skipped:", line);
           }
 
           console.log(`🔹 Total proxies parsed: ${proxies.length}`);
