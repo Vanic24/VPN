@@ -2,7 +2,7 @@ name: Update VPN Subscription (SUB_Sub3)
 
 on:
   schedule:
-    - cron: "0 */6 * * *"  # Runs every 6 hours
+    - cron: "0 */4 * * *"  # Runs every 4 hours
   workflow_dispatch:
     inputs:
       dry_run:
@@ -46,80 +46,53 @@ jobs:
           return Buffer.from(s, 'base64').toString('utf8');
         }
 
-        function parseVmess(link) {
-          try {
-            const conf = JSON.parse(b64decode(link.slice(8)));
-            const net = (conf.net || "tcp").toLowerCase();
-            const tls = (conf.tls || "").toLowerCase() === "tls";
-            const proxy = {
-              name: conf.ps || "vmess",
-              type: "vmess",
-              server: conf.add,
-              port: Number(conf.port),
-              uuid: conf.id,
-              alterId: Number(conf.aid || 0),
-              cipher: conf.type || "auto",
-              tls,
-              network: net,
-            };
-            if (net === "ws") proxy["ws-opts"] = { path: conf.path || "", headers: { Host: conf.host || "" } };
-            if (net === "grpc") proxy["grpc-opts"] = { "grpc-service-name": conf.path || "" };
-            if (conf.sni) proxy.servername = conf.sni;
-            return proxy;
-          } catch { return null; }
-        }
-
-        function parseVless(link) {
+        function parseHysteria2(link) {
           try {
             const u = new URL(link);
-            const q = Object.fromEntries(u.searchParams.entries());
-            const net = (q.type || q.transport || "tcp").toLowerCase();
-            const tls = (q.security || "").toLowerCase() === "tls";
-            const proxy = {
-              name: decodeURIComponent(u.hash.slice(1)) || "vless",
-              type: "vless",
+            const name = decodeURIComponent(u.hash.slice(1)) || "hysteria2";
+            return {
+              name,
+              type: "hysteria2",
               server: u.hostname,
-              port: Number(u.port || 443),
-              uuid: decodeURIComponent(u.username),
-              tls,
-              network: net
-            };
-            if (net === "ws") proxy["ws-opts"] = { path: q.path || "", headers: { Host: q.host || "" } };
-            if (net === "grpc") proxy["grpc-opts"] = { "grpc-service-name": q.serviceName || q["service-name"] || "" };
-            return proxy;
-          } catch { return null; }
-        }
-
-        function parseTrojan(link) {
-          try {
-            const u = new URL(link);
-            const q = Object.fromEntries(u.searchParams.entries());
-            const net = (q.type || q.transport || "tcp").toLowerCase();
-            const tls = (q.security || "").toLowerCase() === "tls";
-            const proxy = {
-              name: decodeURIComponent(u.hash.slice(1)) || "trojan",
-              type: "trojan",
-              server: u.hostname,
-              port: Number(u.port || 443),
+              port: Number(u.port),
               password: decodeURIComponent(u.username),
-              tls,
-              network: net
+              udp: u.searchParams.get("udp") === "true",
+              sni: u.searchParams.get("sni") || undefined,
+              "skip-cert-verify": u.searchParams.get("skip-cert-verify") === "true"
             };
-            if (net === "ws") proxy["ws-opts"] = { path: q.path || "", headers: { Host: q.host || "" } };
-            if (net === "grpc") proxy["grpc-opts"] = { "grpc-service-name": q.serviceName || q["service-name"] || "" };
-            return proxy;
+          } catch { return null; }
+        }
+
+        function parseAnytls(link) {
+          try {
+            const u = new URL(link);
+            const name = decodeURIComponent(u.hash.slice(1)) || "anytls";
+            return {
+              name,
+              type: "anytls",
+              server: u.hostname,
+              port: Number(u.port),
+              password: decodeURIComponent(u.username),
+              udp: u.searchParams.get("udp") === "true",
+              sni: u.searchParams.get("sni") || undefined,
+              "skip-cert-verify": u.searchParams.get("skip-cert-verify") === "true"
+            };
           } catch { return null; }
         }
 
         async function main() {
           const res = await axios.get(SUB_URL, { responseType: 'text' });
-          let lines = b64decode(res.data.trim()).split(/\r?\n/).slice(3).filter(Boolean); // Remove first 3 nodes
+          let lines = b64decode(res.data.trim())
+                        .split(/\r?\n/)
+                        .filter(line => line && !/剩余|套餐到期|距离下次重置/.test(line));
 
           const proxies = [];
           for (const line of lines) {
             if (line.startsWith("vmess://")) proxies.push(parseVmess(line));
             else if (line.startsWith("vless://")) proxies.push(parseVless(line));
             else if (line.startsWith("trojan://")) proxies.push(parseTrojan(line));
+            else if (line.startsWith("hysteria2://")) proxies.push(parseHysteria2(line));
+            else if (line.startsWith("anytls://")) proxies.push(parseAnytls(line));
           }
 
           console.log(`🔹 Total proxies parsed: ${proxies.length}`);
