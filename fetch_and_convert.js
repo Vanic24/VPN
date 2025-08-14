@@ -5,13 +5,16 @@ const fs = require('fs');
 
 (async () => {
   const SUB_URL = process.env.SUB_URL;
-  if (!SUB_URL) { console.error("Missing SUB_URL secret"); process.exit(1); }
+  if (!SUB_URL) {
+    console.error("Missing SUB_URL secret");
+    process.exit(1);
+  }
 
   function parseVmess(link) {
     try {
       const json = JSON.parse(Base64.decode(link.slice(8)));
       const net = (json.net || 'tcp').toLowerCase();
-      const p = {
+      const proxy = {
         name: json.ps || 'vmess',
         type: 'vmess',
         server: json.add,
@@ -22,11 +25,12 @@ const fs = require('fs');
         tls: (json.tls || '').toLowerCase() === 'tls',
         network: net
       };
-      if (json.sni) p.servername = json.sni;
-      if (net === 'ws') p['ws-opts'] = { path: json.path || '', headers: { Host: json.host || '' } };
-      if (net === 'grpc') p['grpc-opts'] = { 'grpc-service-name': json.path || '' };
-      return p;
-    } catch {
+      if (json.sni) proxy.servername = json.sni;
+      if (net === 'ws') proxy['ws-opts'] = { path: json.path || '', headers: { Host: json.host || '' } };
+      if (net === 'grpc') proxy['grpc-opts'] = { 'grpc-service-name': json.path || '' };
+      return proxy;
+    } catch (e) {
+      console.warn("Failed to parse vmess:", e.message);
       return null;
     }
   }
@@ -34,12 +38,15 @@ const fs = require('fs');
   console.log('📥 Fetching subscription...');
   const res = await axios.get(SUB_URL, { responseType: 'text' });
   let decoded;
-  try { decoded = Base64.decode(res.data.trim()); } 
-  catch { decoded = Buffer.from(res.data.trim(), 'base64').toString('utf8'); }
+  try {
+    decoded = Base64.decode(res.data.trim());
+  } catch {
+    decoded = Buffer.from(res.data.trim(), 'base64').toString('utf8');
+  }
 
   let lines = decoded.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
 
-  // Remove first two nodes
+  // Remove first two nodes (traffic info / Chinese characters)
   lines = lines.slice(2);
 
   const proxies = lines.map(line => {
@@ -52,7 +59,13 @@ const fs = require('fs');
   const clashConfig = {
     proxies: proxies,
     'proxy-groups': [
-      { name: 'Auto', type: 'url-test', proxies: proxies.map(p=>p.name), url: 'http://www.gstatic.com/generate_204', interval: 300 }
+      {
+        name: 'Auto',
+        type: 'url-test',
+        proxies: proxies.map(p => p.name),
+        url: 'http://www.gstatic.com/generate_204',
+        interval: 300
+      }
     ],
     rules: ['MATCH,Auto']
   };
