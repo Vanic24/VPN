@@ -48,7 +48,7 @@ jobs:
 
         function parseVmess(link) {
           try {
-            const conf = JSON.parse(b64decode(link.slice(3)));
+            const conf = JSON.parse(b64decode(link.slice(8)));
             const net = (conf.net || "tcp").toLowerCase();
             const tls = (conf.tls || "").toLowerCase() === "tls";
             const proxy = {
@@ -147,11 +147,11 @@ jobs:
 
         async function main() {
           const res = await axios.get(SUB_URL, { responseType: 'text' });
-          // Decode Base64 and remove first 3 lines (info nodes)
           let lines = b64decode(res.data.trim())
                         .split(/\r?\n/)
                         .filter(Boolean)
-                        .slice(3);
+                        // Remove any line with "剩余流量", "距离下次重置", "套餐到期"
+                        .filter(line => !/剩余流量|距离下次重置|套餐到期/.test(line));
 
           const proxies = [];
           for (const line of lines) {
