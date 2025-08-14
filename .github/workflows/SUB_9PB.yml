@@ -198,7 +198,9 @@ jobs:
     - name: Delete old workflow runs (keep latest)
       run: |
         workflow_id=$(gh api repos/${{ github.repository }}/actions/workflows \
+          -H "Authorization: token ${{ secrets.WorkFlows_Delete }}" \
           --jq '.workflows[] | select(.path=="SUB_9PB.yaml") | .id')
+
         echo "🔹 Workflow numeric ID: $workflow_id"
         runs=$(gh api repos/${{ github.repository }}/actions/workflows/$workflow_id/runs --jq '.workflow_runs[].id')
         latest=$(echo "$runs" | head -n 1)
