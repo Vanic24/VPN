@@ -9,10 +9,6 @@ on:
         description: 'If true, only generate YAML locally without pushing'
         required: false
         default: 'false'
-      keep_latest:
-        description: 'Number of latest artifacts to keep'
-        required: false
-        default: '5'
 
 jobs:
   update:
@@ -37,6 +33,7 @@ jobs:
         const axios = require('axios');
         const yaml = require('js-yaml');
         const fs = require('fs');
+        const { URL } = require('url');
         const path = require('path');
 
         const SUB_URL = process.env.SUB_URL;
@@ -50,39 +47,121 @@ jobs:
           return Buffer.from(s, 'base64').toString('utf8');
         }
 
-        function parseVmess(link) { /* unchanged parsing code */ return JSON.parse('{}'); } 
-        function parseVless(link) { return JSON.parse('{}'); }
-        function parseTrojan(link) { return JSON.parse('{}'); }
+        function parseVmess(link) {
+          try {
+            const conf = JSON.parse(b64decode(link.slice(8)));
+            const net = (conf.net || "tcp").toLowerCase();
+            const tls = (conf.tls || "").toLowerCase() === "tls";
+            const proxy = {
+              name: conf.ps || "vmess",
+              type: "vmess",
+              server: conf.add,
+              port: Number(conf.port),
+              uuid: conf.id,
+              alterId: Number(conf.aid || 0),
+              cipher: conf.type || "auto",
+              tls,
+              network: net,
+            };
+            if (net === "ws") proxy["ws-opts"] = { path: conf.path || "", headers: { Host: conf.host || "" } };
+            if (net === "grpc") proxy["grpc-opts"] = { "grpc-service-name": conf.path || "" };
+            if (conf.sni) proxy.servername = conf.sni;
+            return proxy;
+          } catch { return null; }
+        }
 
-        function getTimestamp() {
-          const now = new Date();
-          const YYYY = now.getFullYear();
-          const MM = String(now.getMonth() + 1).padStart(2, '0');
-          const DD = String(now.getDate()).padStart(2, '0');
-          const hh = String(now.getHours()).padStart(2, '0');
-          const mm = String(now.getMinutes()).padStart(2, '0');
-          const ss = String(now.getSeconds()).padStart(2, '0');
-          return `${YYYY}${MM}${DD}-${hh}${mm}${ss}`;
+        function parseVless(link) {
+          try {
+            const u = new URL(link);
+            const q = Object.fromEntries(u.searchParams.entries());
+            const net = (q.type || q.transport || "tcp").toLowerCase();
+            const tls = (q.security || "").toLowerCase() === "tls";
+            const proxy = {
+              name: decodeURIComponent(u.hash.slice(1)) || "vless",
+              type: "vless",
+              server: u.hostname,
+              port: Number(u.port || 443),
+              uuid: decodeURIComponent(u.username),
+              tls,
+              network: net
+            };
+            if (net === "ws") proxy["ws-opts"] = { path: q.path || "", headers: { Host: q.host || "" } };
+            if (net === "grpc") proxy["grpc-opts"] = { "grpc-service-name": q.serviceName || q["service-name"] || "" };
+            return proxy;
+          } catch { return null; }
+        }
+
+        function parseTrojan(link) {
+          try {
+            const u = new URL(link);
+            const q = Object.fromEntries(u.searchParams.entries());
+            const net = (q.type || q.transport || "tcp").toLowerCase();
+            const tls = (q.security || "").toLowerCase() === "tls";
+            const proxy = {
+              name: decodeURIComponent(u.hash.slice(1)) || "trojan",
+              type: "trojan",
+              server: u.hostname,
+              port: Number(u.port || 443),
+              password: decodeURIComponent(u.username),
+              tls,
+              network: net
+            };
+            if (net === "ws") proxy["ws-opts"] = { path: q.path || "", headers: { Host: q.host || "" } };
+            if (net === "grpc") proxy["grpc-opts"] = { "grpc-service-name": q.serviceName || q["service-name"] || "" };
+            return proxy;
+          } catch { return null; }
         }
 
         async function main() {
           const res = await axios.get(SUB_URL, { responseType: 'text' });
           let lines = b64decode(res.data.trim()).split(/\r?\n/).slice(2).filter(Boolean);
 
-          const proxies = []; // parse your nodes here
-          const clashConfig = { proxies, "proxy-groups": [], rules: ["MATCH,Auto"] };
-          const yamlData = yaml.dump(clashConfig, { noRefs: true, forceQuotes: false, lineWidth: 120 });
+          const proxies = [];
+          for (const line of lines) {
+            if (line.startsWith("vmess://")) proxies.push(parseVmess(line));
+            else if (line.startsWith("vless://")) proxies.push(parseVless(line));
+            else if (line.startsWith("trojan://")) proxies.push(parseTrojan(line));
+          }
 
+          const clashConfig = {
+            proxies,
+            "proxy-groups": [
+              {
+                name: "Auto",
+                type: "url-test",
+                proxies: proxies.map(p => p.name),
+                url: "http://www.gstatic.com/generate_204",
+                interval: 300
+              }
+            ],
+            rules: ["MATCH,Auto"]
+          };
+
+          const yamlData = yaml.dump(clashConfig, { noRefs: true, forceQuotes: false, lineWidth: 120 });
           fs.writeFileSync(GITHUB_FILE, yamlData, "utf8");
 
-          const timestamp = getTimestamp();
-          const artifactFile = path.join(process.cwd(), `9BP-${timestamp}.yml`);
+          // Save artifact file as 9PB.yml for logs / dry run
+          const artifactFile = path.join(process.cwd(), `9PB.yml`);
           fs.writeFileSync(artifactFile, yamlData, "utf8");
-          console.log(`✅ YAML generated successfully: ${artifactFile}`);
-          fs.appendFileSync(process.env.GITHUB_ENV, `ARTIFACT_FILE=${artifactFile}\n`);
+          console.log("✅ YAML generated successfully");
 
           if (!dryRun) {
-            // Update GitHub file & igdux
+            const fileInfo = await axios.get(
+              `https://api.github.com/repos/Vanic24/VPN/contents/${GITHUB_FILE}`,
+              { headers: { Authorization: `token ${GH_TOKEN}` } }
+            );
+            await axios.put(
+              `https://api.github.com/repos/Vanic24/VPN/contents/${GITHUB_FILE}`,
+              {
+                message: "Auto update Clash YAML",
+                content: Buffer.from(yamlData).toString('base64'),
+                sha: fileInfo.data.sha
+              },
+              { headers: { Authorization: `token ${GH_TOKEN}` } }
+            );
+
+            await axios.post(IGDUX_EDIT_URL, yamlData, { headers: { 'Content-Type': 'text/plain' } });
+            console.log("✅ Updated GitHub & igdux successfully");
           } else {
             console.log("⚠️ Dry run enabled — YAML generated but not pushed.");
           }
@@ -100,32 +179,5 @@ jobs:
     - name: Upload Clash YAML artifact
       uses: actions/upload-artifact@v4
       with:
-        name: 9PB.yaml
-        path: ${{ env.ARTIFACT_FILE }}
-
-    - name: Cleanup old artifacts
-      env:
-        GH_TOKEN: ${{ secrets.GH_TOKEN }}
-        KEEP_LATEST: ${{ github.event.inputs.keep_latest }}
-      run: |
-        node <<'EOF'
-        const axios = require('axios');
-        const TOKEN = process.env.GH_TOKEN;
-        const KEEP_LATEST = parseInt(process.env.KEEP_LATEST || "5");
-        const GITHUB_REPO = process.env.GITHUB_REPOSITORY;
-
-        (async () => {
-          const url = `https://api.github.com/repos/${GITHUB_REPO}/actions/artifacts`;
-          const headers = { Authorization: `token ${TOKEN}` };
-          const res = await axios.get(url, { headers });
-          const artifacts = res.data.artifacts
-            .filter(a => a.name === 'clash-yaml')
-            .sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
-
-          const oldArtifacts = artifacts.slice(KEEP_LATEST);
-          for (const art of oldArtifacts) {
-            console.log(`Deleting old artifact: ${art.name} (${art.id})`);
-            await axios.delete(`https://api.github.com/repos/${GITHUB_REPO}/actions/artifacts/${art.id}`, { headers });
-          }
-        })();
-        EOF
+        name: 9PB
+        path: 9PB.yml
