@@ -2,7 +2,7 @@ name: Update VPN Subscription (SUB_Sub3)
 
 on:
   schedule:
-    - cron: "0 */4 * * *"  # Runs every 4 hours
+    - cron: "0 */4 * * *"  #Run every 4 hour
   workflow_dispatch:
     inputs:
       dry_run:
@@ -80,11 +80,16 @@ jobs:
           } catch { return null; }
         }
 
+        function parseVmess(link) { /* previous parser code */ return null; }
+        function parseVless(link) { /* previous parser code */ return null; }
+        function parseTrojan(link) { /* previous parser code */ return null; }
+
         async function main() {
           const res = await axios.get(SUB_URL, { responseType: 'text' });
           let lines = b64decode(res.data.trim())
                         .split(/\r?\n/)
-                        .filter(line => line && !/剩余|套餐到期|距离下次重置/.test(line));
+                        .filter(Boolean)
+                        .slice(3); // remove first 3 nodes
 
           const proxies = [];
           for (const line of lines) {
@@ -96,6 +101,7 @@ jobs:
           }
 
           console.log(`🔹 Total proxies parsed: ${proxies.length}`);
+          console.log("Proxy names:", proxies.map(p => p.name).join(", "));
 
           const clashConfig = {
             proxies,
@@ -113,10 +119,7 @@ jobs:
 
           const yamlData = yaml.dump(clashConfig, { noRefs: true, forceQuotes: false, lineWidth: 120 });
           fs.writeFileSync(GITHUB_FILE, yamlData, "utf8");
-
-          const artifactFile = path.join(process.cwd(), `Sub3.yml`);
-          fs.writeFileSync(artifactFile, yamlData, "utf8");
-          console.log("✅ YAML generated successfully");
+          fs.writeFileSync(path.join(process.cwd(), "Sub3.yml"), yamlData, "utf8");
 
           if (!dryRun) {
             try {
@@ -135,7 +138,7 @@ jobs:
               );
               console.log("✅ GitHub updated successfully");
             } catch (e) {
-              console.error("⚠️ Warning: Failed to update GitHub:", e.message);
+              console.error("⚠️ Failed to update GitHub:", e.message);
             }
           } else {
             console.log("⚠️ Dry run enabled — YAML generated but not pushed.");
