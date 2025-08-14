@@ -17,6 +17,7 @@ permissions:
 jobs:
   update:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -24,122 +25,267 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: '20'
 
-      - name: Install Puppeteer
-        run: npm install puppeteer axios js-yaml
+      - name: Install dependencies
+        run: npm install puppeteer axios js-base64 js-yaml
 
-      - name: Fetch and convert subscription
-        id: fetch_convert
+      # Fetch the official subscription, convert to Clash YAML, write to 9PB
+      - name: Fetch & convert to Clash YAML
+        env:
+          SUB_URL: ${{ secrets.SUB_URL }}
         run: |
-          const fs = require('fs');
+          node <<'EOF'
           const axios = require('axios');
+          const { Base64 } = require('js-base64');
           const yaml = require('js-yaml');
+          const fs = require('fs');
 
-          const OFFICIAL_URL = "https://syyn.qeayr.cn/api/v1/client/subscribe?token=936846b4c221c379f907c8e28e929664";
+          const SUB_URL = process.env.SUB_URL;
+          if (!SUB_URL) {
+            console.error("Missing SUB_URL secret");
+            process.exit(1);
+          }
+
+          // --- Helpers ---
+          const b64decode = (s) => {
+            const pad = s.length % 4 ? 4 - (s.length % 4) : 0;
+            if (pad) s += '='.repeat(pad);
+            return Buffer.from(s, 'base64').toString('utf8');
+          };
+
+          function parseVmess(link) {
+            try {
+              const json = JSON.parse(b64decode(link.slice(8)));
+              const net = (json.net || 'tcp').toLowerCase();
+              const p = {
+                name: json.ps || 'vmess',
+                type: 'vmess',
+                server: json.add,
+                port: Number(json.port),
+                uuid: json.id,
+                alterId: Number(json.aid || 0),
+                cipher: 'auto',
+                tls: (json.tls || '').toLowerCase() === 'tls',
+                network: net
+              };
+              if (json.sni) p.servername = json.sni;
+              if (net === 'ws') p['ws-opts'] = { path: json.path || '', headers: { Host: json.host || '' } };
+              if (net === 'grpc') p['grpc-opts'] = { 'grpc-service-name': json.path || '' };
+              return p;
+            } catch { return null; }
+          }
+
+          function parseVless(url) {
+            try {
+              const u = new URL(url);
+              const q = Object.fromEntries(u.searchParams.entries());
+              const net = (q.type || q.transport || 'tcp').toLowerCase();
+              const p = {
+                name: decodeURIComponent(u.hash.slice(1)) || 'vless',
+                type: 'vless',
+                server: u.hostname,
+                port: Number(u.port || 443),
+                uuid: decodeURIComponent(u.username),
+                tls: (q.security || '').toLowerCase() === 'tls',
+                network: net
+              };
+              if (q.sni) p.servername = q.sni;
+              if (net === 'ws') p['ws-opts'] = { path: q.path || '', headers: { Host: q.host || '' } };
+              if (net === 'grpc') p['grpc-opts'] = { 'grpc-service-name': q.serviceName || q['service-name'] || '' };
+              return p;
+            } catch { return null; }
+          }
+
+          function parseTrojan(url) {
+            try {
+              const u = new URL(url);
+              const q = Object.fromEntries(u.searchParams.entries());
+              const net = (q.type || q.transport || 'tcp').toLowerCase();
+              const p = {
+                name: decodeURIComponent(u.hash.slice(1)) || 'trojan',
+                type: 'trojan',
+                server: u.hostname,
+                port: Number(u.port || 443),
+                password: decodeURIComponent(u.username),
+                tls: (q.security || 'tls').toLowerCase() === 'tls',
+                network: net
+              };
+              if (q.sni) p.sni = q.sni;
+              if (net === 'ws') p['ws-opts'] = { path: q.path || '', headers: { Host: q.host || '' } };
+              if (net === 'grpc') p['grpc-opts'] = { 'grpc-service-name': q.serviceName || q['service-name'] || '' };
+              return p;
+            } catch { return null; }
+          }
 
           (async () => {
-            console.log("📥 Fetching subscription...");
-            const res = await axios.get(OFFICIAL_URL, { responseType: 'text' });
-            const decoded = Buffer.from(res.data, 'base64').toString('utf8');
-            let lines = decoded.split('\n').filter(Boolean);
+            console.log('📥 Fetching subscription...');
+            const res = await axios.get(SUB_URL, { responseType: 'text' });
+            let decoded;
+            try {
+              decoded = Base64.decode(res.data.trim());
+            } catch {
+              decoded = Buffer.from(res.data.trim(), 'base64').toString('utf8');
+            }
+            let lines = decoded.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
 
-            // Remove first two nodes (traffic info)
+            // Remove the first two non-proxy lines
             lines = lines.slice(2);
 
-            // Convert to Clash YAML (simplified demo)
-            const proxies = lines.map((link, idx) => ({
-              name: `Node ${idx + 1}`,
-              type: 'vmess',
-              server: `server${idx + 1}.example.com`,
-              port: 443
-            }));
+            const proxies = [];
+            for (const line of lines) {
+              if (line.startsWith('vmess://')) proxies.push(parseVmess(line));
+              else if (line.startsWith('vless://')) proxies.push(parseVless(line));
+              else if (line.startsWith('trojan://')) proxies.push(parseTrojan(line));
+            }
+            const valid = proxies.filter(Boolean);
+            console.log(`🔹 Total proxies parsed: ${valid.length}`);
 
             const clashConfig = {
-              proxies: proxies,
-              'proxy-groups': [{
-                name: 'Auto',
-                type: 'url-test',
-                proxies: proxies.map(p => p.name),
-                url: 'http://www.gstatic.com/generate_204',
-                interval: 300
-              }],
+              proxies: valid,
+              'proxy-groups': [
+                {
+                  name: 'Auto',
+                  type: 'url-test',
+                  proxies: valid.map(p => p.name),
+                  url: 'http://www.gstatic.com/generate_204',
+                  interval: 300
+                }
+              ],
               rules: ['MATCH,Auto']
             };
 
-            const yamlData = yaml.dump(clashConfig);
+            const yamlData = yaml.dump(clashConfig, { noRefs: true, lineWidth: 120 });
             fs.writeFileSync('9PB', yamlData, 'utf8');
-            console.log(`✅ Total proxies parsed: ${proxies.length}`);
+            console.log('✅ YAML written to ./9PB');
+          })().catch(e => { console.error('❌ Fatal:', e.message); process.exit(1); });
+          EOF
 
-          })();
-        shell: node {0}
-
-      - name: Dry run check
-        if: ${{ github.event.inputs.dry_run == 'true' }}
-        run: echo "Dry run: Skipping uploads"
-
-      - name: Commit and push YAML to GitHub
+      # If not a dry run, push 9PB to repo
+      - name: Commit & push 9PB to GitHub
         if: ${{ github.event.inputs.dry_run != 'true' }}
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add 9PB
-          git commit -m "Update subscription YAML"
-          git push
+          if git diff --quiet --exit-code 9PB; then
+            echo "No changes to 9PB; skipping commit."
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add 9PB
+            git commit -m "Auto update Clash YAML (9PB)"
+            git push
+          fi
 
-      - name: Update igdux via Puppeteer
+      # Use Puppeteer to update igdux editor page (headless browser)
+      - name: Update igdux via Puppeteer (headless Chrome)
         if: ${{ github.event.inputs.dry_run != 'true' }}
+        env:
+          IGDUX_EDIT_URL: ${{ secrets.IGDUX_EDIT_URL }}
         run: |
+          node <<'EOF'
           const puppeteer = require('puppeteer');
           const fs = require('fs');
 
           (async () => {
-            const yamlContent = fs.readFileSync('9PB', 'utf8');
-            const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox'] });
+            const url = process.env.IGDUX_EDIT_URL;
+            if (!url) {
+              console.error('Missing IGDUX_EDIT_URL secret');
+              process.exit(1);
+            }
+            const content = fs.readFileSync('9PB', 'utf8');
+
+            const browser = await puppeteer.launch({
+              headless: 'new',
+              args: ['--no-sandbox','--disable-setuid-sandbox']
+            });
             const page = await browser.newPage();
 
-            console.log("🌐 Opening igdux editor...");
-            await page.goto("https://igdux.top/~9PB:44YTr3MMipiXDHhTpbEJ6dRG", { waitUntil: 'networkidle2' });
+            // Extra-realistic headers to pass CF checks
+            await page.setExtraHTTPHeaders({
+              'Accept': '*/*',
+              'Accept-Language': 'en-US,en;q=0.9',
+              'Sec-Fetch-Site': 'same-origin',
+              'Sec-Fetch-Mode': 'navigate',
+              'Sec-Fetch-Dest': 'document'
+            });
 
-            console.log("📝 Pasting YAML...");
-            await page.evaluate((content) => {
-              const textarea = document.querySelector('textarea');
-              textarea.value = content;
-            }, yamlContent);
+            console.log('🌐 Opening igdux editor...');
+            await page.goto(url, { waitUntil: 'networkidle2', timeout: 60000 });
 
-            console.log("💾 Saving...");
-            await page.click('button[type="submit"], button.save'); // adjust selector if needed
-            await page.waitForTimeout(2000); // wait for save
+            // Try common editors: textarea, contenteditable, or #editor
+            const selector = 'textarea, [contenteditable="true"], #editor, #app textarea';
+            await page.waitForSelector(selector, { timeout: 30000 });
 
+            const isContentEditable = await page.$eval(selector, el => !!el.getAttribute && el.getAttribute('contenteditable') === 'true');
+
+            if (isContentEditable) {
+              await page.$eval(selector, (el, txt) => { el.innerText = txt; }, content);
+            } else {
+              await page.$eval(selector, (el, txt) => { el.value = txt; el.dispatchEvent(new Event('input', { bubbles: true })); }, content);
+            }
+
+            // Try to click a Save/Submit button by text or type
+            const tryClick = async (xpath) => {
+              const [btn] = await page.$x(xpath);
+              if (btn) {
+                await btn.click();
+                return true;
+              }
+              return false;
+            };
+
+            console.log('💾 Attempting to save...');
+            let saved = false;
+            const attempts = [
+              "//button[contains(., 'Save')]",
+              "//button[contains(., '保存')]",
+              "//button[contains(., 'submit')]",
+              "//input[@type='submit']",
+              "//button[@type='submit']",
+              "//button[contains(@class,'save')]"
+            ];
+            for (const xp of attempts) {
+              if (await tryClick(xp)) { saved = true; break; }
+            }
+            if (!saved) {
+              // Fallback: press Ctrl/Cmd+S
+              await page.keyboard.down(process.platform === 'darwin' ? 'Meta' : 'Control');
+              await page.keyboard.press('KeyS');
+              await page.keyboard.up(process.platform === 'darwin' ? 'Meta' : 'Control');
+            }
+
+            await page.waitForTimeout(3000); // give worker time to persist
+            console.log('✅ igdux update sequence complete');
             await browser.close();
-            console.log("✅ igdux updated successfully");
-          })();
-        shell: node {0}
+          })().catch(e => { console.error('❌ Puppeteer error:', e.message); process.exit(1); });
+          EOF
 
-      - name: Upload artifact (for debug)
+      - name: Upload artifact (latest 9PB)
         uses: actions/upload-artifact@v4
         with:
-          name: subscription-yaml
+          name: 9PB
           path: 9PB
-          retention-days: 3
+          retention-days: 1
 
-      - name: Delete old artifacts
+      - name: Delete old artifacts (keep newest named 9PB)
         uses: actions/github-script@v7
         with:
           script: |
-            const artifacts = await github.rest.actions.listArtifactsForRepo({
+            const all = await github.rest.actions.listArtifactsForRepo({
               owner: context.repo.owner,
-              repo: context.repo.repo
+              repo: context.repo.repo,
+              per_page: 100
             });
-            for (const artifact of artifacts.data.artifacts) {
-              if (artifact.name !== "subscription-yaml") {
-                await github.rest.actions.deleteArtifact({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  artifact_id: artifact.id
-                });
-                core.info(`🗑 Deleted artifact: ${artifact.name}`);
-              }
+            const targets = all.data.artifacts
+              .filter(a => a.name === '9PB' && !a.expired)
+              .sort((a, b) => new Date(b.created_at) - new Date(a.created_at)); // newest first
+            for (const [i, art] of targets.entries()) {
+              if (i === 0) continue; // keep newest
+              await github.rest.actions.deleteArtifact({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                artifact_id: art.id
+              });
+              core.info(`🗑 Deleted old artifact ${art.id} (${art.name}) created ${art.created_at}`);
             }
 
       - name: Delete old workflow runs (keep latest)
@@ -155,7 +301,7 @@ jobs:
             const sorted = runs.data.workflow_runs
               .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
             for (const [i, run] of sorted.entries()) {
-              if (i === 0 || run.id === context.runId) continue;
+              if (i === 0 || run.id === context.runId) continue; // keep the most recent & current
               try {
                 await github.rest.actions.deleteWorkflowRun({
                   owner: context.repo.owner,
