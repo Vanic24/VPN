@@ -8,7 +8,7 @@ on:
         required: false
         default: 'false'
   schedule:
-    - cron: '0 */4 * * *' # Every 4 hours
+    - cron: '0 */6 * * *' # Every 6 hours
 
 permissions:
   contents: write
@@ -35,73 +35,73 @@ jobs:
           SUB_URL: ${{ secrets.SUB_URL }}
         run: |
           node <<'EOF'
-          const axios = require('axios');
-          const { Base64 } = require('js-base64');
-          const yaml = require('js-yaml');
-          const fs = require('fs');
+const axios = require('axios');
+const { Base64 } = require('js-base64');
+const yaml = require('js-yaml');
+const fs = require('fs');
 
-          const SUB_URL = process.env.SUB_URL;
-          if (!SUB_URL) { console.error("Missing SUB_URL secret"); process.exit(1); }
+(async () => {
+  const SUB_URL = process.env.SUB_URL;
+  if (!SUB_URL) { console.error("Missing SUB_URL secret"); process.exit(1); }
 
-          const b64decode = (s) => {
-            const pad = s.length % 4 ? 4 - (s.length % 4) : 0;
-            if (pad) s += '='.repeat(pad);
-            return Buffer.from(s, 'base64').toString('utf8');
-          };
+  const b64decode = (s) => {
+    const pad = s.length % 4 ? 4 - (s.length % 4) : 0;
+    if (pad) s += '='.repeat(pad);
+    return Buffer.from(s, 'base64').toString('utf8');
+  };
 
-          function parseVmess(link) {
-            try {
-              const json = JSON.parse(b64decode(link.slice(8)));
-              const net = (json.net || 'tcp').toLowerCase();
-              const p = {
-                name: json.ps || 'vmess',
-                type: 'vmess',
-                server: json.add,
-                port: Number(json.port),
-                uuid: json.id,
-                alterId: Number(json.aid || 0),
-                cipher: 'auto',
-                tls: (json.tls || '').toLowerCase() === 'tls',
-                network: net
-              };
-              if (json.sni) p.servername = json.sni;
-              if (net === 'ws') p['ws-opts'] = { path: json.path || '', headers: { Host: json.host || '' } };
-              if (net === 'grpc') p['grpc-opts'] = { 'grpc-service-name': json.path || '' };
-              return p;
-            } catch { return null; }
-          }
+  function parseVmess(link) {
+    try {
+      const json = JSON.parse(b64decode(link.slice(8)));
+      const net = (json.net || 'tcp').toLowerCase();
+      const p = {
+        name: json.ps || 'vmess',
+        type: 'vmess',
+        server: json.add,
+        port: Number(json.port),
+        uuid: json.id,
+        alterId: Number(json.aid || 0),
+        cipher: 'auto',
+        tls: (json.tls || '').toLowerCase() === 'tls',
+        network: net
+      };
+      if (json.sni) p.servername = json.sni;
+      if (net === 'ws') p['ws-opts'] = { path: json.path || '', headers: { Host: json.host || '' } };
+      if (net === 'grpc') p['grpc-opts'] = { 'grpc-service-name': json.path || '' };
+      return p;
+    } catch { return null; }
+  }
 
-          (async () => {
-            console.log('📥 Fetching subscription...');
-            const res = await axios.get(SUB_URL, { responseType: 'text' });
-            let decoded;
-            try { decoded = Base64.decode(res.data.trim()); } 
-            catch { decoded = Buffer.from(res.data.trim(), 'base64').toString('utf8'); }
-            let lines = decoded.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+  console.log('📥 Fetching subscription...');
+  const res = await axios.get(SUB_URL, { responseType: 'text' });
+  let decoded;
+  try { decoded = Base64.decode(res.data.trim()); } 
+  catch { decoded = Buffer.from(res.data.trim(), 'base64').toString('utf8'); }
+  let lines = decoded.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
 
-            // Remove first two nodes
-            lines = lines.slice(2);
+  // Remove first two nodes
+  lines = lines.slice(2);
 
-            const proxies = lines.map(line => {
-              if (line.startsWith('vmess://')) return parseVmess(line);
-              return null;
-            }).filter(Boolean);
+  const proxies = lines.map(line => {
+    if (line.startsWith('vmess://')) return parseVmess(line);
+    return null;
+  }).filter(Boolean);
 
-            console.log(`🔹 Total proxies parsed: ${proxies.length}`);
+  console.log(`🔹 Total proxies parsed: ${proxies.length}`);
 
-            const clashConfig = {
-              proxies: proxies,
-              'proxy-groups': [
-                { name: 'Auto', type: 'url-test', proxies: proxies.map(p=>p.name), url: 'http://www.gstatic.com/generate_204', interval: 300 }
-              ],
-              rules: ['MATCH,Auto']
-            };
+  const clashConfig = {
+    proxies: proxies,
+    'proxy-groups': [
+      { name: 'Auto', type: 'url-test', proxies: proxies.map(p=>p.name), url: 'http://www.gstatic.com/generate_204', interval: 300 }
+    ],
+    rules: ['MATCH,Auto']
+  };
 
-            const yamlData = yaml.dump(clashConfig, { noRefs: true, lineWidth: 120 });
-            fs.writeFileSync('9PB', yamlData, 'utf8');
-            console.log('✅ YAML written to ./9PB');
-          })().catch(e => { console.error('❌ Fatal:', e.message); process.exit(1); });
-          EOF
+  const yamlData = yaml.dump(clashConfig, { noRefs: true, lineWidth: 120 });
+  fs.writeFileSync('9PB', yamlData, 'utf8');
+  console.log('✅ YAML written to ./9PB');
+})();
+EOF
 
       - name: Dry run check
         if: ${{ github.event.inputs.dry_run == 'true' }}
@@ -121,29 +121,31 @@ jobs:
             git push
           fi
 
-      - name: Update igdux via Puppeteer (headless Chrome)
+      - name: Update igdux via Puppeteer
         if: ${{ github.event.inputs.dry_run != 'true' }}
         env:
           IGDUX_EDIT_URL: ${{ secrets.IGDUX_EDIT_URL }}
-        run: |
-          node <<'EOF'
-          const puppeteer = require('puppeteer');
-          const fs = require('fs');
+        run: node update_igdux.js
 
-          (async () => {
-            const url = process.env.IGDUX_EDIT_URL;
-            if (!url) { console.error('Missing IGDUX_EDIT_URL secret'); process.exit(1); }
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: 9PB
+          path: 9PB
+          retention-days: 1
 
-            const content = fs.readFileSync('9PB', 'utf8');
-            const browser = await puppeteer.launch({ headless: 'new', args: ['--no-sandbox'] });
-            const page = await browser.newPage();
+      - name: Delete old artifacts
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const all = await github.rest.actions.listArtifactsForRepo({ owner: context.repo.owner, repo: context.repo.repo, per_page: 100 });
+            const targets = all.data.artifacts.filter(a => a.name==='9PB' && !a.expired).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+            for(const [i,art] of targets.entries()){ if(i===0) continue; await github.rest.actions.deleteArtifact({ owner: context.repo.owner, repo: context.repo.repo, artifact_id: art.id }); core.info(`🗑 Deleted old artifact ${art.id}`); }
 
-            await page.setExtraHTTPHeaders({ 'Accept': '*/*','Accept-Language': 'en-US,en;q=0.9' });
-
-            console.log('🌐 Opening igdux editor...');
-            await page.goto(url, { waitUntil: 'networkidle2', timeout: 60000 });
-
-            const selector = 'textarea, [contenteditable="true"], #editor, #app textarea';
-            await page.waitForSelector(selector, { timeout: 30000 });
-
-            const isContentEditable = await page.$eval(selector, el
+      - name: Delete old workflow runs (keep latest)
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const runs = await github.rest.actions.listWorkflowRuns({ owner: context.repo.owner, repo: context.repo.repo, workflow_id: context.workflow, per_page: 50 });
+            const sorted = runs.data.workflow_runs.sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+            for(const [i,run] of sorted.entries()){ if(i===0||run.id===context.runId) continue; try{ await github.rest.actions.deleteWorkflowRun({ owner: context.repo.owner, repo: context.repo.repo, run_id: run.id }); core.info(`🗑 Deleted old run ${run.id}`); } catch(e){ core.warning(`Could not delete run ${run.id}: ${e.message}`); } }
