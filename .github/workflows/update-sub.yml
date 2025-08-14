@@ -33,6 +33,7 @@ jobs:
         const axios = require('axios');
         const yaml = require('js-yaml');
         const fs = require('fs');
+        const { URL } = require('url');
         const path = require('path');
 
         const SUB_URL = process.env.SUB_URL;
@@ -140,7 +141,7 @@ jobs:
           const yamlData = yaml.dump(clashConfig, { noRefs: true, forceQuotes: false, lineWidth: 120 });
           fs.writeFileSync(GITHUB_FILE, yamlData, "utf8");
 
-          // Save artifact file as 9PB.yml
+          // Save artifact file as 9PB.yml for logs / dry run
           const artifactFile = path.join(process.cwd(), `9PB.yml`);
           fs.writeFileSync(artifactFile, yamlData, "utf8");
           console.log("✅ YAML generated successfully");
@@ -182,26 +183,3 @@ jobs:
       with:
         name: 9PB
         path: 9PB.yml
-
-    - name: Cleanup old workflow runs (keep only latest)
-      uses: actions/github-script@v7
-      with:
-        script: |
-          const workflowFileName = 'update-sub.yml'; // Use workflow file name instead of display name
-          const runs = await github.rest.actions.listWorkflowRuns({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            workflow_id: workflowFileName,
-            per_page: 100,
-          });
-          const sortedRuns = runs.data.workflow_runs
-            .filter(r => r.id !== context.runId)
-            .sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
-          for (const run of sortedRuns) {
-            console.log(`Deleting old workflow run: ${run.id}`);
-            await github.rest.actions.deleteWorkflowRun({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              run_id: run.id
-            });
-          }
