@@ -185,23 +185,15 @@ jobs:
 
     - name: Delete old artifacts (keep latest 9PB only)
       run: |
-        echo "🔍 Checking for old artifacts..."
-        artifact_ids=$(gh api repos/${{ github.repository }}/actions/artifacts \
-          --jq '.artifacts[] | select(.name=="9PB") | .id')
-
-        keep_id=$(echo "$artifact_ids" | head -n 1)
-        delete_ids=$(echo "$artifact_ids" | tail -n +2)
-
-        if [ -z "$delete_ids" ]; then
-          echo "✅ No old artifacts to delete."
-        else
-          for id in $delete_ids; do
-            gh api --method DELETE repos/${{ github.repository }}/actions/artifacts/$id
-            echo "🗑 Deleted old artifact $id"
-          done
-        fi
+        latest_id=$(gh api repos/${{ github.repository }}/actions/artifacts \
+          --jq '.artifacts[] | select(.name=="9PB") | .id' | head -n 1)
+        for id in $(gh api repos/${{ github.repository }}/actions/artifacts \
+          --jq '.artifacts[] | select(.name=="9PB") | .id' | tail -n +2); do
+          gh api --method DELETE repos/${{ github.repository }}/actions/artifacts/$id
+          echo "🗑 Deleted artifact $id"
+        done
       env:
-        GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        GH_TOKEN: ${{ secrets.WorkFlows_Delete }}
 
     - name: Delete old workflow runs (keep latest)
       run: |
@@ -215,5 +207,4 @@ jobs:
           gh api --method DELETE repos/${{ github.repository }}/actions/runs/$run_id || echo "⚠️ Failed to delete run $run_id"
         done
       env:
-        GH_TOKEN: ${{ secrets.SUB_9PB }}
-
+        GH_TOKEN: ${{ secrets.WorkFlows_Delete }}
