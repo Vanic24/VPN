@@ -16,10 +16,10 @@ jobs:
 
     steps:
     - name: Checkout repo
-      uses: actions/checkout@v4
+      uses: actions/checkout@v3
 
     - name: Set up Node.js
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v3
       with:
         node-version: "20"
 
@@ -177,7 +177,7 @@ jobs:
         DRY_RUN: ${{ github.event.inputs.dry_run }}
 
     - name: Upload Clash YAML artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: clash-yaml
         path: clash_output.yml
