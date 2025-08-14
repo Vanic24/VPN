@@ -111,18 +111,59 @@ jobs:
           } catch { return null; }
         }
 
+        function parseHysteria2(link) {
+          try {
+            const u = new URL(link);
+            const name = decodeURIComponent(u.hash.slice(1)) || "hysteria2";
+            return {
+              name,
+              type: "hysteria2",
+              server: u.hostname,
+              port: Number(u.port),
+              password: decodeURIComponent(u.username),
+              udp: u.searchParams.get("udp") === "true",
+              sni: u.searchParams.get("sni") || undefined,
+              "skip-cert-verify": u.searchParams.get("skip-cert-verify") === "true"
+            };
+          } catch { return null; }
+        }
+
+        function parseAnytls(link) {
+          try {
+            const u = new URL(link);
+            const name = decodeURIComponent(u.hash.slice(1)) || "anytls";
+            return {
+              name,
+              type: "anytls",
+              server: u.hostname,
+              port: Number(u.port),
+              password: decodeURIComponent(u.username),
+              udp: u.searchParams.get("udp") === "true",
+              sni: u.searchParams.get("sni") || undefined,
+              "skip-cert-verify": u.searchParams.get("skip-cert-verify") === "true"
+            };
+          } catch { return null; }
+        }
+
         async function main() {
           const res = await axios.get(SUB_URL, { responseType: 'text' });
-          let lines = b64decode(res.data.trim()).split(/\r?\n/).slice(2).filter(Boolean);
+          // Decode Base64 and remove first 3 lines (info nodes)
+          let lines = b64decode(res.data.trim())
+                        .split(/\r?\n/)
+                        .filter(Boolean)
+                        .slice(3);
 
           const proxies = [];
           for (const line of lines) {
             if (line.startsWith("vmess://")) proxies.push(parseVmess(line));
             else if (line.startsWith("vless://")) proxies.push(parseVless(line));
             else if (line.startsWith("trojan://")) proxies.push(parseTrojan(line));
+            else if (line.startsWith("hysteria2://")) proxies.push(parseHysteria2(line));
+            else if (line.startsWith("anytls://")) proxies.push(parseAnytls(line));
           }
 
           console.log(`🔹 Total proxies parsed: ${proxies.length}`);
+          console.log("Proxy names:", proxies.map(p => p.name).join(", "));
 
           const clashConfig = {
             proxies,
@@ -140,10 +181,7 @@ jobs:
 
           const yamlData = yaml.dump(clashConfig, { noRefs: true, forceQuotes: false, lineWidth: 120 });
           fs.writeFileSync(GITHUB_FILE, yamlData, "utf8");
-
-          const artifactFile = path.join(process.cwd(), `9PB.yml`);
-          fs.writeFileSync(artifactFile, yamlData, "utf8");
-          console.log("✅ YAML generated successfully");
+          fs.writeFileSync(path.join(process.cwd(), "9PB.yml"), yamlData, "utf8");
 
           if (!dryRun) {
             try {
@@ -154,7 +192,7 @@ jobs:
               await axios.put(
                 `https://api.github.com/repos/Vanic24/VPN/contents/${GITHUB_FILE}`,
                 {
-                  message: "Auto update Clash YAML",
+                  message: "Auto update Clash YAML 9PB",
                   content: Buffer.from(yamlData).toString('base64'),
                   sha: fileInfo.data.sha
                 },
@@ -162,7 +200,7 @@ jobs:
               );
               console.log("✅ GitHub updated successfully");
             } catch (e) {
-              console.error("⚠️ Warning: Failed to update GitHub:", e.message);
+              console.error("⚠️ Failed to update GitHub:", e.message);
             }
           } else {
             console.log("⚠️ Dry run enabled — YAML generated but not pushed.");
