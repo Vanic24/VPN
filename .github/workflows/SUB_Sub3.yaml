@@ -2,7 +2,7 @@ name: Update VPN Subscription (SUB_Sub3)
 
 on:
   schedule:
-    - cron: "0 */4 * * *"  #Runs every 4 hours
+    - cron: "0 */4 * * *"
   workflow_dispatch:
     inputs:
       dry_run:
@@ -33,8 +33,8 @@ jobs:
         const axios = require('axios');
         const yaml = require('js-yaml');
         const fs = require('fs');
-        const { URL } = require('url');
         const path = require('path');
+        const { URL } = require('url');
 
         const SUB_URL = process.env.SUB_Sub3;
         const GH_TOKEN = process.env.GH_TOKEN;
@@ -46,7 +46,6 @@ jobs:
           return Buffer.from(s, 'base64').toString('utf8');
         }
 
-        // Parser functions for all protocols
         function parseVmess(link) { try { const conf = JSON.parse(b64decode(link.slice(8))); return { name: conf.ps||'vmess', type:'vmess', server:conf.add, port:Number(conf.port), uuid:conf.id, alterId:Number(conf.aid||0), cipher:conf.type||'auto', tls: (conf.tls||'').toLowerCase()==='tls', network:(conf.net||'tcp').toLowerCase() }; } catch{return null;} }
         function parseVless(link) { try { const u=new URL(link); const q=Object.fromEntries(u.searchParams.entries()); return { name: decodeURIComponent(u.hash.slice(1))||'vless', type:'vless', server:u.hostname, port:Number(u.port||443), uuid:decodeURIComponent(u.username), tls:(q.security||'').toLowerCase()==='tls', network:(q.type||q.transport||'tcp').toLowerCase() }; } catch{return null;} }
         function parseTrojan(link) { try { const u=new URL(link); const q=Object.fromEntries(u.searchParams.entries()); return { name: decodeURIComponent(u.hash.slice(1))||'trojan', type:'trojan', server:u.hostname, port:Number(u.port||443), password:decodeURIComponent(u.username), tls:(q.security||'').toLowerCase()==='tls', network:(q.type||q.transport||'tcp').toLowerCase() }; } catch{return null;} }
@@ -63,12 +62,14 @@ jobs:
 
           const proxies = [];
           for (let line of lines) {
-            const lowerLine = line.toLowerCase();
-            if (lowerLine.startsWith("vmess://")) proxies.push(parseVmess(line));
-            else if (lowerLine.startsWith("vless://")) proxies.push(parseVless(line));
-            else if (lowerLine.startsWith("trojan://")) proxies.push(parseTrojan(line));
-            else if (lowerLine.startsWith("hysteria2://")) proxies.push(parseHysteria2(line));
-            else if (lowerLine.startsWith("anytls://")) proxies.push(parseAnytls(line));
+            const lowerLine = line.trim().toLowerCase();
+            let parsed = null;
+            if (lowerLine.startsWith("vmess://")) parsed = parseVmess(line);
+            else if (lowerLine.startsWith("vless://")) parsed = parseVless(line);
+            else if (lowerLine.startsWith("trojan://")) parsed = parseTrojan(line);
+            else if (lowerLine.startsWith("hysteria2://")) parsed = parseHysteria2(line);
+            else if (lowerLine.startsWith("anytls://")) parsed = parseAnytls(line);
+            if (parsed) proxies.push(parsed);
             else console.log("⚠️ Unknown line skipped:", line);
           }
 
