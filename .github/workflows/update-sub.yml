@@ -8,7 +8,7 @@ on:
         required: false
         default: 'false'
   schedule:
-    - cron: '0 */4 * * *' # Every 4 hours
+    - cron: '0 */6 * * *' # Every 6 hours
 
 permissions:
   contents: write
@@ -30,8 +30,7 @@ jobs:
       - name: Install dependencies
         run: npm install puppeteer axios js-base64 js-yaml
 
-      # Fetch the official subscription, convert to Clash YAML, write to 9PB
-      - name: Fetch & convert to Clash YAML
+      - name: Fetch & convert subscription to Clash YAML
         env:
           SUB_URL: ${{ secrets.SUB_URL }}
         run: |
@@ -42,12 +41,8 @@ jobs:
           const fs = require('fs');
 
           const SUB_URL = process.env.SUB_URL;
-          if (!SUB_URL) {
-            console.error("Missing SUB_URL secret");
-            process.exit(1);
-          }
+          if (!SUB_URL) { console.error("Missing SUB_URL secret"); process.exit(1); }
 
-          // --- Helpers ---
           const b64decode = (s) => {
             const pad = s.length % 4 ? 4 - (s.length % 4) : 0;
             if (pad) s += '='.repeat(pad);
@@ -76,81 +71,28 @@ jobs:
             } catch { return null; }
           }
 
-          function parseVless(url) {
-            try {
-              const u = new URL(url);
-              const q = Object.fromEntries(u.searchParams.entries());
-              const net = (q.type || q.transport || 'tcp').toLowerCase();
-              const p = {
-                name: decodeURIComponent(u.hash.slice(1)) || 'vless',
-                type: 'vless',
-                server: u.hostname,
-                port: Number(u.port || 443),
-                uuid: decodeURIComponent(u.username),
-                tls: (q.security || '').toLowerCase() === 'tls',
-                network: net
-              };
-              if (q.sni) p.servername = q.sni;
-              if (net === 'ws') p['ws-opts'] = { path: q.path || '', headers: { Host: q.host || '' } };
-              if (net === 'grpc') p['grpc-opts'] = { 'grpc-service-name': q.serviceName || q['service-name'] || '' };
-              return p;
-            } catch { return null; }
-          }
-
-          function parseTrojan(url) {
-            try {
-              const u = new URL(url);
-              const q = Object.fromEntries(u.searchParams.entries());
-              const net = (q.type || q.transport || 'tcp').toLowerCase();
-              const p = {
-                name: decodeURIComponent(u.hash.slice(1)) || 'trojan',
-                type: 'trojan',
-                server: u.hostname,
-                port: Number(u.port || 443),
-                password: decodeURIComponent(u.username),
-                tls: (q.security || 'tls').toLowerCase() === 'tls',
-                network: net
-              };
-              if (q.sni) p.sni = q.sni;
-              if (net === 'ws') p['ws-opts'] = { path: q.path || '', headers: { Host: q.host || '' } };
-              if (net === 'grpc') p['grpc-opts'] = { 'grpc-service-name': q.serviceName || q['service-name'] || '' };
-              return p;
-            } catch { return null; }
-          }
-
           (async () => {
             console.log('📥 Fetching subscription...');
             const res = await axios.get(SUB_URL, { responseType: 'text' });
             let decoded;
-            try {
-              decoded = Base64.decode(res.data.trim());
-            } catch {
-              decoded = Buffer.from(res.data.trim(), 'base64').toString('utf8');
-            }
+            try { decoded = Base64.decode(res.data.trim()); } 
+            catch { decoded = Buffer.from(res.data.trim(), 'base64').toString('utf8'); }
             let lines = decoded.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
 
-            // Remove the first two non-proxy lines
+            // Remove first two nodes
             lines = lines.slice(2);
 
-            const proxies = [];
-            for (const line of lines) {
-              if (line.startsWith('vmess://')) proxies.push(parseVmess(line));
-              else if (line.startsWith('vless://')) proxies.push(parseVless(line));
-              else if (line.startsWith('trojan://')) proxies.push(parseTrojan(line));
-            }
-            const valid = proxies.filter(Boolean);
-            console.log(`🔹 Total proxies parsed: ${valid.length}`);
+            const proxies = lines.map(line => {
+              if (line.startsWith('vmess://')) return parseVmess(line);
+              return null;
+            }).filter(Boolean);
+
+            console.log(`🔹 Total proxies parsed: ${proxies.length}`);
 
             const clashConfig = {
-              proxies: valid,
+              proxies: proxies,
               'proxy-groups': [
-                {
-                  name: 'Auto',
-                  type: 'url-test',
-                  proxies: valid.map(p => p.name),
-                  url: 'http://www.gstatic.com/generate_204',
-                  interval: 300
-                }
+                { name: 'Auto', type: 'url-test', proxies: proxies.map(p=>p.name), url: 'http://www.gstatic.com/generate_204', interval: 300 }
               ],
               rules: ['MATCH,Auto']
             };
@@ -161,7 +103,10 @@ jobs:
           })().catch(e => { console.error('❌ Fatal:', e.message); process.exit(1); });
           EOF
 
-      # If not a dry run, push 9PB to repo
+      - name: Dry run check
+        if: ${{ github.event.inputs.dry_run == 'true' }}
+        run: echo "Dry run: Skipping uploads"
+
       - name: Commit & push 9PB to GitHub
         if: ${{ github.event.inputs.dry_run != 'true' }}
         run: |
@@ -175,7 +120,6 @@ jobs:
             git push
           fi
 
-      # Use Puppeteer to update igdux editor page (headless browser)
       - name: Update igdux via Puppeteer (headless Chrome)
         if: ${{ github.event.inputs.dry_run != 'true' }}
         env:
@@ -187,35 +131,21 @@ jobs:
 
           (async () => {
             const url = process.env.IGDUX_EDIT_URL;
-            if (!url) {
-              console.error('Missing IGDUX_EDIT_URL secret');
-              process.exit(1);
-            }
-            const content = fs.readFileSync('9PB', 'utf8');
+            if (!url) { console.error('Missing IGDUX_EDIT_URL secret'); process.exit(1); }
 
-            const browser = await puppeteer.launch({
-              headless: 'new',
-              args: ['--no-sandbox','--disable-setuid-sandbox']
-            });
+            const content = fs.readFileSync('9PB', 'utf8');
+            const browser = await puppeteer.launch({ headless: 'new', args: ['--no-sandbox'] });
             const page = await browser.newPage();
 
-            // Extra-realistic headers to pass CF checks
-            await page.setExtraHTTPHeaders({
-              'Accept': '*/*',
-              'Accept-Language': 'en-US,en;q=0.9',
-              'Sec-Fetch-Site': 'same-origin',
-              'Sec-Fetch-Mode': 'navigate',
-              'Sec-Fetch-Dest': 'document'
-            });
+            await page.setExtraHTTPHeaders({ 'Accept': '*/*','Accept-Language': 'en-US,en;q=0.9' });
 
             console.log('🌐 Opening igdux editor...');
             await page.goto(url, { waitUntil: 'networkidle2', timeout: 60000 });
 
-            // Try common editors: textarea, contenteditable, or #editor
             const selector = 'textarea, [contenteditable="true"], #editor, #app textarea';
             await page.waitForSelector(selector, { timeout: 30000 });
 
-            const isContentEditable = await page.$eval(selector, el => !!el.getAttribute && el.getAttribute('contenteditable') === 'true');
+            const isContentEditable = await page.$eval(selector, el => el.getAttribute && el.getAttribute('contenteditable') === 'true');
 
             if (isContentEditable) {
               await page.$eval(selector, (el, txt) => { el.innerText = txt; }, content);
@@ -223,17 +153,14 @@ jobs:
               await page.$eval(selector, (el, txt) => { el.value = txt; el.dispatchEvent(new Event('input', { bubbles: true })); }, content);
             }
 
-            // Try to click a Save/Submit button by text or type
-            const tryClick = async (xpath) => {
-              const [btn] = await page.$x(xpath);
-              if (btn) {
-                await btn.click();
-                return true;
-              }
-              return false;
-            };
-
             console.log('💾 Attempting to save...');
+
+            async function tryXPathClick(xpath) {
+              const handles = await page.$x(xpath);
+              if (handles.length > 0) { await handles[0].click(); return true; }
+              return false;
+            }
+
             let saved = false;
             const attempts = [
               "//button[contains(., 'Save')]",
@@ -243,73 +170,43 @@ jobs:
               "//button[@type='submit']",
               "//button[contains(@class,'save')]"
             ];
+
             for (const xp of attempts) {
-              if (await tryClick(xp)) { saved = true; break; }
-            }
-            if (!saved) {
-              // Fallback: press Ctrl/Cmd+S
-              await page.keyboard.down(process.platform === 'darwin' ? 'Meta' : 'Control');
-              await page.keyboard.press('KeyS');
-              await page.keyboard.up(process.platform === 'darwin' ? 'Meta' : 'Control');
+              if (await tryXPathClick(xp)) { saved = true; break; }
             }
 
-            await page.waitForTimeout(3000); // give worker time to persist
-            console.log('✅ igdux update sequence complete');
+            if (!saved) {
+              const key = process.platform === 'darwin' ? 'Meta' : 'Control';
+              await page.keyboard.down(key);
+              await page.keyboard.press('KeyS');
+              await page.keyboard.up(key);
+            }
+
+            await page.waitForTimeout(3000);
+            console.log('✅ igdux update complete');
             await browser.close();
           })().catch(e => { console.error('❌ Puppeteer error:', e.message); process.exit(1); });
           EOF
 
-      - name: Upload artifact (latest 9PB)
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: 9PB
           path: 9PB
           retention-days: 1
 
-      - name: Delete old artifacts (keep newest named 9PB)
+      - name: Delete old artifacts
         uses: actions/github-script@v7
         with:
           script: |
-            const all = await github.rest.actions.listArtifactsForRepo({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              per_page: 100
-            });
-            const targets = all.data.artifacts
-              .filter(a => a.name === '9PB' && !a.expired)
-              .sort((a, b) => new Date(b.created_at) - new Date(a.created_at)); // newest first
-            for (const [i, art] of targets.entries()) {
-              if (i === 0) continue; // keep newest
-              await github.rest.actions.deleteArtifact({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                artifact_id: art.id
-              });
-              core.info(`🗑 Deleted old artifact ${art.id} (${art.name}) created ${art.created_at}`);
-            }
+            const all = await github.rest.actions.listArtifactsForRepo({ owner: context.repo.owner, repo: context.repo.repo, per_page: 100 });
+            const targets = all.data.artifacts.filter(a => a.name==='9PB' && !a.expired).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+            for(const [i,art] of targets.entries()){ if(i===0) continue; await github.rest.actions.deleteArtifact({ owner: context.repo.owner, repo: context.repo.repo, artifact_id: art.id }); core.info(`🗑 Deleted old artifact ${art.id}`); }
 
       - name: Delete old workflow runs (keep latest)
         uses: actions/github-script@v7
         with:
           script: |
-            const runs = await github.rest.actions.listWorkflowRuns({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              workflow_id: context.workflow,
-              per_page: 50
-            });
-            const sorted = runs.data.workflow_runs
-              .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-            for (const [i, run] of sorted.entries()) {
-              if (i === 0 || run.id === context.runId) continue; // keep the most recent & current
-              try {
-                await github.rest.actions.deleteWorkflowRun({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  run_id: run.id
-                });
-                core.info(`🗑 Deleted old run ${run.id} from ${run.created_at}`);
-              } catch (e) {
-                core.warning(`Could not delete run ${run.id}: ${e.message}`);
-              }
-            }
+            const runs = await github.rest.actions.listWorkflowRuns({ owner: context.repo.owner, repo: context.repo.repo, workflow_id: context.workflow, per_page: 50 });
+            const sorted = runs.data.workflow_runs.sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+            for(const [i,run] of sorted.entries()){ if(i===0||run.id===context.runId) continue; try{ await github.rest.actions.deleteWorkflowRun({ owner: context.repo.owner, repo: context.repo.repo, run_id: run.id }); core.info(`🗑 Deleted old run ${run.id}`); } catch(e){ core.warning(`Could not delete run ${run.id}: ${e.message}`); } }
