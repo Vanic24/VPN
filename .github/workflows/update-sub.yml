@@ -1,4 +1,4 @@
-name: Update VPN Subscription (Clash YAML + Full Debug + Forced Update)
+name: Update VPN Subscription (Clash YAML + GitHub + igdux)
 
 on:
   schedule:
@@ -24,7 +24,7 @@ jobs:
         node-version: "20"
 
     - name: Install dependencies
-      run: npm install axios js-yaml
+      run: npm install axios js-yaml form-data
 
     - name: Debug secrets
       run: |
@@ -42,6 +42,7 @@ jobs:
         const axios = require('axios');
         const yaml = require('js-yaml');
         const fs = require('fs');
+        const FormData = require('form-data');
 
         const SUB_URL = process.env.SUB_URL;
         const GH_TOKEN = process.env.GH_TOKEN;
@@ -54,49 +55,43 @@ jobs:
           return Buffer.from(s, 'base64').toString('utf8');
         }
 
-        function parseVmess(link) { /* same as previous parseVmess */ 
-          try {
-            const conf = JSON.parse(b64decode(link.slice(8)));
-            const net = (conf.net || "tcp").toLowerCase();
-            const tls = (conf.tls || "").toLowerCase() === "tls";
-            const proxy = { name: conf.ps || "vmess", type: "vmess", server: conf.add, port: Number(conf.port), uuid: conf.id, alterId: Number(conf.aid || 0), cipher: conf.type || "auto", tls, network: net };
-            if (net === "ws") proxy["ws-opts"] = { path: conf.path || "", headers: { Host: conf.host || "" } };
-            if (net === "grpc") proxy["grpc-opts"] = { "grpc-service-name": conf.path || "" };
-            if (conf.sni) proxy.servername = conf.sni;
-            return proxy;
-          } catch { return null; }
-        }
+        function parseVmess(link) { try {
+          const conf = JSON.parse(b64decode(link.slice(8)));
+          const net = (conf.net || "tcp").toLowerCase();
+          const tls = (conf.tls || "").toLowerCase() === "tls";
+          const proxy = { name: conf.ps || "vmess", type: "vmess", server: conf.add, port: Number(conf.port), uuid: conf.id, alterId: Number(conf.aid || 0), cipher: conf.type || "auto", tls, network: net };
+          if (net === "ws") proxy["ws-opts"] = { path: conf.path || "", headers: { Host: conf.host || "" } };
+          if (net === "grpc") proxy["grpc-opts"] = { "grpc-service-name": conf.path || "" };
+          if (conf.sni) proxy.servername = conf.sni;
+          return proxy;
+        } catch { return null; } }
 
-        function parseVless(link) { /* same as previous parseVless */ 
-          try {
-            const u = new URL(link);
-            const q = Object.fromEntries(u.searchParams.entries());
-            const net = (q.type || q.transport || "tcp").toLowerCase();
-            const tls = (q.security || "").toLowerCase() === "tls";
-            const proxy = { name: decodeURIComponent(u.hash.slice(1)) || "vless", type: "vless", server: u.hostname, port: Number(u.port || 443), uuid: decodeURIComponent(u.username), tls, network: net };
-            if (net === "ws") proxy["ws-opts"] = { path: q.path || "", headers: { Host: q.host || "" } };
-            if (net === "grpc") proxy["grpc-opts"] = { "grpc-service-name": q.serviceName || q["service-name"] || "" };
-            return proxy;
-          } catch { return null; }
-        }
+        function parseVless(link) { try {
+          const u = new URL(link);
+          const q = Object.fromEntries(u.searchParams.entries());
+          const net = (q.type || q.transport || "tcp").toLowerCase();
+          const tls = (q.security || "").toLowerCase() === "tls";
+          const proxy = { name: decodeURIComponent(u.hash.slice(1)) || "vless", type: "vless", server: u.hostname, port: Number(u.port || 443), uuid: decodeURIComponent(u.username), tls, network: net };
+          if (net === "ws") proxy["ws-opts"] = { path: q.path || "", headers: { Host: q.host || "" } };
+          if (net === "grpc") proxy["grpc-opts"] = { "grpc-service-name": q.serviceName || q["service-name"] || "" };
+          return proxy;
+        } catch { return null; } }
 
-        function parseTrojan(link) { /* same as previous parseTrojan */ 
-          try {
-            const u = new URL(link);
-            const q = Object.fromEntries(u.searchParams.entries());
-            const net = (q.type || q.transport || "tcp").toLowerCase();
-            const tls = (q.security || "").toLowerCase() === "tls";
-            const proxy = { name: decodeURIComponent(u.hash.slice(1)) || "trojan", type: "trojan", server: u.hostname, port: Number(u.port || 443), password: decodeURIComponent(u.username), tls, network: net };
-            if (net === "ws") proxy["ws-opts"] = { path: q.path || "", headers: { Host: q.host || "" } };
-            if (net === "grpc") proxy["grpc-opts"] = { "grpc-service-name": q.serviceName || q["service-name"] || "" };
-            return proxy;
-          } catch { return null; }
-        }
+        function parseTrojan(link) { try {
+          const u = new URL(link);
+          const q = Object.fromEntries(u.searchParams.entries());
+          const net = (q.type || q.transport || "tcp").toLowerCase();
+          const tls = (q.security || "").toLowerCase() === "tls";
+          const proxy = { name: decodeURIComponent(u.hash.slice(1)) || "trojan", type: "trojan", server: u.hostname, port: Number(u.port || 443), password: decodeURIComponent(u.username), tls, network: net };
+          if (net === "ws") proxy["ws-opts"] = { path: q.path || "", headers: { Host: q.host || "" } };
+          if (net === "grpc") proxy["grpc-opts"] = { "grpc-service-name": q.serviceName || q["service-name"] || "" };
+          return proxy;
+        } catch { return null; } }
 
         async function updateGitHub(yamlData) {
           let attempt = 0;
           const maxAttempts = 2;
-          while (attempt < maxAttempts) {
+          while(attempt < maxAttempts) {
             try {
               console.log("Fetching GitHub file info...");
               const fileInfo = await axios.get(
@@ -115,7 +110,7 @@ jobs:
               console.log("GitHub PUT status:", putRes.status);
               console.log("GitHub PUT response:", JSON.stringify(putRes.data));
               break;
-            } catch (e) {
+            } catch(e) {
               console.error("⚠️ GitHub update attempt", attempt+1,"failed:", e.response ? JSON.stringify(e.response.data) : e.message);
               attempt++;
               if(attempt >= maxAttempts) console.error("❌ GitHub update failed after retries");
@@ -128,12 +123,15 @@ jobs:
           const maxAttempts = 2;
           while(attempt < maxAttempts) {
             try {
-              console.log("Posting to igdux...");
-              const res = await axios.post(IGDUX_EDIT_URL, yamlData, { headers: { 'Content-Type': 'text/plain' } });
+              console.log("Posting to igdux with multipart/form-data...");
+              const FormData = require('form-data');
+              const form = new FormData();
+              form.append('file', yamlData, { filename: '9PB.yml' });
+              const res = await axios.post(IGDUX_EDIT_URL, form, { headers: form.getHeaders() });
               console.log("igdux POST status:", res.status);
               console.log("igdux POST response:", JSON.stringify(res.data));
               break;
-            } catch (e) {
+            } catch(e) {
               console.error("⚠️ igdux update attempt", attempt+1,"failed:", e.response ? JSON.stringify(e.response.data) : e.message);
               attempt++;
               if(attempt >= maxAttempts) console.error("❌ igdux update failed after retries");
@@ -148,10 +146,10 @@ jobs:
             let lines = b64decode(res.data.trim()).split(/\r?\n/).slice(2).filter(Boolean);
 
             const proxies = [];
-            for (const line of lines) {
-              if (line.startsWith("vmess://")) proxies.push(parseVmess(line));
-              else if (line.startsWith("vless://")) proxies.push(parseVless(line));
-              else if (line.startsWith("trojan://")) proxies.push(parseTrojan(line));
+            for(const line of lines) {
+              if(line.startsWith("vmess://")) proxies.push(parseVmess(line));
+              else if(line.startsWith("vless://")) proxies.push(parseVless(line));
+              else if(line.startsWith("trojan://")) proxies.push(parseTrojan(line));
             }
             console.log(`🔹 Total proxies parsed: ${proxies.length}`);
 
@@ -161,7 +159,7 @@ jobs:
               rules:["MATCH,Auto"]
             };
 
-            const yamlData = yaml.dump(clashConfig, { noRefs: true, forceQuotes: false, lineWidth: 120 });
+            const yamlData = yaml.dump(clashConfig, { noRefs:true, forceQuotes:false, lineWidth:120 });
             fs.writeFileSync("9PB", yamlData, "utf8");
             fs.writeFileSync("9PB.yml", yamlData, "utf8");
             console.log("✅ YAML generated locally");
