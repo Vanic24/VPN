@@ -37,7 +37,8 @@ jobs:
 
       - name: Dry run check
         if: ${{ github.event.inputs.dry_run == 'true' }}
-        run: echo "Dry run: Skipping uploads"
+        run: |
+          echo "Dry run: Skipping uploads"
 
       - name: Commit & push 9PB to GitHub
         if: ${{ github.event.inputs.dry_run != 'true' }}
