@@ -140,28 +140,34 @@ jobs:
           const yamlData = yaml.dump(clashConfig, { noRefs: true, forceQuotes: false, lineWidth: 120 });
           fs.writeFileSync(GITHUB_FILE, yamlData, "utf8");
 
-          // Save artifact file for logs / dry run
-          const artifactFile = path.join(process.cwd(), `clash_output.yml`);
+          // Save artifact file as 9PB.yml for logs / dry run
+          const artifactFile = path.join(process.cwd(), `9PB.yml`);
           fs.writeFileSync(artifactFile, yamlData, "utf8");
           console.log("✅ YAML generated successfully");
 
           if (!dryRun) {
-            const fileInfo = await axios.get(
-              `https://api.github.com/repos/Vanic24/VPN/contents/${GITHUB_FILE}`,
-              { headers: { Authorization: `token ${GH_TOKEN}` } }
-            );
-            await axios.put(
-              `https://api.github.com/repos/Vanic24/VPN/contents/${GITHUB_FILE}`,
-              {
-                message: "Auto update Clash YAML",
-                content: Buffer.from(yamlData).toString('base64'),
-                sha: fileInfo.data.sha
-              },
-              { headers: { Authorization: `token ${GH_TOKEN}` } }
-            );
+            try {
+              const fileInfo = await axios.get(
+                `https://api.github.com/repos/Vanic24/VPN/contents/${GITHUB_FILE}`,
+                { headers: { Authorization: `token ${GH_TOKEN}` } }
+              );
+              await axios.put(
+                `https://api.github.com/repos/Vanic24/VPN/contents/${GITHUB_FILE}`,
+                {
+                  message: "Auto update Clash YAML",
+                  content: Buffer.from(yamlData).toString('base64'),
+                  sha: fileInfo.data.sha
+                },
+                { headers: { Authorization: `token ${GH_TOKEN}` } }
+              );
+              console.log("✅ GitHub updated successfully");
 
-            await axios.post(IGDUX_EDIT_URL, yamlData, { headers: { 'Content-Type': 'text/plain' } });
-            console.log("✅ Updated GitHub & igdux successfully");
+              await axios.post(IGDUX_EDIT_URL, yamlData, { headers: { 'Content-Type': 'text/plain' } });
+              console.log("✅ igdux updated successfully");
+
+            } catch (e) {
+              console.error("⚠️ Warning: Failed to update GitHub or igdux:", e.message);
+            }
           } else {
             console.log("⚠️ Dry run enabled — YAML generated but not pushed.");
           }
@@ -179,5 +185,5 @@ jobs:
     - name: Upload Clash YAML artifact
       uses: actions/upload-artifact@v4
       with:
-        name: clash-yaml
-        path: clash_output.yml
+        name: 9PB
+        path: 9PB.yml
