@@ -2,7 +2,7 @@ name: Update VPN Subscription (SUB_9PB)
 
 on:
   schedule:
-    - cron: "0 */6 * * *"  # Runs every 6 hours
+    - cron: "0 */4 * * *"  # Runs every 4 hours
   workflow_dispatch:
     inputs:
       dry_run:
@@ -33,7 +33,6 @@ jobs:
         const axios = require('axios');
         const yaml = require('js-yaml');
         const fs = require('fs');
-        const { URL } = require('url');
         const path = require('path');
 
         const SUB_URL = process.env.SUB_9PB;
@@ -197,10 +196,7 @@ jobs:
 
     - name: Delete old workflow runs (keep latest)
       run: |
-        workflow_id=$(gh api repos/${{ github.repository }}/actions/workflows \
-          -H "Authorization: token ${{ secrets.WorkFlows_Delete }}" \
-          --jq '.workflows[] | select(.path=="SUB_9PB.yaml") | .id')
-
+        workflow_id=9876543  # <-- Replace this number with your workflow numeric ID
         echo "🔹 Workflow numeric ID: $workflow_id"
         runs=$(gh api repos/${{ github.repository }}/actions/workflows/$workflow_id/runs --jq '.workflow_runs[].id')
         latest=$(echo "$runs" | head -n 1)
