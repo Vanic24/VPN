@@ -147,11 +147,11 @@ jobs:
 
         async function main() {
           const res = await axios.get(SUB_URL, { responseType: 'text' });
-          // Decode Base64 and remove first 3 lines (info nodes)
+          // Decode Base64 and remove first 2 lines (info nodes)
           let lines = b64decode(res.data.trim())
                         .split(/\r?\n/)
                         .filter(Boolean)
-                        .slice(3);
+                        .slice(2);
 
           const proxies = [];
           for (const line of lines) {
