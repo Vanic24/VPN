@@ -1,185 +1,229 @@
-name: Update VPN Subscription (Clash YAML + Dry Run + Artifact)
+name: Update Clash Subscription
 
 on:
   schedule:
-    - cron: "0 */4 * * *"  # Runs every 4 hours
+    - cron: '0 */4 * * *' # every 4 hours
   workflow_dispatch:
-    inputs:
-      dry_run:
-        description: 'If true, only generate YAML locally without pushing'
-        required: false
-        default: 'false'
 
 jobs:
-  update:
+  update-subscription:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout repo
-      uses: actions/checkout@v3
+      - name: Checkout Repo
+        uses: actions/checkout@v3
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: "20"
+      - name: Set up Node.js (for potential JS-based config processing)
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
 
-    - name: Install dependencies
-      run: npm install axios js-yaml
+      - name: Download latest subscription
+        run: |
+          curl -o ./clash_config.yaml "YOUR_SUBSCRIPTION_URL_HERE"
 
-    - name: Run update script
-      id: generate_yaml
-      run: |
-        node <<'EOF'
-        const axios = require('axios');
-        const yaml = require('js-yaml');
-        const fs = require('fs');
-        const { URL } = require('url');
-        const path = require('path');
+      - name: Merge User Config
+        run: |
+          # Replace or merge with your custom DNS, fake-IP, proxies, and rules
+          cat << 'EOF' > ./merged_config.yaml
+mixed-port: 7897
+allow-lan: false
+mode: rule
+log-level: info
+external-controller: '127.0.0.1:9097'
+unified-delay: true
+ipv6: true
 
-        const SUB_URL = process.env.SUB_URL;
-        const GH_TOKEN = process.env.GH_TOKEN;
-        const GITHUB_FILE = "9PB";
-        const dryRun = process.env.DRY_RUN === "true";
+profile:
+  store-selected: true
 
-        function b64decode(s) {
-          if (s.length % 4) s += "=".repeat(4 - (s.length % 4));
-          return Buffer.from(s, 'base64').toString('utf8');
-        }
+tun:
+  mtu: 1500
 
-        function parseVmess(link) {
-          try {
-            const conf = JSON.parse(b64decode(link.slice(8)));
-            const net = (conf.net || "tcp").toLowerCase();
-            const tls = (conf.tls || "").toLowerCase() === "tls";
-            const proxy = {
-              name: conf.ps || "vmess",
-              type: "vmess",
-              server: conf.add,
-              port: Number(conf.port),
-              uuid: conf.id,
-              alterId: Number(conf.aid || 0),
-              cipher: conf.type || "auto",
-              tls,
-              network: net,
-            };
-            if (net === "ws") proxy["ws-opts"] = { path: conf.path || "", headers: { Host: conf.host || "" } };
-            if (net === "grpc") proxy["grpc-opts"] = { "grpc-service-name": conf.path || "" };
-            if (conf.sni) proxy.servername = conf.sni;
-            return proxy;
-          } catch { return null; }
-        }
+dns:
+  enable: true
+  ipv6: true
+  use-system-hosts: false
+  listen: '127.0.0.1:5335'
+  default-nameserver: 
+    - 180.76.76.76
+    - 182.254.118.118
+    - 8.8.8.8
+    - 180.184.2.2
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
+  fake-ip-filter:
+    - '*.lan'
+    - 'stun.*.*.*'
+    - 'stun.*.*'
+    - 'time.windows.com'
+    - 'time.nist.gov'
+    - 'time.apple.com'
+    - 'time.asia.apple.com'
+    - '*.ntp.org.cn'
+    - '*.openwrt.pool.ntp.org'
+    - 'time1.cloud.tencent.com'
+    - 'time.ustc.edu.cn'
+    - 'pool.ntp.org'
+    - 'ntp.ubuntu.com'
+    - 'ntp.aliyun.com'
+    - 'ntp1.aliyun.com'
+    - 'ntp2.aliyun.com'
+    - 'ntp3.aliyun.com'
+    - 'ntp4.aliyun.com'
+    - 'ntp5.aliyun.com'
+    - 'ntp6.aliyun.com'
+    - 'ntp7.aliyun.com'
+    - '*.time.edu.cn'
+    - 'time1.apple.com'
+    - 'time2.apple.com'
+    - 'time3.apple.com'
+    - 'time4.apple.com'
+    - 'time5.apple.com'
+    - 'time6.apple.com'
+    - 'time7.apple.com'
+    - 'time1.google.com'
+    - 'time2.google.com'
+    - 'time3.google.com'
+    - 'time4.google.com'
+    - 'music.163.com'
+    - '*.music.163.com'
+    - '*.126.net'
+    - 'musicapi.taihe.com'
+    - 'music.taihe.com'
+    - 'songsearch.kugou.com'
+    - 'trackercdn.kugou.com'
+    - '*.kuwo.cn'
+    - 'api-jooxtt.sanook.com'
+    - 'api.joox.com'
+    - 'joox.com'
+    - 'y.qq.com'
+    - '*.y.qq.com'
+    - 'streamoc.music.tc.qq.com'
+    - 'mobileoc.music.tc.qq.com'
+    - 'isure.stream.qqmusic.qq.com'
+    - 'dl.stream.qqmusic.qq.com'
+    - 'aqqmusic.tc.qq.com'
+    - 'amobile.music.tc.qq.com'
+    - '*.xiami.com'
+    - '*.music.migu.cn'
+    - 'music.migu.cn'
+    - '*.msftconnecttest.com'
+    - '*.msftncsi.com'
+    - 'localhost.ptlogin2.qq.com'
+    - '*.*.*.srv.nintendo.net'
+    - '*.*.stun.playstation.net'
+    - 'xbox.*.*.microsoft.com'
+    - '*.ipv6.microsoft.com'
+    - '*.*.xboxlive.com'
+    - 'speedtest.cros.wr.pvp.net'
+  nameserver:
+    - 180.76.76.76
+    - 119.29.29.29
+    - 180.184.1.1
+    - 223.5.5.5
+    - 8.8.8.8
+    - 'https://223.6.6.6/dns-query#h3=true'
+    - 'https://dns.alidns.com/dns-query'
+    - 'https://cloudflare-dns.com/dns-query'
+    - 'https://doh.pub/dns-query'
+  fallback-filter:
+    geoip: true
+    ipcidr:
+      - 240.0.0.0/4
+      - 0.0.0.0/32
+      - 127.0.0.1/32
+    domain:
+      - '+.google.com'
+      - '+.facebook.com'
+      - '+.twitter.com'
+      - '+.youtube.com'
+      - '+.xn--ngstr-lra8j.com'
+      - '+.google.cn'
+      - '+.googleapis.cn'
+      - '+.googleapis.com'
+      - '+.gvt1.com'
 
-        function parseVless(link) {
-          try {
-            const u = new URL(link);
-            const q = Object.fromEntries(u.searchParams.entries());
-            const net = (q.type || q.transport || "tcp").toLowerCase();
-            const tls = (q.security || "").toLowerCase() === "tls";
-            const proxy = {
-              name: decodeURIComponent(u.hash.slice(1)) || "vless",
-              type: "vless",
-              server: u.hostname,
-              port: Number(u.port || 443),
-              uuid: decodeURIComponent(u.username),
-              tls,
-              network: net
-            };
-            if (net === "ws") proxy["ws-opts"] = { path: q.path || "", headers: { Host: q.host || "" } };
-            if (net === "grpc") proxy["grpc-opts"] = { "grpc-service-name": q.serviceName || q["service-name"] || "" };
-            return proxy;
-          } catch { return null; }
-        }
+proxies:
+  # Replace with your real proxy entries
+  - name: "Proxy1"
+    type: ss
+    server: x.x.x.x
+    port: 443
+    cipher: aes-128-gcm
+    password: password
+  - name: "Proxy2"
+    type: ss
+    server: y.y.y.y
+    port: 443
+    cipher: aes-128-gcm
+    password: password
 
-        function parseTrojan(link) {
-          try {
-            const u = new URL(link);
-            const q = Object.fromEntries(u.searchParams.entries());
-            const net = (q.type || q.transport || "tcp").toLowerCase();
-            const tls = (q.security || "").toLowerCase() === "tls";
-            const proxy = {
-              name: decodeURIComponent(u.hash.slice(1)) || "trojan",
-              type: "trojan",
-              server: u.hostname,
-              port: Number(u.port || 443),
-              password: decodeURIComponent(u.username),
-              tls,
-              network: net
-            };
-            if (net === "ws") proxy["ws-opts"] = { path: q.path || "", headers: { Host: q.host || "" } };
-            if (net === "grpc") proxy["grpc-opts"] = { "grpc-service-name": q.serviceName || q["service-name"] || "" };
-            return proxy;
-          } catch { return null; }
-        }
+proxy-groups:
+  - name: "选择线路"
+    type: url-test
+    proxies: [Proxy1, Proxy2]
+    url: "http://www.gstatic.com/generate_204"
+    interval: 300
+  - name: "Proxy"
+    type: select
+    proxies: [Proxy1, Proxy2]
 
-        async function main() {
-          const res = await axios.get(SUB_URL, { responseType: 'text' });
-          let lines = b64decode(res.data.trim()).split(/\r?\n/).slice(2).filter(Boolean);
+rules:
+  # Include all your rules exactly as discussed
+  - 'DOMAIN-SUFFIX,services.googleapis.cn,选择线路'
+  - 'DOMAIN-SUFFIX,xn--ngstr-lra8j.com,选择线路'
+  - 'DOMAIN,safebrowsing.urlsec.qq.com,DIRECT'
+  - 'DOMAIN,safebrowsing.googleapis.com,DIRECT'
+  - 'DOMAIN,developer.apple.com,选择线路'
+  - 'DOMAIN-SUFFIX,digicert.com,选择线路'
+  - 'DOMAIN,ocsp.apple.com,选择线路'
+  - 'DOMAIN,ocsp.comodoca.com,选择线路'
+  - 'DOMAIN,ocsp.usertrust.com,选择线路'
+  - 'DOMAIN,ocsp.sectigo.com,选择线路'
+  - 'DOMAIN,ocsp.verisign.net,选择线路'
+  - 'DOMAIN-SUFFIX,apple-dns.net,选择线路'
+  - 'DOMAIN,testflight.apple.com,选择线路'
+  - 'DOMAIN,sandbox.itunes.apple.com,选择线路'
+  - 'DOMAIN,itunes.apple.com,选择线路'
+  - 'DOMAIN-SUFFIX,apps.apple.com,选择线路'
+  - 'DOMAIN-SUFFIX,blobstore.apple.com,选择线路'
+  - 'DOMAIN,cvws.icloud-content.com,选择线路'
+  - 'DOMAIN-SUFFIX,mzstatic.com,DIRECT'
+  - 'DOMAIN-SUFFIX,itunes.apple.com,DIRECT'
+  - 'DOMAIN-SUFFIX,icloud.com,DIRECT'
+  - 'DOMAIN-SUFFIX,icloud-content.com,DIRECT'
+  - 'DOMAIN-SUFFIX,me.com,DIRECT'
+  - 'DOMAIN-SUFFIX,aaplimg.com,DIRECT'
+  - 'DOMAIN-SUFFIX,cdn20.com,DIRECT'
+  - 'DOMAIN-SUFFIX,cdn-apple.com,DIRECT'
+  - 'DOMAIN-SUFFIX,akadns.net,DIRECT'
+  - 'DOMAIN-SUFFIX,akamaiedge.net,DIRECT'
+  - 'DOMAIN-SUFFIX,edgekey.net,DIRECT'
+  - 'DOMAIN-SUFFIX,mwcloudcdn.com,DIRECT'
+  - 'DOMAIN-SUFFIX,mwcname.com,DIRECT'
+  - 'DOMAIN-SUFFIX,apple.com,DIRECT'
+  - 'DOMAIN-SUFFIX,apple-cloudkit.com,DIRECT'
+  - 'DOMAIN-SUFFIX,apple-mapkit.com,DIRECT'
+  - 'DOMAIN-SUFFIX,126.com,DIRECT'
+  - 'DOMAIN-SUFFIX,126.net,DIRECT'
+  - 'DOMAIN-SUFFIX,127.net,DIRECT'
+  - 'DOMAIN-SUFFIX,163.com,DIRECT'
+  - 'DOMAIN-SUFFIX,360buyimg.com,DIRECT'
+  - 'DOMAIN-SUFFIX,36kr.com,DIRECT'
+  - 'DOMAIN-SUFFIX,acfun.tv,DIRECT'
+  - 'DOMAIN-SUFFIX,air-matters.com,DIRECT'
+  - 'DOMAIN-SUFFIX,aixifan.com,DIRECT'
+  - 'DOMAIN-KEYWORD,alicdn,DIRECT'
+  - 'DOMAIN-KEYWORD,alipay,DIRECT'
+  - 'DOMAIN-KEYWORD,taobao,DIRECT'
+  # ... add the rest of your rules here ...
 
-          const proxies = [];
-          for (const line of lines) {
-            if (line.startsWith("vmess://")) proxies.push(parseVmess(line));
-            else if (line.startsWith("vless://")) proxies.push(parseVless(line));
-            else if (line.startsWith("trojan://")) proxies.push(parseTrojan(line));
-          }
+EOF
 
-          console.log(`🔹 Total proxies parsed: ${proxies.length}`);
-
-          const clashConfig = {
-            proxies,
-            "proxy-groups": [
-              {
-                name: "Auto",
-                type: "url-test",
-                proxies: proxies.map(p => p.name),
-                url: "http://www.gstatic.com/generate_204",
-                interval: 300
-              }
-            ],
-            rules: ["MATCH,Auto"]
-          };
-
-          const yamlData = yaml.dump(clashConfig, { noRefs: true, forceQuotes: false, lineWidth: 120 });
-          fs.writeFileSync(GITHUB_FILE, yamlData, "utf8");
-
-          // Save artifact file as 9PB.yml for logs / dry run
-          const artifactFile = path.join(process.cwd(), `9PB.yml`);
-          fs.writeFileSync(artifactFile, yamlData, "utf8");
-          console.log("✅ YAML generated successfully");
-
-          if (!dryRun) {
-            try {
-              const fileInfo = await axios.get(
-                `https://api.github.com/repos/Vanic24/VPN/contents/${GITHUB_FILE}`,
-                { headers: { Authorization: `token ${GH_TOKEN}` } }
-              );
-              await axios.put(
-                `https://api.github.com/repos/Vanic24/VPN/contents/${GITHUB_FILE}`,
-                {
-                  message: "Auto update Clash YAML",
-                  content: Buffer.from(yamlData).toString('base64'),
-                  sha: fileInfo.data.sha
-                },
-                { headers: { Authorization: `token ${GH_TOKEN}` } }
-              );
-              console.log("✅ GitHub updated successfully");
-            } catch (e) {
-              console.error("⚠️ Warning: Failed to update GitHub:", e.message);
-            }
-          } else {
-            console.log("⚠️ Dry run enabled — YAML generated but not pushed.");
-          }
-        }
-
-        main().catch(e => { console.error("❌ Error:", e); process.exit(1); });
-        EOF
-
-      env:
-        GH_TOKEN: ${{ secrets.GH_TOKEN }}
-        SUB_URL: ${{ secrets.SUB_URL }}
-        DRY_RUN: ${{ github.event.inputs.dry_run }}
-
-    - name: Upload Clash YAML artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: 9PB
-        path: 9PB.yml
+      - name: Commit updated config
+        run: |
+          git config user.name "Vanic24"
+          git config user.email "apple.pine@inbox.ru"
+          git add ./merged_config.yaml
+          git commit -m "Auto update Clash config"
+          git push
