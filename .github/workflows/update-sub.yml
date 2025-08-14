@@ -1,83 +1,189 @@
-name: Update VPN Subscription (Clash YAML + igdux + Cleanup)
+name: Update VPN Subscription (Clash YAML + Dry Run + Artifact)
 
 on:
+  schedule:
+    - cron: "0 */6 * * *"  # Runs every 6 hours
   workflow_dispatch:
     inputs:
       dry_run:
         description: 'If true, only generate YAML locally without pushing'
         required: false
         default: 'false'
-  schedule:
-    - cron: '0 */4 * * *' # Every 4 hours
-
-permissions:
-  contents: write
-  actions: write
 
 jobs:
   update:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+    - name: Checkout repo
+      uses: actions/checkout@v3
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: "20"
 
-      - name: Install dependencies
-        run: npm install puppeteer axios js-base64 js-yaml
+    - name: Install dependencies
+      run: npm install axios js-yaml
 
-      - name: Fetch & convert subscription to Clash YAML
-        env:
-          SUB_URL: ${{ secrets.SUB_URL }}
-        run: node fetch_and_convert.js
+    - name: Run update script
+      id: generate_yaml
+      run: |
+        node <<'EOF'
+        const axios = require('axios');
+        const yaml = require('js-yaml');
+        const fs = require('fs');
+        const { URL } = require('url');
+        const path = require('path');
 
-      - name: Dry run check
-        if: ${{ github.event.inputs.dry_run == 'true' }}
-        run: |
-          echo "Dry run: Skipping uploads"
+        const SUB_URL = process.env.SUB_URL;
+        const GH_TOKEN = process.env.GH_TOKEN;
+        const GITHUB_FILE = "9PB";
+        const IGDUX_EDIT_URL = process.env.IGDUX_EDIT_URL;
+        const dryRun = process.env.DRY_RUN === "true";
 
-      - name: Commit & push 9PB to GitHub
-        if: ${{ github.event.inputs.dry_run != 'true' }}
-        run: |
-          if git diff --quiet --exit-code 9PB; then
-            echo "No changes to 9PB; skipping commit."
-          else
-            git config user.name "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
-            git add 9PB
-            git commit -m "Auto update Clash YAML (9PB)"
-            git push
-          fi
+        function b64decode(s) {
+          if (s.length % 4) s += "=".repeat(4 - (s.length % 4));
+          return Buffer.from(s, 'base64').toString('utf8');
+        }
 
-      - name: Update igdux via Puppeteer
-        if: ${{ github.event.inputs.dry_run != 'true' }}
-        env:
-          IGDUX_EDIT_URL: ${{ secrets.IGDUX_EDIT_URL }}
-        run: node update_igdux.js
+        function parseVmess(link) {
+          try {
+            const conf = JSON.parse(b64decode(link.slice(8)));
+            const net = (conf.net || "tcp").toLowerCase();
+            const tls = (conf.tls || "").toLowerCase() === "tls";
+            const proxy = {
+              name: conf.ps || "vmess",
+              type: "vmess",
+              server: conf.add,
+              port: Number(conf.port),
+              uuid: conf.id,
+              alterId: Number(conf.aid || 0),
+              cipher: conf.type || "auto",
+              tls,
+              network: net,
+            };
+            if (net === "ws") proxy["ws-opts"] = { path: conf.path || "", headers: { Host: conf.host || "" } };
+            if (net === "grpc") proxy["grpc-opts"] = { "grpc-service-name": conf.path || "" };
+            if (conf.sni) proxy.servername = conf.sni;
+            return proxy;
+          } catch { return null; }
+        }
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: 9PB
-          path: 9PB
-          retention-days: 1
+        function parseVless(link) {
+          try {
+            const u = new URL(link);
+            const q = Object.fromEntries(u.searchParams.entries());
+            const net = (q.type || q.transport || "tcp").toLowerCase();
+            const tls = (q.security || "").toLowerCase() === "tls";
+            const proxy = {
+              name: decodeURIComponent(u.hash.slice(1)) || "vless",
+              type: "vless",
+              server: u.hostname,
+              port: Number(u.port || 443),
+              uuid: decodeURIComponent(u.username),
+              tls,
+              network: net
+            };
+            if (net === "ws") proxy["ws-opts"] = { path: q.path || "", headers: { Host: q.host || "" } };
+            if (net === "grpc") proxy["grpc-opts"] = { "grpc-service-name": q.serviceName || q["service-name"] || "" };
+            return proxy;
+          } catch { return null; }
+        }
 
-      - name: Delete old artifacts
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const all = await github.rest.actions.listArtifactsForRepo({ owner: context.repo.owner, repo: context.repo.repo, per_page: 100 });
-            const targets = all.data.artifacts.filter(a => a.name==='9PB' && !a.expired).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
-            for(const [i,art] of targets.entries()){ if(i===0) continue; await github.rest.actions.deleteArtifact({ owner: context.repo.owner, repo: context.repo.repo, artifact_id: art.id }); core.info(`🗑 Deleted old artifact ${art.id}`); }
+        function parseTrojan(link) {
+          try {
+            const u = new URL(link);
+            const q = Object.fromEntries(u.searchParams.entries());
+            const net = (q.type || q.transport || "tcp").toLowerCase();
+            const tls = (q.security || "").toLowerCase() === "tls";
+            const proxy = {
+              name: decodeURIComponent(u.hash.slice(1)) || "trojan",
+              type: "trojan",
+              server: u.hostname,
+              port: Number(u.port || 443),
+              password: decodeURIComponent(u.username),
+              tls,
+              network: net
+            };
+            if (net === "ws") proxy["ws-opts"] = { path: q.path || "", headers: { Host: q.host || "" } };
+            if (net === "grpc") proxy["grpc-opts"] = { "grpc-service-name": q.serviceName || q["service-name"] || "" };
+            return proxy;
+          } catch { return null; }
+        }
 
-      - name: Delete old workflow runs (keep latest)
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const runs = await github.rest.actions.listWorkflowRuns({ owner: context.repo.owner, repo: context.repo.repo, workflow_id: context.workflow, per_page: 50 });
-            const sorted = runs.data.workflow_runs.sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
-            for(const [i,run] of sorted.entries()){ if(i===0||run.id===context.runId) continue; try{ await github.rest.actions.deleteWorkflowRun({ owner: context.repo.owner, repo: context.repo.repo, run_id: run.id }); core.info(`🗑 Deleted old run ${run.id}`); } catch(e){ core.warning(`Could not delete run ${run.id}: ${e.message}`); } }
+        async function main() {
+          const res = await axios.get(SUB_URL, { responseType: 'text' });
+          let lines = b64decode(res.data.trim()).split(/\r?\n/).slice(2).filter(Boolean);
+
+          const proxies = [];
+          for (const line of lines) {
+            if (line.startsWith("vmess://")) proxies.push(parseVmess(line));
+            else if (line.startsWith("vless://")) proxies.push(parseVless(line));
+            else if (line.startsWith("trojan://")) proxies.push(parseTrojan(line));
+          }
+
+          const clashConfig = {
+            proxies,
+            "proxy-groups": [
+              {
+                name: "Auto",
+                type: "url-test",
+                proxies: proxies.map(p => p.name),
+                url: "http://www.gstatic.com/generate_204",
+                interval: 300
+              }
+            ],
+            rules: ["MATCH,Auto"]
+          };
+
+          const yamlData = yaml.dump(clashConfig, { noRefs: true, forceQuotes: false, lineWidth: 120 });
+          fs.writeFileSync(GITHUB_FILE, yamlData, "utf8");
+
+          // Save artifact file as 9PB.yml for logs / dry run
+          const artifactFile = path.join(process.cwd(), `9PB.yml`);
+          fs.writeFileSync(artifactFile, yamlData, "utf8");
+          console.log("✅ YAML generated successfully");
+
+          if (!dryRun) {
+            try {
+              const fileInfo = await axios.get(
+                `https://api.github.com/repos/Vanic24/VPN/contents/${GITHUB_FILE}`,
+                { headers: { Authorization: `token ${GH_TOKEN}` } }
+              );
+              await axios.put(
+                `https://api.github.com/repos/Vanic24/VPN/contents/${GITHUB_FILE}`,
+                {
+                  message: "Auto update Clash YAML",
+                  content: Buffer.from(yamlData).toString('base64'),
+                  sha: fileInfo.data.sha
+                },
+                { headers: { Authorization: `token ${GH_TOKEN}` } }
+              );
+              console.log("✅ GitHub updated successfully");
+
+              await axios.post(IGDUX_EDIT_URL, yamlData, { headers: { 'Content-Type': 'text/plain' } });
+              console.log("✅ igdux updated successfully");
+
+            } catch (e) {
+              console.error("⚠️ Warning: Failed to update GitHub or igdux:", e.message);
+            }
+          } else {
+            console.log("⚠️ Dry run enabled — YAML generated but not pushed.");
+          }
+        }
+
+        main().catch(e => { console.error("❌ Error:", e); process.exit(1); });
+        EOF
+
+      env:
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        SUB_URL: ${{ secrets.SUB_URL }}
+        IGDUX_EDIT_URL: ${{ secrets.IGDUX_EDIT_URL }}
+        DRY_RUN: ${{ github.event.inputs.dry_run }}
+
+    - name: Upload Clash YAML artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: 9PB
+        path: 9PB.yml
