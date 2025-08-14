@@ -173,7 +173,7 @@ jobs:
         EOF
 
       env:
-        GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        GH_TOKEN: ${{ secrets.SUB_9PB }}
         SUB_9PB: ${{ secrets.SUB_9PB }}
         DRY_RUN: ${{ github.event.inputs.dry_run }}
 
@@ -197,9 +197,10 @@ jobs:
 
     - name: Delete old workflow runs (keep latest)
       run: |
-        WORKFLOW_FILE="SUB_9PB.yaml"
-        echo "🔹 Getting list of workflow run IDs for $WORKFLOW_FILE..."
-        runs=$(gh api repos/${{ github.repository }}/actions/workflows/$WORKFLOW_FILE/runs --jq '.workflow_runs[].id')
+        workflow_id=$(gh api repos/${{ github.repository }}/actions/workflows \
+          --jq '.workflows[] | select(.path=="SUB_9PB.yaml") | .id')
+        echo "🔹 Workflow numeric ID: $workflow_id"
+        runs=$(gh api repos/${{ github.repository }}/actions/workflows/$workflow_id/runs --jq '.workflow_runs[].id')
         latest=$(echo "$runs" | head -n 1)
         echo "✅ Latest run ID: $latest"
         for run_id in $(echo "$runs" | tail -n +2); do
