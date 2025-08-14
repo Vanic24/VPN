@@ -1,9 +1,14 @@
-name: Update VPN Subscription
+name: Update VPN Subscription (Clash YAML + Dry Run)
 
 on:
   schedule:
     - cron: "0 */6 * * *"  # Runs every 6 hours
-  workflow_dispatch:       # Manual trigger
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'If true, only generate YAML locally without pushing'
+        required: false
+        default: 'false'
 
 jobs:
   update:
@@ -33,8 +38,8 @@ jobs:
         const GH_TOKEN = process.env.GH_TOKEN;
         const GITHUB_FILE = "9PB";
         const IGDUX_EDIT_URL = process.env.IGDUX_EDIT_URL;
+        const dryRun = process.env.DRY_RUN === "true";
 
-        // Helpers to parse links
         function b64decode(s) {
           if (s.length % 4) s += "=".repeat(4 - (s.length % 4));
           return Buffer.from(s, 'base64').toString('utf8');
@@ -135,26 +140,31 @@ jobs:
 
           const yamlData = yaml.dump(clashConfig, { noRefs: true, forceQuotes: false, lineWidth: 120 });
           fs.writeFileSync(GITHUB_FILE, yamlData, "utf8");
+          console.log("✅ YAML generated successfully");
 
-          // 4. Commit & push to GitHub
-          const fileInfo = await axios.get(
-            `https://api.github.com/repos/Vanic24/VPN/contents/${GITHUB_FILE}`,
-            { headers: { Authorization: `token ${GH_TOKEN}` } }
-          );
-          await axios.put(
-            `https://api.github.com/repos/Vanic24/VPN/contents/${GITHUB_FILE}`,
-            {
-              message: "Auto update Clash YAML",
-              content: Buffer.from(yamlData).toString('base64'),
-              sha: fileInfo.data.sha
-            },
-            { headers: { Authorization: `token ${GH_TOKEN}` } }
-          );
+          if (!dryRun) {
+            // 4. Commit & push to GitHub
+            const fileInfo = await axios.get(
+              `https://api.github.com/repos/Vanic24/VPN/contents/${GITHUB_FILE}`,
+              { headers: { Authorization: `token ${GH_TOKEN}` } }
+            );
+            await axios.put(
+              `https://api.github.com/repos/Vanic24/VPN/contents/${GITHUB_FILE}`,
+              {
+                message: "Auto update Clash YAML",
+                content: Buffer.from(yamlData).toString('base64'),
+                sha: fileInfo.data.sha
+              },
+              { headers: { Authorization: `token ${GH_TOKEN}` } }
+            );
 
-          // 5. Update igdux paste
-          await axios.post(IGDUX_EDIT_URL, yamlData, { headers: { 'Content-Type': 'text/plain' } });
+            // 5. Update igdux paste
+            await axios.post(IGDUX_EDIT_URL, yamlData, { headers: { 'Content-Type': 'text/plain' } });
 
-          console.log("✅ Updated GitHub & igdux successfully");
+            console.log("✅ Updated GitHub & igdux successfully");
+          } else {
+            console.log("⚠️ Dry run enabled — YAML generated but not pushed.");
+          }
         }
 
         main().catch(e => { console.error("❌ Error:", e); process.exit(1); });
@@ -163,3 +173,4 @@ jobs:
         GH_TOKEN: ${{ secrets.GH_TOKEN }}
         SUB_URL: ${{ secrets.SUB_URL }}
         IGDUX_EDIT_URL: ${{ secrets.IGDUX_EDIT_URL }}
+        DRY_RUN: ${{ github.event.inputs.dry_run }}
