@@ -1,0 +1,83 @@
+name: Update VPN Subscription
+
+on:
+  schedule:
+    - cron: "0 */3 * * *"  # Runs every 3 hours
+  workflow_dispatch:       # Allows manual run
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: "20"
+
+    - name: Install dependencies
+      run: npm install axios js-yaml
+
+    - name: Run update script
+      run: |
+        node <<'EOF'
+        const axios = require('axios');
+        const yaml = require('js-yaml');
+        const fs = require('fs');
+
+        const subUrl = process.env.SUB_URL;
+        const githubFilePath = "9PB";
+        const igduxEditUrl = process.env.IGDUX_EDIT_URL;
+
+        async function main() {
+          // 1. Fetch subscription (Base64 encoded)
+          const res = await axios.get(subUrl, { responseType: 'text' });
+          const decoded = Buffer.from(res.data, 'base64').toString('utf8');
+
+          // 2. Remove first two lines
+          const lines = decoded.split('\n').slice(2).filter(l => l.trim() !== '');
+
+          // 3. Convert to Clash YAML (placeholder)
+          // TODO: Replace placeholder parser with real v2ray→Clash parser for exact FlClash format
+          const proxies = lines.map((line, idx) => ({
+            name: `Proxy-${idx + 1}`,
+            type: "v2ray",
+            server: "example.com",
+            port: 443
+          }));
+          const clashConfig = { proxies };
+          const yamlData = yaml.dump(clashConfig);
+
+          // 4. Commit & push updated file to GitHub
+          const fileInfo = await axios.get(
+            `https://api.github.com/repos/Vanic24/VPN/contents/${githubFilePath}`,
+            { headers: { Authorization: `token ${process.env.GH_TOKEN}` } }
+          );
+          await axios.put(
+            `https://api.github.com/repos/Vanic24/VPN/contents/${githubFilePath}`,
+            {
+              message: "Auto update VPN subscription",
+              content: Buffer.from(yamlData).toString('base64'),
+              sha: fileInfo.data.sha
+            },
+            { headers: { Authorization: `token ${process.env.GH_TOKEN}` } }
+          );
+
+          // 5. Update igdux paste
+          await axios.post(igduxEditUrl, yamlData, { headers: { 'Content-Type': 'text/plain' } });
+
+          console.log("✅ Updated GitHub & igdux successfully");
+        }
+
+        main().catch(err => {
+          console.error("❌ Error updating:", err.message);
+          process.exit(1);
+        });
+        EOF
+      env:
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        SUB_URL: ${{ secrets.SUB_URL }}
+        IGDUX_EDIT_URL: ${{ secrets.IGDUX_EDIT_URL }}
