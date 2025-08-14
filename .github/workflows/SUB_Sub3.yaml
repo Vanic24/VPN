@@ -2,7 +2,7 @@ name: Update VPN Subscription (SUB_Sub3)
 
 on:
   schedule:
-    - cron: "0 */4 * * *"
+    - cron: "0 */4 * * *" #Runs every 4 hours
   workflow_dispatch:
     inputs:
       dry_run:
@@ -26,51 +26,61 @@ jobs:
     - name: Install dependencies
       run: npm install axios js-yaml
 
-    - name: Run update script
+    - name: Generate Clash YAML
       id: generate_yaml
       run: |
         node <<'EOF'
         const axios = require('axios');
         const yaml = require('js-yaml');
         const fs = require('fs');
-        const path = require('path');
         const { URL } = require('url');
 
-        const SUB_URL = process.env.SUB_Sub3;
+        const SUB_URL = process.env.SUB_Sub3; // Clash-compatible subscription URL
         const GH_TOKEN = process.env.GH_TOKEN;
         const GITHUB_FILE = "Sub3";
         const dryRun = process.env.DRY_RUN === "true";
 
-        function b64decode(s) {
-          if (s.length % 4) s += "=".repeat(4 - (s.length % 4));
-          return Buffer.from(s, 'base64').toString('utf8');
+        function parseLine(line) {
+          const l = line.trim().toLowerCase();
+          try {
+            if(l.startsWith("vmess://")) {
+              const conf = JSON.parse(Buffer.from(line.slice(8), 'base64').toString('utf8'));
+              return { name: conf.ps||'vmess', type:'vmess', server:conf.add, port:Number(conf.port), uuid:conf.id, alterId:Number(conf.aid||0), cipher:conf.type||'auto', tls:(conf.tls||'').toLowerCase()==='tls', network:(conf.net||'tcp') };
+            }
+            else if(l.startsWith("vless://")) {
+              const u = new URL(line);
+              const q = Object.fromEntries(u.searchParams.entries());
+              return { name:u.hash.slice(1)||'vless', type:'vless', server:u.hostname, port:Number(u.port||443), uuid:u.username, tls:(q.security||'').toLowerCase()==='tls', network:(q.type||q.transport||'tcp') };
+            }
+            else if(l.startsWith("trojan://")) {
+              const u = new URL(line);
+              const q = Object.fromEntries(u.searchParams.entries());
+              return { name:u.hash.slice(1)||'trojan', type:'trojan', server:u.hostname, port:Number(u.port||443), password:u.username, tls:(q.security||'').toLowerCase()==='tls', network:(q.type||q.transport||'tcp') };
+            }
+            else if(l.startsWith("hysteria2://")) {
+              const u = new URL(line);
+              return { name:u.hash.slice(1)||'hysteria2', type:'hysteria2', server:u.hostname, port:Number(u.port), password:u.username, udp:u.searchParams.get('udp')==='true', sni:u.searchParams.get('sni'), 'skip-cert-verify':u.searchParams.get('skip-cert-verify')==='true' };
+            }
+            else if(l.startsWith("anytls://")) {
+              const u = new URL(line);
+              return { name:u.hash.slice(1)||'anytls', type:'anytls', server:u.hostname, port:Number(u.port), password:u.username, udp:u.searchParams.get('udp')==='true', sni:u.searchParams.get('sni'), 'skip-cert-verify':u.searchParams.get('skip-cert-verify')==='true' };
+            }
+          } catch(e){ console.log("⚠️ Failed to parse line:", line); }
+          return null;
         }
 
-        function parseVmess(link) { try { const conf = JSON.parse(b64decode(link.slice(8))); return { name: conf.ps||'vmess', type:'vmess', server:conf.add, port:Number(conf.port), uuid:conf.id, alterId:Number(conf.aid||0), cipher:conf.type||'auto', tls: (conf.tls||'').toLowerCase()==='tls', network:(conf.net||'tcp').toLowerCase() }; } catch{return null;} }
-        function parseVless(link) { try { const u=new URL(link); const q=Object.fromEntries(u.searchParams.entries()); return { name: decodeURIComponent(u.hash.slice(1))||'vless', type:'vless', server:u.hostname, port:Number(u.port||443), uuid:decodeURIComponent(u.username), tls:(q.security||'').toLowerCase()==='tls', network:(q.type||q.transport||'tcp').toLowerCase() }; } catch{return null;} }
-        function parseTrojan(link) { try { const u=new URL(link); const q=Object.fromEntries(u.searchParams.entries()); return { name: decodeURIComponent(u.hash.slice(1))||'trojan', type:'trojan', server:u.hostname, port:Number(u.port||443), password:decodeURIComponent(u.username), tls:(q.security||'').toLowerCase()==='tls', network:(q.type||q.transport||'tcp').toLowerCase() }; } catch{return null;} }
-        function parseHysteria2(link) { try { const u=new URL(link); return { name: decodeURIComponent(u.hash.slice(1))||'hysteria2', type:'hysteria2', server:u.hostname, port:Number(u.port), password:decodeURIComponent(u.username), udp:u.searchParams.get('udp')==='true', sni:u.searchParams.get('sni')||undefined, 'skip-cert-verify': u.searchParams.get('skip-cert-verify')==='true' }; } catch{return null;} }
-        function parseAnytls(link) { try { const u=new URL(link); return { name: decodeURIComponent(u.hash.slice(1))||'anytls', type:'anytls', server:u.hostname, port:Number(u.port), password:decodeURIComponent(u.username), udp:u.searchParams.get('udp')==='true', sni:u.searchParams.get('sni')||undefined, 'skip-cert-verify': u.searchParams.get('skip-cert-verify')==='true' }; } catch{return null;} }
-
         async function main() {
-          const res = await axios.get(SUB_URL, { responseType: 'text' });
-          let lines = b64decode(res.data.trim())
+          const res = await axios.get(SUB_URL, { responseType:'text' });
+          let lines = Buffer.from(res.data.trim(), 'base64').toString('utf8')
                         .split(/\r?\n/)
-                        .map(l => l.trim())
+                        .map(l=>l.trim())
                         .filter(Boolean)
                         .slice(3); // remove first 3 info nodes
 
           const proxies = [];
-          for (let line of lines) {
-            const lowerLine = line.trim().toLowerCase();
-            let parsed = null;
-            if (lowerLine.startsWith("vmess://")) parsed = parseVmess(line);
-            else if (lowerLine.startsWith("vless://")) parsed = parseVless(line);
-            else if (lowerLine.startsWith("trojan://")) parsed = parseTrojan(line);
-            else if (lowerLine.startsWith("hysteria2://")) parsed = parseHysteria2(line);
-            else if (lowerLine.startsWith("anytls://")) parsed = parseAnytls(line);
-            if (parsed) proxies.push(parsed);
-            else console.log("⚠️ Unknown line skipped:", line);
+          for(let line of lines){
+            const parsed = parseLine(line);
+            if(parsed) proxies.push(parsed);
           }
 
           console.log(`🔹 Total proxies parsed: ${proxies.length}`);
@@ -83,16 +93,21 @@ jobs:
           };
 
           const yamlData = yaml.dump(clashConfig, { noRefs:true, forceQuotes:false, lineWidth:120 });
-          fs.writeFileSync(GITHUB_FILE, yamlData, "utf8");
-          fs.writeFileSync(path.join(process.cwd(),"Sub3.yml"), yamlData, "utf8");
+          fs.writeFileSync(GITHUB_FILE, yamlData, 'utf8');
 
-          if (!dryRun) {
-            try {
-              const fileInfo = await axios.get(`https://api.github.com/repos/Vanic24/VPN/contents/${GITHUB_FILE}`, { headers:{ Authorization:`token ${GH_TOKEN}` } });
-              await axios.put(`https://api.github.com/repos/Vanic24/VPN/contents/${GITHUB_FILE}`, { message:"Auto update Clash YAML Sub3", content: Buffer.from(yamlData).toString('base64'), sha:fileInfo.data.sha }, { headers:{ Authorization:`token ${GH_TOKEN}` } });
+          if(!dryRun){
+            try{
+              const fileInfo = await axios.get(`https://api.github.com/repos/Vanic24/VPN/contents/${GITHUB_FILE}`, { headers:{Authorization:`token ${GH_TOKEN}`}});
+              await axios.put(`https://api.github.com/repos/Vanic24/VPN/contents/${GITHUB_FILE}`, {
+                message:"Auto update Clash YAML Sub3",
+                content: Buffer.from(yamlData).toString('base64'),
+                sha:fileInfo.data.sha
+              }, { headers:{Authorization:`token ${GH_TOKEN}`}});
               console.log("✅ GitHub updated successfully");
-            } catch(e){ console.error("⚠️ Failed to update GitHub:", e.message); }
-          } else { console.log("⚠️ Dry run enabled — YAML generated but not pushed."); }
+            }catch(e){ console.error("⚠️ Failed to update GitHub:", e.message);}
+          }else{
+            console.log("⚠️ Dry run — YAML generated but not pushed.");
+          }
         }
 
         main().catch(e=>{console.error("❌ Error:",e); process.exit(1);});
