@@ -1,189 +1,196 @@
 name: Update VPN Subscription (Clash YAML + Dry Run + Artifact)
 
 on:
-  schedule:
-    - cron: "0 */6 * * *"  # Runs every 6 hours
   workflow_dispatch:
     inputs:
       dry_run:
         description: 'If true, only generate YAML locally without pushing'
         required: false
         default: 'false'
+  schedule:
+    - cron: '0 */6 * * *' # Runs every 6 hours
+
+permissions:
+  contents: write
+  actions: write
 
 jobs:
   update:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout repo
-      uses: actions/checkout@v3
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: "20"
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
 
-    - name: Install dependencies
-      run: npm install axios js-yaml
+      - name: Install dependencies
+        run: npm install axios js-base64 yaml
 
-    - name: Run update script
-      id: generate_yaml
-      run: |
-        node <<'EOF'
-        const axios = require('axios');
-        const yaml = require('js-yaml');
-        const fs = require('fs');
-        const { URL } = require('url');
-        const path = require('path');
+      - name: Fetch, convert, and update
+        run: |
+          node <<'EOF'
+          const axios = require('axios');
+          const { Base64 } = require('js-base64');
+          const yaml = require('yaml');
 
-        const SUB_URL = process.env.SUB_URL;
-        const GH_TOKEN = process.env.GH_TOKEN;
-        const GITHUB_FILE = "9PB";
-        const IGDUX_EDIT_URL = process.env.IGDUX_EDIT_URL;
-        const dryRun = process.env.DRY_RUN === "true";
+          const GH_TOKEN = process.env.GH_TOKEN;
+          const SUB_URL = process.env.SUB_URL;
+          const IGDUX_EDIT_URL = process.env.IGDUX_EDIT_URL;
+          const GITHUB_FILE = "9PB";
+          const dryRun = process.env.DRY_RUN === "true";
 
-        function b64decode(s) {
-          if (s.length % 4) s += "=".repeat(4 - (s.length % 4));
-          return Buffer.from(s, 'base64').toString('utf8');
-        }
-
-        function parseVmess(link) {
-          try {
-            const conf = JSON.parse(b64decode(link.slice(8)));
-            const net = (conf.net || "tcp").toLowerCase();
-            const tls = (conf.tls || "").toLowerCase() === "tls";
-            const proxy = {
-              name: conf.ps || "vmess",
-              type: "vmess",
-              server: conf.add,
-              port: Number(conf.port),
-              uuid: conf.id,
-              alterId: Number(conf.aid || 0),
-              cipher: conf.type || "auto",
-              tls,
-              network: net,
-            };
-            if (net === "ws") proxy["ws-opts"] = { path: conf.path || "", headers: { Host: conf.host || "" } };
-            if (net === "grpc") proxy["grpc-opts"] = { "grpc-service-name": conf.path || "" };
-            if (conf.sni) proxy.servername = conf.sni;
-            return proxy;
-          } catch { return null; }
-        }
-
-        function parseVless(link) {
-          try {
-            const u = new URL(link);
-            const q = Object.fromEntries(u.searchParams.entries());
-            const net = (q.type || q.transport || "tcp").toLowerCase();
-            const tls = (q.security || "").toLowerCase() === "tls";
-            const proxy = {
-              name: decodeURIComponent(u.hash.slice(1)) || "vless",
-              type: "vless",
-              server: u.hostname,
-              port: Number(u.port || 443),
-              uuid: decodeURIComponent(u.username),
-              tls,
-              network: net
-            };
-            if (net === "ws") proxy["ws-opts"] = { path: q.path || "", headers: { Host: q.host || "" } };
-            if (net === "grpc") proxy["grpc-opts"] = { "grpc-service-name": q.serviceName || q["service-name"] || "" };
-            return proxy;
-          } catch { return null; }
-        }
-
-        function parseTrojan(link) {
-          try {
-            const u = new URL(link);
-            const q = Object.fromEntries(u.searchParams.entries());
-            const net = (q.type || q.transport || "tcp").toLowerCase();
-            const tls = (q.security || "").toLowerCase() === "tls";
-            const proxy = {
-              name: decodeURIComponent(u.hash.slice(1)) || "trojan",
-              type: "trojan",
-              server: u.hostname,
-              port: Number(u.port || 443),
-              password: decodeURIComponent(u.username),
-              tls,
-              network: net
-            };
-            if (net === "ws") proxy["ws-opts"] = { path: q.path || "", headers: { Host: q.host || "" } };
-            if (net === "grpc") proxy["grpc-opts"] = { "grpc-service-name": q.serviceName || q["service-name"] || "" };
-            return proxy;
-          } catch { return null; }
-        }
-
-        async function main() {
-          const res = await axios.get(SUB_URL, { responseType: 'text' });
-          let lines = b64decode(res.data.trim()).split(/\r?\n/).slice(2).filter(Boolean);
-
-          const proxies = [];
-          for (const line of lines) {
-            if (line.startsWith("vmess://")) proxies.push(parseVmess(line));
-            else if (line.startsWith("vless://")) proxies.push(parseVless(line));
-            else if (line.startsWith("trojan://")) proxies.push(parseTrojan(line));
-          }
-
-          const clashConfig = {
-            proxies,
-            "proxy-groups": [
-              {
-                name: "Auto",
-                type: "url-test",
-                proxies: proxies.map(p => p.name),
-                url: "http://www.gstatic.com/generate_204",
-                interval: 300
-              }
-            ],
-            rules: ["MATCH,Auto"]
-          };
-
-          const yamlData = yaml.dump(clashConfig, { noRefs: true, forceQuotes: false, lineWidth: 120 });
-          fs.writeFileSync(GITHUB_FILE, yamlData, "utf8");
-
-          // Save artifact file as 9PB.yml for logs / dry run
-          const artifactFile = path.join(process.cwd(), `9PB.yml`);
-          fs.writeFileSync(artifactFile, yamlData, "utf8");
-          console.log("✅ YAML generated successfully");
-
-          if (!dryRun) {
+          function parseVmess(url) {
             try {
-              const fileInfo = await axios.get(
-                `https://api.github.com/repos/Vanic24/VPN/contents/${GITHUB_FILE}`,
-                { headers: { Authorization: `token ${GH_TOKEN}` } }
-              );
-              await axios.put(
-                `https://api.github.com/repos/Vanic24/VPN/contents/${GITHUB_FILE}`,
-                {
-                  message: "Auto update Clash YAML",
-                  content: Buffer.from(yamlData).toString('base64'),
-                  sha: fileInfo.data.sha
-                },
-                { headers: { Authorization: `token ${GH_TOKEN}` } }
-              );
-              console.log("✅ GitHub updated successfully");
-
-              await axios.post(IGDUX_EDIT_URL, yamlData, { headers: { 'Content-Type': 'text/plain' } });
-              console.log("✅ igdux updated successfully");
-
-            } catch (e) {
-              console.error("⚠️ Warning: Failed to update GitHub or igdux:", e.message);
+              const decoded = JSON.parse(Base64.decode(url.replace("vmess://", "")));
+              return {
+                name: decoded.ps || "Unnamed",
+                type: "vmess",
+                server: decoded.add,
+                port: Number(decoded.port),
+                uuid: decoded.id,
+                alterId: Number(decoded.aid || 0),
+                cipher: "auto",
+                tls: decoded.tls === "tls",
+                network: decoded.net || "tcp"
+              };
+            } catch {
+              return null;
             }
-          } else {
-            console.log("⚠️ Dry run enabled — YAML generated but not pushed.");
           }
-        }
 
-        main().catch(e => { console.error("❌ Error:", e); process.exit(1); });
-        EOF
+          function parseVless(url) {
+            try {
+              const [idPart, hostPart] = url.replace("vless://", "").split("@");
+              const [host, params] = hostPart.split("?");
+              const [server, port] = host.split(":");
+              return {
+                name: idPart.split("#")[1] || "Unnamed",
+                type: "vless",
+                server,
+                port: Number(port),
+                uuid: idPart.split("#")[0],
+                tls: params.includes("security=tls")
+              };
+            } catch {
+              return null;
+            }
+          }
 
-      env:
-        GH_TOKEN: ${{ secrets.GH_TOKEN }}
-        SUB_URL: ${{ secrets.SUB_URL }}
-        IGDUX_EDIT_URL: ${{ secrets.IGDUX_EDIT_URL }}
-        DRY_RUN: ${{ github.event.inputs.dry_run }}
+          function parseTrojan(url) {
+            try {
+              const [passPart, hostPart] = url.replace("trojan://", "").split("@");
+              const [server, params] = hostPart.split("?");
+              const [hostname, port] = server.split(":");
+              return {
+                name: passPart.split("#")[1] || "Unnamed",
+                type: "trojan",
+                server: hostname,
+                port: Number(port),
+                password: passPart.split("#")[0],
+                sni: params.match(/sni=([^&]+)/)?.[1] || ""
+              };
+            } catch {
+              return null;
+            }
+          }
 
-    - name: Upload Clash YAML artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: 9PB
-        path: 9PB.yml
+          (async () => {
+            try {
+              console.log("📥 Fetching subscription...");
+              const res = await axios.get(SUB_URL);
+              let lines = Base64.decode(res.data).split("\n").map(l => l.trim()).filter(Boolean);
+
+              // Remove first 2 nodes (traffic info / Chinese nodes)
+              lines = lines.slice(2);
+
+              const proxies = [];
+              for (const line of lines) {
+                if (line.startsWith("vmess://")) proxies.push(parseVmess(line));
+                else if (line.startsWith("vless://")) proxies.push(parseVless(line));
+                else if (line.startsWith("trojan://")) proxies.push(parseTrojan(line));
+              }
+
+              console.log(`🔹 Total proxies parsed: ${proxies.length}`);
+
+              const clashConfig = {
+                proxies: proxies.filter(Boolean),
+                'proxy-groups': [],
+                rules: []
+              };
+
+              const yamlData = yaml.stringify(clashConfig);
+              require('fs').writeFileSync("9PB", yamlData);
+
+              if (!dryRun) {
+                try {
+                  console.log("📤 Updating GitHub...");
+                  const fileInfo = await axios.get(
+                    `https://api.github.com/repos/Vanic24/VPN/contents/${GITHUB_FILE}`,
+                    { headers: { Authorization: `token ${GH_TOKEN}` } }
+                  );
+                  await axios.put(
+                    `https://api.github.com/repos/Vanic24/VPN/contents/${GITHUB_FILE}`,
+                    {
+                      message: "Auto update Clash YAML",
+                      content: Buffer.from(yamlData).toString('base64'),
+                      sha: fileInfo.data.sha
+                    },
+                    { headers: { Authorization: `token ${GH_TOKEN}` } }
+                  );
+                  console.log("✅ GitHub updated successfully");
+                } catch (e) {
+                  console.error("⚠️ Warning: Failed to update GitHub:", e.message);
+                }
+
+                try {
+                  console.log("📤 Updating igdux...");
+                  await axios.put(IGDUX_EDIT_URL, yamlData, {
+                    headers: { 'Content-Type': 'text/plain' }
+                  });
+                  console.log("✅ igdux updated successfully");
+                } catch (e) {
+                  console.error("⚠️ Warning: Failed to update igdux:", e.message);
+                }
+              } else {
+                console.log("⚠️ Dry run enabled — YAML generated but not pushed.");
+              }
+            } catch (err) {
+              console.error("❌ Error:", err.message);
+              process.exit(1);
+            }
+          })();
+          EOF
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          SUB_URL: ${{ secrets.SUB_URL }}
+          IGDUX_EDIT_URL: ${{ secrets.IGDUX_EDIT_URL }}
+          DRY_RUN: ${{ github.event.inputs.dry_run }}
+
+      - name: Upload Clash YAML artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: 9PB
+          path: 9PB
+          retention-days: 1
+
+      - name: Delete old artifacts
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const artifacts = await github.rest.actions.listArtifactsForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo
+            });
+            for (const artifact of artifacts.data.artifacts) {
+              if (artifact.name === "9PB" && artifact.expired === false && artifact.id !== artifacts.data.artifacts[0].id) {
+                await github.rest.actions.deleteArtifact({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  artifact_id: artifact.id
+                });
+                console.log(`🗑 Deleted old artifact: ${artifact.name} (ID: ${artifact.id})`);
+              }
+            }
