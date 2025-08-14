@@ -1,0 +1,204 @@
+name: Update VPN Subscription (SUB_Sub3)
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"  # Runs every 6 hours
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'If true, only generate YAML locally without pushing'
+        required: false
+        default: 'false'
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: "20"
+
+    - name: Install dependencies
+      run: npm install axios js-yaml
+
+    - name: Run update script
+      id: generate_yaml
+      run: |
+        node <<'EOF'
+        const axios = require('axios');
+        const yaml = require('js-yaml');
+        const fs = require('fs');
+        const { URL } = require('url');
+        const path = require('path');
+
+        const SUB_URL = process.env.SUB_Sub3;
+        const GH_TOKEN = process.env.GH_TOKEN;
+        const GITHUB_FILE = "Sub3";
+        const dryRun = process.env.DRY_RUN === "true";
+
+        function b64decode(s) {
+          if (s.length % 4) s += "=".repeat(4 - (s.length % 4));
+          return Buffer.from(s, 'base64').toString('utf8');
+        }
+
+        function parseVmess(link) {
+          try {
+            const conf = JSON.parse(b64decode(link.slice(8)));
+            const net = (conf.net || "tcp").toLowerCase();
+            const tls = (conf.tls || "").toLowerCase() === "tls";
+            const proxy = {
+              name: conf.ps || "vmess",
+              type: "vmess",
+              server: conf.add,
+              port: Number(conf.port),
+              uuid: conf.id,
+              alterId: Number(conf.aid || 0),
+              cipher: conf.type || "auto",
+              tls,
+              network: net,
+            };
+            if (net === "ws") proxy["ws-opts"] = { path: conf.path || "", headers: { Host: conf.host || "" } };
+            if (net === "grpc") proxy["grpc-opts"] = { "grpc-service-name": conf.path || "" };
+            if (conf.sni) proxy.servername = conf.sni;
+            return proxy;
+          } catch { return null; }
+        }
+
+        function parseVless(link) {
+          try {
+            const u = new URL(link);
+            const q = Object.fromEntries(u.searchParams.entries());
+            const net = (q.type || q.transport || "tcp").toLowerCase();
+            const tls = (q.security || "").toLowerCase() === "tls";
+            const proxy = {
+              name: decodeURIComponent(u.hash.slice(1)) || "vless",
+              type: "vless",
+              server: u.hostname,
+              port: Number(u.port || 443),
+              uuid: decodeURIComponent(u.username),
+              tls,
+              network: net
+            };
+            if (net === "ws") proxy["ws-opts"] = { path: q.path || "", headers: { Host: q.host || "" } };
+            if (net === "grpc") proxy["grpc-opts"] = { "grpc-service-name": q.serviceName || q["service-name"] || "" };
+            return proxy;
+          } catch { return null; }
+        }
+
+        function parseTrojan(link) {
+          try {
+            const u = new URL(link);
+            const q = Object.fromEntries(u.searchParams.entries());
+            const net = (q.type || q.transport || "tcp").toLowerCase();
+            const tls = (q.security || "").toLowerCase() === "tls";
+            const proxy = {
+              name: decodeURIComponent(u.hash.slice(1)) || "trojan",
+              type: "trojan",
+              server: u.hostname,
+              port: Number(u.port || 443),
+              password: decodeURIComponent(u.username),
+              tls,
+              network: net
+            };
+            if (net === "ws") proxy["ws-opts"] = { path: q.path || "", headers: { Host: q.host || "" } };
+            if (net === "grpc") proxy["grpc-opts"] = { "grpc-service-name": q.serviceName || q["service-name"] || "" };
+            return proxy;
+          } catch { return null; }
+        }
+
+        async function main() {
+          const res = await axios.get(SUB_URL, { responseType: 'text' });
+          let lines = b64decode(res.data.trim()).split(/\r?\n/).slice(3).filter(Boolean); // Remove first 3 nodes
+
+          const proxies = [];
+          for (const line of lines) {
+            if (line.startsWith("vmess://")) proxies.push(parseVmess(line));
+            else if (line.startsWith("vless://")) proxies.push(parseVless(line));
+            else if (line.startsWith("trojan://")) proxies.push(parseTrojan(line));
+          }
+
+          console.log(`🔹 Total proxies parsed: ${proxies.length}`);
+
+          const clashConfig = {
+            proxies,
+            "proxy-groups": [
+              {
+                name: "Auto",
+                type: "url-test",
+                proxies: proxies.map(p => p.name),
+                url: "http://www.gstatic.com/generate_204",
+                interval: 300
+              }
+            ],
+            rules: ["MATCH,Auto"]
+          };
+
+          const yamlData = yaml.dump(clashConfig, { noRefs: true, forceQuotes: false, lineWidth: 120 });
+          fs.writeFileSync(GITHUB_FILE, yamlData, "utf8");
+
+          const artifactFile = path.join(process.cwd(), `Sub3.yml`);
+          fs.writeFileSync(artifactFile, yamlData, "utf8");
+          console.log("✅ YAML generated successfully");
+
+          if (!dryRun) {
+            try {
+              const fileInfo = await axios.get(
+                `https://api.github.com/repos/Vanic24/VPN/contents/${GITHUB_FILE}`,
+                { headers: { Authorization: `token ${GH_TOKEN}` } }
+              );
+              await axios.put(
+                `https://api.github.com/repos/Vanic24/VPN/contents/${GITHUB_FILE}`,
+                {
+                  message: "Auto update Clash YAML Sub3",
+                  content: Buffer.from(yamlData).toString('base64'),
+                  sha: fileInfo.data.sha
+                },
+                { headers: { Authorization: `token ${GH_TOKEN}` } }
+              );
+              console.log("✅ GitHub updated successfully");
+            } catch (e) {
+              console.error("⚠️ Warning: Failed to update GitHub:", e.message);
+            }
+          } else {
+            console.log("⚠️ Dry run enabled — YAML generated but not pushed.");
+          }
+        }
+
+        main().catch(e => { console.error("❌ Error:", e); process.exit(1); });
+        EOF
+
+      env:
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        SUB_Sub3: ${{ secrets.SUB_Sub3 }}
+        DRY_RUN: ${{ github.event.inputs.dry_run }}
+
+    - name: Upload Clash YAML artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: Sub3
+        path: Sub3.yml
+
+    - name: Delete old artifacts (keep latest Sub3 only)
+      run: |
+        echo "🔍 Checking for old artifacts..."
+        artifact_ids=$(gh api repos/${{ github.repository }}/actions/artifacts \
+          --jq '.artifacts[] | select(.name=="Sub3") | .id')
+
+        keep_id=$(echo "$artifact_ids" | head -n 1)
+        delete_ids=$(echo "$artifact_ids" | tail -n +2)
+
+        if [ -z "$delete_ids" ]; then
+          echo "✅ No old artifacts to delete."
+        else
+          for id in $delete_ids; do
+            gh api --method DELETE repos/${{ github.repository }}/actions/artifacts/$id
+            echo "🗑 Deleted old artifact $id"
+          done
+        fi
+      env:
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
