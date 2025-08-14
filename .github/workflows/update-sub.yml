@@ -1,4 +1,4 @@
-name: Update VPN Subscription (Clash YAML + Robust Update + Retry)
+name: Update VPN Subscription (Clash YAML + Full Debug + Forced Update)
 
 on:
   schedule:
@@ -26,6 +26,16 @@ jobs:
     - name: Install dependencies
       run: npm install axios js-yaml
 
+    - name: Debug secrets
+      run: |
+        echo "GH_TOKEN length: ${#GH_TOKEN}"
+        echo "SUB_URL length: ${#SUB_URL}"
+        echo "IGDUX_EDIT_URL length: ${#IGDUX_EDIT_URL}"
+      env:
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        SUB_URL: ${{ secrets.SUB_URL }}
+        IGDUX_EDIT_URL: ${{ secrets.IGDUX_EDIT_URL }}
+
     - name: Run update script
       run: |
         node <<'EOF'
@@ -44,7 +54,7 @@ jobs:
           return Buffer.from(s, 'base64').toString('utf8');
         }
 
-        function parseVmess(link) {
+        function parseVmess(link) { /* same as previous parseVmess */ 
           try {
             const conf = JSON.parse(b64decode(link.slice(8)));
             const net = (conf.net || "tcp").toLowerCase();
@@ -57,7 +67,7 @@ jobs:
           } catch { return null; }
         }
 
-        function parseVless(link) {
+        function parseVless(link) { /* same as previous parseVless */ 
           try {
             const u = new URL(link);
             const q = Object.fromEntries(u.searchParams.entries());
@@ -70,7 +80,7 @@ jobs:
           } catch { return null; }
         }
 
-        function parseTrojan(link) {
+        function parseTrojan(link) { /* same as previous parseTrojan */ 
           try {
             const u = new URL(link);
             const q = Object.fromEntries(u.searchParams.entries());
@@ -88,6 +98,7 @@ jobs:
           const maxAttempts = 2;
           while (attempt < maxAttempts) {
             try {
+              console.log("Fetching GitHub file info...");
               const fileInfo = await axios.get(
                 `https://api.github.com/repos/Vanic24/VPN/contents/${GITHUB_FILE}`,
                 { headers: { Authorization: `token ${GH_TOKEN}` } }
@@ -95,6 +106,7 @@ jobs:
               const sha = fileInfo.data.sha;
               console.log("GitHub file SHA:", sha);
 
+              console.log("Attempting GitHub PUT...");
               const putRes = await axios.put(
                 `https://api.github.com/repos/Vanic24/VPN/contents/${GITHUB_FILE}`,
                 { message: "Auto update Clash YAML", content: Buffer.from(yamlData).toString('base64'), sha },
@@ -102,10 +114,9 @@ jobs:
               );
               console.log("GitHub PUT status:", putRes.status);
               console.log("GitHub PUT response:", JSON.stringify(putRes.data));
-              break; // success, exit loop
-
+              break;
             } catch (e) {
-              console.error("⚠️ GitHub update attempt", attempt+1,"failed:", e.message);
+              console.error("⚠️ GitHub update attempt", attempt+1,"failed:", e.response ? JSON.stringify(e.response.data) : e.message);
               attempt++;
               if(attempt >= maxAttempts) console.error("❌ GitHub update failed after retries");
             }
@@ -117,12 +128,13 @@ jobs:
           const maxAttempts = 2;
           while(attempt < maxAttempts) {
             try {
+              console.log("Posting to igdux...");
               const res = await axios.post(IGDUX_EDIT_URL, yamlData, { headers: { 'Content-Type': 'text/plain' } });
               console.log("igdux POST status:", res.status);
               console.log("igdux POST response:", JSON.stringify(res.data));
               break;
             } catch (e) {
-              console.error("⚠️ igdux update attempt", attempt+1,"failed:", e.message);
+              console.error("⚠️ igdux update attempt", attempt+1,"failed:", e.response ? JSON.stringify(e.response.data) : e.message);
               attempt++;
               if(attempt >= maxAttempts) console.error("❌ igdux update failed after retries");
             }
@@ -131,8 +143,10 @@ jobs:
 
         async function main() {
           try {
+            console.log("Fetching subscription...");
             const res = await axios.get(SUB_URL, { responseType: 'text' });
             let lines = b64decode(res.data.trim()).split(/\r?\n/).slice(2).filter(Boolean);
+
             const proxies = [];
             for (const line of lines) {
               if (line.startsWith("vmess://")) proxies.push(parseVmess(line));
@@ -141,7 +155,12 @@ jobs:
             }
             console.log(`🔹 Total proxies parsed: ${proxies.length}`);
 
-            const clashConfig = { proxies, "proxy-groups":[{name:"Auto",type:"url-test",proxies:proxies.map(p=>p.name),url:"http://www.gstatic.com/generate_204",interval:300}], rules:["MATCH,Auto"] };
+            const clashConfig = {
+              proxies,
+              "proxy-groups":[{name:"Auto",type:"url-test",proxies:proxies.map(p=>p.name),url:"http://www.gstatic.com/generate_204",interval:300}],
+              rules:["MATCH,Auto"]
+            };
+
             const yamlData = yaml.dump(clashConfig, { noRefs: true, forceQuotes: false, lineWidth: 120 });
             fs.writeFileSync("9PB", yamlData, "utf8");
             fs.writeFileSync("9PB.yml", yamlData, "utf8");
@@ -152,12 +171,11 @@ jobs:
               await updateIgdux(yamlData);
             } else console.log("⚠️ Dry run enabled — not pushing");
 
-          } catch(e) { console.error("❌ Processing error:", e.message); process.exit(1); }
+          } catch(e) { console.error("❌ Processing error:", e.response ? JSON.stringify(e.response.data) : e.message); process.exit(1); }
         }
 
         main();
         EOF
-
       env:
         GH_TOKEN: ${{ secrets.GH_TOKEN }}
         SUB_URL: ${{ secrets.SUB_URL }}
