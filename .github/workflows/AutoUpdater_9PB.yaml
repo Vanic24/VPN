@@ -178,7 +178,7 @@ jobs:
               rules: ["MATCH,Auto"]
             };
 
-            const yamlData = yaml.dump(clashConfig, { noRefs: true, forceQuotes: false, lineWidth: 120 });
+            const yamlData = `# Last update: ${new Date().toISOString()}\n` + yaml.dump(clashConfig, { noRefs: true, forceQuotes: false, lineWidth: 120 });
 
             fs.writeFileSync(GITHUB_FILE, yamlData, "utf8");
             fs.writeFileSync(path.join(process.cwd(), "9PB.yml"), yamlData, "utf8");
@@ -195,7 +195,7 @@ jobs:
                 await axios.put(
                   `https://api.github.com/repos/Vanic24/VPN/contents/${GITHUB_FILE}`,
                   {
-                    message: `Auto update Clash YAML 9PB at ${new Date().toISOString()}`,
+                    message: `Auto Updated 9PB at ${new Date().toISOString()}`,
                     content: Buffer.from(yamlData).toString('base64'),
                     sha: fileInfo.data.sha
                   },
