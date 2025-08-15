@@ -2,7 +2,7 @@ name: Update VPN Subscription (SUB_9PB)
 
 on:
   schedule:
-    - cron: "0 */4 * * *" # Runs every 4 hours
+    - cron: "0 */3 * * *" # Runs every 3 hours
   workflow_dispatch:
     inputs:
       dry_run:
@@ -65,7 +65,9 @@ jobs:
               if (net === "grpc") proxy["grpc-opts"] = { "grpc-service-name": conf.path || "" };
               if (conf.sni) proxy.servername = conf.sni;
               return proxy;
-            } catch { return null; }
+            } catch {
+              return null;
+            }
           }
 
           function parseVless(link) {
@@ -86,7 +88,9 @@ jobs:
               if (net === "ws") proxy["ws-opts"] = { path: q.path || "", headers: { Host: q.host || "" } };
               if (net === "grpc") proxy["grpc-opts"] = { "grpc-service-name": q.serviceName || q["service-name"] || "" };
               return proxy;
-            } catch { return null; }
+            } catch {
+              return null;
+            }
           }
 
           function parseTrojan(link) {
@@ -107,7 +111,9 @@ jobs:
               if (net === "ws") proxy["ws-opts"] = { path: q.path || "", headers: { Host: q.host || "" } };
               if (net === "grpc") proxy["grpc-opts"] = { "grpc-service-name": q.serviceName || q["service-name"] || "" };
               return proxy;
-            } catch { return null; }
+            } catch {
+              return null;
+            }
           }
 
           function parseHysteria2(link) {
@@ -124,7 +130,9 @@ jobs:
                 sni: u.searchParams.get("sni") || undefined,
                 "skip-cert-verify": u.searchParams.get("skip-cert-verify") === "true"
               };
-            } catch { return null; }
+            } catch {
+              return null;
+            }
           }
 
           function parseAnytls(link) {
@@ -141,16 +149,19 @@ jobs:
                 sni: u.searchParams.get("sni") || undefined,
                 "skip-cert-verify": u.searchParams.get("skip-cert-verify") === "true"
               };
-            } catch { return null; }
+            } catch {
+              return null;
+            }
           }
 
           async function main() {
             const res = await axios.get(SUB_URL, { responseType: 'text' });
 
+            // Decode Base64 and remove first 2 lines (info nodes)
             let lines = b64decode(res.data.trim())
               .split(/\r?\n/)
               .filter(Boolean)
-              .slice(2); // remove first 2 info lines
+              .slice(2);
 
             const proxies = [];
             for (const line of lines) {
@@ -178,20 +189,20 @@ jobs:
               rules: ["MATCH,Auto"]
             };
 
-            const yamlData = `# Last update: ${new Date().toISOString()}\n` + yaml.dump(clashConfig, { noRefs: true, forceQuotes: false, lineWidth: 120 });
+            // Force file to change every time with timestamp
+            const yamlData = `# Last update: ${new Date().toISOString()}\n` +
+              yaml.dump(clashConfig, { noRefs: true, forceQuotes: false, lineWidth: 120 });
 
             fs.writeFileSync(GITHUB_FILE, yamlData, "utf8");
             fs.writeFileSync(path.join(process.cwd(), "9PB.yml"), yamlData, "utf8");
 
             if (!dryRun) {
               try {
-                // 1️⃣ Get current file info to obtain SHA
                 const fileInfo = await axios.get(
                   `https://api.github.com/repos/Vanic24/VPN/contents/${GITHUB_FILE}`,
                   { headers: { Authorization: `token ${GH_TOKEN}` } }
                 );
 
-                // 2️⃣ Update with SHA included
                 await axios.put(
                   `https://api.github.com/repos/Vanic24/VPN/contents/${GITHUB_FILE}`,
                   {
@@ -201,9 +212,10 @@ jobs:
                   },
                   { headers: { Authorization: `token ${GH_TOKEN}` } }
                 );
-                console.log("✅ GitHub updated successfully (forced commit)");
+
+                console.log("✅ GitHub updated successfully");
               } catch (e) {
-                console.error("⚠️ Failed to update GitHub:", e.response?.data || e.message);
+                console.error("⚠️ Failed to update GitHub:", e.message);
               }
             } else {
               console.log("⚠️ Dry run enabled — YAML generated but not pushed.");
@@ -226,15 +238,13 @@ jobs:
           name: 9PB
           path: 9PB.yml
 
-      - name: Delete old artifacts (keep latest 2)
+      - name: Delete old artifacts (keep latest 2 only)
         run: |
           echo "🔍 Checking for old artifacts..."
           artifact_ids=$(gh api repos/${{ github.repository }}/actions/artifacts \
             --jq '.artifacts[] | select(.name=="9PB") | .id')
-
           keep_ids=$(echo "$artifact_ids" | head -n 2)
           delete_ids=$(echo "$artifact_ids" | tail -n +3)
-
           if [ -z "$delete_ids" ]; then
             echo "✅ No old artifacts to delete."
           else
