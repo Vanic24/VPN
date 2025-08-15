@@ -185,18 +185,25 @@ jobs:
 
             if (!dryRun) {
               try {
-                // Force commit by always adding timestamp in commit message
+                // 1️⃣ Get current file info to obtain SHA
+                const fileInfo = await axios.get(
+                  `https://api.github.com/repos/Vanic24/VPN/contents/${GITHUB_FILE}`,
+                  { headers: { Authorization: `token ${GH_TOKEN}` } }
+                );
+
+                // 2️⃣ Update with SHA included
                 await axios.put(
                   `https://api.github.com/repos/Vanic24/VPN/contents/${GITHUB_FILE}`,
                   {
                     message: `Auto update Clash YAML 9PB at ${new Date().toISOString()}`,
-                    content: Buffer.from(yamlData).toString('base64')
+                    content: Buffer.from(yamlData).toString('base64'),
+                    sha: fileInfo.data.sha
                   },
                   { headers: { Authorization: `token ${GH_TOKEN}` } }
                 );
                 console.log("✅ GitHub updated successfully (forced commit)");
               } catch (e) {
-                console.error("⚠️ Failed to update GitHub:", e.message);
+                console.error("⚠️ Failed to update GitHub:", e.response?.data || e.message);
               }
             } else {
               console.log("⚠️ Dry run enabled — YAML generated but not pushed.");
