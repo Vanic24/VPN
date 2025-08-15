@@ -45,11 +45,104 @@ jobs:
             return Buffer.from(s, 'base64').toString('utf8');
           }
 
-          function parseVmess(link) { /* same as before */ }
-          function parseVless(link) { /* same as before */ }
-          function parseTrojan(link) { /* same as before */ }
-          function parseHysteria2(link) { /* same as before */ }
-          function parseAnytls(link) { /* same as before */ }
+          function parseVmess(link) {
+            try {
+              const conf = JSON.parse(b64decode(link.slice(8)));
+              const net = (conf.net || "tcp").toLowerCase();
+              const tls = (conf.tls || "").toLowerCase() === "tls";
+              const proxy = {
+                name: conf.ps || "vmess",
+                type: "vmess",
+                server: conf.add,
+                port: Number(conf.port),
+                uuid: conf.id,
+                alterId: Number(conf.aid || 0),
+                cipher: conf.type || "auto",
+                tls,
+                network: net,
+              };
+              if (net === "ws") proxy["ws-opts"] = { path: conf.path || "", headers: { Host: conf.host || "" } };
+              if (net === "grpc") proxy["grpc-opts"] = { "grpc-service-name": conf.path || "" };
+              if (conf.sni) proxy.servername = conf.sni;
+              return proxy;
+            } catch { return null; }
+          }
+
+          function parseVless(link) {
+            try {
+              const u = new URL(link);
+              const q = Object.fromEntries(u.searchParams.entries());
+              const net = (q.type || q.transport || "tcp").toLowerCase();
+              const tls = (q.security || "").toLowerCase() === "tls";
+              const proxy = {
+                name: decodeURIComponent(u.hash.slice(1)) || "vless",
+                type: "vless",
+                server: u.hostname,
+                port: Number(u.port || 443),
+                uuid: decodeURIComponent(u.username),
+                tls,
+                network: net
+              };
+              if (net === "ws") proxy["ws-opts"] = { path: q.path || "", headers: { Host: q.host || "" } };
+              if (net === "grpc") proxy["grpc-opts"] = { "grpc-service-name": q.serviceName || q["service-name"] || "" };
+              return proxy;
+            } catch { return null; }
+          }
+
+          function parseTrojan(link) {
+            try {
+              const u = new URL(link);
+              const q = Object.fromEntries(u.searchParams.entries());
+              const net = (q.type || q.transport || "tcp").toLowerCase();
+              const tls = (q.security || "").toLowerCase() === "tls";
+              const proxy = {
+                name: decodeURIComponent(u.hash.slice(1)) || "trojan",
+                type: "trojan",
+                server: u.hostname,
+                port: Number(u.port || 443),
+                password: decodeURIComponent(u.username),
+                tls,
+                network: net
+              };
+              if (net === "ws") proxy["ws-opts"] = { path: q.path || "", headers: { Host: q.host || "" } };
+              if (net === "grpc") proxy["grpc-opts"] = { "grpc-service-name": q.serviceName || q["service-name"] || "" };
+              return proxy;
+            } catch { return null; }
+          }
+
+          function parseHysteria2(link) {
+            try {
+              const u = new URL(link);
+              const name = decodeURIComponent(u.hash.slice(1)) || "hysteria2";
+              return {
+                name,
+                type: "hysteria2",
+                server: u.hostname,
+                port: Number(u.port),
+                password: decodeURIComponent(u.username),
+                udp: u.searchParams.get("udp") === "true",
+                sni: u.searchParams.get("sni") || undefined,
+                "skip-cert-verify": u.searchParams.get("skip-cert-verify") === "true"
+              };
+            } catch { return null; }
+          }
+
+          function parseAnytls(link) {
+            try {
+              const u = new URL(link);
+              const name = decodeURIComponent(u.hash.slice(1)) || "anytls";
+              return {
+                name,
+                type: "anytls",
+                server: u.hostname,
+                port: Number(u.port),
+                password: decodeURIComponent(u.username),
+                udp: u.searchParams.get("udp") === "true",
+                sni: u.searchParams.get("sni") || undefined,
+                "skip-cert-verify": u.searchParams.get("skip-cert-verify") === "true"
+              };
+            } catch { return null; }
+          }
 
           async function main() {
             const res = await axios.get(SUB_URL, { responseType: 'text' });
