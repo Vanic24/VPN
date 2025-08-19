@@ -27,11 +27,11 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y make cmake g++ pkg-config libssl-dev
 
-      - name: Clone SubConverter
+      - name: Clone and build SubConverter
         run: |
           git clone https://github.com/MetaCubeX/subconverter.git
-          cd subconverter
-          go build -o subconverter
+          cd subconverter/cmd/subconverter
+          go build -o ../../../subconverter
 
       - name: Generate Clash YAML with SubConverter
         run: |
