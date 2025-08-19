@@ -30,12 +30,12 @@ jobs:
       - name: Clone and build SubConverter
         run: |
           git clone https://github.com/MetaCubeX/subconverter.git
-          cd subconverter/cmd/subconverter
-          go build -o ../../../subconverter
+          cd subconverter
+          go mod tidy
+          go build -o subconverter ./src/main.go
 
       - name: Generate Clash YAML with SubConverter
         run: |
-          cd subconverter
           # Create config.yaml dynamically using SUB_3 secret
           echo "general:\n  loglevel: info\nsubscription:\n  - name: SUB3\n    type: url\n    url: '${{ secrets.SUB_3 }}'\n    path: '../Sub3.yml'\noutput:\n  format: clash\n  path: '../Sub3.yml'" > config.yaml
           ./subconverter -c config.yaml
