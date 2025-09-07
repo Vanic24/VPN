@@ -11,7 +11,7 @@ from collections import defaultdict
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 OUTPUT_FILE = os.path.join(REPO_ROOT, "proxies.yaml")
 SOURCES_FILE = os.path.join(REPO_ROOT, "sources.txt")
-CLASH_TEMPLATE_URL = "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/config/ACL4SSR.ini"
+TEMPLATE_URL = "https://raw.githubusercontent.com/Vanic24/VPN/refs/heads/main/ClashTemplate.ini"
 
 # ---------------- Inputs ----------------
 USE_LATENCY = os.environ.get("LATENCY_FILTER", "false").lower() == "true"
@@ -32,7 +32,7 @@ def tcp_latency_ms(host, port, timeout=2.0):
         sock.close()
         return int((time.time() - start) * 1000)
     except Exception:
-        return 9999
+        return 9999  # unreachable
 
 def geo_ip(ip):
     try:
@@ -90,7 +90,6 @@ def correct_node(p, country_counter):
 
     # latency check
     latency = tcp_latency_ms(host, port)
-
     if USE_LATENCY and latency > LATENCY_THRESHOLD:
         return None  # filtered out
 
@@ -102,20 +101,6 @@ def correct_node(p, country_counter):
     p["port"] = port
     return p
 
-# ---------------- Load external Clash template ----------------
-def load_clash_template():
-    try:
-        r = requests.get(CLASH_TEMPLATE_URL, timeout=15)
-        r.raise_for_status()
-        data = yaml.safe_load(r.text)
-        if not isinstance(data, dict):
-            print("[warn] fetched template is not valid YAML dict, creating empty template")
-            data = {}
-        return data
-    except Exception as e:
-        print(f"[warn] failed to fetch Clash template -> {e}, creating empty template")
-        return {}
-
 # ---------------- Main ----------------
 def main():
     sources = load_sources()
@@ -123,50 +108,4 @@ def main():
 
     all_proxies = []
     for url in sources:
-        proxies = load_proxies(url)
-        print(f"[source] {url} -> {len(proxies)} proxies")
-        all_proxies.extend(proxies)
-
-    print(f"[collect] total {len(all_proxies)} proxies")
-
-    country_counter = defaultdict(int)
-    corrected_nodes = []
-
-    with concurrent.futures.ThreadPoolExecutor(max_workers=50) as ex:
-        futures = [ex.submit(correct_node, p, country_counter) for p in all_proxies]
-        for f in concurrent.futures.as_completed(futures):
-            try:
-                res = f.result()
-                if res:
-                    corrected_nodes.append(res)
-            except Exception as e:
-                print("[job error]", e)
-
-    print(f"[done] final {len(corrected_nodes)} nodes after correction/filtering")
-
-    # ---------------- Load Clash template ----------------
-    clash_config = load_clash_template()
-
-    # Replace proxies section with corrected nodes
-    clash_config["proxies"] = corrected_nodes
-
-    # If proxy-groups exist, update the list to use new node names
-    if "proxy-groups" in clash_config:
-        for group in clash_config["proxy-groups"]:
-            if "proxies" in group:
-                group["proxies"] = [p["name"] for p in corrected_nodes]
-
-    # Write final YAML
-    with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
-        yaml.dump(clash_config, f, allow_unicode=True)
-
-    print(f"[done] wrote {OUTPUT_FILE}")
-
-# ---------------- Entry ----------------
-if __name__ == "__main__":
-    try:
-        main()
-    except Exception as e:
-        print("[FATAL ERROR]", str(e))
-        traceback.print_exc()
-        sys.exit(1)
+        proxies
