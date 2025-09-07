@@ -128,7 +128,7 @@ def main():
 
     # Build YAML
     out = {"proxies": [r[0] for r in results]}
-    with open("output.yaml", "w", encoding="utf-8") as f:
+    with open("proxies.yaml", "w", encoding="utf-8") as f:
         yaml.dump(out, f, allow_unicode=True)
 
     print(f"[done] wrote {len(results)} proxies to output.yaml")
