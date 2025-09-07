@@ -11,6 +11,7 @@ from collections import defaultdict
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 OUTPUT_FILE = os.path.join(REPO_ROOT, "proxies.yaml")
 PUDDIN_URL = "https://raw.githubusercontent.com/PuddinCat/BestClash/refs/heads/main/proxies.yaml"
+NODE_SUFFIX = "@SHFX"  # suffix for node names
 
 # ---------------- DNS / Geo ----------------
 def resolve_ip(host):
@@ -26,10 +27,17 @@ def geo_ip(ip):
             country_code = r.json().get("country")
             country_name = r.json().get("region")
             if country_code and country_name:
-                return country_code.lower(), country_name.replace(" ", "_")
+                return country_code.upper(), country_name.replace(" ", "_")
     except:
         pass
-    return "unknown", "Unknown"
+    return "XX", "Unknown"
+
+def country_code_to_emoji(code):
+    # Convert ISO country code to emoji flag
+    OFFSET = 127397
+    if len(code) != 2:
+        return "🏳️"  # default white flag if invalid
+    return chr(ord(code[0]) + OFFSET) + chr(ord(code[1]) + OFFSET)
 
 # ---------------- Load proxies from PuddinCat ----------------
 def load_proxies():
@@ -63,9 +71,12 @@ def correct_node(p, country_counter):
     country_counter[country_code] += 1
     index = country_counter[country_code]
 
-    # rename node
-    p["name"] = f"{country_code}_{country_name}_{index}"
-    p["flag"] = country_code
+    # Emoji flag
+    flag_emoji = country_code_to_emoji(country_code)
+
+    # rename node with format: 🇺🇸|US1|@SHFX
+    p["name"] = f"{flag_emoji}|{country_code}{index}|{NODE_SUFFIX}"
+    p["flag"] = flag_emoji
 
     # update port in case original is malformed
     p["port"] = port
