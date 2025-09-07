@@ -11,21 +11,15 @@ from collections import defaultdict
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 OUTPUT_FILE = os.path.join(REPO_ROOT, "proxies.yaml")
 PUDDIN_URL = "https://raw.githubusercontent.com/PuddinCat/BestClash/refs/heads/main/proxies.yaml"
-TCP_TIMEOUT = 5  # seconds
 
-# ---------------- Network / Geo ----------------
-def get_connected_ip(host, port):
-    """Try to connect to host:port and return the connected IP"""
+# ---------------- DNS / Geo ----------------
+def resolve_ip(host):
     try:
-        sock = socket.create_connection((host, port), timeout=TCP_TIMEOUT)
-        ip = sock.getpeername()[0]
-        sock.close()
-        return ip
-    except:
+        return socket.gethostbyname(host)
+    except Exception:
         return None
 
 def geo_ip(ip):
-    """Return (country_code, country_name) for an IP"""
     try:
         r = requests.get(f"https://ipinfo.io/{ip}/json", timeout=5)
         if r.status_code == 200:
@@ -37,7 +31,7 @@ def geo_ip(ip):
         pass
     return "unknown", "Unknown"
 
-# ---------------- Load proxies ----------------
+# ---------------- Load proxies from PuddinCat ----------------
 def load_proxies():
     try:
         r = requests.get(PUDDIN_URL, timeout=15)
@@ -62,22 +56,18 @@ def correct_node(p, country_counter):
     except ValueError:
         port = 443
 
-    # Connect to node to get actual reachable IP
-    connected_ip = get_connected_ip(host, port) or host
-
-    # Geo-IP lookup using connected IP
-    country_code, country_name = geo_ip(connected_ip)
+    ip = resolve_ip(host) or host
+    country_code, country_name = geo_ip(ip)
 
     # increment country counter
     country_counter[country_code] += 1
     index = country_counter[country_code]
 
-    # rename node using actual connected IP
+    # rename node
     p["name"] = f"{country_code}_{country_name}_{index}"
     p["flag"] = country_code
-    p["real_ip"] = connected_ip  # store actual connected IP
 
-    # port remains the same
+    # update port in case original is malformed
     p["port"] = port
     return p
 
@@ -86,6 +76,7 @@ def main():
     proxies = load_proxies()
     print(f"[start] loaded {len(proxies)} nodes from PuddinCat")
 
+    # Correct flags, country, and add index
     country_counter = defaultdict(int)
     corrected_nodes = []
 
