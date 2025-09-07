@@ -11,12 +11,17 @@ from collections import defaultdict
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 OUTPUT_FILE = os.path.join(REPO_ROOT, "proxies.yaml")
 PUDDIN_URL = "https://raw.githubusercontent.com/PuddinCat/BestClash/refs/heads/main/proxies.yaml"
+TCP_TIMEOUT = 5  # seconds
 
-# ---------------- DNS / Geo ----------------
-def resolve_ip(host):
+# ---------------- Network / Geo ----------------
+def get_connected_ip(host, port):
+    """Try to connect to host:port and return the connected IP"""
     try:
-        return socket.gethostbyname(host)
-    except Exception:
+        sock = socket.create_connection((host, port), timeout=TCP_TIMEOUT)
+        ip = sock.getpeername()[0]
+        sock.close()
+        return ip
+    except:
         return None
 
 def geo_ip(ip):
@@ -32,7 +37,7 @@ def geo_ip(ip):
         pass
     return "unknown", "Unknown"
 
-# ---------------- Load proxies from PuddinCat ----------------
+# ---------------- Load proxies ----------------
 def load_proxies():
     try:
         r = requests.get(PUDDIN_URL, timeout=15)
@@ -57,20 +62,22 @@ def correct_node(p, country_counter):
     except ValueError:
         port = 443
 
-    # Resolve actual IP
-    real_ip = resolve_ip(host) or host
-    country_code, country_name = geo_ip(real_ip)
+    # Connect to node to get actual reachable IP
+    connected_ip = get_connected_ip(host, port) or host
+
+    # Geo-IP lookup using connected IP
+    country_code, country_name = geo_ip(connected_ip)
 
     # increment country counter
     country_counter[country_code] += 1
     index = country_counter[country_code]
 
-    # rename node using real country
+    # rename node using actual connected IP
     p["name"] = f"{country_code}_{country_name}_{index}"
     p["flag"] = country_code
-    p["real_ip"] = real_ip  # store actual resolved IP
+    p["real_ip"] = connected_ip  # store actual connected IP
 
-    # update port safely
+    # port remains the same
     p["port"] = port
     return p
 
