@@ -1,34 +1,45 @@
 name: Update Proxies
 
 on:
+  workflow_dispatch:
+    inputs:
+      latency_filter:
+        description: "Enable latency filter? (true/false)"
+        required: false
+        default: "false"
+      latency_threshold:
+        description: "Max latency in ms (only applies if filter = true)"
+        required: false
+        default: "100"
   schedule:
-    - cron: "*/30 * * * *"  # run every 30 minutes
-  workflow_dispatch:        # allow manual run from Actions tab
+    - cron: "*/30 * * * *"   # run every 30 minutes
 
 jobs:
   update:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write  # allow pushing changes
+
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v4
         with:
           python-version: "3.x"
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: pip install pyyaml requests
 
-      - name: Run aggregator
-        run: python src/bestclash.py
+      - name: Run script
+        env:
+          LATENCY_FILTER: ${{ github.event.inputs.latency_filter || 'false' }}
+          LATENCY_THRESHOLD: ${{ github.event.inputs.latency_threshold || '100' }}
+        run: python scripts/bestclash.py
 
-      - name: Commit & push changes
+      - name: Commit & Push
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add proxies.yaml
-          git commit -m "Auto: update proxies.yaml [skip ci]" || echo "No changes to commit"
+          git diff --cached --quiet || git commit -m "Update proxies.yaml"
           git push
