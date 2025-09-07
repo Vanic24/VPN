@@ -1,4 +1,5 @@
 import sys
+import os
 import yaml
 import requests
 import socket
@@ -6,14 +7,19 @@ import concurrent.futures
 import time
 import traceback
 
-# --- DNS resolution ---
+# ---------------- Paths ----------------
+ROOT = os.path.dirname(os.path.abspath(__file__))
+REPO_ROOT = os.path.abspath(os.path.join(ROOT, ".."))
+SOURCES_FILE = os.path.join(REPO_ROOT, "sources.txt")
+OUTPUT_FILE = os.path.join(REPO_ROOT, "proxies.yaml")
+
+# ---------------- DNS / Latency ----------------
 def resolve_ip(host):
     try:
         return socket.gethostbyname(host)
     except Exception:
         return None
 
-# --- TCP latency test ---
 def tcp_latency_ms(host, port, timeout=3):
     start = time.time()
     try:
@@ -22,13 +28,13 @@ def tcp_latency_ms(host, port, timeout=3):
     except Exception:
         return 9999  # unreachable
 
-# --- Job for each proxy ---
+# ---------------- Job ----------------
 def job(p):
     host = str(p.get("server"))
 
-    # --- Safe port parsing ---
+    # Safe port parsing
     raw_port = str(p.get("port", ""))
-    if "/" in raw_port:  # strip plugin or extra params
+    if "/" in raw_port:  # strip plugin/extra params
         raw_port = raw_port.split("/")[0]
 
     try:
@@ -40,24 +46,34 @@ def job(p):
     lat = tcp_latency_ms(host, port)
     return (p, ip, lat)
 
-# --- Fetch a YAML URL ---
+# ---------------- Fetch & Parse ----------------
+def load_sources():
+    urls = []
+    if not os.path.isfile(SOURCES_FILE):
+        print(f"[warn] sources.txt not found at {SOURCES_FILE}")
+        return urls
+    with open(SOURCES_FILE, "r", encoding="utf-8") as f:
+        for line in f:
+            u = line.strip()
+            if u and not u.startswith("#"):
+                urls.append(u)
+    return urls
+
 def fetch_yaml(url):
     try:
-        resp = requests.get(url, timeout=15)
-        resp.raise_for_status()
-        return resp.text
+        r = requests.get(url, timeout=15)
+        r.raise_for_status()
+        return r.text
     except Exception as e:
         print(f"[fetch] FAIL {url} -> {e}")
         return None
 
-# --- Parse proxies from YAML ---
 def parse_yaml(content, url=""):
     try:
         data = yaml.safe_load(content)
         if not data:
             print(f"[parse] {url} -> empty")
             return []
-
         if "proxies" in data:
             proxies = data["proxies"]
             print(f"[parse] {url} -> {len(proxies)} proxies (yaml)")
@@ -69,30 +85,10 @@ def parse_yaml(content, url=""):
         print(f"[parse] {url} -> FAIL {e}")
         return []
 
-# --- Main runner ---
+# ---------------- Main ----------------
 def main():
-    urls = [
-        "https://cdn.jsdelivr.net/gh/vxiaov/free_proxies@main/clash/clash.provider.yaml",
-        "https://freenode.openrunner.net/uploads/20240807-clash.yaml",
-        "https://raw.githubusercontent.com/Misaka-blog/chromego_merge/main/sub/merged_proxies_new.yaml",
-        "https://raw.githubusercontent.com/MrMohebi/xray-proxy-grabber-telegram/master/collected-proxies/clash-meta/all.yaml",
-        "https://raw.githubusercontent.com/NiceVPN123/NiceVPN/main/Clash.yaml",
-        "https://raw.githubusercontent.com/aiboboxx/clashfree/main/clash.yml",
-        "https://raw.githubusercontent.com/anaer/Sub/main/clash.yaml",
-        "https://raw.githubusercontent.com/chengaopan/AutoMergePublicNodes/master/list.yml",
-        "https://raw.githubusercontent.com/ermaozi/get_subscribe/main/subscribe/clash.yml",
-        "https://raw.githubusercontent.com/ermaozi01/free_clash_vpn/main/subscribe/clash.yml",
-        "https://raw.githubusercontent.com/lagzian/SS-Collector/main/mix_clash.yaml",
-        "https://raw.githubusercontent.com/mahdibland/ShadowsocksAggregator/master/Eternity.yml",
-        "https://raw.githubusercontent.com/mfuu/v2ray/master/clash.yaml",
-        "https://raw.githubusercontent.com/peasoft/NoMoreWalls/master/list.yml",
-        "https://raw.githubusercontent.com/ronghuaxueleng/get_v2/main/pub/combine.yaml",
-        "https://raw.githubusercontent.com/ts-sf/fly/main/clash",
-        "https://raw.githubusercontent.com/yaney01/Yaney01/main/temporary",
-        "https://raw.githubusercontent.com/yebekhe/TelegramV2rayCollector/main/sub/base64/mix",
-        "https://raw.githubusercontent.com/zhangkaiitugithub/passcro/main/speednodes.yaml",
-        "https://tt.vg/freeclash"
-    ]
+    urls = load_sources()
+    print(f"[start] loaded {len(urls)} sources")
 
     all_proxies = []
     for url in urls:
@@ -123,17 +119,20 @@ def main():
             except Exception as e:
                 print("[job error]", e)
 
-    # Sort by latency
-    results.sort(key=lambda x: x[2])
+    # Filter by latency <= 200ms
+    filtered = [r for r in results if r[2] <= 200]
+    filtered.sort(key=lambda x: x[2])  # sort by latency
+
+    print(f"[filter] {len(filtered)} proxies ≤ 200ms latency")
 
     # Build YAML
-    out = {"proxies": [r[0] for r in results]}
-    with open("proxies.yaml", "w", encoding="utf-8") as f:
+    out = {"proxies": [r[0] for r in filtered]}
+    with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
         yaml.dump(out, f, allow_unicode=True)
 
-    print(f"[done] wrote {len(results)} proxies to output.yaml")
+    print(f"[done] wrote {len(filtered)} proxies to {OUTPUT_FILE}")
 
-# --- Entry point with error logging ---
+# ---------------- Entry ----------------
 if __name__ == "__main__":
     try:
         main()
