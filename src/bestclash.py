@@ -33,10 +33,9 @@ def geo_ip(ip):
     return "XX", "Unknown"
 
 def country_code_to_emoji(code):
-    # Convert ISO country code to emoji flag
     OFFSET = 127397
     if len(code) != 2:
-        return "🏳️"  # default white flag if invalid
+        return "🏳️"
     return chr(ord(code[0]) + OFFSET) + chr(ord(code[1]) + OFFSET)
 
 # ---------------- Load proxies from PuddinCat ----------------
@@ -55,17 +54,9 @@ def load_proxies():
 
 # ---------------- Correct node info ----------------
 def correct_node(p, country_counter):
-    host = str(p.get("server"))
-    raw_port = str(p.get("port", ""))
-    if "/" in raw_port:
-        raw_port = raw_port.split("/")[0]
-    try:
-        port = int(raw_port)
-    except ValueError:
-        port = 443
-
-    ip = resolve_ip(host) or host
-    country_code, country_name = geo_ip(ip)
+    # Use outlet_ip if exists, else server
+    ip_for_country = p.get("outlet_ip") or p.get("server")
+    country_code, country_name = geo_ip(ip_for_country)
 
     # increment country counter
     country_counter[country_code] += 1
@@ -78,8 +69,15 @@ def correct_node(p, country_counter):
     p["name"] = f"{flag_emoji}|{country_code}{index}|{NODE_SUFFIX}"
     p["flag"] = flag_emoji
 
-    # update port in case original is malformed
-    p["port"] = port
+    # ensure port is int
+    raw_port = str(p.get("port") or p.get("server_port", 443))
+    if "/" in raw_port:
+        raw_port = raw_port.split("/")[0]
+    try:
+        p["port"] = int(raw_port)
+    except ValueError:
+        p["port"] = 443
+
     return p
 
 # ---------------- Main ----------------
@@ -87,7 +85,6 @@ def main():
     proxies = load_proxies()
     print(f"[start] loaded {len(proxies)} nodes from PuddinCat")
 
-    # Correct flags, country, and add index
     country_counter = defaultdict(int)
     corrected_nodes = []
 
