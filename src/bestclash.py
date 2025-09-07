@@ -82,14 +82,8 @@ def correct_node(p, country_counter):
     p["name"] = f"{flag_emoji}|{country_code}{index}|{NODE_SUFFIX}"
     p["flag"] = flag_emoji
 
-    # ensure port is int
-    raw_port = str(p.get("port") or p.get("server_port", 443))
-    if "/" in raw_port:
-        raw_port = raw_port.split("/")[0]
-    try:
-        p["port"] = int(raw_port)
-    except ValueError:
-        p["port"] = 443
+    # update port in case original is malformed
+    p["port"] = port
 
 # ---------------- Main ----------------
 def main():
