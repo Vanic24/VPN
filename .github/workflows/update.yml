@@ -1,0 +1,34 @@
+name: Update Proxies
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"  # run every 30 minutes
+  workflow_dispatch:        # allow manual run from Actions tab
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # allow pushing changes
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run aggregator
+        run: python src/bestclash.py
+
+      - name: Commit & push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add proxies.yaml
+          git commit -m "Auto: update proxies.yaml [skip ci]" || echo "No changes to commit"
+          git push
