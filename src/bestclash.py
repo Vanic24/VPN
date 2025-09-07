@@ -4,15 +4,13 @@ import yaml
 import requests
 import socket
 import concurrent.futures
-import time
 import traceback
 from collections import defaultdict
 
-# ---------------- Paths ----------------
-ROOT = os.path.dirname(os.path.abspath(__file__))
-REPO_ROOT = os.path.abspath(os.path.join(ROOT, ".."))
-SOURCE_FILE = os.path.join(REPO_ROOT, "https://github.com/PuddinCat/BestClash/raw/refs/heads/main/proxies.yaml")
+# ---------------- Config ----------------
+REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 OUTPUT_FILE = os.path.join(REPO_ROOT, "proxies.yaml")
+PUDDIN_URL = "https://raw.githubusercontent.com/PuddinCat/BestClash/refs/heads/main/proxies.yaml"
 
 # ---------------- DNS / Geo ----------------
 def resolve_ip(host):
@@ -33,17 +31,19 @@ def geo_ip(ip):
         pass
     return "unknown", "Unknown"
 
-# ---------------- Load PuddinCat proxies ----------------
+# ---------------- Load proxies from PuddinCat ----------------
 def load_proxies():
-    if not os.path.isfile(SOURCE_FILE):
-        print(f"[FATAL] source file not found: {SOURCE_FILE}")
+    try:
+        r = requests.get(PUDDIN_URL, timeout=15)
+        r.raise_for_status()
+        data = yaml.safe_load(r.text)
+        if "proxies" not in data:
+            print(f"[FATAL] no proxies found in source URL")
+            sys.exit(1)
+        return data["proxies"]
+    except Exception as e:
+        print(f"[FATAL] failed to fetch PuddinCat proxies -> {e}")
         sys.exit(1)
-    with open(SOURCE_FILE, "r", encoding="utf-8") as f:
-        data = yaml.safe_load(f)
-    if "proxies" not in data:
-        print(f"[FATAL] no proxies found in source file")
-        sys.exit(1)
-    return data["proxies"]
 
 # ---------------- Correct node info ----------------
 def correct_node(p, country_counter):
@@ -92,7 +92,9 @@ def main():
 
     # ---------------- Build full Clash config template ----------------
     clash_config = {
-        "mixed-port": 7890,
+        "port": 7890,
+        "socks-port": 7891,
+        "redir-port": 7892,
         "allow-lan": True,
         "mode": "Rule",
         "log-level": "info",
@@ -101,7 +103,7 @@ def main():
             "enable": True,
             "ipv6": False,
             "listen": "0.0.0.0:53",
-            "default-nameserver": ["223.5.5.5", "114.114.114.114"],
+            "default-nameserver": ["1.1.1.1", "8.8.8.8"],
             "fallback": ["1.1.1.1", "8.8.8.8"]
         },
         "proxies": corrected_nodes,
