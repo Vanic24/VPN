@@ -11,11 +11,16 @@ from collections import defaultdict
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 OUTPUT_FILE = os.path.join(REPO_ROOT, "proxies.yaml")
 SOURCES_FILE = os.path.join(REPO_ROOT, "sources.txt")
-TEMPLATE_URL = "https://raw.githubusercontent.com/Vanic24/VPN/refs/heads/main/ClashTemplate.yaml"
+TEMPLATE_URL = "https://raw.githubusercontent.com/Vanic24/VPN/refs/heads/main/ClashTemplate.ini"
 
 # ---------------- Inputs ----------------
-USE_LATENCY = os.environ.get("LATENCY_FILTER", "false").lower() == "true"
-LATENCY_THRESHOLD = int(os.environ.get("LATENCY_THRESHOLD", "100"))  # ms
+use_latency_env = os.environ.get("LATENCY_FILTER", "false").lower()
+USE_LATENCY = use_latency_env == "true"
+
+try:
+    LATENCY_THRESHOLD = int(os.environ.get("LATENCY_THRESHOLD", "100"))
+except ValueError:
+    LATENCY_THRESHOLD = 100
 
 # ---------------- Helpers ----------------
 def resolve_ip(host):
