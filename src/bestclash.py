@@ -119,8 +119,8 @@ def main():
             except Exception as e:
                 print("[job error]", e)
 
-    # Filter by latency <= 200ms
-    filtered = [r for r in results if r[2] <= 200]
+    # Filter by latency <= 100ms
+    filtered = [r for r in results if r[2] <= 100]
     filtered.sort(key=lambda x: x[2])  # sort by latency
 
     print(f"[filter] {len(filtered)} proxies ≤ 200ms latency")
