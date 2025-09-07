@@ -20,24 +20,40 @@ def resolve_ip(host):
     except Exception:
         return None
 
-def geo_ip(ip):
-    try:
-        r = requests.get(f"https://ipinfo.io/{ip}/json", timeout=5)
-        if r.status_code == 200:
-            country_code = r.json().get("country")
-            country_name = r.json().get("region")
-            if country_code and country_name:
-                return country_code.upper(), country_name.replace(" ", "_")
-    except:
-        pass
-    return "XX", "Unknown"
-
 def country_code_to_emoji(code):
-    # Convert ISO country code to emoji flag
     OFFSET = 127397
     if len(code) != 2:
-        return "🏳️"  # default white flag if invalid
+        return "🏳️"
     return chr(ord(code[0]) + OFFSET) + chr(ord(code[1]) + OFFSET)
+
+def geo_ip(ip):
+    """Get country code and region from IP"""
+    try:
+        r = requests.get(f"https://ipinfo.io/{ip}/json", timeout=5)
+        r.raise_for_status()
+        data = r.json()
+        country_code = data.get("country", "XX").upper()
+        country_name = data.get("region", "Unknown").replace(" ", "_")
+        return country_code, country_name
+    except:
+        return "XX", "Unknown"
+
+# ---------------- Get outlet IP ----------------
+def get_outlet_ip(node):
+    """
+    Simulate Karing: get outlet IP for node using api.ipify.org
+    node: dict with server info
+    returns: outlet_ip string
+    """
+    try:
+        # NOTE: this only works if node is HTTP/SOCKS proxy
+        proxy = f"http://{node['server']}:{node['port']}"
+        proxies = {"http": proxy, "https": proxy}
+        ip = requests.get("https://api.ipify.org", proxies=proxies, timeout=8).text.strip()
+        return ip
+    except:
+        # fallback to server IP if cannot connect
+        return node.get("server")
 
 # ---------------- Load proxies from PuddinCat ----------------
 def load_proxies():
@@ -64,22 +80,28 @@ def correct_node(p, country_counter):
     except ValueError:
         port = 443
 
-    ip = resolve_ip(host) or host
-    country_code, country_name = geo_ip(ip)
+    p["port"] = port
+
+    # Get outlet IP like Karing
+    outlet_ip = get_outlet_ip(p)
+    p["outlet_ip"] = outlet_ip
+
+    # Get country/region from outlet IP
+    country_code, country_name = geo_ip(outlet_ip)
 
     # increment country counter
     country_counter[country_code] += 1
     index = country_counter[country_code]
 
-    # Emoji flag
+    # emoji flag
     flag_emoji = country_code_to_emoji(country_code)
 
-    # rename node with format: 🇺🇸|US1|@SHFX
+    # rename node like: 🇺🇸|US1|@SHFX
     p["name"] = f"{flag_emoji}|{country_code}{index}|{NODE_SUFFIX}"
     p["flag"] = flag_emoji
+    p["latency"] = ""  # you can measure latency here if needed
+    p["outlet_region"] = country_name
 
-    # update port in case original is malformed
-    p["port"] = port
     return p
 
 # ---------------- Main ----------------
@@ -87,11 +109,11 @@ def main():
     proxies = load_proxies()
     print(f"[start] loaded {len(proxies)} nodes from PuddinCat")
 
-    # Correct flags, country, and add index
     country_counter = defaultdict(int)
     corrected_nodes = []
 
-    with concurrent.futures.ThreadPoolExecutor(max_workers=50) as ex:
+    # use thread pool for parallel outlet IP and geo check
+    with concurrent.futures.ThreadPoolExecutor(max_workers=30) as ex:
         futures = [ex.submit(correct_node, p, country_counter) for p in proxies]
         for f in concurrent.futures.as_completed(futures):
             try:
