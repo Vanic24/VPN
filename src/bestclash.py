@@ -28,6 +28,18 @@ def tcp_latency_ms(host, port, timeout=3):
     except Exception:
         return 9999  # unreachable
 
+# ---------------- Geo-IP Lookup ----------------
+def geo_ip(ip):
+    try:
+        r = requests.get(f"https://ipinfo.io/{ip}/json", timeout=5)
+        if r.status_code == 200:
+            country = r.json().get("country")
+            if country:
+                return country.lower()  # return lowercase for consistency
+    except:
+        pass
+    return None
+
 # ---------------- Job ----------------
 def job(p):
     host = str(p.get("server"))
@@ -44,6 +56,12 @@ def job(p):
 
     ip = resolve_ip(host) or host
     lat = tcp_latency_ms(host, port)
+
+    # Update flag based on geo-IP
+    actual_flag = geo_ip(ip)
+    if actual_flag:
+        p["flag"] = actual_flag
+
     return (p, ip, lat)
 
 # ---------------- Fetch & Parse ----------------
@@ -123,7 +141,7 @@ def main():
     filtered = [r for r in results if r[2] <= 100]
     filtered.sort(key=lambda x: x[2])  # sort by latency
 
-    print(f"[filter] {len(filtered)} proxies ≤ 200ms latency")
+    print(f"[filter] {len(filtered)} proxies ≤ 100ms latency")
 
     # Build YAML
     out = {"proxies": [r[0] for r in filtered]}
