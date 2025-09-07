@@ -11,6 +11,7 @@ from collections import defaultdict
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 OUTPUT_FILE = os.path.join(REPO_ROOT, "proxies.yaml")
 SOURCES_FILE = os.path.join(REPO_ROOT, "sources.txt")
+CLASH_TEMPLATE_URL = "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/config/ACL4SSR.ini"
 
 # ---------------- Inputs ----------------
 USE_LATENCY = os.environ.get("LATENCY_FILTER", "false").lower() == "true"
@@ -31,7 +32,7 @@ def tcp_latency_ms(host, port, timeout=2.0):
         sock.close()
         return int((time.time() - start) * 1000)
     except Exception:
-        return 9999  # unreachable
+        return 9999
 
 def geo_ip(ip):
     try:
@@ -101,6 +102,20 @@ def correct_node(p, country_counter):
     p["port"] = port
     return p
 
+# ---------------- Load external Clash template ----------------
+def load_clash_template():
+    try:
+        r = requests.get(CLASH_TEMPLATE_URL, timeout=15)
+        r.raise_for_status()
+        data = yaml.safe_load(r.text)
+        if not isinstance(data, dict):
+            print("[warn] fetched template is not valid YAML dict, creating empty template")
+            data = {}
+        return data
+    except Exception as e:
+        print(f"[warn] failed to fetch Clash template -> {e}, creating empty template")
+        return {}
+
 # ---------------- Main ----------------
 def main():
     sources = load_sources()
@@ -129,45 +144,19 @@ def main():
 
     print(f"[done] final {len(corrected_nodes)} nodes after correction/filtering")
 
-    # ---------------- Clash template ----------------
-    clash_config = {
-        "port": 7890,
-        "socks-port": 7891,
-        "redir-port": 7892,
-        "allow-lan": True,
-        "mode": "Rule",
-        "log-level": "info",
-        "external-controller": "127.0.0.1:9090",
-        "dns": {
-            "enable": True,
-            "ipv6": False,
-            "listen": "0.0.0.0:53",
-            "default-nameserver": ["1.1.1.1", "8.8.8.8"],
-            "fallback": ["1.1.1.1", "8.8.8.8"]
-        },
-        "proxies": corrected_nodes,
-        "proxy-groups": [
-            {
-                "name": "Auto",
-                "type": "url-test",
-                "proxies": [p["name"] for p in corrected_nodes],
-                "url": "http://www.gstatic.com/generate_204",
-                "interval": 300
-            },
-            {
-                "name": "PROXY",
-                "type": "select",
-                "proxies": ["Auto", "DIRECT"]
-            }
-        ],
-        "rules": [
-            "DOMAIN-SUFFIX,google.com,PROXY",
-            "DOMAIN-KEYWORD,youtube,PROXY",
-            "GEOIP,CN,DIRECT",
-            "MATCH,PROXY"
-        ]
-    }
+    # ---------------- Load Clash template ----------------
+    clash_config = load_clash_template()
 
+    # Replace proxies section with corrected nodes
+    clash_config["proxies"] = corrected_nodes
+
+    # If proxy-groups exist, update the list to use new node names
+    if "proxy-groups" in clash_config:
+        for group in clash_config["proxy-groups"]:
+            if "proxies" in group:
+                group["proxies"] = [p["name"] for p in corrected_nodes]
+
+    # Write final YAML
     with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
         yaml.dump(clash_config, f, allow_unicode=True)
 
