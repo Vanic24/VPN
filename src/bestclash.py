@@ -180,12 +180,19 @@ def measure_and_rename(proxies, keep_top=50):
     1) Resolve IP, 2) latency test, 3) sort by latency, 4) rename.
     """
     # Resolve + latency (parallel)
-    def job(p):
-        host = str(p.get("server"))
-        port = int(p.get("port"))
-        ip = resolve_ip(host) or host
-        lat = tcp_latency_ms(host, port)
-        return (p, ip, lat)
+def job(p):
+    host = str(p.get("server"))
+    raw_port = str(p.get("port", ""))
+    if "/" in raw_port:  # strip plugin or extra params
+        raw_port = raw_port.split("/")[0]
+    try:
+        port = int(raw_port)
+    except ValueError:
+        port = 443  # fallback to default
+    ip = resolve_ip(host) or host
+    lat = tcp_latency_ms(host, port)
+    return (p, ip, lat)
+
 
     results = []
     with ThreadPoolExecutor(max_workers=64) as ex:
