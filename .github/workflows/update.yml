@@ -1,18 +1,20 @@
 name: Update Proxies
 
 on:
+  # Run every 30 minutes
+  schedule:
+    - cron: "*/30 * * * *"
+  # Allow manual trigger with inputs
   workflow_dispatch:
     inputs:
-      latency_filter:
+      use_latency_filter:
         description: "Enable latency filter? (true/false)"
-        required: false
+        required: true
         default: "false"
       latency_threshold:
-        description: "Max latency in ms (only applies if filter = true)"
+        description: "Latency threshold in ms (only used if filter is true)"
         required: false
         default: "100"
-  schedule:
-    - cron: "*/30 * * * *"   # run every 30 minutes
 
 jobs:
   update:
@@ -22,27 +24,25 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Set up Python
+      - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.x"
 
       - name: Install dependencies
-        run: pip install pyyaml requests
+        run: |
+          pip install requests pyyaml
 
-      - name: Run script
-        env:
-          LATENCY_FILTER: ${{ github.event.inputs.latency_filter || 'false' }}
-          LATENCY_THRESHOLD: ${{ github.event.inputs.latency_threshold || '100' }}
-        run: python src/bestclash.py
+      - name: Run bestclash.py
+        run: |
+          export LATENCY_FILTER="${{ github.event.inputs.use_latency_filter }}"
+          export LATENCY_THRESHOLD="${{ github.event.inputs.latency_threshold }}"
+          python src/bestclash.py
 
-      - name: Commit and Push changes
+      - name: Commit and push if changed
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add proxies.yaml
-          git commit -m "Update proxies.yaml" || echo "No changes to commit"
+          git diff --cached --quiet || git commit -m "Update proxies.yaml"
           git push
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
