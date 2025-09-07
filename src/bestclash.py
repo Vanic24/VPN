@@ -20,6 +20,7 @@ def resolve_ip(host):
         return None
 
 def geo_ip(ip):
+    """Return (country_code, country_name) for an IP"""
     try:
         r = requests.get(f"https://ipinfo.io/{ip}/json", timeout=5)
         if r.status_code == 200:
@@ -56,18 +57,20 @@ def correct_node(p, country_counter):
     except ValueError:
         port = 443
 
-    ip = resolve_ip(host) or host
-    country_code, country_name = geo_ip(ip)
+    # Resolve actual IP
+    real_ip = resolve_ip(host) or host
+    country_code, country_name = geo_ip(real_ip)
 
     # increment country counter
     country_counter[country_code] += 1
     index = country_counter[country_code]
 
-    # rename node
+    # rename node using real country
     p["name"] = f"{country_code}_{country_name}_{index}"
     p["flag"] = country_code
+    p["real_ip"] = real_ip  # store actual resolved IP
 
-    # update port in case original is malformed
+    # update port safely
     p["port"] = port
     return p
 
@@ -76,7 +79,6 @@ def main():
     proxies = load_proxies()
     print(f"[start] loaded {len(proxies)} nodes from PuddinCat")
 
-    # Correct flags, country, and add index
     country_counter = defaultdict(int)
     corrected_nodes = []
 
