@@ -1,5 +1,5 @@
-import sys
 import os
+import sys
 import yaml
 import requests
 import socket
@@ -21,7 +21,7 @@ LATENCY_THRESHOLD = int(os.environ.get("LATENCY_THRESHOLD", "100"))  # ms
 def resolve_ip(host):
     try:
         return socket.gethostbyname(host)
-    except Exception:
+    except:
         return None
 
 def tcp_latency_ms(host, port, timeout=2.0):
@@ -31,8 +31,8 @@ def tcp_latency_ms(host, port, timeout=2.0):
         sock = socket.create_connection((host, port), timeout=timeout)
         sock.close()
         return int((time.time() - start) * 1000)
-    except Exception:
-        return 9999  # unreachable
+    except:
+        return 9999
 
 def geo_ip(ip):
     try:
@@ -47,7 +47,6 @@ def geo_ip(ip):
     return "unknown", "UN"
 
 def country_to_flag(cc):
-    """Convert 2-letter country code to flag emoji."""
     if not cc or len(cc) != 2:
         return "🏳️"
     return chr(0x1F1E6 + (ord(cc[0].upper()) - 65)) + \
@@ -91,7 +90,7 @@ def correct_node(p, country_counter):
     # latency check
     latency = tcp_latency_ms(host, port)
     if USE_LATENCY and latency > LATENCY_THRESHOLD:
-        return None  # filtered out
+        return None
 
     country_counter[cc_upper] += 1
     index = country_counter[cc_upper]
@@ -108,4 +107,54 @@ def main():
 
     all_proxies = []
     for url in sources:
-        proxies
+        proxies = load_proxies(url)
+        print(f"[source] {url} -> {len(proxies)} proxies")
+        all_proxies.extend(proxies)
+
+    print(f"[collect] total {len(all_proxies)} proxies")
+
+    country_counter = defaultdict(int)
+    corrected_nodes = []
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=50) as ex:
+        futures = [ex.submit(correct_node, p, country_counter) for p in all_proxies]
+        for f in concurrent.futures.as_completed(futures):
+            try:
+                res = f.result()
+                if res:
+                    corrected_nodes.append(res)
+            except Exception as e:
+                print("[job error]", e)
+
+    print(f"[done] final {len(corrected_nodes)} nodes after correction/filtering")
+
+    # ---------------- Load template as text ----------------
+    try:
+        r = requests.get(TEMPLATE_URL, timeout=15)
+        r.raise_for_status()
+        template_text = r.text
+    except Exception as e:
+        print(f"[FATAL] failed to fetch template -> {e}")
+        sys.exit(1)
+
+    # ---------------- Convert proxies to YAML block ----------------
+    proxies_yaml_block = yaml.dump(corrected_nodes, allow_unicode=True, default_flow_style=False)
+
+    # ---------------- Replace placeholder ----------------
+    # In your INI template, put {{PROXIES}} where proxies should go
+    output_text = template_text.replace("{{PROXIES}}", proxies_yaml_block)
+
+    # ---------------- Write output ----------------
+    with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
+        f.write(output_text)
+
+    print(f"[done] wrote {OUTPUT_FILE}")
+
+# ---------------- Entry ----------------
+if __name__ == "__main__":
+    try:
+        main()
+    except Exception as e:
+        print("[FATAL ERROR]", str(e))
+        traceback.print_exc()
+        sys.exit(1)
