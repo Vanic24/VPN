@@ -67,10 +67,6 @@ def correct_node(p, country_counter):
     ip = resolve_ip(host) or host
     country_code, country_name = geo_ip(ip)
 
-# Use outlet_ip if exists, else server
-    ip_for_country = p.get("outlet_ip") or p.get("server")
-    country_code, country_name = geo_ip(ip_for_country)
-
     # increment country counter
     country_counter[country_code] += 1
     index = country_counter[country_code]
@@ -84,6 +80,7 @@ def correct_node(p, country_counter):
 
     # update port in case original is malformed
     p["port"] = port
+    return p
 
 # ---------------- Main ----------------
 def main():
