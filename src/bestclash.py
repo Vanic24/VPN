@@ -5,6 +5,8 @@ import requests
 import socket
 import concurrent.futures
 import time
+import subprocess
+import json
 import traceback
 
 # ---------------- Paths ----------------
@@ -12,59 +14,27 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 REPO_ROOT = os.path.abspath(os.path.join(ROOT, ".."))
 SOURCES_FILE = os.path.join(REPO_ROOT, "sources.txt")
 OUTPUT_FILE = os.path.join(REPO_ROOT, "proxies.yaml")
+V2RAY_EXE = os.path.join(REPO_ROOT, "v2ray")  # Path to v2ray-core executable
 
-# ---------------- DNS / Latency ----------------
+# ---------------- DNS / Geo-IP ----------------
 def resolve_ip(host):
     try:
         return socket.gethostbyname(host)
     except Exception:
         return None
 
-def tcp_latency_ms(host, port, timeout=3):
-    start = time.time()
-    try:
-        with socket.create_connection((host, port), timeout=timeout):
-            return int((time.time() - start) * 1000)
-    except Exception:
-        return 9999  # unreachable
-
-# ---------------- Geo-IP Lookup ----------------
 def geo_ip(ip):
     try:
         r = requests.get(f"https://ipinfo.io/{ip}/json", timeout=5)
         if r.status_code == 200:
             country = r.json().get("country")
             if country:
-                return country.lower()  # return lowercase for consistency
+                return country.lower()
     except:
         pass
     return None
 
-# ---------------- Job ----------------
-def job(p):
-    host = str(p.get("server"))
-
-    # Safe port parsing
-    raw_port = str(p.get("port", ""))
-    if "/" in raw_port:  # strip plugin/extra params
-        raw_port = raw_port.split("/")[0]
-
-    try:
-        port = int(raw_port)
-    except ValueError:
-        port = 443  # fallback default
-
-    ip = resolve_ip(host) or host
-    lat = tcp_latency_ms(host, port)
-
-    # Update flag based on geo-IP
-    actual_flag = geo_ip(ip)
-    if actual_flag:
-        p["flag"] = actual_flag
-
-    return (p, ip, lat)
-
-# ---------------- Fetch & Parse ----------------
+# ---------------- Load / Parse ----------------
 def load_sources():
     urls = []
     if not os.path.isfile(SOURCES_FILE):
@@ -103,6 +73,46 @@ def parse_yaml(content, url=""):
         print(f"[parse] {url} -> FAIL {e}")
         return []
 
+# ---------------- V2Ray Node Test ----------------
+def test_v2ray_node(node, timeout=10):
+    """
+    Test the node using v2ray-core with a short HTTP request.
+    Returns latency in ms if success, else None.
+    """
+    # Create temporary config for this node
+    config = {
+        "inbounds": [{"port": 1081, "listen": "127.0.0.1", "protocol": "socks", "settings": {"auth": "noauth"}}],
+        "outbounds": [{"protocol": node.get("type", "vmess"),
+                       "settings": node,
+                       "streamSettings": node.get("streamSettings", {})}]
+    }
+    tmp_config_path = "tmp_node_config.json"
+    with open(tmp_config_path, "w", encoding="utf-8") as f:
+        json.dump(config, f, ensure_ascii=False)
+
+    start = time.time()
+    try:
+        # Run v2ray-core in test mode for 1 request to generate_204
+        proc = subprocess.run([
+            V2RAY_EXE, "-c", tmp_config_path, "--test", "https://www.gstatic.com/generate_204"
+        ], capture_output=True, text=True, timeout=timeout)
+
+        if proc.returncode == 0:
+            latency = int((time.time() - start) * 1000)
+            ip = resolve_ip(node.get("server")) or node.get("server")
+            country = geo_ip(ip)
+            if country:
+                node["flag"] = country
+            return (node, latency)
+        else:
+            return None
+    except Exception as e:
+        print(f"[v2ray-test] {node.get('server')} failed -> {e}")
+        return None
+    finally:
+        if os.path.exists(tmp_config_path):
+            os.remove(tmp_config_path)
+
 # ---------------- Main ----------------
 def main():
     urls = load_sources()
@@ -127,21 +137,20 @@ def main():
 
     print(f"[dedupe] unique proxies: {len(unique)}")
 
-    # Test latency in parallel
+    # Test nodes using v2ray-core in parallel
     results = []
-    with concurrent.futures.ThreadPoolExecutor(max_workers=50) as ex:
-        futures = [ex.submit(job, p) for p in unique]
+    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as ex:
+        futures = [ex.submit(test_v2ray_node, p) for p in unique]
         for f in concurrent.futures.as_completed(futures):
-            try:
-                results.append(f.result())
-            except Exception as e:
-                print("[job error]", e)
+            r = f.result()
+            if r:
+                results.append(r)
 
-    # Filter by latency <= 50ms
-    filtered = [r for r in results if r[2] <= 50]
-    filtered.sort(key=lambda x: x[2])  # sort by latency
+    # Filter latency <= 100ms
+    filtered = [r for r in results if r[1] <= 100]
+    filtered.sort(key=lambda x: x[1])
 
-    print(f"[filter] {len(filtered)} proxies ≤ 100ms latency")
+    print(f"[filter] {len(filtered)} working nodes ≤ 100ms latency")
 
     # Build YAML
     out = {"proxies": [r[0] for r in filtered]}
