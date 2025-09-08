@@ -63,7 +63,11 @@ def load_sources():
         print(f"[FATAL] sources.txt not found at {SOURCES_FILE}")
         sys.exit(1)
     with open(SOURCES_FILE, "r", encoding="utf-8") as f:
-        return [line.strip() for line in f if line.strip() and not line.startswith("#")]
+        sources = [line.strip() for line in f if line.strip() and not line.startswith("#")]
+    if not sources:
+        print(f"[FATAL] sources.txt is empty. Please check the secret or file content.")
+        sys.exit(1)
+    return sources
 
 # ---------------- Load proxies from URLs ----------------
 def load_proxies(url):
