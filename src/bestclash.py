@@ -1,21 +1,19 @@
 import os
 import sys
 import yaml
-import json
 import requests
 import socket
-import concurrent.futures
 import subprocess
-import time
+import concurrent.futures
 import traceback
 from collections import defaultdict
+import time
 
 # ---------------- Config ----------------
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 OUTPUT_FILE = os.path.join(REPO_ROOT, "proxies.yaml")
 SOURCES_FILE = os.path.join(REPO_ROOT, "sources.txt")
 TEMPLATE_URL = "https://raw.githubusercontent.com/Vanic24/VPN/refs/heads/main/ClashTemplate.ini"
-CLASH_BIN = os.path.join(REPO_ROOT, "clash", "clash.meta")  # downloaded in workflow
 
 # ---------------- Inputs ----------------
 use_latency_env = os.environ.get("LATENCY_FILTER", "false").lower()
@@ -25,6 +23,9 @@ try:
     LATENCY_THRESHOLD = int(os.environ.get("LATENCY_THRESHOLD", "100"))
 except ValueError:
     LATENCY_THRESHOLD = 100
+
+# ---------------- Mihomo Binary ----------------
+MIHOMO_BIN = os.path.join(REPO_ROOT, "mihomo", "mihomo")  # updated path
 
 # ---------------- Helpers ----------------
 def resolve_ip(host):
@@ -84,6 +85,44 @@ def load_proxies(url):
         print(f"[warn] failed to fetch {url} -> {e}")
     return []
 
+# ---------------- Start Mihomo process to get actual outbound IP ----------------
+def get_outbound_ip(proxy_config):
+    server = proxy_config.get("server")
+    port = str(proxy_config.get("port", 443))
+    if "/" in port:
+        port = port.split("/")[0]
+
+    try:
+        port = int(port)
+    except ValueError:
+        port = 443
+
+    # build temporary config for Mihomo
+    temp_config_path = os.path.join(REPO_ROOT, "mihomo_temp.yaml")
+    with open(temp_config_path, "w", encoding="utf-8") as f:
+        yaml.dump({"server": server, "port": port, "type": proxy_config.get("type")}, f)
+
+    try:
+        # run Mihomo binary to get outbound IP
+        process = subprocess.Popen([MIHOMO_BIN, "run", "-c", temp_config_path],
+                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        time.sleep(2)  # wait a little for connection
+        # Mihomo can be queried for external IP
+        r = requests.get("https://api.ipify.org?format=json", timeout=5)
+        outlet_ip = r.json().get("ip")
+        process.kill()
+        return outlet_ip
+    except Exception as e:
+        print(f"[warn] Mihomo failed for {server}:{port} -> {e}")
+        try:
+            process.kill()
+        except:
+            pass
+        return None
+    finally:
+        if os.path.exists(temp_config_path):
+            os.remove(temp_config_path)
+
 # ---------------- Correct node ----------------
 def correct_node(p, country_counter):
     host = str(p.get("server"))
@@ -95,75 +134,26 @@ def correct_node(p, country_counter):
     except ValueError:
         port = 443
 
-    ip = resolve_ip(host) or host
-    cc_lower, cc_upper = geo_ip(ip)
-    flag = country_to_flag(cc_upper)
-
-    # latency check
+    # ping check
     latency = tcp_latency_ms(host, port)
     if USE_LATENCY and latency > LATENCY_THRESHOLD:
         return None
 
-    # ---------------- Test actual outbound IP via Clash ----------------
-    process = None
-    try:
-        config_dir = os.path.join(REPO_ROOT, "config")
-        os.makedirs(config_dir, exist_ok=True)
-        temp_config_path = os.path.join(config_dir, f"{host}_{port}.yaml")
+    # get actual outbound IP via Mihomo
+    outlet_ip = get_outbound_ip(p)
+    if not outlet_ip:
+        return None
 
-        # minimal Clash config for this node
-        clash_config = {
-            "port": 7890,
-            "socks-port": 1080,
-            "allow-lan": False,
-            "mode": "Rule",
-            "log-level": "silent",
-            "proxies": [p],
-            "proxy-groups": [
-                {
-                    "name": "Proxy",
-                    "type": "select",
-                    "proxies": [p.get("name", "Temp")]
-                }
-            ],
-            "rules": ["MATCH,Proxy"]
-        }
-
-        with open(temp_config_path, "w", encoding="utf-8") as f:
-            yaml.dump(clash_config, f, allow_unicode=True)
-
-        # start clash
-        process = subprocess.Popen(
-            [CLASH_BIN, "-f", temp_config_path, "--headless"],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE
-        )
-
-        # give Clash some time to start
-        time.sleep(10)
-
-        # query actual outlet IP
-        proxies_req = {"http": "http://127.0.0.1:1080", "https": "http://127.0.0.1:1080"}
-        r = requests.get("https://api.ipify.org?format=json", proxies=proxies_req, timeout=5)
-        outlet_ip = r.json().get("ip", None)
-
-    except Exception as e:
-        print(f"[warn] Clash failed for {host}:{port} -> {e}")
-        outlet_ip = None
-    finally:
-        if process and process.poll() is None:
-            process.kill()
-
-    if outlet_ip:
-        cc_lower, cc_upper = geo_ip(outlet_ip)
-        flag = country_to_flag(cc_upper)
+    cc_lower, cc_upper = geo_ip(outlet_ip)
+    flag = country_to_flag(cc_upper)
 
     country_counter[cc_upper] += 1
     index = country_counter[cc_upper]
 
-    # rename
+    # rename node
     p["name"] = f"{flag}|{cc_upper}{index}|@SHFX"
     p["port"] = port
+    p["outlet_ip"] = outlet_ip
     return p
 
 # ---------------- Main ----------------
@@ -182,7 +172,7 @@ def main():
     country_counter = defaultdict(int)
     corrected_nodes = []
 
-    with concurrent.futures.ThreadPoolExecutor(max_workers=50) as ex:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=20) as ex:
         futures = [ex.submit(correct_node, p, country_counter) for p in all_proxies]
         for f in concurrent.futures.as_completed(futures):
             try:
