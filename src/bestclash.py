@@ -1,6 +1,7 @@
 import os
 import sys
 import yaml
+import json
 import requests
 import socket
 import concurrent.futures
@@ -122,8 +123,9 @@ def correct_node(p, country_counter):
             "outbounds": [p]
         }
 
+        # Write config as JSON (required by Linux Xray)
         with open(temp_config_path, "w", encoding="utf-8") as f:
-            yaml.dump(node_config, f, allow_unicode=True)
+            json.dump(node_config, f, ensure_ascii=False)
 
         # Launch Xray
         process = subprocess.Popen(
@@ -133,7 +135,7 @@ def correct_node(p, country_counter):
         )
 
         # Give Xray some time to start
-        time.sleep(10)
+        time.sleep(15)  # increased timeout for GitHub Actions
 
         # Try to get actual outlet IP
         proxies = {"http": "http://127.0.0.1:1080", "https": "http://127.0.0.1:1080"}
