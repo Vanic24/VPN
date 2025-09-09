@@ -5,6 +5,9 @@ import requests
 import socket
 import concurrent.futures
 import traceback
+import base64
+import json
+from urllib.parse import urlparse
 from collections import defaultdict
 
 # ---------------- Config ----------------
@@ -69,6 +72,28 @@ def load_sources():
         sys.exit(1)
     return sources
 
+# ---------------- Parse proxy URLs ----------------
+def parse_proxy_line(line):
+    try:
+        if line.startswith("vmess://"):
+            b64 = line[8:]
+            decoded = base64.b64decode(b64).decode("utf-8")
+            data = json.loads(decoded)
+            server = data.get("add") or ""
+            port = int(data.get("port") or 443)
+            name = data.get("ps") or line
+            return {"name": name, "server": server, "port": port}
+        elif line.startswith(("trojan://", "vless://", "anytls://", "hysteria://", "ss://")):
+            parsed = urlparse(line)
+            server = parsed.hostname or ""
+            port = parsed.port or 443
+            name = parsed.fragment or line
+            return {"name": name, "server": server, "port": port}
+        else:
+            return None
+    except Exception:
+        return None
+
 # ---------------- Load proxies from URLs ----------------
 def load_proxies(url):
     try:
@@ -76,21 +101,12 @@ def load_proxies(url):
         r.raise_for_status()
         lines = r.text.splitlines()
         valid_prefixes = ("vmess://", "vless://", "trojan://", "hysteria://", "anytls://", "ss://")
-        # Keep only lines starting with valid prefixes
         filtered_lines = [line for line in lines if line.strip().startswith(valid_prefixes)]
         proxies = []
         for line in filtered_lines:
-            try:
-                # Attempt to parse as YAML if possible
-                data = yaml.safe_load(line)
-                if isinstance(data, dict) and "proxies" in data:
-                    proxies.extend(data["proxies"])
-                else:
-                    # If not YAML, just treat line as raw node
-                    proxies.append({"name": line, "server": "", "port": 443})
-            except Exception:
-                # If YAML parse fails, treat as raw node
-                proxies.append({"name": line, "server": "", "port": 443})
+            node = parse_proxy_line(line.strip())
+            if node:
+                proxies.append(node)
         return proxies
     except Exception as e:
         print(f"[warn] failed to fetch {url} -> {e}")
