@@ -4,9 +4,9 @@ import yaml
 import requests
 import socket
 import concurrent.futures
-import traceback
 import subprocess
 import time
+import traceback
 from collections import defaultdict
 
 # ---------------- Config ----------------
@@ -14,10 +14,7 @@ REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file_
 OUTPUT_FILE = os.path.join(REPO_ROOT, "proxies.yaml")
 SOURCES_FILE = os.path.join(REPO_ROOT, "sources.txt")
 TEMPLATE_URL = "https://raw.githubusercontent.com/Vanic24/VPN/refs/heads/main/ClashTemplate.ini"
-
-XRAY_BIN = os.path.join("Xray", "xray.exe")
-XRAY_CONFIG_DIR = os.path.join(REPO_ROOT, "config")
-XRAY_TIMEOUT = 10  # seconds before force kill
+XRAY_BIN = os.path.join(REPO_ROOT, "Xray", "xray")  # Linux executable
 
 # ---------------- Inputs ----------------
 use_latency_env = os.environ.get("LATENCY_FILTER", "false").lower()
@@ -62,50 +59,6 @@ def country_to_flag(cc):
     return chr(0x1F1E6 + (ord(cc[0].upper()) - 65)) + \
            chr(0x1F1E6 + (ord(cc[1].upper()) - 65))
 
-# ---------------- Xray Outbound IP ----------------
-def get_outbound_ip(node, index):
-    process = None
-    try:
-        os.makedirs(XRAY_CONFIG_DIR, exist_ok=True)
-        cfg_file = os.path.join(XRAY_CONFIG_DIR, f"node_{index}.json")
-
-        # write single-node config
-        with open(cfg_file, "w", encoding="utf-8") as f:
-            yaml.dump({"outbounds": [node]}, f, allow_unicode=True)
-
-        process = subprocess.Popen([XRAY_BIN, "run", f"-config={cfg_file}"],
-                                   stdout=subprocess.PIPE,
-                                   stderr=subprocess.PIPE)
-
-        start_time = time.time()
-        outlet_ip = None
-        while time.time() - start_time < XRAY_TIMEOUT:
-            try:
-                proxies = {"http": "http://127.0.0.1:1080", "https": "http://127.0.0.1:1080"}
-                r = requests.get("https://api.ipify.org?format=json", proxies=proxies, timeout=3)
-                if r.status_code == 200:
-                    outlet_ip = r.json().get("ip")
-                    break
-            except:
-                time.sleep(1)
-
-        # kill after timeout or success
-        if process and process.poll() is None:
-            process.kill()
-
-        if outlet_ip:
-            cc_lower, cc_upper = geo_ip(outlet_ip)
-            flag = country_to_flag(cc_upper)
-            node["outlet_ip"] = outlet_ip
-            node["outlet_region"] = cc_upper
-            node["name"] = f"{flag}|{cc_upper}{index}|@SHFX"
-        return node
-    except Exception as e:
-        print("[xray error]", e)
-        if process and process.poll() is None:
-            process.kill()
-        return None
-
 # ---------------- Load sources ----------------
 def load_sources():
     if not os.path.exists(SOURCES_FILE):
@@ -148,12 +101,60 @@ def correct_node(p, country_counter):
     # latency check
     latency = tcp_latency_ms(host, port)
     if USE_LATENCY and latency > LATENCY_THRESHOLD:
-        return None  # skip → outbound ip check won’t run
+        return None
+
+    # ---------------- Test actual outbound IP via Xray ----------------
+    try:
+        config_dir = os.path.join(REPO_ROOT, "config")
+        os.makedirs(config_dir, exist_ok=True)
+        temp_config_path = os.path.join(config_dir, f"{host}_{port}.json")
+
+        # Add minimal inbound listener for local testing
+        node_config = {
+            "inbounds": [
+                {
+                    "port": 1080,
+                    "listen": "127.0.0.1",
+                    "protocol": "socks",
+                    "settings": {"udp": False}
+                }
+            ],
+            "outbounds": [p]
+        }
+
+        with open(temp_config_path, "w", encoding="utf-8") as f:
+            yaml.dump(node_config, f, allow_unicode=True)
+
+        # Launch Xray
+        process = subprocess.Popen(
+            [XRAY_BIN, "run", "-config", temp_config_path],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+        )
+
+        # Give Xray some time to start
+        time.sleep(10)
+
+        # Try to get actual outlet IP
+        proxies = {"http": "http://127.0.0.1:1080", "https": "http://127.0.0.1:1080"}
+        r = requests.get("https://api.ipify.org?format=json", proxies=proxies, timeout=5)
+        outlet_ip = r.json().get("ip", None)
+
+    except Exception as e:
+        print(f"[warn] Xray failed for {host}:{port} -> {e}")
+        outlet_ip = None
+    finally:
+        if process.poll() is None:
+            process.kill()
+
+    if outlet_ip:
+        cc_lower, cc_upper = geo_ip(outlet_ip)
+        flag = country_to_flag(cc_upper)
 
     country_counter[cc_upper] += 1
     index = country_counter[cc_upper]
 
-    # assign temporary name
+    # rename
     p["name"] = f"{flag}|{cc_upper}{index}|@SHFX"
     p["port"] = port
     return p
@@ -172,34 +173,19 @@ def main():
     print(f"[collect] total {len(all_proxies)} proxies")
 
     country_counter = defaultdict(int)
-    filtered_nodes = []
+    corrected_nodes = []
 
-    # Step 1: Latency filter
     with concurrent.futures.ThreadPoolExecutor(max_workers=50) as ex:
         futures = [ex.submit(correct_node, p, country_counter) for p in all_proxies]
         for f in concurrent.futures.as_completed(futures):
             try:
                 res = f.result()
                 if res:
-                    filtered_nodes.append(res)
+                    corrected_nodes.append(res)
             except Exception as e:
                 print("[job error]", e)
 
-    print(f"[filter] {len(filtered_nodes)} nodes passed latency filter (<= {LATENCY_THRESHOLD}ms)")
-
-    # Step 2: Outbound IP check only for filtered nodes
-    final_nodes = []
-    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as ex:
-        futures = [ex.submit(get_outbound_ip, node, i+1) for i, node in enumerate(filtered_nodes)]
-        for f in concurrent.futures.as_completed(futures):
-            try:
-                res = f.result()
-                if res:
-                    final_nodes.append(res)
-            except Exception as e:
-                print("[outbound error]", e)
-
-    print(f"[done] {len(final_nodes)} nodes with outbound IP info")
+    print(f"[done] final {len(corrected_nodes)} nodes after correction/filtering")
 
     # ---------------- Load template as text ----------------
     try:
@@ -211,10 +197,10 @@ def main():
         sys.exit(1)
 
     # ---------------- Convert proxies to YAML block ----------------
-    proxies_yaml_block = yaml.dump(final_nodes, allow_unicode=True, default_flow_style=False)
+    proxies_yaml_block = yaml.dump(corrected_nodes, allow_unicode=True, default_flow_style=False)
 
     # ---------------- Build proxy names block ----------------
-    proxy_names_block = "\n".join([f"      - {p['name']}" for p in final_nodes])
+    proxy_names_block = "\n".join([f"      - {p['name']}" for p in corrected_nodes])
 
     # ---------------- Replace placeholders ----------------
     output_text = template_text.replace("{{PROXIES}}", proxies_yaml_block)
