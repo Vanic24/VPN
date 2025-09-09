@@ -50,16 +50,12 @@ jobs:
           echo "LATENCY_FILTER=${{ github.event.inputs.use_latency_filter || 'true' }}" >> $GITHUB_ENV
           echo "LATENCY_THRESHOLD=${{ github.event.inputs.latency_threshold || '100' }}" >> $GITHUB_ENV
 
-      - name: Prepare Xray
+      - name: Download Clash CLI
         run: |
-          mkdir -p Xray
-          mkdir -p config
-          # Download latest Linux 64-bit Xray release
-          XRAY_URL="https://github.com/XTLS/Xray-core/releases/latest/download/Xray-linux-64.zip"
-          curl -L -o Xray/Xray.zip $XRAY_URL
-          unzip -o Xray/Xray.zip -d Xray
-          rm Xray/Xray.zip
-          chmod +x Xray/xray
+          mkdir -p clash
+          curl -L -o clash/clash https://github.com/Dreamacro/clash/releases/latest/download/clash-linux-amd64
+          chmod +x clash/clash
+
 
       - name: Run bestclash.py
         run: python src/bestclash.py
