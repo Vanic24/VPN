@@ -1,235 +1,72 @@
-import os
-import sys
-import yaml
-import requests
-import socket
-import concurrent.futures
-import subprocess
-import time
-import traceback
-from collections import defaultdict
+name: Update Proxies
 
-# ---------------- Config ----------------
-REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-OUTPUT_FILE = os.path.join(REPO_ROOT, "proxies.yaml")
-SOURCES_FILE = os.path.join(REPO_ROOT, "sources.txt")
-TEMPLATE_URL = "https://raw.githubusercontent.com/Vanic24/VPN/refs/heads/main/ClashTemplate.ini"
-MIHOMO_URL = "https://github.com/MetaCubeX/mihomo/releases/download/v1.19.13/mihomo-linux-amd64-v3-v1.19.13.gz"
-MIHOMO_BIN = os.path.join(REPO_ROOT, "mihomo", "mihomo")
+on:
+  # Run every 30 minutes
+  schedule:
+    - cron: "*/30 * * * *"
+  # Manual trigger with inputs
+  workflow_dispatch:
+    inputs:
+      use_latency_filter:
+        description: "Enable latency filter? (true/false)"
+        required: true
+        default: "true"
+      latency_threshold:
+        description: "Latency threshold in ms (only used if filter is true)"
+        required: false
+        default: "100"
 
-# ---------------- Inputs ----------------
-use_latency_env = os.environ.get("LATENCY_FILTER", "false").lower()
-USE_LATENCY = use_latency_env == "true"
+jobs:
+  update:
+    runs-on: ubuntu-latest
 
-try:
-    LATENCY_THRESHOLD = int(os.environ.get("LATENCY_THRESHOLD", "100"))
-except ValueError:
-    LATENCY_THRESHOLD = 100
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
 
-# ---------------- Helpers ----------------
-def resolve_ip(host):
-    try:
-        return socket.gethostbyname(host)
-    except:
-        return None
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.x"
 
-def tcp_latency_ms(host, port, timeout=2.0):
-    try:
-        start = time.time()
-        sock = socket.create_connection((host, port), timeout=timeout)
-        sock.close()
-        return int((time.time() - start) * 1000)
-    except:
-        return 9999
+      - name: Install dependencies
+        run: |
+          pip install requests pyyaml
 
-def geo_ip(ip):
-    try:
-        r = requests.get(f"https://ipinfo.io/{ip}/json", timeout=5)
-        if r.status_code == 200:
-            data = r.json()
-            cc = data.get("country")
-            if cc:
-                return cc.lower(), cc.upper()
-    except:
-        pass
-    return "unknown", "UN"
+      - name: Fail if SOURCES_TXT is missing
+        run: |
+          if [ -z "${{ secrets.SOURCES_TXT }}" ]; then
+            echo "❌ ERROR: SOURCES_TXT secret is not set in repository secrets."
+            exit 1
+          fi
 
-def country_to_flag(cc):
-    if not cc or len(cc) != 2:
-        return "🏳️"
-    return chr(0x1F1E6 + (ord(cc[0].upper()) - 65)) + \
-           chr(0x1F1E6 + (ord(cc[1].upper()) - 65))
+      - name: Restore sources.txt from secret
+        run: |
+          echo "${{ secrets.SOURCES_TXT }}" > sources.txt
 
-# ---------------- Load sources ----------------
-def load_sources():
-    if not os.path.exists(SOURCES_FILE):
-        print(f"[FATAL] sources.txt not found at {SOURCES_FILE}")
-        sys.exit(1)
-    with open(SOURCES_FILE, "r", encoding="utf-8") as f:
-        sources = [line.strip() for line in f if line.strip() and not line.startswith("#")]
-    if not sources:
-        print(f"[FATAL] sources.txt is empty. Please check the secret or file content.")
-        sys.exit(1)
-    return sources
+      - name: Set latency filter environment for scheduled/manual runs
+        run: |
+          echo "LATENCY_FILTER=${{ github.event.inputs.use_latency_filter || 'true' }}" >> $GITHUB_ENV
+          echo "LATENCY_THRESHOLD=${{ github.event.inputs.latency_threshold || '100' }}" >> $GITHUB_ENV
 
-# ---------------- Load proxies from URLs ----------------
-def load_proxies(url):
-    try:
-        r = requests.get(url, timeout=15)
-        r.raise_for_status()
-        data = yaml.safe_load(r.text)
-        if "proxies" in data:
-            return data["proxies"]
-    except Exception as e:
-        print(f"[warn] failed to fetch {url} -> {e}")
-    return []
+      - name: Ensure Mihomo download
+        run: |
+          mkdir -p mihomo
+          MIHOMO_BIN="mihomo/mihomo"
+          if [ ! -f "$MIHOMO_BIN" ]; then
+            echo "[info] Downloading Mihomo binary..."
+            wget -O mihomo/mihomo.gz https://github.com/MetaCubeX/mihomo/releases/download/v1.19.13/mihomo-linux-amd64-v3-v1.19.13.gz
+            gzip -d mihomo/mihomo.gz
+            chmod +x mihomo/mihomo
+          fi
 
-# ---------------- Download Mihomo ----------------
-def ensure_mihomo():
-    import gzip, shutil
-    if os.path.exists(MIHOMO_BIN):
-        return
-    os.makedirs(os.path.dirname(MIHOMO_BIN), exist_ok=True)
-    gz_path = MIHOMO_BIN + ".gz"
-    print("[info] downloading Mihomo binary...")
-    r = requests.get(MIHOMO_URL, timeout=30)
-    with open(gz_path, "wb") as f:
-        f.write(r.content)
-    print("[info] decompressing Mihomo...")
-    with gzip.open(gz_path, "rb") as f_in, open(MIHOMO_BIN, "wb") as f_out:
-        shutil.copyfileobj(f_in, f_out)
-    os.chmod(MIHOMO_BIN, 0o755)
-    os.remove(gz_path)
-    print("[info] Mihomo ready")
+      - name: Run bestclash.py
+        run: python src/bestclash.py
 
-# ---------------- Check actual outbound IP ----------------
-def get_outbound_ip(proxy_config):
-    """
-    proxy_config: dict of Clash node
-    Returns actual outlet_ip or None if failed
-    """
-    ensure_mihomo()
-    temp_config_path = os.path.join(REPO_ROOT, "mihomo_temp.yaml")
-    with open(temp_config_path, "w", encoding="utf-8") as f:
-        yaml.dump(proxy_config, f, allow_unicode=True)
-    local_http_port = 12345  # temporary local proxy
-
-    try:
-        # Start Mihomo in HTTP mode
-        process = subprocess.Popen(
-            [MIHOMO_BIN, "run", "-c", temp_config_path, "-L", f"127.0.0.1:{local_http_port}:http"],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-        )
-        time.sleep(3)  # wait for proxy to start
-
-        # Test HTTP request via proxy
-        proxies = {
-            "http": f"http://127.0.0.1:{local_http_port}",
-            "https": f"http://127.0.0.1:{local_http_port}"
-        }
-        r = requests.get("https://api.ipify.org?format=json", proxies=proxies, timeout=10)
-        ip = r.json().get("ip")
-        return ip
-    except Exception as e:
-        print(f"[warn] Mihomo failed for {proxy_config.get('server')}:{proxy_config.get('port')} -> {e}")
-        return None
-    finally:
-        if 'process' in locals() and process.poll() is None:
-            process.kill()
-        if os.path.exists(temp_config_path):
-            os.remove(temp_config_path)
-
-# ---------------- Correct node ----------------
-def correct_node(p, country_counter):
-    host = str(p.get("server"))
-    raw_port = str(p.get("port", ""))
-    if "/" in raw_port:
-        raw_port = raw_port.split("/")[0]
-    try:
-        port = int(raw_port)
-    except ValueError:
-        port = 443
-
-    # latency check
-    latency = tcp_latency_ms(host, port)
-    if USE_LATENCY and latency > LATENCY_THRESHOLD:
-        return None
-
-    # get actual outbound IP
-    outlet_ip = get_outbound_ip(p)
-    if not outlet_ip:
-        return None
-
-    cc_lower, cc_upper = geo_ip(outlet_ip)
-    flag = country_to_flag(cc_upper)
-    country_counter[cc_upper] += 1
-    index = country_counter[cc_upper]
-
-    # rename
-    p["name"] = f"{flag}|{cc_upper}{index}|@SHFX"
-    p["port"] = port
-    p["outlet_ip"] = outlet_ip
-    return p
-
-# ---------------- Main ----------------
-def main():
-    sources = load_sources()
-    print(f"[start] loaded {len(sources)} sources from sources.txt")
-
-    all_proxies = []
-    for url in sources:
-        proxies = load_proxies(url)
-        print(f"[source] {url} -> {len(proxies)} proxies")
-        all_proxies.extend(proxies)
-
-    print(f"[collect] total {len(all_proxies)} proxies")
-
-    country_counter = defaultdict(int)
-    corrected_nodes = []
-
-    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as ex:
-        futures = [ex.submit(correct_node, p, country_counter) for p in all_proxies]
-        for f in concurrent.futures.as_completed(futures):
-            try:
-                res = f.result()
-                if res:
-                    corrected_nodes.append(res)
-            except Exception as e:
-                print("[job error]", e)
-
-    print(f"[done] final {len(corrected_nodes)} nodes after correction/filtering")
-
-    # ---------------- Load template as text ----------------
-    try:
-        r = requests.get(TEMPLATE_URL, timeout=15)
-        r.raise_for_status()
-        template_text = r.text
-    except Exception as e:
-        print(f"[FATAL] failed to fetch template -> {e}")
-        sys.exit(1)
-
-    # ---------------- Convert proxies to YAML block ----------------
-    proxies_yaml_block = yaml.dump(corrected_nodes, allow_unicode=True, default_flow_style=False)
-
-    # ---------------- Build proxy names block ----------------
-    proxy_names_block = "\n".join([f"      - {p['name']}" for p in corrected_nodes])
-
-    # ---------------- Replace placeholders ----------------
-    output_text = template_text.replace("{{PROXIES}}", proxies_yaml_block)
-    output_text = output_text.replace("{{PROXY_NAMES}}", proxy_names_block)
-
-    # ---------------- Write output ----------------
-    with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
-        f.write(output_text)
-
-    print(f"[done] wrote {OUTPUT_FILE}")
-
-# ---------------- Entry ----------------
-if __name__ == "__main__":
-    try:
-        main()
-    except Exception as e:
-        print("[FATAL ERROR]", str(e))
-        traceback.print_exc()
-        sys.exit(1)
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add proxies.yaml
+          git diff --cached --quiet || git commit -m "Update proxies.yaml"
+          git push
