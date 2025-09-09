@@ -25,7 +25,7 @@ except ValueError:
     LATENCY_THRESHOLD = 100
 
 # ---------------- Mihomo Binary ----------------
-MIHOMO_BIN = os.path.join(REPO_ROOT, "mihomo", "mihomo")  # updated path
+MIHOMO_BIN = os.path.join(REPO_ROOT, "mihomo", "mihomo")  # must be downloaded by workflow
 
 # ---------------- Helpers ----------------
 def resolve_ip(host):
@@ -85,7 +85,7 @@ def load_proxies(url):
         print(f"[warn] failed to fetch {url} -> {e}")
     return []
 
-# ---------------- Get actual outbound IP using Mihomo SOCKS ----------------
+# ---------------- Get actual outbound IP using Mihomo HTTP ----------------
 def get_outbound_ip(proxy_config):
     server = proxy_config.get("server")
     port = str(proxy_config.get("port", 443))
@@ -97,7 +97,7 @@ def get_outbound_ip(proxy_config):
     except ValueError:
         port = 443
 
-    # temporary config file (minimal)
+    # temporary minimal config
     temp_config_path = os.path.join(REPO_ROOT, "mihomo_temp.yaml")
     with open(temp_config_path, "w", encoding="utf-8") as f:
         yaml.dump({
@@ -107,21 +107,20 @@ def get_outbound_ip(proxy_config):
             "password": proxy_config.get("password", "")
         }, f)
 
-    # select a free local SOCKS port
-    local_socks_port = 1080  # you can randomize if needed
+    local_http_port = 8080  # HTTP proxy port
 
     try:
-        # start Mihomo with local SOCKS port
+        # start Mihomo with HTTP proxy
         process = subprocess.Popen(
-            [MIHOMO_BIN, "run", "-c", temp_config_path, "-L", f"127.0.0.1:{local_socks_port}:socks"],
+            [MIHOMO_BIN, "run", "-c", temp_config_path, "-L", f"127.0.0.1:{local_http_port}:http"],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE
         )
         time.sleep(3)  # wait for proxy to be ready
 
-        # request actual outbound IP through the local SOCKS proxy
+        # request actual outbound IP through the HTTP proxy
         proxies = {
-            "http": f"socks5://127.0.0.1:{local_socks_port}",
-            "https": f"socks5://127.0.0.1:{local_socks_port}"
+            "http": f"http://127.0.0.1:{local_http_port}",
+            "https": f"http://127.0.0.1:{local_http_port}"
         }
         r = requests.get("https://api.ipify.org?format=json", proxies=proxies, timeout=5)
         outlet_ip = r.json().get("ip")
@@ -155,7 +154,7 @@ def correct_node(p, country_counter):
     if USE_LATENCY and latency > LATENCY_THRESHOLD:
         return None
 
-    # get actual outbound IP via Mihomo SOCKS
+    # get actual outbound IP via Mihomo HTTP
     outlet_ip = get_outbound_ip(p)
     if not outlet_ip:
         return None
