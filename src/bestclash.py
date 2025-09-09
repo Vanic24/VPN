@@ -14,24 +14,24 @@ REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file_
 OUTPUT_FILE = os.path.join(REPO_ROOT, "proxies.yaml")
 SOURCES_FILE = os.path.join(REPO_ROOT, "sources.txt")
 TEMPLATE_URL = "https://raw.githubusercontent.com/Vanic24/VPN/refs/heads/main/ClashTemplate.ini"
-MIHOMO_URL = "https://github.com/MetaCubeX/mihomo/releases/download/v1.19.13/mihomo-linux-amd64-v3-v1.19.13.gz"
 MIHOMO_BIN = os.path.join(REPO_ROOT, "mihomo", "mihomo")
 
 # ---------------- Inputs ----------------
 use_latency_env = os.environ.get("LATENCY_FILTER", "false").lower()
 USE_LATENCY = use_latency_env == "true"
-
 try:
     LATENCY_THRESHOLD = int(os.environ.get("LATENCY_THRESHOLD", "100"))
 except ValueError:
     LATENCY_THRESHOLD = 100
 
 # ---------------- Helpers ----------------
+VALID_PREFIXES = ("vmess://", "vless://", "trojan://", "ss://", "socks://", "hysteria2://", "anytls://")
+
 def resolve_ip(host):
     try:
         return socket.gethostbyname(host)
     except:
-        return None
+        return host  # fallback to host itself
 
 def tcp_latency_ms(host, port, timeout=2.0):
     try:
@@ -57,8 +57,7 @@ def geo_ip(ip):
 def country_to_flag(cc):
     if not cc or len(cc) != 2:
         return "🏳️"
-    return chr(0x1F1E6 + (ord(cc[0].upper()) - 65)) + \
-           chr(0x1F1E6 + (ord(cc[1].upper()) - 65))
+    return chr(0x1F1E6 + (ord(cc[0].upper()) - 65)) + chr(0x1F1E6 + (ord(cc[1].upper()) - 65))
 
 # ---------------- Load sources ----------------
 def load_sources():
@@ -68,128 +67,114 @@ def load_sources():
     with open(SOURCES_FILE, "r", encoding="utf-8") as f:
         sources = [line.strip() for line in f if line.strip() and not line.startswith("#")]
     if not sources:
-        print(f"[FATAL] sources.txt is empty. Please check the secret or file content.")
+        print(f"[FATAL] sources.txt is empty.")
         sys.exit(1)
     return sources
 
-# ---------------- Load proxies from URLs ----------------
-def load_proxies(url):
+def filter_valid_nodes(raw_nodes):
+    valid_nodes = []
+    for line in raw_nodes:
+        line = line.strip()
+        if not line:
+            continue
+        if line.lower().startswith(VALID_PREFIXES):
+            valid_nodes.append(line)
+        else:
+            print(f"[skip] invalid line skipped -> {line[:50]}...")
+    return valid_nodes
+
+# ---------------- Mihomo helpers ----------------
+def get_outbound_ip(node_yaml_path):
     try:
-        r = requests.get(url, timeout=15)
-        r.raise_for_status()
-        data = yaml.safe_load(r.text)
-        if "proxies" in data:
-            return data["proxies"]
+        # Run mihomo in HTTP mode
+        cmd = [MIHOMO_BIN, "-c", node_yaml_path, "--mode", "http", "--timeout", "5"]
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=15)
+        if result.returncode == 0:
+            for line in result.stdout.splitlines():
+                if line.startswith("OUTBOUND_IP:"):
+                    return line.split(":", 1)[1].strip()
     except Exception as e:
-        print(f"[warn] failed to fetch {url} -> {e}")
-    return []
+        print(f"[warn] Mihomo failed -> {e}")
+    return None
 
-# ---------------- Download Mihomo ----------------
-def ensure_mihomo():
-    import gzip, shutil
-    if os.path.exists(MIHOMO_BIN):
-        return
-    os.makedirs(os.path.dirname(MIHOMO_BIN), exist_ok=True)
-    gz_path = MIHOMO_BIN + ".gz"
-    print("[info] downloading Mihomo binary...")
-    r = requests.get(MIHOMO_URL, timeout=30)
-    with open(gz_path, "wb") as f:
-        f.write(r.content)
-    print("[info] decompressing Mihomo...")
-    with gzip.open(gz_path, "rb") as f_in, open(MIHOMO_BIN, "wb") as f_out:
-        shutil.copyfileobj(f_in, f_out)
-    os.chmod(MIHOMO_BIN, 0o755)
-    os.remove(gz_path)
-    print("[info] Mihomo ready")
-
-# ---------------- Check actual outbound IP ----------------
-def get_outbound_ip(proxy_config):
-    """
-    proxy_config: dict of Clash node
-    Returns actual outlet_ip or None if failed
-    """
-    ensure_mihomo()
-    temp_config_path = os.path.join(REPO_ROOT, "mihomo_temp.yaml")
-    with open(temp_config_path, "w", encoding="utf-8") as f:
-        yaml.dump(proxy_config, f, allow_unicode=True)
-    local_http_port = 12345  # temporary local proxy
-
+# ---------------- Node processing ----------------
+def correct_node(node_line, country_counter):
+    temp_yaml = os.path.join(REPO_ROOT, "mihomo_temp.yaml")
+    # Write single node to mihomo YAML format
     try:
-        # Start Mihomo in HTTP mode
-        process = subprocess.Popen(
-            [MIHOMO_BIN, "run", "-c", temp_config_path, "-L", f"127.0.0.1:{local_http_port}:http"],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-        )
-        time.sleep(3)  # wait for proxy to start
-
-        # Test HTTP request via proxy
-        proxies = {
-            "http": f"http://127.0.0.1:{local_http_port}",
-            "https": f"http://127.0.0.1:{local_http_port}"
-        }
-        r = requests.get("https://api.ipify.org?format=json", proxies=proxies, timeout=10)
-        ip = r.json().get("ip")
-        return ip
+        with open(temp_yaml, "w", encoding="utf-8") as f:
+            f.write("proxies:\n")
+            f.write(f"  - {node_line}\n")
     except Exception as e:
-        print(f"[warn] Mihomo failed for {proxy_config.get('server')}:{proxy_config.get('port')} -> {e}")
+        print(f"[job error] failed to write temp YAML -> {e}")
         return None
-    finally:
-        if 'process' in locals() and process.poll() is None:
-            process.kill()
-        if os.path.exists(temp_config_path):
-            os.remove(temp_config_path)
 
-# ---------------- Correct node ----------------
-def correct_node(p, country_counter):
-    host = str(p.get("server"))
-    raw_port = str(p.get("port", ""))
-    if "/" in raw_port:
-        raw_port = raw_port.split("/")[0]
+    # Extract host & port for latency check
+    host, port = None, None
     try:
-        port = int(raw_port)
-    except ValueError:
-        port = 443
+        if node_line.startswith(("vmess://", "vless://", "trojan://")):
+            # crude parsing for host:port
+            if "@" in node_line:
+                part = node_line.split("@")[1]
+                host = part.split(":")[0]
+                port = int(part.split(":")[1].split("?")[0])
+            else:
+                host, port = None, 443
+        elif node_line.startswith(("ss://", "socks://", "hysteria2://", "anytls://")):
+            host, port = None, 443
+        else:
+            return None
+    except:
+        host, port = None, 443
 
-    # latency check
-    latency = tcp_latency_ms(host, port)
+    ip = resolve_ip(host) if host else None
+    latency = tcp_latency_ms(host, port) if host else 0
     if USE_LATENCY and latency > LATENCY_THRESHOLD:
+        print(f"[skip] node skipped due to high latency {latency}ms -> {node_line[:50]}...")
         return None
 
-    # get actual outbound IP
-    outlet_ip = get_outbound_ip(p)
-    if not outlet_ip:
-        return None
-
-    cc_lower, cc_upper = geo_ip(outlet_ip)
+    # Get real outbound IP via Mihomo
+    outlet_ip = get_outbound_ip(temp_yaml)
+    if outlet_ip:
+        cc_lower, cc_upper = geo_ip(outlet_ip)
+    else:
+        cc_lower, cc_upper = geo_ip(ip or host)
     flag = country_to_flag(cc_upper)
+
+    # Rename node
     country_counter[cc_upper] += 1
     index = country_counter[cc_upper]
-
-    # rename
-    p["name"] = f"{flag}|{cc_upper}{index}|@SHFX"
-    p["port"] = port
-    p["outlet_ip"] = outlet_ip
-    return p
+    return {
+        "name": f"{flag}|{cc_upper}{index}|@SHFX",
+        "raw": node_line,
+        "outlet_ip": outlet_ip or "unknown",
+        "latency": latency
+    }
 
 # ---------------- Main ----------------
 def main():
     sources = load_sources()
     print(f"[start] loaded {len(sources)} sources from sources.txt")
 
-    all_proxies = []
+    all_raw_nodes = []
     for url in sources:
-        proxies = load_proxies(url)
-        print(f"[source] {url} -> {len(proxies)} proxies")
-        all_proxies.extend(proxies)
+        try:
+            r = requests.get(url, timeout=15)
+            r.raise_for_status()
+            raw_lines = r.text.splitlines()
+            valid_nodes = filter_valid_nodes(raw_lines)
+            print(f"[source] {url} -> {len(valid_nodes)} valid nodes")
+            all_raw_nodes.extend(valid_nodes)
+        except Exception as e:
+            print(f"[warn] failed to fetch {url} -> {e}")
 
-    print(f"[collect] total {len(all_proxies)} proxies")
+    print(f"[collect] total {len(all_raw_nodes)} nodes")
 
     country_counter = defaultdict(int)
     corrected_nodes = []
 
-    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as ex:
-        futures = [ex.submit(correct_node, p, country_counter) for p in all_proxies]
+    with concurrent.futures.ThreadPoolExecutor(max_workers=20) as ex:
+        futures = [ex.submit(correct_node, node, country_counter) for node in all_raw_nodes]
         for f in concurrent.futures.as_completed(futures):
             try:
                 res = f.result()
@@ -200,7 +185,7 @@ def main():
 
     print(f"[done] final {len(corrected_nodes)} nodes after correction/filtering")
 
-    # ---------------- Load template as text ----------------
+    # ---------------- Load template ----------------
     try:
         r = requests.get(TEMPLATE_URL, timeout=15)
         r.raise_for_status()
@@ -210,19 +195,14 @@ def main():
         sys.exit(1)
 
     # ---------------- Convert proxies to YAML block ----------------
-    proxies_yaml_block = yaml.dump(corrected_nodes, allow_unicode=True, default_flow_style=False)
+    proxies_yaml_block = yaml.dump([n["raw"] for n in corrected_nodes], allow_unicode=True, default_flow_style=False)
+    proxy_names_block = "\n".join([f"      - {n['name']}" for n in corrected_nodes])
 
-    # ---------------- Build proxy names block ----------------
-    proxy_names_block = "\n".join([f"      - {p['name']}" for p in corrected_nodes])
-
-    # ---------------- Replace placeholders ----------------
     output_text = template_text.replace("{{PROXIES}}", proxies_yaml_block)
     output_text = output_text.replace("{{PROXY_NAMES}}", proxy_names_block)
 
-    # ---------------- Write output ----------------
     with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
         f.write(output_text)
-
     print(f"[done] wrote {OUTPUT_FILE}")
 
 # ---------------- Entry ----------------
