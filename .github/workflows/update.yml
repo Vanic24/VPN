@@ -2,44 +2,54 @@ name: AutoUpdater
 
 on:
   schedule:
-    - cron: "0 */6 * * *"   # run every 6 hours
-  workflow_dispatch:
+    - cron: "*/30 * * * *"   # every 30 minutes
+  workflow_dispatch:         # allow manual run
 
 jobs:
   update:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout this repo
         uses: actions/checkout@v4
+        with:
+          persist-credentials: true
 
-      - name: Set up Python
+      - name: Clone secret repo (sources.txt provider)
+        run: |
+          git clone https://x-access-token:${{ secrets.SECRET_REPO_TOKEN }}@github.com/${{ secrets.SECRET_REPO }} secret_sources
+          cp secret_sources/sources.txt scr/sources.txt
+
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.x'
+          python-version: "3.11"
 
-      - name: Install Python dependencies
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install requests pyyaml
+          pip install pyyaml requests
 
-      - name: Download Mihomo Core
+      - name: Download Mihomo core
         run: |
-          mkdir -p clash
-          cd clash
+          mkdir -p scr
+          cd scr
           curl -L -o mihomo.gz https://github.com/MetaCubeX/mihomo/releases/download/v1.19.13/mihomo-linux-amd64-v3-v1.19.13.gz
-          gunzip mihomo.gz
+          gunzip -f mihomo.gz
+          mv mihomo-linux-amd64-v3-v1.19.13 mihomo
           chmod +x mihomo
-          mv mihomo ../mihomo
+          cd ..
 
       - name: Run bestclash.py
         run: |
-          python src/bestclash.py
+          cd scr
+          python bestclash.py
+          cd ..
 
-      - name: Commit and Push changes
+      - name: Commit and push changes
         run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
           git add proxies.yaml
-          git commit -m "Auto update proxies.yaml $(date -u +'%Y-%m-%d %H:%M:%S')"
+          git commit -m "Auto update proxies.yaml at $(date -u +'%Y-%m-%d %H:%M:%S')" || echo "No changes"
           git push
