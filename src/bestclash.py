@@ -17,13 +17,17 @@ USE_LATENCY_FILTER = os.environ.get("LATENCY_FILTER", "true").lower() == "true"
 
 MIHOMO_BIN = os.path.join(REPO_ROOT, "..", "mihomo", "mihomo")
 
-# --------------- Helpers ----------------
+# ---------------- Load sources ----------------
 def load_sources():
     if not os.path.exists(SOURCES_FILE):
-        print(f"❌ Error: {SOURCES_FILE} not found", file=sys.stderr)
+        print(f"[FATAL] sources.txt not found at {SOURCES_FILE}")
         sys.exit(1)
     with open(SOURCES_FILE, "r", encoding="utf-8") as f:
-        return [line.strip() for line in f if line.strip()]
+        sources = [line.strip() for line in f if line.strip() and not line.startswith("#")]
+    if not sources:
+        print(f"[FATAL] sources.txt is empty. Please check the secret or file content.")
+        sys.exit(1)
+    return sources
 
 def ping(host, port=80, timeout=1.0):
     try:
