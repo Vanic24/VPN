@@ -15,7 +15,7 @@ REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file_
 OUTPUT_FILE = os.path.join(REPO_ROOT, "proxies.yaml")
 SOURCES_FILE = os.path.join(REPO_ROOT, "sources.txt")
 TEMPLATE_URL = "https://raw.githubusercontent.com/Vanic24/VPN/refs/heads/main/ClashTemplate.ini"
-XRAY_BIN = os.path.join(REPO_ROOT, "Xray", "xray")  # Linux executable
+CLASH_BIN = os.path.join(REPO_ROOT, "clash", "clash")  # will be downloaded in workflow
 
 # ---------------- Inputs ----------------
 use_latency_env = os.environ.get("LATENCY_FILTER", "false").lower()
@@ -104,46 +104,50 @@ def correct_node(p, country_counter):
     if USE_LATENCY and latency > LATENCY_THRESHOLD:
         return None
 
-    # ---------------- Test actual outbound IP via Xray ----------------
+    # ---------------- Test actual outbound IP via Clash ----------------
     try:
         config_dir = os.path.join(REPO_ROOT, "config")
         os.makedirs(config_dir, exist_ok=True)
-        temp_config_path = os.path.join(config_dir, f"{host}_{port}.json")
+        temp_config_path = os.path.join(config_dir, f"{host}_{port}.yaml")
 
-        # Add minimal inbound listener for local testing
-        node_config = {
-            "inbounds": [
+        # minimal Clash config for this node
+        clash_config = {
+            "port": 7890,
+            "socks-port": 1080,
+            "allow-lan": False,
+            "mode": "Rule",
+            "log-level": "silent",
+            "proxies": [p],
+            "proxy-groups": [
                 {
-                    "port": 1080,
-                    "listen": "127.0.0.1",
-                    "protocol": "socks",
-                    "settings": {"udp": False}
+                    "name": "Proxy",
+                    "type": "select",
+                    "proxies": [p["name"] if "name" in p else "Temp"]
                 }
             ],
-            "outbounds": [p]
+            "rules": ["MATCH,Proxy"]
         }
 
-        # Write config as JSON (required by Linux Xray)
         with open(temp_config_path, "w", encoding="utf-8") as f:
-            json.dump(node_config, f, ensure_ascii=False)
+            yaml.dump(clash_config, f, allow_unicode=True)
 
-        # Launch Xray
+        # start clash
         process = subprocess.Popen(
-            [XRAY_BIN, "run", "-config", temp_config_path],
+            [CLASH_BIN, "-f", temp_config_path, "--headless"],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE
         )
 
-        # Give Xray some time to start
-        time.sleep(15)  # increased timeout for GitHub Actions
+        # give Clash some time to start
+        time.sleep(10)
 
-        # Try to get actual outlet IP
-        proxies = {"http": "http://127.0.0.1:1080", "https": "http://127.0.0.1:1080"}
-        r = requests.get("https://api.ipify.org?format=json", proxies=proxies, timeout=5)
+        # query actual outlet IP
+        proxies_req = {"http": "http://127.0.0.1:1080", "https": "http://127.0.0.1:1080"}
+        r = requests.get("https://api.ipify.org?format=json", proxies=proxies_req, timeout=5)
         outlet_ip = r.json().get("ip", None)
 
     except Exception as e:
-        print(f"[warn] Xray failed for {host}:{port} -> {e}")
+        print(f"[warn] Clash failed for {host}:{port} -> {e}")
         outlet_ip = None
     finally:
         if process.poll() is None:
