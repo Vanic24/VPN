@@ -106,15 +106,21 @@ def get_outbound_ip(proxy_config, max_retries=5, wait_interval=2):
             "password": proxy_config.get("password", "")
         }, f)
 
+    if not os.path.exists(MIHOMO_BIN):
+        print(f"[FATAL] Mihomo binary not found at {MIHOMO_BIN}")
+        return None
+    os.chmod(MIHOMO_BIN, 0o755)
+
     local_http_port = 8080
     process = None
     try:
         process = subprocess.Popen(
             [MIHOMO_BIN, "run", "-c", temp_config_path, "-L", f"127.0.0.1:{local_http_port}:http"],
-            stdout=subprocess.PIPE, stderr=subprocess.PIPE
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+            cwd=REPO_ROOT
         )
 
-        # wait for proxy to start and retry
+        time.sleep(2)  # initial wait for proxy to start
         for attempt in range(max_retries):
             try:
                 proxies = {
