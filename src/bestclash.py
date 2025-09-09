@@ -85,7 +85,7 @@ def load_proxies(url):
         print(f"[warn] failed to fetch {url} -> {e}")
     return []
 
-# ---------------- Start Mihomo process to get actual outbound IP ----------------
+# ---------------- Get actual outbound IP using Mihomo SOCKS ----------------
 def get_outbound_ip(proxy_config):
     server = proxy_config.get("server")
     port = str(proxy_config.get("port", 443))
@@ -97,19 +97,35 @@ def get_outbound_ip(proxy_config):
     except ValueError:
         port = 443
 
-    # build temporary config for Mihomo
+    # temporary config file (minimal)
     temp_config_path = os.path.join(REPO_ROOT, "mihomo_temp.yaml")
     with open(temp_config_path, "w", encoding="utf-8") as f:
-        yaml.dump({"server": server, "port": port, "type": proxy_config.get("type")}, f)
+        yaml.dump({
+            "server": server,
+            "port": port,
+            "type": proxy_config.get("type"),
+            "password": proxy_config.get("password", "")
+        }, f)
+
+    # select a free local SOCKS port
+    local_socks_port = 1080  # you can randomize if needed
 
     try:
-        # run Mihomo binary to get outbound IP
-        process = subprocess.Popen([MIHOMO_BIN, "run", "-c", temp_config_path],
-                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        time.sleep(2)  # wait a little for connection
-        # Mihomo can be queried for external IP
-        r = requests.get("https://api.ipify.org?format=json", timeout=5)
+        # start Mihomo with local SOCKS port
+        process = subprocess.Popen(
+            [MIHOMO_BIN, "run", "-c", temp_config_path, "-L", f"127.0.0.1:{local_socks_port}:socks"],
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE
+        )
+        time.sleep(3)  # wait for proxy to be ready
+
+        # request actual outbound IP through the local SOCKS proxy
+        proxies = {
+            "http": f"socks5://127.0.0.1:{local_socks_port}",
+            "https": f"socks5://127.0.0.1:{local_socks_port}"
+        }
+        r = requests.get("https://api.ipify.org?format=json", proxies=proxies, timeout=5)
         outlet_ip = r.json().get("ip")
+
         process.kill()
         return outlet_ip
     except Exception as e:
@@ -134,12 +150,12 @@ def correct_node(p, country_counter):
     except ValueError:
         port = 443
 
-    # ping check
+    # latency check
     latency = tcp_latency_ms(host, port)
     if USE_LATENCY and latency > LATENCY_THRESHOLD:
         return None
 
-    # get actual outbound IP via Mihomo
+    # get actual outbound IP via Mihomo SOCKS
     outlet_ip = get_outbound_ip(p)
     if not outlet_ip:
         return None
@@ -172,7 +188,7 @@ def main():
     country_counter = defaultdict(int)
     corrected_nodes = []
 
-    with concurrent.futures.ThreadPoolExecutor(max_workers=20) as ex:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as ex:
         futures = [ex.submit(correct_node, p, country_counter) for p in all_proxies]
         for f in concurrent.futures.as_completed(futures):
             try:
