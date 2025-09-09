@@ -31,6 +31,13 @@ jobs:
         run: |
           pip install requests pyyaml
 
+      - name: Fail if SOURCES_TXT is missing
+        run: |
+          if [ -z "${{ secrets.SOURCES_TXT }}" ]; then
+            echo "❌ ERROR: SOURCES_TXT secret is not set in repository secrets."
+            exit 1
+          fi
+
       - name: Write sources.txt from secret
         run: |
           echo "${{ secrets.SOURCES_TXT }}" > sources.txt
