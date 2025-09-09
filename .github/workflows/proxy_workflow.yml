@@ -33,33 +33,30 @@ jobs:
             -o scripts/sources.txt \
             https://api.github.com/repos/$SECRET_REPO/contents/sources.txt
 
-      - name: Download latest proxy core binaries with architecture detection
+      - name: Download latest proxy core binaries dynamically
         run: |
           mkdir -p $DOWNLOAD_DIR
           ARCH=$(uname -m)
           echo "Detected architecture: $ARCH"
 
-          # Get latest release tags dynamically
-          MIHOMO_VERSION=$(curl -s https://api.github.com/repos/MetaCubeX/mihomo/releases/latest | jq -r .tag_name)
-          V2RAY_VERSION=$(curl -s https://api.github.com/repos/v2fly/v2ray-core/releases/latest | jq -r .tag_name)
-          SINGBOX_VERSION=$(curl -s https://api.github.com/repos/SagerNet/sing-box/releases/latest | jq -r .tag_name)
+          # ---------------- Fetch latest release asset URLs dynamically ----------------
+          MIHOMO_ASSET=$(curl -s https://api.github.com/repos/MetaCubeX/mihomo/releases/latest \
+            | jq -r '.assets[] | select(.name | test("linux-amd64.*.gz$") or test("linux-arm64.*.gz$")) | .browser_download_url' \
+            | grep "$ARCH" | head -n 1)
+          echo "Mihomo download URL: $MIHOMO_ASSET"
 
-          # Construct download URLs
-          if [[ "$ARCH" == "x86_64" ]]; then
-            MIHOMO_URL="https://github.com/MetaCubeX/mihomo/releases/download/${MIHOMO_VERSION}/mihomo-linux-amd64-${MIHOMO_VERSION}.gz"
-            V2RAY_URL="https://github.com/v2fly/v2ray-core/releases/download/${V2RAY_VERSION}/v2ray-linux-64.zip"
-            SINGBOX_URL="https://github.com/SagerNet/sing-box/releases/download/${SINGBOX_VERSION}/sing-box-linux-amd64-${SINGBOX_VERSION}.tar.gz"
-          elif [[ "$ARCH" == "aarch64" ]]; then
-            MIHOMO_URL="https://github.com/MetaCubeX/mihomo/releases/download/${MIHOMO_VERSION}/mihomo-linux-arm64-${MIHOMO_VERSION}.gz"
-            V2RAY_URL="https://github.com/v2fly/v2ray-core/releases/download/${V2RAY_VERSION}/v2ray-linux-arm64-v8a.zip"
-            SINGBOX_URL="https://github.com/SagerNet/sing-box/releases/download/${SINGBOX_VERSION}/sing-box-linux-arm64-${SINGBOX_VERSION}.tar.gz"
-          else
-            echo "Unsupported architecture: $ARCH"
-            exit 1
-          fi
+          V2RAY_ASSET=$(curl -s https://api.github.com/repos/v2fly/v2ray-core/releases/latest \
+            | jq -r '.assets[] | select(.name | test("linux-64.zip$") or test("linux-arm64-v8a.zip$")) | .browser_download_url' \
+            | grep "$ARCH" | head -n 1)
+          echo "v2ray-core download URL: $V2RAY_ASSET"
 
-          # Download and extract Mihomo
-          curl -L "$MIHOMO_URL" -o $DOWNLOAD_DIR/mihomo.gz
+          SINGBOX_ASSET=$(curl -s https://api.github.com/repos/SagerNet/sing-box/releases/latest \
+            | jq -r '.assets[] | select(.name | test("linux-amd64.tar.gz$") or test("linux-arm64.tar.gz$")) | .browser_download_url' \
+            | grep "$ARCH" | head -n 1)
+          echo "sing-box download URL: $SINGBOX_ASSET"
+
+          # ---------------- Download and extract Mihomo ----------------
+          curl -L "$MIHOMO_ASSET" -o $DOWNLOAD_DIR/mihomo.gz
           if gzip -t $DOWNLOAD_DIR/mihomo.gz; then
             gzip -d $DOWNLOAD_DIR/mihomo.gz
             chmod +x $DOWNLOAD_DIR/mihomo
@@ -68,8 +65,8 @@ jobs:
             exit 1
           fi
 
-          # Download and extract v2ray-core
-          curl -L "$V2RAY_URL" -o $DOWNLOAD_DIR/v2ray.zip
+          # ---------------- Download and extract v2ray-core ----------------
+          curl -L "$V2RAY_ASSET" -o $DOWNLOAD_DIR/v2ray.zip
           if unzip -tq $DOWNLOAD_DIR/v2ray.zip; then
             unzip -o $DOWNLOAD_DIR/v2ray.zip -d $DOWNLOAD_DIR/v2ray
             chmod +x $DOWNLOAD_DIR/v2ray/v2ray
@@ -78,8 +75,8 @@ jobs:
             exit 1
           fi
 
-          # Download and extract sing-box
-          curl -L "$SINGBOX_URL" -o $DOWNLOAD_DIR/sing-box.tar.gz
+          # ---------------- Download and extract sing-box ----------------
+          curl -L "$SINGBOX_ASSET" -o $DOWNLOAD_DIR/sing-box.tar.gz
           if tar -tzf $DOWNLOAD_DIR/sing-box.tar.gz > /dev/null; then
             tar -xzf $DOWNLOAD_DIR/sing-box.tar.gz -C $DOWNLOAD_DIR
             chmod +x $DOWNLOAD_DIR/sing-box
