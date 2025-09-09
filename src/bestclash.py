@@ -6,6 +6,7 @@ import concurrent.futures
 import traceback
 import base64
 import json
+import yaml
 from urllib.parse import urlparse, parse_qs, unquote
 from collections import defaultdict
 
@@ -73,6 +74,7 @@ def parse_proxy_line(line):
     if not line:
         return None
     try:
+        # Standard URL nodes
         if line.startswith("vmess://"):
             b64_data = line[8:]
             missing_padding = len(b64_data) % 4
@@ -125,16 +127,38 @@ def parse_proxy_line(line):
                     "network": "",
                     "ws-opts": {"path": "", "headers": {"Host": ""}}
                 }
+        # JSON inline node
+        elif line.startswith("- {") and line.endswith("}"):
+            obj = json.loads(line[2:])
+            if "name" in obj:
+                if "ws-opts" not in obj:
+                    obj["ws-opts"] = {"path": "", "headers": {"Host": ""}}
+                return obj
     except Exception:
         return None
     return None
 
-# ---------------- Load proxies ----------------
+# ---------------- Load proxies from URL ----------------
 def load_proxies(url):
     try:
         r = requests.get(url, timeout=15)
         r.raise_for_status()
         proxies = []
+
+        # Try YAML format first
+        try:
+            data = yaml.safe_load(r.text)
+            if isinstance(data, dict) and "proxies" in data:
+                for p in data["proxies"]:
+                    if isinstance(p, dict):
+                        if "ws-opts" not in p:
+                            p["ws-opts"] = {"path": "", "headers": {"Host": ""}}
+                        proxies.append(p)
+                return proxies
+        except Exception:
+            pass
+
+        # Fallback: parse line by line
         for line in r.text.splitlines():
             node = parse_proxy_line(line)
             if node:
@@ -179,7 +203,7 @@ def build_yaml_node(p):
     path = ws.get("path","")
     host = ws.get("headers",{}).get("Host","")
     lines.append(f"  ws-opts:")
-    lines.append(f"  path: {path}")
+    lines.append(f"  path: '{path}'")
     lines.append(f"  headers:")
     lines.append(f"  Host: '{host}'")
     return "\n".join(lines)
