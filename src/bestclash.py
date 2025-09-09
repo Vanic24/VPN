@@ -5,9 +5,10 @@ import requests
 import socket
 import concurrent.futures
 import traceback
+import base64
+import json
 import subprocess
 import time
-import json
 from collections import defaultdict
 
 # ---------------- Config ----------------
@@ -24,8 +25,6 @@ try:
     LATENCY_THRESHOLD = int(os.environ.get("LATENCY_THRESHOLD", "100"))
 except ValueError:
     LATENCY_THRESHOLD = 100
-
-MIHOMO_BIN = os.path.join(REPO_ROOT, "mihomo")
 
 # ---------------- Helpers ----------------
 def resolve_ip(host):
@@ -60,27 +59,6 @@ def country_to_flag(cc):
         return "🏳️"
     return chr(0x1F1E6 + (ord(cc[0].upper()) - 65)) + chr(0x1F1E6 + (ord(cc[1].upper()) - 65))
 
-def start_mihomo(node_dict):
-    """
-    Start mihomo in HTTP proxy mode for outbound IP detection
-    """
-    temp_yaml = os.path.join(REPO_ROOT, "mihomo_temp.yaml")
-    with open(temp_yaml, "w", encoding="utf-8") as f:
-        yaml.dump({"proxies": [node_dict], "port": 0}, f, allow_unicode=True)
-    try:
-        proc = subprocess.Popen([MIHOMO_BIN, "-f", temp_yaml, "--mode", "http"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        time.sleep(3)  # wait for proxy to start
-        # Check outbound IP
-        r = requests.get("https://api.ipify.org?format=json", proxies={"http": "http://127.0.0.1:7890", "https": "http://127.0.0.1:7890"}, timeout=5)
-        ip = r.json().get("ip")
-        proc.kill()
-        return ip
-    except Exception as e:
-        print(f"[warn] Mihomo failed for {node_dict.get('server')}:{node_dict.get('port')} -> {e}")
-        try: proc.kill()
-        except: pass
-        return None
-
 # ---------------- Load sources ----------------
 def load_sources():
     if not os.path.exists(SOURCES_FILE):
@@ -89,73 +67,156 @@ def load_sources():
     with open(SOURCES_FILE, "r", encoding="utf-8") as f:
         sources = [line.strip() for line in f if line.strip() and not line.startswith("#")]
     if not sources:
-        print(f"[FATAL] sources.txt is empty.")
+        print(f"[FATAL] sources.txt is empty. Please check the secret or file content.")
         sys.exit(1)
     return sources
 
-# ---------------- Load proxies from URL ----------------
+# ---------------- Load proxies ----------------
 def load_proxies(url):
     proxies = []
     try:
         r = requests.get(url, timeout=15)
         r.raise_for_status()
-        text = r.text.strip()
-        if text.startswith("{") or text.startswith("---"):  # YAML/Clash format
+        text = r.text
+
+        # YAML format
+        try:
             data = yaml.safe_load(text)
             if "proxies" in data:
                 proxies.extend(data["proxies"])
-        else:  # raw protocol links
-            lines = text.splitlines()
-            for line in lines:
-                line = line.strip()
-                if not line or line.startswith("#"):
-                    continue
-                if any(line.startswith(proto) for proto in ["vmess://", "vless://", "trojan://", "ss://", "socks://", "hysteria2://", "anytls://"]):
-                    proxies.append({"raw": line})
-                else:
-                    print(f"[skip] unsupported line: {line[:50]}...")
+        except:
+            pass
+
+        # Raw URL lines
+        for line in text.splitlines():
+            line = line.strip()
+            if not line or line.startswith("#") or line.startswith("//") or line.startswith("["):
+                continue
+            if any(line.startswith(proto) for proto in ["vmess://","vless://","trojan://","ss://","socks://","hysteria2://","anytls://"]):
+                proxies.append({"raw": line})
     except Exception as e:
         print(f"[warn] failed to fetch {url} -> {e}")
     return proxies
 
+# ---------------- Parse raw URL into dict ----------------
+def parse_raw_node(raw):
+    try:
+        if raw.startswith("vmess://"):
+            content = base64.b64decode(raw[8:]).decode()
+            data = json.loads(content)
+            node = {
+                "type": "vmess",
+                "server": data.get("add"),
+                "port": int(data.get("port", 443)),
+                "uuid": data.get("id"),
+                "alterId": int(data.get("aid", 0)),
+                "security": data.get("scy", "auto"),
+                "network": data.get("net", "tcp"),
+                "ws-opts": {
+                    "path": data.get("path","/"),
+                    "headers": {"host": data.get("host","")}
+                } if data.get("net")=="ws" else None,
+                "tls": data.get("tls","")!="",
+                "name": data.get("ps","vmess-node")
+            }
+            return node
+
+        elif raw.startswith("vless://"):
+            import urllib.parse
+            parts = raw[7:].split("@")
+            if len(parts) != 2:
+                return None
+            uuid = parts[0]
+            server_port = parts[1].split("?",1)
+            server, port = server_port[0].split(":")
+            params = urllib.parse.parse_qs(server_port[1]) if len(server_port)>1 else {}
+            node = {
+                "type":"vless",
+                "server":server,
+                "port":int(port),
+                "uuid":uuid,
+                "network": params.get("type",["tcp"])[0],
+                "tls": params.get("security",["none"])[0].lower()=="tls",
+                "servername": params.get("host",[""])[0],
+                "ws-opts": {"path":params.get("path",["/"])[0],"headers":{"host":params.get("host",[""])[0]}} if params.get("type",["tcp"])[0]=="ws" else None,
+                "name":"vless-node"
+            }
+            return node
+
+        elif raw.startswith("trojan://"):
+            import urllib.parse
+            # trojan://password@host:port?params#name
+            parts = raw[9:].split("@")
+            if len(parts)!=2:
+                return None
+            password = parts[0]
+            host_port = parts[1].split("?",1)
+            host_port_only = host_port[0].split(":")
+            if len(host_port_only)!=2:
+                return None
+            server = host_port_only[0]
+            port = int(host_port_only[1])
+            params = urllib.parse.parse_qs(host_port[1]) if len(host_port)>1 else {}
+            node = {
+                "type":"trojan",
+                "server":server,
+                "port":port,
+                "password":password,
+                "network": params.get("type",["tcp"])[0],
+                "tls": params.get("security",["none"])[0].lower()=="tls",
+                "servername": params.get("host",[""])[0],
+                "ws-opts": {"path":params.get("path",["/"])[0],"headers":{"host":params.get("host",[""])[0]}} if params.get("type",["tcp"])[0]=="ws" else None,
+                "name":"trojan-node"
+            }
+            return node
+
+        # Other protocols can be added similarly
+        else:
+            return None
+
+    except Exception as e:
+        return None
+
 # ---------------- Correct node ----------------
 def correct_node(p, country_counter):
-    # If raw protocol link, convert to minimal dict with server/port
-    server = p.get("server") or "unknown"
-    port = p.get("port") or 443
     if "raw" in p:
-        server = "unknown"
-        port = 443
+        node = parse_raw_node(p["raw"])
+        if not node:
+            return None
+    else:
+        node = p
 
-    ip = resolve_ip(server) or server
+    host = node.get("server")
+    port = int(node.get("port",443))
+
+    ip = resolve_ip(host) or host
     cc_lower, cc_upper = geo_ip(ip)
     flag = country_to_flag(cc_upper)
 
     # latency check
-    latency = tcp_latency_ms(server, port)
+    latency = tcp_latency_ms(host, port)
     if USE_LATENCY and latency > LATENCY_THRESHOLD:
         return None
 
-    # detect real outbound IP using Mihomo
-    node_for_mihomo = {
-        "server": server,
-        "port": port,
-        "type": p.get("type", "vless"),
-        "name": p.get("name", "node"),
-        "uuid": p.get("uuid", "")
-    }
-    real_ip = start_mihomo(node_for_mihomo)
-    if real_ip:
-        cc_lower, cc_upper = geo_ip(real_ip)
-        flag = country_to_flag(cc_upper)
+    # Mihomo outbound IP detection
+    try:
+        temp_yaml = os.path.join(REPO_ROOT, "mihomo_temp.yaml")
+        with open(temp_yaml,"w",encoding="utf-8") as f:
+            yaml.dump([node], f, allow_unicode=True, default_flow_style=False)
+        mihomo_proc = subprocess.Popen([os.path.join(REPO_ROOT,"mihomo"), "-c", temp_yaml, "--http"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        time.sleep(2)
+        mihomo_proc.kill()
+        # Here you can implement reading real outbound IP if Mihomo provides
+        # For now skip, keep node info
+    except:
+        pass
 
-    country_counter[cc_upper] += 1
+    # Rename
+    country_counter[cc_upper]+=1
     index = country_counter[cc_upper]
+    node["name"]=f"{flag}|{cc_upper}{index}|@SHFX"
 
-    # rename
-    p["name"] = f"{flag}|{cc_upper}{index}|@SHFX"
-    p["port"] = port
-    return p
+    return node
 
 # ---------------- Main ----------------
 def main():
@@ -173,7 +234,7 @@ def main():
     country_counter = defaultdict(int)
     corrected_nodes = []
 
-    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as ex:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=50) as ex:
         futures = [ex.submit(correct_node, p, country_counter) for p in all_proxies]
         for f in concurrent.futures.as_completed(futures):
             try:
@@ -211,7 +272,7 @@ def main():
     print(f"[done] wrote {OUTPUT_FILE}")
 
 # ---------------- Entry ----------------
-if __name__ == "__main__":
+if __name__=="__main__":
     try:
         main()
     except Exception as e:
