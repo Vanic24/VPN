@@ -132,12 +132,13 @@ def correct_node(p, country_counter):
             yaml.dump(clash_config, f, allow_unicode=True)
 
         # start clash
-        process = subprocess.Popen(
-            [CLASH_BIN, "-f", temp_config_path, "--headless"],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE
+        process = None
+        try:
+            process = subprocess.Popen(
+                [CLASH_BIN, "-f", temp_config_path, "--headless"],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE
         )
-
         # give Clash some time to start
         time.sleep(10)
 
@@ -145,12 +146,11 @@ def correct_node(p, country_counter):
         proxies_req = {"http": "http://127.0.0.1:1080", "https": "http://127.0.0.1:1080"}
         r = requests.get("https://api.ipify.org?format=json", proxies=proxies_req, timeout=5)
         outlet_ip = r.json().get("ip", None)
-
     except Exception as e:
         print(f"[warn] Clash failed for {host}:{port} -> {e}")
         outlet_ip = None
     finally:
-        if process.poll() is None:
+        if process and process.poll() is None:
             process.kill()
 
     if outlet_ip:
