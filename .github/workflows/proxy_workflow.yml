@@ -2,130 +2,130 @@ name: Proxy Configuration Automation
 
 on:
   schedule:
-    - cron: "*/30 * * * *"
+    - cron: '*/30 * * * *'  # Runs every 30 minutes
   workflow_dispatch:
 
 jobs:
-  build:
+  generate_proxies_yaml:
     runs-on: ubuntu-latest
+    env:
+      CORE_TYPE: "mihomo"  # Change to "v2ray" or "sing-box" as needed
+      SECRET_REPO: "SOURCES_TXT"
+      TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      DOWNLOAD_DIR: "$RUNNER_TEMP/proxy_cores"
 
     steps:
-      - name: Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: 3.x
 
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y curl wget unzip tar gzip iputils-ping jq
-          pip install pyyaml requests
+          sudo apt-get install -y curl jq bc unzip tar netcat-openbsd uuid-runtime
 
-      # ⬇️ CHANGED STEP (only correction applied)
-      - name: Create sources.txt from secret
+      - name: Make scripts executable
+        run: chmod +x scripts/*.sh
+
+      - name: Fetch sources.txt from secret repository
         run: |
-          echo "${{ secrets.SOURCES_TXT }}" > sources.txt
-      # ⬆️ No repository checkout anymore, just writes secret content
+          curl -H "Authorization: token $TOKEN" \
+            -H "Accept: application/vnd.github.v3.raw" \
+            -o scripts/sources.txt \
+            https://api.github.com/repos/$SECRET_REPO/contents/sources.txt
 
-      - name: Prepare proxy cores
+      - name: Download latest proxy core binaries with architecture detection
         run: |
-          mkdir -p $RUNNER_TEMP/proxy_cores
-
-          # Detect architecture
+          mkdir -p $DOWNLOAD_DIR
           ARCH=$(uname -m)
+          echo "Detected architecture: $ARCH"
+
+          # v2ray-core
           if [[ "$ARCH" == "x86_64" ]]; then
-            V2RAY_ARCH="arm64-v8a"   # v2ray repo only has arm64-v8a
-            MIHOMO_ARCH="amd64"
-            SINGBOX_ARCH="amd64"
+            V2RAY_URL="https://github.com/v2fly/v2ray-core/releases/latest/download/v2ray-linux-64.zip"
           elif [[ "$ARCH" == "aarch64" ]]; then
-            V2RAY_ARCH="arm64-v8a"
-            MIHOMO_ARCH="arm64"
-            SINGBOX_ARCH="arm64"
+            V2RAY_URL="https://github.com/v2fly/v2ray-core/releases/latest/download/v2ray-linux-arm64-v8a.zip"
           else
             echo "Unsupported architecture: $ARCH"
             exit 1
           fi
-
-          echo "Detected arch: $ARCH"
-          echo "Using V2Ray: $V2RAY_ARCH, Mihomo: $MIHOMO_ARCH, Sing-box: $SINGBOX_ARCH"
-
-          # ---------------- V2Ray ----------------
-          V2RAY_URL=$(curl -s https://api.github.com/repos/v2fly/v2ray-core/releases/latest \
-            | jq -r ".assets[] | select(.name | test(\"v2ray-linux-$V2RAY_ARCH.zip\")) | .browser_download_url")
-
-          if [ -n "$V2RAY_URL" ]; then
-            curl -L "$V2RAY_URL" -o $RUNNER_TEMP/proxy_cores/v2ray.zip
-            unzip -o $RUNNER_TEMP/proxy_cores/v2ray.zip -d $RUNNER_TEMP/proxy_cores/v2ray || echo "V2Ray unzip failed"
-            chmod +x $RUNNER_TEMP/proxy_cores/v2ray/v2ray
+          echo "Downloading v2ray-core from $V2RAY_URL ..."
+          curl -L "$V2RAY_URL" -o $DOWNLOAD_DIR/v2ray.zip
+          if unzip -tq $DOWNLOAD_DIR/v2ray.zip; then
+            unzip -o $DOWNLOAD_DIR/v2ray.zip -d $DOWNLOAD_DIR/v2ray
+            chmod +x $DOWNLOAD_DIR/v2ray/v2ray
           else
-            echo "V2Ray download failed"
+            echo "v2ray-core download failed or is not a valid ZIP file."
             exit 1
           fi
 
-          # ---------------- Mihomo ----------------
-          MIHOMO_URL=$(curl -s https://api.github.com/repos/MetaCubeX/mihomo/releases/latest \
-            | jq -r ".assets[] | select(.name | test(\"mihomo-linux-$MIHOMO_ARCH-v1.*.gz\")) | .browser_download_url" | head -n 1)
-
-          if [ -n "$MIHOMO_URL" ]; then
-            curl -L "$MIHOMO_URL" -o $RUNNER_TEMP/proxy_cores/mihomo.gz
-            gunzip -f $RUNNER_TEMP/proxy_cores/mihomo.gz
-            mv $RUNNER_TEMP/proxy_cores/mihomo $RUNNER_TEMP/proxy_cores/mihomo_bin
-            chmod +x $RUNNER_TEMP/proxy_cores/mihomo_bin
+          # Mihomo - correct .gz binaries
+          if [[ "$ARCH" == "x86_64" ]]; then
+            MIHOMO_URL="https://github.com/MetaCubeX/mihomo/releases/download/v1.19.13/mihomo-linux-amd64-v1.19.13.gz"
+          elif [[ "$ARCH" == "aarch64" ]]; then
+            MIHOMO_URL="https://github.com/MetaCubeX/mihomo/releases/download/v1.19.13/mihomo-linux-arm64-v1.19.13.gz"
           else
-            echo "Mihomo download failed"
+            echo "Unsupported architecture: $ARCH"
+            exit 1
+          fi
+          echo "Downloading Mihomo from $MIHOMO_URL ..."
+          curl -L "$MIHOMO_URL" -o $DOWNLOAD_DIR/mihomo.gz
+          if gzip -t $DOWNLOAD_DIR/mihomo.gz; then
+            gzip -d $DOWNLOAD_DIR/mihomo.gz
+            chmod +x $DOWNLOAD_DIR/mihomo
+          else
+            echo "Mihomo download failed or is not a valid GZ file."
             exit 1
           fi
 
-          # ---------------- Sing-box ----------------
-          SINGBOX_URL=$(curl -s https://api.github.com/repos/SagerNet/sing-box/releases/latest \
-            | jq -r ".assets[] | select(.name | test(\"sing-box-.*-linux-$SINGBOX_ARCH.tar.gz\")) | .browser_download_url" | head -n 1)
-
-          if [ -n "$SINGBOX_URL" ]; then
-            curl -L "$SINGBOX_URL" -o $RUNNER_TEMP/proxy_cores/sing-box.tar.gz
-            mkdir -p $RUNNER_TEMP/proxy_cores/sing-box
-            tar -xzf $RUNNER_TEMP/proxy_cores/sing-box.tar.gz -C $RUNNER_TEMP/proxy_cores/sing-box --strip-components=1
-            chmod +x $RUNNER_TEMP/proxy_cores/sing-box/sing-box
+          # sing-box - correct URLs and extraction
+          if [[ "$ARCH" == "x86_64" ]]; then
+            SINGBOX_URL="https://github.com/SagerNet/sing-box/releases/download/v1.12.4/sing-box-1.12.4-linux-amd64.tar.gz"
+          elif [[ "$ARCH" == "aarch64" ]]; then
+            SINGBOX_URL="https://github.com/SagerNet/sing-box/releases/download/v1.12.4/sing-box-1.12.4-linux-arm64.tar.gz"
           else
-            echo "Sing-box download failed"
+            echo "Unsupported architecture: $ARCH"
+            exit 1
+          fi
+          echo "Downloading sing-box from $SINGBOX_URL ..."
+          curl -L "$SINGBOX_URL" -o $DOWNLOAD_DIR/sing-box.tar.gz
+
+          # Extract the binary
+          mkdir -p $DOWNLOAD_DIR/sing-box
+          tar -xzf $DOWNLOAD_DIR/sing-box.tar.gz -C $DOWNLOAD_DIR/sing-box --strip-components=1
+
+          # Make sure binary exists
+          if [ -f "$DOWNLOAD_DIR/sing-box/sing-box" ]; then
+            chmod +x $DOWNLOAD_DIR/sing-box/sing-box
+          else
+            echo "sing-box binary not found after extraction!"
             exit 1
           fi
 
-      - name: Run proxy parser
+      - name: Parse and validate proxies
+        run: scripts/parse_and_validate_proxies.sh
+
+      - name: Test proxy connectivity
+        run: scripts/test_proxy_connectivity.sh
+
+      - name: Determine outlet IPs
         run: |
-          cat > proxy_parser.py << 'EOF'
-import os, yaml, requests
+          CORE_BIN=""
+          if [ "$CORE_TYPE" == "v2ray" ]; then CORE_BIN="$DOWNLOAD_DIR/v2ray/v2ray"; fi
+          if [ "$CORE_TYPE" == "mihomo" ]; then CORE_BIN="$DOWNLOAD_DIR/mihomo"; fi
+          if [ "$CORE_TYPE" == "sing-box" ]; then CORE_BIN="$DOWNLOAD_DIR/sing-box/sing-box"; fi
+          export CORE_BIN
+          scripts/determine_outlet_ips.sh
 
-def main():
-    with open("sources.txt", "r") as f:
-        sources = [line.strip() for line in f if line.strip()]
-    print("Loaded sources:", sources)
+      - name: Format proxies into JSON
+        run: scripts/format_proxies.sh
 
-    # Placeholder logic for parsing
-    proxies_yaml_block = "- { name: 🇹🇼|TW1|@SHFX, server: tw.akebi.cc, port: 30001, sni: tw1-vds14.anyhk.co, up: null, down: null, skip-cert-verify: true, type: hysteria2, password: demo-password }"
-    proxy_names_block = "🇹🇼|TW1|@SHFX"
+      - name: Generate proxies.yaml for Clash
+        run: scripts/generate_proxies_yaml.sh
 
-    with open("ClashTemplate.ini", "r") as f:
-        template_text = f.read()
-
-    # ---------------- Replace placeholders ----------------
-    output_text = template_text.replace("{{PROXIES}}", proxies_yaml_block)
-    output_text = output_text.replace("{{PROXY_NAMES}}", proxy_names_block)
-
-    with open("proxies.yaml", "w") as f:
-        f.write(output_text)
-
-if __name__ == "__main__":
-    main()
-EOF
-          python proxy_parser.py
-
-      - name: Commit and push results
+      - name: Commit and push proxies.yaml
         run: |
-          git config user.name "github-actions"
-          git config user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
           git add proxies.yaml
-          git commit -m "Update proxies.yaml [skip ci]" || echo "No changes"
+          git commit -m "Update proxies.yaml"
           git push
