@@ -1,29 +1,22 @@
 #!/bin/bash
-ALIVE_FILE="scripts/alive_links.txt"
-OUTLET_FILE="scripts/outlet_links.json"
-> $OUTLET_FILE
+set -e
+set -x
 
-while IFS= read -r link; do
-  echo "Processing $link ..."
-  
-  case "$CORE_TYPE" in
-    v2ray)
-      $CORE_BIN -config scripts/v2ray_config.json &
-      ;;
-    clash)
-      $CORE_BIN -d scripts/clash_config.yaml &
-      ;;
-    sing-box)
-      $CORE_BIN run -c scripts/singbox_config.json &
-      ;;
-  esac
+FILTERED_NODES="scripts/filtered_nodes.txt"
+OUTLET_IPS="scripts/outlet_ips.txt"
+> $OUTLET_IPS
 
-  PROXY_PID=$!
-  sleep 5
-  outlet_ip=$(curl -s -x socks5h://127.0.0.1:1080 --max-time 5 https://api.ipify.org)
-  echo "{\"link\": \"$link\", \"outlet_ip\": \"$outlet_ip\"}" >> $OUTLET_FILE
-  kill $PROXY_PID
-done < scripts/alive_links.txt
+for node in $(cat $FILTERED_NODES); do
+    # Use appropriate core
+    if [[ $CORE_TYPE == "v2ray" ]]; then
+        IP=$($CORE_BIN -test -config <(echo "{\"outbounds\":[{\"protocol\":\"freedom\",\"settings\":{}}]}") 2>&1 | grep -Eo '(\b[0-9]{1,3}\.){3}[0-9]{1,3}\b' | head -1)
+    elif [[ $CORE_TYPE == "mihomo" ]]; then
+        IP=$($CORE_BIN test "$node" | grep -Eo '(\b[0-9]{1,3}\.){3}[0-9]{1,3}\b' | head -1)
+    elif [[ $CORE_TYPE == "sing-box" ]]; then
+        IP=$($CORE_BIN check "$node" | grep -Eo '(\b[0-9]{1,3}\.){3}[0-9]{1,3}\b' | head -1)
+    fi
+    echo "$node|$IP" >> $OUTLET_IPS
+done
 
-echo "Outlet IPs:"
-cat $OUTLET_FILE
+echo "Outlet IPs determined:"
+cat $OUTLET_IPS
