@@ -1,10 +1,8 @@
 name: Update Proxies
 
 on:
-  # Run every 30 minutes
   schedule:
     - cron: "*/30 * * * *"
-  # Manual trigger with inputs
   workflow_dispatch:
     inputs:
       use_latency_filter:
@@ -33,32 +31,21 @@ jobs:
         run: |
           pip install requests pyyaml
 
-      - name: Fail if SOURCES_TXT is missing
-        run: |
-          if [ -z "${{ secrets.SOURCES_TXT }}" ]; then
-            echo "❌ ERROR: SOURCES_TXT secret is not set in repository secrets."
-            exit 1
-          fi
-
-      - name: Restore sources.txt from secret
+      - name: Write sources.txt from secret
         run: |
           echo "${{ secrets.SOURCES_TXT }}" > sources.txt
 
-      - name: Set latency filter environment for scheduled/manual runs
+      - name: Set latency filter environment
         run: |
           echo "LATENCY_FILTER=${{ github.event.inputs.use_latency_filter || 'true' }}" >> $GITHUB_ENV
           echo "LATENCY_THRESHOLD=${{ github.event.inputs.latency_threshold || '100' }}" >> $GITHUB_ENV
 
-      - name: Ensure Mihomo download
+      - name: Download Mihomo
         run: |
           mkdir -p mihomo
-          MIHOMO_BIN="mihomo/mihomo"
-          if [ ! -f "$MIHOMO_BIN" ]; then
-            echo "[info] Downloading Mihomo binary..."
-            wget -O mihomo/mihomo.gz https://github.com/MetaCubeX/mihomo/releases/download/v1.19.13/mihomo-linux-amd64-v3-v1.19.13.gz
-            gzip -d mihomo/mihomo.gz
-            chmod +x mihomo/mihomo
-          fi
+          curl -L -o mihomo/mihomo.gz https://github.com/MetaCubeX/mihomo/releases/download/v1.19.13/mihomo-linux-amd64-v3-v1.19.13.gz
+          gunzip mihomo/mihomo.gz
+          chmod +x mihomo/mihomo
 
       - name: Run bestclash.py
         run: python src/bestclash.py
