@@ -1,10 +1,8 @@
 name: Update Proxies
 
 on:
-  # Run every 30 minutes
   schedule:
     - cron: "*/30 * * * *"
-  # Manual trigger with inputs
   workflow_dispatch:
     inputs:
       use_latency_filter:
@@ -44,18 +42,16 @@ jobs:
         run: |
           echo "${{ secrets.SOURCES_TXT }}" > sources.txt
 
-      - name: Set latency filter environment for scheduled/manual runs
-        run: |
-          # If manual run, use workflow inputs; if scheduled, default to true/100ms
-          echo "LATENCY_FILTER=${{ github.event.inputs.use_latency_filter || 'true' }}" >> $GITHUB_ENV
-          echo "LATENCY_THRESHOLD=${{ github.event.inputs.latency_threshold || '100' }}" >> $GITHUB_ENV
-
       - name: Download Clash CLI
         run: |
           mkdir -p clash
           curl -L -o clash/clash https://github.com/Dreamacro/clash/releases/latest/download/clash-linux-amd64
           chmod +x clash/clash
 
+      - name: Set latency filter environment for scheduled/manual runs
+        run: |
+          echo "LATENCY_FILTER=${{ github.event.inputs.use_latency_filter || 'true' }}" >> $GITHUB_ENV
+          echo "LATENCY_THRESHOLD=${{ github.event.inputs.latency_threshold || '100' }}" >> $GITHUB_ENV
 
       - name: Run bestclash.py
         run: python src/bestclash.py
