@@ -102,13 +102,18 @@ jobs:
           fi
 
       - name: Parse and validate proxies
-        run: scripts/parse_and_validate_proxies.sh
+        run: |
+          set -ex
+          scripts/parse_and_validate_proxies.sh
 
       - name: Test proxy connectivity
-        run: scripts/test_proxy_connectivity.sh
+        run: |
+          set -ex
+          scripts/test_proxy_connectivity.sh
 
       - name: Determine outlet IPs
         run: |
+          set -ex
           CORE_BIN=""
           if [ "$CORE_TYPE" == "v2ray" ]; then CORE_BIN="$DOWNLOAD_DIR/v2ray/v2ray"; fi
           if [ "$CORE_TYPE" == "mihomo" ]; then CORE_BIN="$DOWNLOAD_DIR/mihomo"; fi
@@ -117,15 +122,19 @@ jobs:
           scripts/determine_outlet_ips.sh
 
       - name: Format proxies into JSON
-        run: scripts/format_proxies.sh
+        run: |
+          set -ex
+          scripts/format_proxies.sh
 
       - name: Generate proxies.yaml for Clash
-        run: scripts/generate_proxies_yaml.sh
+        run: |
+          set -ex
+          scripts/generate_proxies_yaml.sh
 
       - name: Commit and push proxies.yaml
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
           git add proxies.yaml
-          git commit -m "Update proxies.yaml"
-          git push
+          git commit -m "Update proxies.yaml" || echo "No changes to commit"
+          git push || echo "Push failed or no changes"
