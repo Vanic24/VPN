@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -20,111 +20,163 @@ jobs:
       - name: Detect architecture
         id: arch
         run: |
-          ARCH=$(uname -m)
-          if [[ "$ARCH" == "x86_64" ]]; then
+          ARCH_RAW=$(uname -m)
+          echo "Detected uname -m = ${ARCH_RAW}"
+          if [[ "$ARCH_RAW" == "x86_64" ]]; then
             echo "ARCH=amd64" >> $GITHUB_ENV
-          elif [[ "$ARCH" == "aarch64" ]]; then
+          elif [[ "$ARCH_RAW" == "aarch64" || "$ARCH_RAW" == "arm64" ]]; then
             echo "ARCH=arm64" >> $GITHUB_ENV
           else
-            echo "Unsupported architecture: $ARCH"
+            echo "Unsupported architecture: $ARCH_RAW"
             exit 1
           fi
+          echo "Using ARCH=${ARCH}"
 
       - name: Prepare proxy cores
         run: |
-          mkdir -p $RUNNER_TEMP/proxy_cores
-          cd $RUNNER_TEMP/proxy_cores
+          set -euo pipefail
+          DOWNLOAD_DIR="$RUNNER_TEMP/proxy_cores"
+          BIN_DIR="$DOWNLOAD_DIR/bin"
+          mkdir -p "$DOWNLOAD_DIR" "$BIN_DIR"
 
-          # ---------------- Download V2Ray ----------------
+          echo "ARCH env: ${ARCH:-not-set}"
+          # ---------------- Download v2ray-core ----------------
           if [[ "${ARCH}" == "amd64" ]]; then
             V2RAY_URL="https://github.com/v2fly/v2ray-core/releases/latest/download/v2ray-linux-64.zip"
           else
             V2RAY_URL="https://github.com/v2fly/v2ray-core/releases/latest/download/v2ray-linux-arm64-v8a.zip"
           fi
-          echo "Downloading V2Ray: $V2RAY_URL"
-          curl -L -o v2ray.zip "$V2RAY_URL" || { echo "V2Ray download failed"; exit 1; }
-          unzip -o v2ray.zip || { echo "V2Ray unzip failed"; exit 1; }
-
-          # ---------------- Download Mihomo ----------------
-          if [[ "${ARCH}" == "amd64" ]]; then
-            MIHOMO_URL="https://github.com/MetaCubeX/mihomo/releases/latest/download/mihomo-linux-amd64.tar.gz"
-          else
-            MIHOMO_URL="https://github.com/MetaCubeX/mihomo/releases/latest/download/mihomo-linux-arm64.tar.gz"
+          echo "Downloading v2ray-core from: $V2RAY_URL"
+          curl -sSL --fail -o "$DOWNLOAD_DIR/v2ray.zip" "$V2RAY_URL"
+          unzip -q -o "$DOWNLOAD_DIR/v2ray.zip" -d "$DOWNLOAD_DIR/v2ray_extracted"
+          # locate binary and copy to bin dir
+          V2_BINARY=$(find "$DOWNLOAD_DIR/v2ray_extracted" -type f -name 'v2ray' -print -quit || true)
+          if [[ -z "$V2_BINARY" ]]; then
+            echo "v2ray binary not found in archive"
+            exit 1
           fi
-          echo "Downloading Mihomo: $MIHOMO_URL"
-          curl -L -o mihomo.tar.gz "$MIHOMO_URL" || { echo "Mihomo download failed"; exit 1; }
-          tar -xvzf mihomo.tar.gz || { echo "Mihomo extraction failed"; exit 1; }
+          cp "$V2_BINARY" "$BIN_DIR/v2ray"
+          chmod +x "$BIN_DIR/v2ray"
+          echo "v2ray installed to $BIN_DIR/v2ray"
 
-          # ---------------- Download Sing-box ----------------
+          # ---------------- Download Mihomo (.gz binary) ----------------
+          if [[ "${ARCH}" == "amd64" ]]; then
+            MIHOMO_URL="https://github.com/MetaCubeX/mihomo/releases/download/v1.19.13/mihomo-linux-amd64-v1.19.13.gz"
+          else
+            MIHOMO_URL="https://github.com/MetaCubeX/mihomo/releases/download/v1.19.13/mihomo-linux-arm64-v1.19.13.gz"
+          fi
+          echo "Downloading Mihomo from: $MIHOMO_URL"
+          curl -sSL --fail -o "$DOWNLOAD_DIR/mihomo.gz" "$MIHOMO_URL"
+          # validate and decompress to bin
+          gzip -t "$DOWNLOAD_DIR/mihomo.gz"
+          gzip -dc "$DOWNLOAD_DIR/mihomo.gz" > "$BIN_DIR/mihomo"
+          chmod +x "$BIN_DIR/mihomo"
+          echo "mihomo installed to $BIN_DIR/mihomo"
+
+          # ---------------- Download sing-box (tar.gz) ----------------
           if [[ "${ARCH}" == "amd64" ]]; then
             SINGBOX_URL="https://github.com/SagerNet/sing-box/releases/download/v1.12.4/sing-box-1.12.4-linux-amd64.tar.gz"
           else
             SINGBOX_URL="https://github.com/SagerNet/sing-box/releases/download/v1.12.4/sing-box-1.12.4-linux-arm64.tar.gz"
           fi
-          echo "Downloading Sing-box: $SINGBOX_URL"
-          curl -L -o sing-box.tar.gz "$SINGBOX_URL" || { echo "Sing-box download failed"; exit 1; }
-          tar -xvzf sing-box.tar.gz || { echo "Sing-box extraction failed"; exit 1; }
+          echo "Downloading sing-box from: $SINGBOX_URL"
+          curl -sSL --fail -o "$DOWNLOAD_DIR/sing-box.tar.gz" "$SINGBOX_URL"
+          mkdir -p "$DOWNLOAD_DIR/singbox_extracted"
+          tar -xzf "$DOWNLOAD_DIR/sing-box.tar.gz" -C "$DOWNLOAD_DIR/singbox_extracted" --strip-components=1
+          SING_BINARY=$(find "$DOWNLOAD_DIR/singbox_extracted" -type f -name 'sing-box' -print -quit || true)
+          if [[ -z "$SING_BINARY" ]]; then
+            echo "sing-box binary not found after extraction"
+            ls -la "$DOWNLOAD_DIR/singbox_extracted"
+            exit 1
+          fi
+          cp "$SING_BINARY" "$BIN_DIR/sing-box"
+          chmod +x "$BIN_DIR/sing-box"
+          echo "sing-box installed to $BIN_DIR/sing-box"
 
-          chmod +x v2ray mihomo sing-box || true
+          # show what we have
+          ls -la "$BIN_DIR"
 
       - name: Load SOURCES_TXT repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: ${{ secrets.SOURCES_TXT }}
           path: sources_repo
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Run Python script
+      - name: Run Python script (generate Clash config)
+        env:
+          TEMPLATE_FILE: "ClashTemplate.yaml"
+          OUTPUT_FILE: "Clash.yaml"
+          SOURCES_FILE: "sources_repo/sources.txt"
         run: |
+          python -m pip install --upgrade pip
           pip install pyyaml requests
-          python3 <<'EOF'
-import os, yaml, requests
+          python3 - <<'PYCODE'
+import os, yaml, requests, sys
 
-# ---------------- Config ----------------
-SOURCES_FILE = "sources_repo/sources.txt"
-TEMPLATE_FILE = "ClashTemplate.yaml"
-OUTPUT_FILE = "Clash.yaml"
+SOURCES_FILE = os.environ.get("SOURCES_FILE", "sources_repo/sources.txt")
+TEMPLATE_FILE = os.environ.get("TEMPLATE_FILE", "ClashTemplate.yaml")
+OUTPUT_FILE = os.environ.get("OUTPUT_FILE", "Clash.yaml")
 
-# ---------------- Load sources ----------------
-with open(SOURCES_FILE, "r") as f:
+print("Loading sources from:", SOURCES_FILE)
+if not os.path.isfile(SOURCES_FILE):
+    print("Sources file not found:", SOURCES_FILE)
+    sys.exit(1)
+
+with open(SOURCES_FILE, "r", encoding="utf-8") as f:
     sources = [line.strip() for line in f if line.strip()]
 
-# ---------------- Process proxies ----------------
 proxies = []
 proxy_names = []
 
 for src in sources:
-    try:
-        if src.startswith("http"):
-            resp = requests.get(src, timeout=10)
-            resp.raise_for_status()
-            data = yaml.safe_load(resp.text)
-            if "proxies" in data:
-                proxies.extend(data["proxies"])
-                proxy_names.extend([p["name"] for p in data["proxies"]])
-    except Exception as e:
-        print(f"Failed to load {src}: {e}")
+    # If the line is an http(s) url that serves a Clash/Clash-like YAML, try to fetch it
+    if src.startswith("http://") or src.startswith("https://"):
+        try:
+            r = requests.get(src, timeout=15)
+            r.raise_for_status()
+            # try parse as YAML
+            try:
+                data = yaml.safe_load(r.text)
+            except Exception:
+                data = None
+            if isinstance(data, dict) and "proxies" in data and isinstance(data["proxies"], list):
+                for p in data["proxies"]:
+                    proxies.append(p)
+                    if "name" in p:
+                        proxy_names.append(p["name"])
+                print(f"Loaded {len(data['proxies'])} proxies from {src}")
+            else:
+                # fallback: raw text may contain lines of vmess:// etc - leave for other scripts
+                print(f"No proxies array detected in {src}")
+        except Exception as e:
+            print(f"Failed to fetch or parse {src}: {e}")
+    else:
+        # not an http source -- skip or store raw lines if needed
+        print("Skipping non-http source (left for other steps):", src)
 
+# Prepare YAML blocks
 proxies_yaml_block = yaml.dump(proxies, allow_unicode=True)
 proxy_names_block = yaml.dump(proxy_names, allow_unicode=True)
 
 # ---------------- Replace placeholders ----------------
-with open(TEMPLATE_FILE, "r") as f:
+with open(TEMPLATE_FILE, "r", encoding="utf-8") as f:
     template_text = f.read()
 
+# ---------------- Replace placeholders ----------------
 output_text = template_text.replace("{{PROXIES}}", proxies_yaml_block)
 output_text = output_text.replace("{{PROXY_NAMES}}", proxy_names_block)
 
-with open(OUTPUT_FILE, "w") as f:
+with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
     f.write(output_text)
 
-print("✅ Clash.yaml generated successfully")
-EOF
+print("Wrote:", OUTPUT_FILE)
+PYCODE
 
       - name: Commit and push
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "actions@github.com"
-          git add Clash.yaml
+          git add Clash.yaml || true
           git commit -m "Auto update Clash config at $(date -u +'%Y-%m-%d %H:%M:%S')" || echo "No changes to commit"
-          git push
+          git push || echo "Push failed"
