@@ -8,7 +8,7 @@ import traceback
 import base64
 import json
 from urllib.parse import urlparse, parse_qs, unquote
-from collections import defaultdict, OrderedDict
+from collections import defaultdict
 
 # ---------------- Config ----------------
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
@@ -227,23 +227,24 @@ def main():
         print(f"[FATAL] failed to fetch template -> {e}")
         sys.exit(1)
 
-    # ---------------- Convert proxies to YAML block with ordered keys ----------------
-    def ordered_node(node):
-        return OrderedDict([
-            ("name", node.get("name", "")),
-            ("type", node.get("type", "")),
-            ("server", node.get("server", "")),
-            ("port", node.get("port", 443)),
-            ("uuid", node.get("uuid", "")),
-            ("alterId", node.get("alterId", 0)),
-            ("cipher", node.get("cipher", "auto")),
-            ("tls", node.get("tls", "")),
-            ("network", node.get("network", "")),
-            ("ws-opts", node.get("ws-opts", {"path": "", "headers": {"Host": ""}}))
-        ])
+    # ---------------- Convert proxies to ordered dicts for YAML ----------------
+    ordered_nodes = []
+    for p in corrected_nodes:
+        ordered_node = {
+            "name": p.get("name", ""),
+            "type": p.get("type", ""),
+            "server": p.get("server", ""),
+            "port": p.get("port", 443),
+            "uuid": p.get("uuid", ""),
+            "alterId": p.get("alterId", 0),
+            "cipher": p.get("cipher", "auto"),
+            "tls": p.get("tls", ""),
+            "network": p.get("network", ""),
+            "ws-opts": p.get("ws-opts", {"path": "", "headers": {"Host": ""}})
+        }
+        ordered_nodes.append(ordered_node)
 
-    proxies_yaml_block = yaml.dump([ordered_node(p) for p in corrected_nodes],
-                                    allow_unicode=True, default_flow_style=False)
+    proxies_yaml_block = yaml.safe_dump(ordered_nodes, allow_unicode=True, default_flow_style=False)
 
     # ---------------- Build proxy names block ----------------
     proxy_names_block = "\n".join([f"      - {p['name']}" for p in corrected_nodes])
