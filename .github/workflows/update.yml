@@ -42,14 +42,14 @@ jobs:
         run: |
           echo "${{ secrets.SOURCES_TXT }}" > sources.txt
 
-      - name: Download and verify Clash.Meta v1.19.13 binary
+      - name: Download and verify Mihomo binary v1.19.13
         run: |
-          mkdir -p clash
-          curl -L -o clash/clash.meta.gz https://github.com/MetaCubeX/Clash.Meta/releases/download/v1.19.13/clash.meta-linux-amd64-v1.19.13.gz
-          gunzip clash/clash.meta.gz
-          chmod +x clash/clash.meta
-          ./clash/clash.meta -v
-          file ./clash/clash.meta
+          mkdir -p mihomo
+          curl -L -o mihomo/mihomo.gz https://github.com/MetaCubeX/mihomo/releases/download/v1.19.13/mihomo-linux-amd64-v3-v1.19.13.gz
+          gunzip mihomo/mihomo.gz
+          chmod +x mihomo/mihomo
+          ./mihomo/mihomo -v
+          file ./mihomo/mihomo
 
       - name: Set latency filter environment
         run: |
