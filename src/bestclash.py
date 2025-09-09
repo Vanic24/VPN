@@ -15,7 +15,7 @@ REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file_
 OUTPUT_FILE = os.path.join(REPO_ROOT, "proxies.yaml")
 SOURCES_FILE = os.path.join(REPO_ROOT, "sources.txt")
 TEMPLATE_URL = "https://raw.githubusercontent.com/Vanic24/VPN/refs/heads/main/ClashTemplate.ini"
-CLASH_BIN = os.path.join(REPO_ROOT, "clash", "clash")  # will be downloaded in workflow
+CLASH_BIN = os.path.join(REPO_ROOT, "clash", "clash")  # downloaded in workflow
 
 # ---------------- Inputs ----------------
 use_latency_env = os.environ.get("LATENCY_FILTER", "false").lower()
@@ -105,6 +105,7 @@ def correct_node(p, country_counter):
         return None
 
     # ---------------- Test actual outbound IP via Clash ----------------
+    process = None
     try:
         config_dir = os.path.join(REPO_ROOT, "config")
         os.makedirs(config_dir, exist_ok=True)
@@ -132,19 +133,20 @@ def correct_node(p, country_counter):
             yaml.dump(clash_config, f, allow_unicode=True)
 
         # start clash
-        process = None
-        try:
-            process = subprocess.Popen(
-                [CLASH_BIN, "-f", temp_config_path, "--headless"],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE
+        process = subprocess.Popen(
+            [CLASH_BIN, "-f", temp_config_path, "--headless"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
         )
+
         # give Clash some time to start
         time.sleep(10)
+
         # query actual outlet IP
         proxies_req = {"http": "http://127.0.0.1:1080", "https": "http://127.0.0.1:1080"}
         r = requests.get("https://api.ipify.org?format=json", proxies=proxies_req, timeout=5)
         outlet_ip = r.json().get("ip", None)
+
     except Exception as e:
         print(f"[warn] Clash failed for {host}:{port} -> {e}")
         outlet_ip = None
