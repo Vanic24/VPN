@@ -42,13 +42,14 @@ jobs:
         run: |
           echo "${{ secrets.SOURCES_TXT }}" > sources.txt
 
-      - name: Download and verify Clash CLI (Linux x86_64)
+      - name: Download and verify Clash.Meta v1.19.13 binary
         run: |
           mkdir -p clash
-          curl -L -o clash/clash https://github.com/Dreamacro/clash/releases/latest/download/clash-linux-amd64
-          chmod +x clash/clash
-          ./clash/clash -v
-          file ./clash/clash
+          curl -L -o clash/clash.meta.gz https://github.com/MetaCubeX/Clash.Meta/releases/download/v1.19.13/clash.meta-linux-amd64-v1.19.13.gz
+          gunzip clash/clash.meta.gz
+          chmod +x clash/clash.meta
+          ./clash/clash.meta -v
+          file ./clash/clash.meta
 
       - name: Set latency filter environment
         run: |
