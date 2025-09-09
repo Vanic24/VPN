@@ -58,12 +58,7 @@ jobs:
             exit 1
           fi
 
-      - name: Download Mihomo
-        run: |
-          mkdir -p $DOWNLOAD_DIR
-          ARCH=$(uname -m)
-          echo "Detected architecture: $ARCH"
-
+          # Mihomo - correct .gz binaries
           if [[ "$ARCH" == "x86_64" ]]; then
             MIHOMO_URL="https://github.com/MetaCubeX/mihomo/releases/download/v1.19.13/mihomo-linux-amd64-v1.19.13.gz"
           elif [[ "$ARCH" == "aarch64" ]]; then
@@ -72,11 +67,8 @@ jobs:
             echo "Unsupported architecture: $ARCH"
             exit 1
           fi
-
           echo "Downloading Mihomo from $MIHOMO_URL ..."
           curl -L "$MIHOMO_URL" -o $DOWNLOAD_DIR/mihomo.gz
-
-          # Validate GZ
           if gzip -t $DOWNLOAD_DIR/mihomo.gz; then
             gzip -d $DOWNLOAD_DIR/mihomo.gz
             chmod +x $DOWNLOAD_DIR/mihomo
