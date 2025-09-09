@@ -58,20 +58,14 @@ def country_to_flag(cc):
            chr(0x1F1E6 + (ord(cc[1].upper()) - 65))
 
 # ---------------- Load sources ----------------
-VALID_PREFIXES = ("vmess://", "trojan://", "ss://", "shadowsocks://", "vless://", "https://", "http://")
-
 def load_sources():
     if not os.path.exists(SOURCES_FILE):
         print(f"[FATAL] sources.txt not found at {SOURCES_FILE}")
         sys.exit(1)
     with open(SOURCES_FILE, "r", encoding="utf-8") as f:
         sources = [line.strip() for line in f if line.strip() and not line.startswith("#")]
-    
-    # Skip invalid node lines (those not starting with valid prefixes)
-    sources = [s for s in sources if s.startswith(VALID_PREFIXES)]
-    
     if not sources:
-        print(f"[FATAL] sources.txt has no valid node links. Please check the secret or file content.")
+        print(f"[FATAL] sources.txt is empty. Please check the secret or file content.")
         sys.exit(1)
     return sources
 
@@ -80,10 +74,24 @@ def load_proxies(url):
     try:
         r = requests.get(url, timeout=15)
         r.raise_for_status()
-        data = yaml.safe_load(r.text)
-        if "proxies" in data:
-            # Skip invalid nodes here too
-            return [p for p in data["proxies"] if str(p.get("server", "")).startswith(VALID_PREFIXES)]
+        lines = r.text.splitlines()
+        valid_prefixes = ("vmess://", "vless://", "trojan://", "hysteria://", "anytls://", "ss://")
+        # Keep only lines starting with valid prefixes
+        filtered_lines = [line for line in lines if line.strip().startswith(valid_prefixes)]
+        proxies = []
+        for line in filtered_lines:
+            try:
+                # Attempt to parse as YAML if possible
+                data = yaml.safe_load(line)
+                if isinstance(data, dict) and "proxies" in data:
+                    proxies.extend(data["proxies"])
+                else:
+                    # If not YAML, just treat line as raw node
+                    proxies.append({"name": line, "server": "", "port": 443})
+            except Exception:
+                # If YAML parse fails, treat as raw node
+                proxies.append({"name": line, "server": "", "port": 443})
+        return proxies
     except Exception as e:
         print(f"[warn] failed to fetch {url} -> {e}")
     return []
