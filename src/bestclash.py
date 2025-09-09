@@ -7,7 +7,7 @@ import concurrent.futures
 import traceback
 import base64
 import json
-from urllib.parse import urlparse
+from urllib.parse import urlparse, parse_qs, unquote
 from collections import defaultdict
 
 # ---------------- Config ----------------
@@ -72,27 +72,80 @@ def load_sources():
         sys.exit(1)
     return sources
 
-# ---------------- Parse proxy URLs ----------------
+# ---------------- Parse raw proxy URLs ----------------
 def parse_proxy_line(line):
-    try:
-        if line.startswith("vmess://"):
-            b64 = line[8:]
-            decoded = base64.b64decode(b64).decode("utf-8")
-            data = json.loads(decoded)
-            server = data.get("add") or ""
-            port = int(data.get("port") or 443)
-            name = data.get("ps") or line
-            return {"name": name, "server": server, "port": port}
-        elif line.startswith(("trojan://", "vless://", "anytls://", "hysteria://", "ss://")):
-            parsed = urlparse(line)
-            server = parsed.hostname or ""
-            port = parsed.port or 443
-            name = parsed.fragment or line
-            return {"name": name, "server": server, "port": port}
-        else:
-            return None
-    except Exception:
+    line = line.strip()
+    if not line:
         return None
+    if line.startswith("vmess://"):
+        try:
+            b64_data = line[8:]
+            missing_padding = len(b64_data) % 4
+            if missing_padding != 0:
+                b64_data += "=" * (4 - missing_padding)
+            decoded = base64.b64decode(b64_data).decode("utf-8")
+            j = json.loads(decoded)
+            node = {
+                "name": j.get("ps") or line,
+                "type": "vmess",
+                "server": j.get("add") or "",
+                "port": int(j.get("port") or 443),
+                "uuid": j.get("id") or "",
+                "alterId": int(j.get("aid") or 0),
+                "cipher": j.get("scy") or "auto",
+                "tls": "tls" if j.get("tls") == "tls" else "",
+                "network": j.get("net") or "",
+                "ws-opts": {"path": j.get("path") or "", "headers": {"Host": j.get("host") or ""}}
+            }
+            return node
+        except Exception:
+            return None
+    elif line.startswith(("trojan://", "vless://", "anytls://", "hysteria://")):
+        try:
+            u = urlparse(line)
+            query = parse_qs(u.query)
+            node = {
+                "name": unquote(u.fragment) if u.fragment else line,
+                "type": u.scheme,
+                "server": u.hostname or "",
+                "port": u.port or 443,
+                "uuid": u.username or "",
+                "alterId": 0,
+                "cipher": "auto",
+                "tls": "tls" if query.get("security", [""])[0] == "tls" else "",
+                "network": query.get("type", [""])[0],
+                "ws-opts": {"path": query.get("path", [""])[0], "headers": {"Host": query.get("sni", [""])[0]}}
+            }
+            return node
+        except Exception:
+            return None
+    elif line.startswith("ss://"):
+        try:
+            # ss://base64(password:method)@host:port
+            if "@" in line:
+                ss_info = line[5:]
+                creds, hostport = ss_info.split("@")
+                password, cipher = base64.b64decode(creds).decode().split(":")
+                host, port = hostport.split(":")
+                node = {
+                    "name": line,
+                    "type": "ss",
+                    "server": host,
+                    "port": int(port),
+                    "uuid": password,
+                    "alterId": 0,
+                    "cipher": cipher,
+                    "tls": "",
+                    "network": "",
+                    "ws-opts": {"path": "", "headers": {"Host": ""}}
+                }
+                return node
+            else:
+                return None
+        except Exception:
+            return None
+    else:
+        return None  # skip unsupported lines
 
 # ---------------- Load proxies from URLs ----------------
 def load_proxies(url):
@@ -100,11 +153,9 @@ def load_proxies(url):
         r = requests.get(url, timeout=15)
         r.raise_for_status()
         lines = r.text.splitlines()
-        valid_prefixes = ("vmess://", "vless://", "trojan://", "hysteria://", "anytls://", "ss://")
-        filtered_lines = [line for line in lines if line.strip().startswith(valid_prefixes)]
         proxies = []
-        for line in filtered_lines:
-            node = parse_proxy_line(line.strip())
+        for line in lines:
+            node = parse_proxy_line(line)
             if node:
                 proxies.append(node)
         return proxies
