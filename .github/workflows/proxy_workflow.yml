@@ -40,48 +40,6 @@ jobs:
           echo "Detected architecture: $ARCH"
 
           # ---------------- Fetch latest release asset URLs dynamically ----------------
-name: Proxy Configuration Automation
-
-on:
-  schedule:
-    - cron: '*/30 * * * *'  # Runs every 30 minutes
-  workflow_dispatch:
-
-jobs:
-  generate_proxies_yaml:
-    runs-on: ubuntu-latest
-    env:
-      CORE_TYPE: "mihomo"  # Change to "v2ray" or "sing-box" as needed
-      SECRET_REPO: "YourUsername/SecretRepo"  # Replace with your secret repo
-      TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      DOWNLOAD_DIR: "$RUNNER_TEMP/proxy_cores"
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y curl jq bc unzip tar netcat-openbsd uuid-runtime
-
-      - name: Make scripts executable
-        run: chmod +x scripts/*.sh
-
-      - name: Fetch sources.txt from secret repository
-        run: |
-          curl -H "Authorization: token $TOKEN" \
-            -H "Accept: application/vnd.github.v3.raw" \
-            -o scripts/sources.txt \
-            https://api.github.com/repos/$SECRET_REPO/contents/sources.txt
-
-      - name: Download latest proxy core binaries dynamically
-        run: |
-          mkdir -p $DOWNLOAD_DIR
-          ARCH=$(uname -m)
-          echo "Detected architecture: $ARCH"
-
-          # ---------------- Fetch latest release asset URLs dynamically ----------------
           MIHOMO_ASSET=$(curl -s https://api.github.com/repos/MetaCubeX/mihomo/releases/latest)
           echo "Mihomo API response: $MIHOMO_ASSET"
           MIHOMO_ASSET_URL=$(echo "$MIHOMO_ASSET" | jq -r '.assets[] | select(.name | test("linux-amd64.*.gz$") or test("linux-arm64.*.gz$")) | .browser_download_url' | grep "$ARCH" | head -n 1)
