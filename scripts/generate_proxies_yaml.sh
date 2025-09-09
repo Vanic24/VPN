@@ -1,16 +1,19 @@
 #!/bin/bash
-TEMPLATE_FILE="ClashTemplate.ini"
-PROXIES_FILE="scripts/formatted_proxies.txt"
-OUTPUT_FILE="proxies.yaml"
+set -e
+set -x
 
-proxies_yaml=$(paste -sd '\n' $PROXIES_FILE)
-proxy_names=$(cat $PROXIES_FILE | jq -r '.name')
+TEMPLATE="ClashTemplate.ini"
+PROXIES_JSON="scripts/proxies.json"
+OUTPUT="proxies.yaml"
 
-output_text=$(< $TEMPLATE_FILE)
-output_text=${output_text//"{{PROXIES}}"/$proxies_yaml}
-output_text=${output_text//"{{PROXY_NAMES}}"/$proxy_names}
+# Separate {{PROXIES}} and {{PROXY_NAMES}} if needed
+PROXIES=$(cat $PROXIES_JSON | jq -c '.[]')
+PROXY_NAMES=$(cat $PROXIES_JSON | jq -r '.[].name' | paste -sd "," -)
 
-echo "$output_text" > $OUTPUT_FILE
+# Replace placeholders
+TEMPLATE_TEXT=$(cat $TEMPLATE)
+OUTPUT_TEXT=${TEMPLATE_TEXT//"{{PROXIES}}"/"$PROXIES"}
+OUTPUT_TEXT=${OUTPUT_TEXT//"{{PROXY_NAMES}}"/"$PROXY_NAMES"}
 
-echo "Generated proxies.yaml"
-cat $OUTPUT_FILE
+echo "$OUTPUT_TEXT" > $OUTPUT
+echo "Generated $OUTPUT"
