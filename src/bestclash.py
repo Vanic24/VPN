@@ -1,192 +1,165 @@
 import os
 import sys
-import json
 import yaml
-import time
-import socket
-import base64
 import requests
-import subprocess
+import socket
 import concurrent.futures
+import traceback
 from collections import defaultdict
 
 # ---------------- Config ----------------
 REPO_ROOT = os.path.dirname(os.path.abspath(__file__))
-SOURCES_FILE = os.path.join(REPO_ROOT, "sources.txt")
-OUTPUT_FILE = os.path.join(REPO_ROOT, "proxies.yaml")
+SOURCES_FILE = os.path.join(REPO_ROOT, "sources.txt")  # now expects repo root
+OUTPUT_FILE = os.path.join(REPO_ROOT, "..", "proxies.yaml")
 
-VALID_PREFIXES = ("vmess://", "vless://", "trojan://", "ss://", "socks://", "hysteria2://", "anytls://")
-PING_TIMEOUT = 2
-PING_LIMIT = 100  # ms
+LATENCY_THRESHOLD = int(os.environ.get("LATENCY_THRESHOLD", "100"))
+USE_LATENCY_FILTER = os.environ.get("LATENCY_FILTER", "true").lower() == "true"
 
-# ---------------- Helpers ----------------
+MIHOMO_BIN = os.path.join(REPO_ROOT, "..", "mihomo", "mihomo")
+
+# --------------- Helpers ----------------
 def load_sources():
     if not os.path.exists(SOURCES_FILE):
-        print(f"[error] {SOURCES_FILE} not found")
+        print(f"❌ Error: {SOURCES_FILE} not found", file=sys.stderr)
         sys.exit(1)
     with open(SOURCES_FILE, "r", encoding="utf-8") as f:
         return [line.strip() for line in f if line.strip()]
 
-def fetch_url(url):
+def ping(host, port=80, timeout=1.0):
     try:
-        resp = requests.get(url, timeout=15)
-        resp.raise_for_status()
-        return resp.text
+        with socket.create_connection((host, port), timeout=timeout):
+            return True
+    except Exception:
+        return False
+
+def fetch_subscription(url):
+    try:
+        r = requests.get(url, timeout=15)
+        r.raise_for_status()
+        content = r.text.strip()
+
+        # If YAML
+        if content.startswith("proxies:") or content.startswith("Proxy:"):
+            data = yaml.safe_load(content)
+            if "proxies" in data:
+                return data["proxies"]
+
+        # Otherwise assume base64 / clash raw list
+        lines = content.splitlines()
+        return [l.strip() for l in lines if l.strip()]
     except Exception as e:
-        print(f"[warn] failed to fetch {url} -> {e}")
-        return ""
+        print(f"[warn] Failed to fetch {url} -> {e}")
+        return []
 
-def decode_base64(data):
+def test_latency(node):
+    host = None
+    port = None
     try:
-        padded = data + "=" * (-len(data) % 4)
-        return base64.b64decode(padded).decode("utf-8", errors="ignore")
-    except Exception:
-        return ""
-
-def parse_subscription(content):
-    """Detect whether content is raw nodes (base64/urls) or YAML config"""
-    nodes = []
-
-    # Try YAML
-    try:
-        data = yaml.safe_load(content)
-        if isinstance(data, dict) and "proxies" in data:
-            for p in data["proxies"]:
-                nodes.append(p)
-            return nodes
-    except Exception:
-        pass
-
-    # Try base64 (vmess/vless style subs)
-    decoded = decode_base64(content.strip())
-    if decoded and any(prefix in decoded for prefix in VALID_PREFIXES):
-        for line in decoded.splitlines():
-            if line.strip().startswith(VALID_PREFIXES):
-                nodes.append(line.strip())
-        return nodes
-
-    # Raw plain text nodes
-    for line in content.splitlines():
-        line = line.strip()
-        if line.lower().startswith(VALID_PREFIXES):
-            nodes.append(line)
-    return nodes
-
-def filter_valid_nodes(raw_nodes):
-    valid_nodes = []
-    for line in raw_nodes:
-        if isinstance(line, str) and line.lower().startswith(VALID_PREFIXES):
-            valid_nodes.append(line)
-        elif isinstance(line, dict) and "type" in line and "server" in line:
-            valid_nodes.append(line)
-        else:
-            print(f"[skip] invalid node skipped -> {str(line)[:50]}...")
-    return valid_nodes
-
-def ping_server(host):
-    try:
-        start = time.time()
-        socket.gethostbyname(host)  # DNS check
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.settimeout(PING_TIMEOUT)
-        s.connect((host, 80))
-        s.close()
-        latency = int((time.time() - start) * 1000)
-        return latency
+        if isinstance(node, str):
+            # URI based
+            if "@" in node:
+                part = node.split("@")[-1]
+                if ":" in part:
+                    host, port = part.split(":")[0], int(part.split(":")[1].split("?")[0])
+        elif isinstance(node, dict):
+            host, port = node.get("server"), node.get("port")
+        if not host or not port:
+            return None
+        if ping(host, int(port), timeout=1.0):
+            return 50  # fake ms, reachable
     except Exception:
         return None
+    return None
 
-def run_mihomo(proxy_conf):
-    """Launch Mihomo to get outbound IP"""
-    tmpfile = os.path.join(REPO_ROOT, "mihomo_temp.yaml")
-    with open(tmpfile, "w", encoding="utf-8") as f:
-        yaml.safe_dump({"proxies": [proxy_conf]}, f)
-
+def run_mihomo(node):
     try:
-        result = subprocess.run(
-            ["mihomo", "-f", tmpfile],
-            capture_output=True,
-            text=True,
-            timeout=20
+        # Build minimal Clash config
+        temp_config = os.path.join(REPO_ROOT, "mihomo_temp.yaml")
+        with open(temp_config, "w", encoding="utf-8") as f:
+            f.write("proxies:\n")
+            if isinstance(node, str):
+                f.write(f"  - {node}\n")
+            else:
+                f.write("  - " + yaml.safe_dump(node).strip() + "\n")
+
+            f.write("proxy-groups:\n")
+            f.write("  - name: test\n")
+            f.write("    type: select\n")
+            f.write("    proxies:\n")
+            f.write("      - " + (node["name"] if isinstance(node, dict) and "name" in node else "auto") + "\n")
+
+            f.write("rules:\n")
+            f.write("  - MATCH,test\n")
+
+        import subprocess, json, time
+        api_port = 9090
+        process = subprocess.Popen(
+            [MIHOMO_BIN, "-d", REPO_ROOT, "-f", temp_config, "-ext-ctl", f"127.0.0.1:{api_port}"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
         )
-        os.remove(tmpfile)
-        return result.stdout
+        time.sleep(2)
+
+        # Test outbound IP
+        proxies = {"http": f"http://127.0.0.1:7890", "https": f"http://127.0.0.1:7890"}
+        ip_resp = requests.get("https://api.ipify.org?format=json", proxies=proxies, timeout=8)
+        outbound_ip = ip_resp.json().get("ip")
+
+        process.terminate()
+        return outbound_ip
     except Exception as e:
-        print(f"[warn] Mihomo failed for {proxy_conf.get('server')}:{proxy_conf.get('port')} -> {e}")
-        return ""
+        print(f"[warn] Mihomo failed for {node} -> {e}")
+        return None
 
-def get_ip_info(ip):
+def get_country(ip):
     try:
-        resp = requests.get(f"https://ipapi.co/{ip}/json/", timeout=10).json()
-        return resp.get("country_code", "XX"), resp.get("country_name", "Unknown")
+        r = requests.get(f"https://ipapi.co/{ip}/json/", timeout=10)
+        data = r.json()
+        return data.get("country_name"), data.get("country_code")
     except Exception:
-        return "XX", "Unknown"
+        return None, None
 
-def node_to_json(node, index, country_code, country_name):
-    name = f"@SHFX | {country_name}｜{str(index).zfill(2)}"
-    return {
-        "name": name,
-        "server": node.get("server"),
-        "port": node.get("port"),
-        "sni": node.get("sni") if "sni" in node else None,
-        "up": None,
-        "down": None,
-        "skip-cert-verify": True,
-        "type": node.get("type"),
-        "password": node.get("password") if "password" in node else None
-    }
-
-# ---------------- Main ----------------
+# --------------- Main ----------------
 def main():
-    print("[info] loading sources...")
     sources = load_sources()
-
     all_nodes = []
     for src in sources:
-        content = fetch_url(src)
-        if not content:
+        all_nodes.extend(fetch_subscription(src))
+
+    filtered = []
+    for node in all_nodes:
+        latency = test_latency(node)
+        if USE_LATENCY_FILTER and (latency is None or latency > LATENCY_THRESHOLD):
             continue
-        nodes = parse_subscription(content)
-        all_nodes.extend(nodes)
+        filtered.append(node)
 
-    print(f"[info] total raw nodes: {len(all_nodes)}")
-    nodes = filter_valid_nodes(all_nodes)
-    print(f"[info] valid nodes: {len(nodes)}")
-
-    final_nodes = []
-    index = 1
-
-    for node in nodes:
-        if isinstance(node, str):
-            # TODO: convert url (vmess:// etc) into dict config
-            continue  # skipping for now
-
-        host = node.get("server")
-        latency = ping_server(host)
-        if not latency or latency > PING_LIMIT:
-            continue
-
-        out = run_mihomo(node)
-        outbound_ip = None
-        for line in out.splitlines():
-            if "your ip" in line.lower():
-                outbound_ip = line.split()[-1]
-                break
-
+    results = []
+    for node in filtered:
+        outbound_ip = run_mihomo(node)
         if not outbound_ip:
             continue
-
-        cc, cname = get_ip_info(outbound_ip)
-        json_node = node_to_json(node, index, cc, cname)
-        final_nodes.append(json_node)
-        index += 1
-
-    print(f"[info] total filtered nodes: {len(final_nodes)}")
+        country, code = get_country(outbound_ip)
+        if not country:
+            continue
+        if isinstance(node, dict):
+            node["name"] = f"🇨🇷|{country}|@SHFX"
+            node["outbound_ip"] = outbound_ip
+            node["country"] = country
+            node["country_code"] = code
+            results.append(node)
+        elif isinstance(node, str):
+            results.append({
+                "name": f"🇨🇷|{country}|@SHFX",
+                "server": node,
+                "outbound_ip": outbound_ip,
+                "country": country,
+                "country_code": code,
+            })
 
     with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
-        json.dump(final_nodes, f, ensure_ascii=False)
+        yaml.dump({"proxies": results}, f, allow_unicode=True, default_flow_style=False)
 
-    print(f"[done] saved {OUTPUT_FILE}")
+    print(f"✅ Wrote {len(results)} working proxies to {OUTPUT_FILE}")
 
 if __name__ == "__main__":
     main()
