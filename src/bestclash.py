@@ -179,9 +179,9 @@ def build_yaml_node(p):
     path = ws.get("path","")
     host = ws.get("headers",{}).get("Host","")
     lines.append(f"  ws-opts:")
-    lines.append(f"    path: {path}")
-    lines.append(f"    headers:")
-    lines.append(f"      Host: '{host}'")
+    lines.append(f"  path: {path}")
+    lines.append(f"  headers:")
+    lines.append(f"  Host: '{host}'")
     return "\n".join(lines)
 
 # ---------------- Main ----------------
