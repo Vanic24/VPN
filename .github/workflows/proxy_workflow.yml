@@ -30,7 +30,6 @@ jobs:
             echo "Unsupported architecture: $ARCH_RAW"
             exit 1
           fi
-          echo "Using ARCH=${ARCH}"
 
       - name: Prepare proxy cores
         run: |
@@ -39,7 +38,8 @@ jobs:
           BIN_DIR="$DOWNLOAD_DIR/bin"
           mkdir -p "$DOWNLOAD_DIR" "$BIN_DIR"
 
-          echo "ARCH env: ${ARCH:-not-set}"
+          echo "ARCH is: ${ARCH:-not-set}"
+
           # ---------------- Download v2ray-core ----------------
           if [[ "${ARCH}" == "amd64" ]]; then
             V2RAY_URL="https://github.com/v2fly/v2ray-core/releases/latest/download/v2ray-linux-64.zip"
@@ -49,7 +49,6 @@ jobs:
           echo "Downloading v2ray-core from: $V2RAY_URL"
           curl -sSL --fail -o "$DOWNLOAD_DIR/v2ray.zip" "$V2RAY_URL"
           unzip -q -o "$DOWNLOAD_DIR/v2ray.zip" -d "$DOWNLOAD_DIR/v2ray_extracted"
-          # locate binary and copy to bin dir
           V2_BINARY=$(find "$DOWNLOAD_DIR/v2ray_extracted" -type f -name 'v2ray' -print -quit || true)
           if [[ -z "$V2_BINARY" ]]; then
             echo "v2ray binary not found in archive"
@@ -67,7 +66,6 @@ jobs:
           fi
           echo "Downloading Mihomo from: $MIHOMO_URL"
           curl -sSL --fail -o "$DOWNLOAD_DIR/mihomo.gz" "$MIHOMO_URL"
-          # validate and decompress to bin
           gzip -t "$DOWNLOAD_DIR/mihomo.gz"
           gzip -dc "$DOWNLOAD_DIR/mihomo.gz" > "$BIN_DIR/mihomo"
           chmod +x "$BIN_DIR/mihomo"
@@ -93,7 +91,6 @@ jobs:
           chmod +x "$BIN_DIR/sing-box"
           echo "sing-box installed to $BIN_DIR/sing-box"
 
-          # show what we have
           ls -la "$BIN_DIR"
 
       - name: Load SOURCES_TXT repo
@@ -103,16 +100,12 @@ jobs:
           path: sources_repo
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Run Python script (generate Clash config)
-        env:
-          TEMPLATE_FILE: "ClashTemplate.yaml"
-          OUTPUT_FILE: "Clash.yaml"
-          SOURCES_FILE: "sources_repo/sources.txt"
+      - name: Create Python generator script
         run: |
-          python -m pip install --upgrade pip
-          pip install pyyaml requests
-          python3 - <<'PYCODE'
-import os, yaml, requests, sys
+          mkdir -p scripts
+          cat > scripts/generate_clash.py <<'PY'
+#!/usr/bin/env python3
+import os, sys, yaml, requests
 
 SOURCES_FILE = os.environ.get("SOURCES_FILE", "sources_repo/sources.txt")
 TEMPLATE_FILE = os.environ.get("TEMPLATE_FILE", "ClashTemplate.yaml")
@@ -130,12 +123,10 @@ proxies = []
 proxy_names = []
 
 for src in sources:
-    # If the line is an http(s) url that serves a Clash/Clash-like YAML, try to fetch it
     if src.startswith("http://") or src.startswith("https://"):
         try:
             r = requests.get(src, timeout=15)
             r.raise_for_status()
-            # try parse as YAML
             try:
                 data = yaml.safe_load(r.text)
             except Exception:
@@ -147,17 +138,14 @@ for src in sources:
                         proxy_names.append(p["name"])
                 print(f"Loaded {len(data['proxies'])} proxies from {src}")
             else:
-                # fallback: raw text may contain lines of vmess:// etc - leave for other scripts
                 print(f"No proxies array detected in {src}")
         except Exception as e:
             print(f"Failed to fetch or parse {src}: {e}")
     else:
-        # not an http source -- skip or store raw lines if needed
         print("Skipping non-http source (left for other steps):", src)
 
-# Prepare YAML blocks
-proxies_yaml_block = yaml.dump(proxies, allow_unicode=True)
-proxy_names_block = yaml.dump(proxy_names, allow_unicode=True)
+proxies_yaml_block = yaml.dump(proxies, allow_unicode=True, sort_keys=False)
+proxy_names_block = yaml.dump(proxy_names, allow_unicode=True, sort_keys=False)
 
 # ---------------- Replace placeholders ----------------
 with open(TEMPLATE_FILE, "r", encoding="utf-8") as f:
@@ -171,7 +159,18 @@ with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
     f.write(output_text)
 
 print("Wrote:", OUTPUT_FILE)
-PYCODE
+PY
+          chmod +x scripts/generate_clash.py
+
+      - name: Run Python generator (generate Clash config)
+        env:
+          TEMPLATE_FILE: "ClashTemplate.yaml"
+          OUTPUT_FILE: "Clash.yaml"
+          SOURCES_FILE: "sources_repo/sources.txt"
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyyaml requests
+          python3 scripts/generate_clash.py
 
       - name: Commit and push
         run: |
