@@ -1,19 +1,24 @@
 #!/bin/bash
-OUTLET_FILE="scripts/outlet_links.json"
-FORMATTED_FILE="scripts/formatted_proxies.txt"
-> $FORMATTED_FILE
+set -e
+set -x
 
+OUTLET_IPS="scripts/outlet_ips.txt"
+PROXIES_JSON="scripts/proxies.json"
+> $PROXIES_JSON
+
+INDEX=1
 while IFS= read -r line; do
-  link=$(echo $line | jq -r '.link')
-  ip=$(echo $line | jq -r '.outlet_ip')
-  # Example: flag/country code parsing (simple, you can improve)
-  country="TW"
-  flag="🇹🇼"
-  type=$(echo $link | grep -oE '^[^:]+' )
-  password=$(uuidgen)
-  formatted="{\"name\": \"$flag|$country|@SHFX\", \"server\": \"$ip\", \"port\": 443, \"sni\": \"$ip\", \"up\": null, \"down\": null, \"skip-cert-verify\": true, \"type\": \"$type\", \"password\": \"$password\"}"
-  echo "$formatted" >> $FORMATTED_FILE
-done < <(jq -c '.[]' $OUTLET_FILE 2>/dev/null || cat $OUTLET_FILE)
+    node=$(echo "$line" | cut -d '|' -f1)
+    ip=$(echo "$line" | cut -d '|' -f2)
+    # Simple flag and country code placeholder
+    FLAG="🇹🇼"
+    COUNTRY="TW$INDEX"
+    NAME="$FLAG|$COUNTRY|@SHFX"
+
+    # Example JSON format
+    echo "{ \"name\": \"$NAME\", \"server\": \"$ip\", \"port\": 30001, \"sni\": \"example.com\", \"up\": null, \"down\": null, \"skip-cert-verify\": true, \"type\": \"hysteria2\", \"password\": \"9e0f72bb-7ad6-4383-994a-497569a94d74\" }" >> $PROXIES_JSON
+    INDEX=$((INDEX+1))
+done < $OUTLET_IPS
 
 echo "Formatted proxies:"
-cat $FORMATTED_FILE
+cat $PROXIES_JSON
