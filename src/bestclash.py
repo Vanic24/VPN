@@ -8,7 +8,7 @@ import traceback
 import base64
 import json
 from urllib.parse import urlparse, parse_qs, unquote
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 
 # ---------------- Config ----------------
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
@@ -121,7 +121,6 @@ def parse_proxy_line(line):
             return None
     elif line.startswith("ss://"):
         try:
-            # ss://base64(password:method)@host:port
             if "@" in line:
                 ss_info = line[5:]
                 creds, hostport = ss_info.split("@")
@@ -145,7 +144,7 @@ def parse_proxy_line(line):
         except Exception:
             return None
     else:
-        return None  # skip unsupported lines
+        return None
 
 # ---------------- Load proxies from URLs ----------------
 def load_proxies(url):
@@ -228,8 +227,23 @@ def main():
         print(f"[FATAL] failed to fetch template -> {e}")
         sys.exit(1)
 
-    # ---------------- Convert proxies to YAML block ----------------
-    proxies_yaml_block = yaml.dump(corrected_nodes, allow_unicode=True, default_flow_style=False)
+    # ---------------- Convert proxies to YAML block with ordered keys ----------------
+    def ordered_node(node):
+        return OrderedDict([
+            ("name", node.get("name", "")),
+            ("type", node.get("type", "")),
+            ("server", node.get("server", "")),
+            ("port", node.get("port", 443)),
+            ("uuid", node.get("uuid", "")),
+            ("alterId", node.get("alterId", 0)),
+            ("cipher", node.get("cipher", "auto")),
+            ("tls", node.get("tls", "")),
+            ("network", node.get("network", "")),
+            ("ws-opts", node.get("ws-opts", {"path": "", "headers": {"Host": ""}}))
+        ])
+
+    proxies_yaml_block = yaml.dump([ordered_node(p) for p in corrected_nodes],
+                                    allow_unicode=True, default_flow_style=False)
 
     # ---------------- Build proxy names block ----------------
     proxy_names_block = "\n".join([f"      - {p['name']}" for p in corrected_nodes])
