@@ -25,7 +25,7 @@ except ValueError:
     LATENCY_THRESHOLD = 100
 
 # ---------------- Mihomo Binary ----------------
-MIHOMO_BIN = os.path.join(REPO_ROOT, "mihomo", "mihomo")  # must be downloaded by workflow
+MIHOMO_BIN = os.path.join(REPO_ROOT, "mihomo", "mihomo")  # downloaded by workflow
 
 # ---------------- Helpers ----------------
 def resolve_ip(host):
@@ -86,7 +86,7 @@ def load_proxies(url):
     return []
 
 # ---------------- Get actual outbound IP using Mihomo HTTP ----------------
-def get_outbound_ip(proxy_config):
+def get_outbound_ip(proxy_config, max_retries=5, wait_interval=2):
     server = proxy_config.get("server")
     port = str(proxy_config.get("port", 443))
     if "/" in port:
@@ -97,7 +97,6 @@ def get_outbound_ip(proxy_config):
     except ValueError:
         port = 443
 
-    # temporary minimal config
     temp_config_path = os.path.join(REPO_ROOT, "mihomo_temp.yaml")
     with open(temp_config_path, "w", encoding="utf-8") as f:
         yaml.dump({
@@ -107,34 +106,38 @@ def get_outbound_ip(proxy_config):
             "password": proxy_config.get("password", "")
         }, f)
 
-    local_http_port = 8080  # HTTP proxy port
-
+    local_http_port = 8080
+    process = None
     try:
-        # start Mihomo with HTTP proxy
         process = subprocess.Popen(
             [MIHOMO_BIN, "run", "-c", temp_config_path, "-L", f"127.0.0.1:{local_http_port}:http"],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE
         )
-        time.sleep(3)  # wait for proxy to be ready
 
-        # request actual outbound IP through the HTTP proxy
-        proxies = {
-            "http": f"http://127.0.0.1:{local_http_port}",
-            "https": f"http://127.0.0.1:{local_http_port}"
-        }
-        r = requests.get("https://api.ipify.org?format=json", proxies=proxies, timeout=5)
-        outlet_ip = r.json().get("ip")
+        # wait for proxy to start and retry
+        for attempt in range(max_retries):
+            try:
+                proxies = {
+                    "http": f"http://127.0.0.1:{local_http_port}",
+                    "https": f"http://127.0.0.1:{local_http_port}"
+                }
+                r = requests.get("https://api.ipify.org?format=json", proxies=proxies, timeout=5)
+                outlet_ip = r.json().get("ip")
+                return outlet_ip
+            except Exception:
+                time.sleep(wait_interval)
 
-        process.kill()
-        return outlet_ip
+        print(f"[warn] Mihomo failed for {server}:{port} -> proxy did not respond after {max_retries} retries")
+        return None
     except Exception as e:
         print(f"[warn] Mihomo failed for {server}:{port} -> {e}")
-        try:
-            process.kill()
-        except:
-            pass
         return None
     finally:
+        try:
+            if process:
+                process.kill()
+        except:
+            pass
         if os.path.exists(temp_config_path):
             os.remove(temp_config_path)
 
