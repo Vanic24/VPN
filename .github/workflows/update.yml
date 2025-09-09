@@ -33,7 +33,7 @@ jobs:
         run: |
           pip install requests pyyaml
 
-      - name: Fail if SOURCES_TXT is missing
+      - name: Fail if SOURCES_TXT secret is missing
         run: |
           if [ -z "${{ secrets.SOURCES_TXT }}" ]; then
             echo "❌ ERROR: SOURCES_TXT secret is not set in repository secrets."
@@ -49,15 +49,15 @@ jobs:
           echo "LATENCY_FILTER=${{ github.event.inputs.use_latency_filter || 'true' }}" >> $GITHUB_ENV
           echo "LATENCY_THRESHOLD=${{ github.event.inputs.latency_threshold || '100' }}" >> $GITHUB_ENV
 
-      - name: Ensure Mihomo download
+      - name: Prepare Mihomo binary
         run: |
-          mkdir -p mihomo
-          MIHOMO_BIN="mihomo/mihomo"
+          MIHOMO_BIN="./mihomo"
+          MIHOMO_URL="https://github.com/MetaCubeX/mihomo/releases/download/v1.19.13/mihomo-linux-amd64-v3-v1.19.13.gz"
           if [ ! -f "$MIHOMO_BIN" ]; then
-            echo "[info] Downloading Mihomo binary..."
-            wget -O mihomo/mihomo.gz https://github.com/MetaCubeX/mihomo/releases/download/v1.19.13/mihomo-linux-amd64-v3-v1.19.13.gz
-            gzip -d mihomo/mihomo.gz
-            chmod +x mihomo/mihomo
+            echo "[info] downloading Mihomo..."
+            curl -L $MIHOMO_URL -o mihomo.gz
+            gunzip -f mihomo.gz
+            chmod +x mihomo
           fi
 
       - name: Run bestclash.py
