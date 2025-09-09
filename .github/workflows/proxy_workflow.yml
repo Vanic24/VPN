@@ -40,18 +40,33 @@ jobs:
 
           # Download v2ray-core
           curl -sSL https://github.com/v2fly/v2ray-core/releases/latest/download/v2ray-linux-${PLATFORM}.zip -o $DOWNLOAD_DIR/v2ray.zip
-          unzip -o $DOWNLOAD_DIR/v2ray.zip -d $DOWNLOAD_DIR/v2ray
-          chmod +x $DOWNLOAD_DIR/v2ray/v2ray
+          if unzip -tq $DOWNLOAD_DIR/v2ray.zip; then
+            unzip -o $DOWNLOAD_DIR/v2ray.zip -d $DOWNLOAD_DIR/v2ray
+            chmod +x $DOWNLOAD_DIR/v2ray/v2ray
+          else
+            echo "v2ray-core download failed or is not a valid ZIP file."
+            exit 1
+          fi
 
           # Download Mihomo (Clash.Meta)
           curl -sSL https://github.com/MetaCubeX/mihomo/releases/latest/download/mihomo-linux-${PLATFORM}.tar.gz -o $DOWNLOAD_DIR/mihomo.tar.gz
-          tar -xzf $DOWNLOAD_DIR/mihomo.tar.gz -C $DOWNLOAD_DIR
-          chmod +x $DOWNLOAD_DIR/mihomo
+          if tar -tzf $DOWNLOAD_DIR/mihomo.tar.gz > /dev/null; then
+            tar -xzf $DOWNLOAD_DIR/mihomo.tar.gz -C $DOWNLOAD_DIR
+            chmod +x $DOWNLOAD_DIR/mihomo
+          else
+            echo "Mihomo download failed or is not a valid TAR file."
+            exit 1
+          fi
 
           # Download sing-box
           curl -sSL https://github.com/SagerNet/sing-box/releases/latest/download/sing-box-linux-${PLATFORM}.tar.gz -o $DOWNLOAD_DIR/sing-box.tar.gz
-          tar -xzf $DOWNLOAD_DIR/sing-box.tar.gz -C $DOWNLOAD_DIR
-          chmod +x $DOWNLOAD_DIR/sing-box
+          if tar -tzf $DOWNLOAD_DIR/sing-box.tar.gz > /dev/null; then
+            tar -xzf $DOWNLOAD_DIR/sing-box.tar.gz -C $DOWNLOAD_DIR
+            chmod +x $DOWNLOAD_DIR/sing-box
+          else
+            echo "sing-box download failed or is not a valid TAR file."
+            exit 1
+          fi
 
       - name: Parse and validate proxies
         run: scripts/parse_and_validate_proxies.sh
