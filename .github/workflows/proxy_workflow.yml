@@ -77,7 +77,7 @@ jobs:
             exit 1
           fi
 
-          # sing-box - correct URLs
+          # sing-box - correct URLs and extraction
           if [[ "$ARCH" == "x86_64" ]]; then
             SINGBOX_URL="https://github.com/SagerNet/sing-box/releases/download/v1.12.4/sing-box-1.12.4-linux-amd64.tar.gz"
           elif [[ "$ARCH" == "aarch64" ]]; then
@@ -88,11 +88,16 @@ jobs:
           fi
           echo "Downloading sing-box from $SINGBOX_URL ..."
           curl -L "$SINGBOX_URL" -o $DOWNLOAD_DIR/sing-box.tar.gz
-          if tar -tzf $DOWNLOAD_DIR/sing-box.tar.gz > /dev/null; then
-            tar -xzf $DOWNLOAD_DIR/sing-box.tar.gz -C $DOWNLOAD_DIR
-            chmod +x $DOWNLOAD_DIR/sing-box
+
+          # Extract the binary
+          mkdir -p $DOWNLOAD_DIR/sing-box
+          tar -xzf $DOWNLOAD_DIR/sing-box.tar.gz -C $DOWNLOAD_DIR/sing-box --strip-components=1
+
+          # Make sure binary exists
+          if [ -f "$DOWNLOAD_DIR/sing-box/sing-box" ]; then
+            chmod +x $DOWNLOAD_DIR/sing-box/sing-box
           else
-            echo "sing-box download failed or is not a valid TAR file."
+            echo "sing-box binary not found after extraction!"
             exit 1
           fi
 
@@ -107,7 +112,7 @@ jobs:
           CORE_BIN=""
           if [ "$CORE_TYPE" == "v2ray" ]; then CORE_BIN="$DOWNLOAD_DIR/v2ray/v2ray"; fi
           if [ "$CORE_TYPE" == "mihomo" ]; then CORE_BIN="$DOWNLOAD_DIR/mihomo"; fi
-          if [ "$CORE_TYPE" == "sing-box" ]; then CORE_BIN="$DOWNLOAD_DIR/sing-box"; fi
+          if [ "$CORE_TYPE" == "sing-box" ]; then CORE_BIN="$DOWNLOAD_DIR/sing-box/sing-box"; fi
           export CORE_BIN
           scripts/determine_outlet_ips.sh
 
