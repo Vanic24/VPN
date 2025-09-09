@@ -17,8 +17,7 @@ SOURCES_FILE = os.path.join(REPO_ROOT, "sources.txt")
 TEMPLATE_URL = "https://raw.githubusercontent.com/Vanic24/VPN/refs/heads/main/ClashTemplate.ini"
 
 # ---------------- Inputs ----------------
-use_latency_env = os.environ.get("LATENCY_FILTER", "false").lower()
-USE_LATENCY = use_latency_env == "true"
+USE_LATENCY = os.environ.get("LATENCY_FILTER", "false").lower() == "true"
 
 try:
     LATENCY_THRESHOLD = int(os.environ.get("LATENCY_THRESHOLD", "100"))
@@ -57,8 +56,7 @@ def geo_ip(ip):
 def country_to_flag(cc):
     if not cc or len(cc) != 2:
         return "🏳️"
-    return chr(0x1F1E6 + (ord(cc[0].upper()) - 65)) + \
-           chr(0x1F1E6 + (ord(cc[1].upper()) - 65))
+    return chr(0x1F1E6 + (ord(cc[0].upper()) - 65)) + chr(0x1F1E6 + (ord(cc[1].upper()) - 65))
 
 # ---------------- Load sources ----------------
 def load_sources():
@@ -68,24 +66,24 @@ def load_sources():
     with open(SOURCES_FILE, "r", encoding="utf-8") as f:
         sources = [line.strip() for line in f if line.strip() and not line.startswith("#")]
     if not sources:
-        print(f"[FATAL] sources.txt is empty. Please check the secret or file content.")
+        print(f"[FATAL] sources.txt is empty.")
         sys.exit(1)
     return sources
 
-# ---------------- Parse raw proxy URLs ----------------
+# ---------------- Parse proxy line ----------------
 def parse_proxy_line(line):
     line = line.strip()
     if not line:
         return None
-    if line.startswith("vmess://"):
-        try:
+    try:
+        if line.startswith("vmess://"):
             b64_data = line[8:]
             missing_padding = len(b64_data) % 4
             if missing_padding != 0:
                 b64_data += "=" * (4 - missing_padding)
             decoded = base64.b64decode(b64_data).decode("utf-8")
             j = json.loads(decoded)
-            node = {
+            return {
                 "name": j.get("ps") or line,
                 "type": "vmess",
                 "server": j.get("add") or "",
@@ -97,14 +95,10 @@ def parse_proxy_line(line):
                 "network": j.get("net") or "",
                 "ws-opts": {"path": j.get("path") or "", "headers": {"Host": j.get("host") or ""}}
             }
-            return node
-        except Exception:
-            return None
-    elif line.startswith(("trojan://", "vless://", "anytls://", "hysteria://")):
-        try:
+        elif line.startswith(("trojan://", "vless://", "anytls://", "hysteria://")):
             u = urlparse(line)
             query = parse_qs(u.query)
-            node = {
+            return {
                 "name": unquote(u.fragment) if u.fragment else line,
                 "type": u.scheme,
                 "server": u.hostname or "",
@@ -116,17 +110,13 @@ def parse_proxy_line(line):
                 "network": query.get("type", [""])[0],
                 "ws-opts": {"path": query.get("path", [""])[0], "headers": {"Host": query.get("sni", [""])[0]}}
             }
-            return node
-        except Exception:
-            return None
-    elif line.startswith("ss://"):
-        try:
+        elif line.startswith("ss://"):
             if "@" in line:
                 ss_info = line[5:]
                 creds, hostport = ss_info.split("@")
                 password, cipher = base64.b64decode(creds).decode().split(":")
                 host, port = hostport.split(":")
-                node = {
+                return {
                     "name": line,
                     "type": "ss",
                     "server": host,
@@ -138,54 +128,40 @@ def parse_proxy_line(line):
                     "network": "",
                     "ws-opts": {"path": "", "headers": {"Host": ""}}
                 }
-                return node
-            else:
-                return None
-        except Exception:
-            return None
-    else:
+    except Exception:
         return None
+    return None
 
-# ---------------- Load proxies from URLs ----------------
+# ---------------- Load proxies from URL ----------------
 def load_proxies(url):
     try:
         r = requests.get(url, timeout=15)
         r.raise_for_status()
-        lines = r.text.splitlines()
         proxies = []
-        for line in lines:
+        for line in r.text.splitlines():
             node = parse_proxy_line(line)
             if node:
                 proxies.append(node)
         return proxies
     except Exception as e:
         print(f"[warn] failed to fetch {url} -> {e}")
-    return []
+        return []
 
 # ---------------- Correct node ----------------
 def correct_node(p, country_counter):
     host = str(p.get("server"))
-    raw_port = str(p.get("port", ""))
-    if "/" in raw_port:
-        raw_port = raw_port.split("/")[0]
     try:
-        port = int(raw_port)
+        port = int(p.get("port", 443))
     except ValueError:
         port = 443
-
     ip = resolve_ip(host) or host
     cc_lower, cc_upper = geo_ip(ip)
     flag = country_to_flag(cc_upper)
-
-    # latency check
     latency = tcp_latency_ms(host, port)
     if USE_LATENCY and latency > LATENCY_THRESHOLD:
         return None
-
     country_counter[cc_upper] += 1
     index = country_counter[cc_upper]
-
-    # rename
     p["name"] = f"{flag}|{cc_upper}{index}|@SHFX"
     p["port"] = port
     return p
@@ -194,13 +170,11 @@ def correct_node(p, country_counter):
 def main():
     sources = load_sources()
     print(f"[start] loaded {len(sources)} sources from sources.txt")
-
     all_proxies = []
     for url in sources:
         proxies = load_proxies(url)
         print(f"[source] {url} -> {len(proxies)} proxies")
         all_proxies.extend(proxies)
-
     print(f"[collect] total {len(all_proxies)} proxies")
 
     country_counter = defaultdict(int)
@@ -218,7 +192,6 @@ def main():
 
     print(f"[done] final {len(corrected_nodes)} nodes after correction/filtering")
 
-    # ---------------- Load template as text ----------------
     try:
         r = requests.get(TEMPLATE_URL, timeout=15)
         r.raise_for_status()
@@ -227,10 +200,10 @@ def main():
         print(f"[FATAL] failed to fetch template -> {e}")
         sys.exit(1)
 
-    # ---------------- Convert proxies to ordered dicts for YAML ----------------
+    # ---------------- Build ordered dicts for YAML ----------------
     ordered_nodes = []
     for p in corrected_nodes:
-        ordered_node = {
+        ordered_nodes.append({
             "name": p.get("name", ""),
             "type": p.get("type", ""),
             "server": p.get("server", ""),
@@ -241,29 +214,23 @@ def main():
             "tls": p.get("tls", ""),
             "network": p.get("network", ""),
             "ws-opts": p.get("ws-opts", {"path": "", "headers": {"Host": ""}})
-        }
-        ordered_nodes.append(ordered_node)
+        })
 
     proxies_yaml_block = yaml.safe_dump(ordered_nodes, allow_unicode=True, default_flow_style=False)
 
-    # ---------------- Build proxy names block ----------------
     proxy_names_block = "\n".join([f"      - {p['name']}" for p in corrected_nodes])
-
-    # ---------------- Replace placeholders ----------------
     output_text = template_text.replace("{{PROXIES}}", proxies_yaml_block)
     output_text = output_text.replace("{{PROXY_NAMES}}", proxy_names_block)
 
-    # ---------------- Write output ----------------
     with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
         f.write(output_text)
 
     print(f"[done] wrote {OUTPUT_FILE}")
 
-# ---------------- Entry ----------------
 if __name__ == "__main__":
     try:
         main()
     except Exception as e:
-        print("[FATAL ERROR]", str(e))
+        print("[FATAL ERROR]", e)
         traceback.print_exc()
         sys.exit(1)
