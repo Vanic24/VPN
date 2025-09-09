@@ -1,8 +1,10 @@
 name: Update Proxies
 
 on:
+  # Run every 30 minutes
   schedule:
     - cron: "*/30 * * * *"
+  # Manual trigger with inputs
   workflow_dispatch:
     inputs:
       use_latency_filter:
@@ -42,17 +44,11 @@ jobs:
         run: |
           echo "${{ secrets.SOURCES_TXT }}" > sources.txt
 
-      - name: Set latency filter environment
+      - name: Set latency filter environment for scheduled/manual runs
         run: |
+          # If manual run, use workflow inputs; if scheduled, default to true/100ms
           echo "LATENCY_FILTER=${{ github.event.inputs.use_latency_filter || 'true' }}" >> $GITHUB_ENV
           echo "LATENCY_THRESHOLD=${{ github.event.inputs.latency_threshold || '100' }}" >> $GITHUB_ENV
-
-      - name: Download Mihomo
-        run: |
-          mkdir -p mihomo
-          curl -L -o mihomo/mihomo.gz https://github.com/MetaCubeX/mihomo/releases/download/v1.19.13/mihomo-linux-amd64-v3-v1.19.13.gz
-          gunzip mihomo/mihomo.gz
-          chmod +x mihomo/mihomo
 
       - name: Run bestclash.py
         run: python src/bestclash.py
