@@ -141,7 +141,6 @@ def correct_node(p, country_counter):
         )
         # give Clash some time to start
         time.sleep(10)
-
         # query actual outlet IP
         proxies_req = {"http": "http://127.0.0.1:1080", "https": "http://127.0.0.1:1080"}
         r = requests.get("https://api.ipify.org?format=json", proxies=proxies_req, timeout=5)
