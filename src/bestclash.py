@@ -123,107 +123,11 @@ def correct_node(p, country_counter):
                 {
                     "name": "Proxy",
                     "type": "select",
-                    "proxies": [p["name"] if "name" in p else "Temp"]
+                    "proxies": [p.get("name", "Temp")]
                 }
             ],
             "rules": ["MATCH,Proxy"]
         }
 
         with open(temp_config_path, "w", encoding="utf-8") as f:
-            yaml.dump(clash_config, f, allow_unicode=True)
-
-        # start clash
-        process = subprocess.Popen(
-            [CLASH_BIN, "-f", temp_config_path, "--headless"],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE
-        )
-
-        # give Clash some time to start
-        time.sleep(10)
-
-        # query actual outlet IP
-        proxies_req = {"http": "http://127.0.0.1:1080", "https": "http://127.0.0.1:1080"}
-        r = requests.get("https://api.ipify.org?format=json", proxies=proxies_req, timeout=5)
-        outlet_ip = r.json().get("ip", None)
-
-    except Exception as e:
-        print(f"[warn] Clash failed for {host}:{port} -> {e}")
-        outlet_ip = None
-    finally:
-        if process and process.poll() is None:
-            process.kill()
-
-    if outlet_ip:
-        cc_lower, cc_upper = geo_ip(outlet_ip)
-        flag = country_to_flag(cc_upper)
-
-    country_counter[cc_upper] += 1
-    index = country_counter[cc_upper]
-
-    # rename
-    p["name"] = f"{flag}|{cc_upper}{index}|@SHFX"
-    p["port"] = port
-    return p
-
-# ---------------- Main ----------------
-def main():
-    sources = load_sources()
-    print(f"[start] loaded {len(sources)} sources from sources.txt")
-
-    all_proxies = []
-    for url in sources:
-        proxies = load_proxies(url)
-        print(f"[source] {url} -> {len(proxies)} proxies")
-        all_proxies.extend(proxies)
-
-    print(f"[collect] total {len(all_proxies)} proxies")
-
-    country_counter = defaultdict(int)
-    corrected_nodes = []
-
-    with concurrent.futures.ThreadPoolExecutor(max_workers=50) as ex:
-        futures = [ex.submit(correct_node, p, country_counter) for p in all_proxies]
-        for f in concurrent.futures.as_completed(futures):
-            try:
-                res = f.result()
-                if res:
-                    corrected_nodes.append(res)
-            except Exception as e:
-                print("[job error]", e)
-
-    print(f"[done] final {len(corrected_nodes)} nodes after correction/filtering")
-
-    # ---------------- Load template as text ----------------
-    try:
-        r = requests.get(TEMPLATE_URL, timeout=15)
-        r.raise_for_status()
-        template_text = r.text
-    except Exception as e:
-        print(f"[FATAL] failed to fetch template -> {e}")
-        sys.exit(1)
-
-    # ---------------- Convert proxies to YAML block ----------------
-    proxies_yaml_block = yaml.dump(corrected_nodes, allow_unicode=True, default_flow_style=False)
-
-    # ---------------- Build proxy names block ----------------
-    proxy_names_block = "\n".join([f"      - {p['name']}" for p in corrected_nodes])
-
-    # ---------------- Replace placeholders ----------------
-    output_text = template_text.replace("{{PROXIES}}", proxies_yaml_block)
-    output_text = output_text.replace("{{PROXY_NAMES}}", proxy_names_block)
-
-    # ---------------- Write output ----------------
-    with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
-        f.write(output_text)
-
-    print(f"[done] wrote {OUTPUT_FILE}")
-
-# ---------------- Entry ----------------
-if __name__ == "__main__":
-    try:
-        main()
-    except Exception as e:
-        print("[FATAL ERROR]", str(e))
-        traceback.print_exc()
-        sys.exit(1)
+            yaml.dump(clash_config, f, allow_unic
