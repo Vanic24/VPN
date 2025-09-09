@@ -3,17 +3,19 @@ import sys
 import yaml
 import requests
 import socket
-import subprocess
 import concurrent.futures
+import subprocess
+import time
 import traceback
 from collections import defaultdict
-import time
 
 # ---------------- Config ----------------
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 OUTPUT_FILE = os.path.join(REPO_ROOT, "proxies.yaml")
 SOURCES_FILE = os.path.join(REPO_ROOT, "sources.txt")
 TEMPLATE_URL = "https://raw.githubusercontent.com/Vanic24/VPN/refs/heads/main/ClashTemplate.ini"
+MIHOMO_URL = "https://github.com/MetaCubeX/mihomo/releases/download/v1.19.13/mihomo-linux-amd64-v3-v1.19.13.gz"
+MIHOMO_BIN = os.path.join(REPO_ROOT, "mihomo", "mihomo")
 
 # ---------------- Inputs ----------------
 use_latency_env = os.environ.get("LATENCY_FILTER", "false").lower()
@@ -23,9 +25,6 @@ try:
     LATENCY_THRESHOLD = int(os.environ.get("LATENCY_THRESHOLD", "100"))
 except ValueError:
     LATENCY_THRESHOLD = 100
-
-# ---------------- Mihomo Binary ----------------
-MIHOMO_BIN = os.path.join(REPO_ROOT, "mihomo", "mihomo")  # downloaded by workflow
 
 # ---------------- Helpers ----------------
 def resolve_ip(host):
@@ -85,65 +84,59 @@ def load_proxies(url):
         print(f"[warn] failed to fetch {url} -> {e}")
     return []
 
-# ---------------- Get actual outbound IP using Mihomo HTTP ----------------
-def get_outbound_ip(proxy_config, max_retries=5, wait_interval=2):
-    server = proxy_config.get("server")
-    port = str(proxy_config.get("port", 443))
-    if "/" in port:
-        port = port.split("/")[0]
+# ---------------- Download Mihomo ----------------
+def ensure_mihomo():
+    import gzip, shutil
+    if os.path.exists(MIHOMO_BIN):
+        return
+    os.makedirs(os.path.dirname(MIHOMO_BIN), exist_ok=True)
+    gz_path = MIHOMO_BIN + ".gz"
+    print("[info] downloading Mihomo binary...")
+    r = requests.get(MIHOMO_URL, timeout=30)
+    with open(gz_path, "wb") as f:
+        f.write(r.content)
+    print("[info] decompressing Mihomo...")
+    with gzip.open(gz_path, "rb") as f_in, open(MIHOMO_BIN, "wb") as f_out:
+        shutil.copyfileobj(f_in, f_out)
+    os.chmod(MIHOMO_BIN, 0o755)
+    os.remove(gz_path)
+    print("[info] Mihomo ready")
 
-    try:
-        port = int(port)
-    except ValueError:
-        port = 443
-
+# ---------------- Check actual outbound IP ----------------
+def get_outbound_ip(proxy_config):
+    """
+    proxy_config: dict of Clash node
+    Returns actual outlet_ip or None if failed
+    """
+    ensure_mihomo()
     temp_config_path = os.path.join(REPO_ROOT, "mihomo_temp.yaml")
     with open(temp_config_path, "w", encoding="utf-8") as f:
-        yaml.dump({
-            "server": server,
-            "port": port,
-            "type": proxy_config.get("type"),
-            "password": proxy_config.get("password", "")
-        }, f)
+        yaml.dump(proxy_config, f, allow_unicode=True)
+    local_http_port = 12345  # temporary local proxy
 
-    if not os.path.exists(MIHOMO_BIN):
-        print(f"[FATAL] Mihomo binary not found at {MIHOMO_BIN}")
-        return None
-    os.chmod(MIHOMO_BIN, 0o755)
-
-    local_http_port = 8080
-    process = None
     try:
+        # Start Mihomo in HTTP mode
         process = subprocess.Popen(
             [MIHOMO_BIN, "run", "-c", temp_config_path, "-L", f"127.0.0.1:{local_http_port}:http"],
-            stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-            cwd=REPO_ROOT
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
         )
+        time.sleep(3)  # wait for proxy to start
 
-        time.sleep(2)  # initial wait for proxy to start
-        for attempt in range(max_retries):
-            try:
-                proxies = {
-                    "http": f"http://127.0.0.1:{local_http_port}",
-                    "https": f"http://127.0.0.1:{local_http_port}"
-                }
-                r = requests.get("https://api.ipify.org?format=json", proxies=proxies, timeout=5)
-                outlet_ip = r.json().get("ip")
-                return outlet_ip
-            except Exception:
-                time.sleep(wait_interval)
-
-        print(f"[warn] Mihomo failed for {server}:{port} -> proxy did not respond after {max_retries} retries")
-        return None
+        # Test HTTP request via proxy
+        proxies = {
+            "http": f"http://127.0.0.1:{local_http_port}",
+            "https": f"http://127.0.0.1:{local_http_port}"
+        }
+        r = requests.get("https://api.ipify.org?format=json", proxies=proxies, timeout=10)
+        ip = r.json().get("ip")
+        return ip
     except Exception as e:
-        print(f"[warn] Mihomo failed for {server}:{port} -> {e}")
+        print(f"[warn] Mihomo failed for {proxy_config.get('server')}:{proxy_config.get('port')} -> {e}")
         return None
     finally:
-        try:
-            if process:
-                process.kill()
-        except:
-            pass
+        if 'process' in locals() and process.poll() is None:
+            process.kill()
         if os.path.exists(temp_config_path):
             os.remove(temp_config_path)
 
@@ -163,18 +156,17 @@ def correct_node(p, country_counter):
     if USE_LATENCY and latency > LATENCY_THRESHOLD:
         return None
 
-    # get actual outbound IP via Mihomo HTTP
+    # get actual outbound IP
     outlet_ip = get_outbound_ip(p)
     if not outlet_ip:
         return None
 
     cc_lower, cc_upper = geo_ip(outlet_ip)
     flag = country_to_flag(cc_upper)
-
     country_counter[cc_upper] += 1
     index = country_counter[cc_upper]
 
-    # rename node
+    # rename
     p["name"] = f"{flag}|{cc_upper}{index}|@SHFX"
     p["port"] = port
     p["outlet_ip"] = outlet_ip
