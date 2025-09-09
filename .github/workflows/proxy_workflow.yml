@@ -1,16 +1,20 @@
 name: Proxy Configuration Automation
 
 on:
+  schedule:
+    - cron: '*/30 * * * *'  # Runs every 30 minutes
   workflow_dispatch:
 
 jobs:
   generate_proxies_yaml:
     runs-on: ubuntu-latest
     env:
-      CORE_TYPE: "v2ray" # Change to "clash" or "sing-box" as needed
-      SECRET_REPO: "YourUsername/SecretRepo" # Where sources.txt is located
+      CORE_TYPE: "mihomo"  # Change to "v2ray" or "sing-box" as needed
+      SECRET_REPO: "YourUsername/SecretRepo"  # Replace with your secret repo
       TOKEN: ${{ secrets.GITHUB_TOKEN }}
       DOWNLOAD_DIR: "$RUNNER_TEMP/proxy_cores"
+      PLATFORM: "x86_64"  # Change to "arm64" if needed
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -30,22 +34,22 @@ jobs:
             -o scripts/sources.txt \
             https://api.github.com/repos/$SECRET_REPO/contents/sources.txt
 
-      - name: Download v2ray-core, Clash core, and sing-box
+      - name: Download latest proxy core binaries
         run: |
           mkdir -p $DOWNLOAD_DIR
-          
-          # v2ray-core
-          curl -L -o $DOWNLOAD_DIR/v2ray.zip https://github.com/v2fly/v2ray-core/releases/latest/download/v2ray-linux-64.zip
+
+          # Download v2ray-core
+          curl -sSL https://github.com/v2fly/v2ray-core/releases/latest/download/v2ray-linux-${PLATFORM}.zip -o $DOWNLOAD_DIR/v2ray.zip
           unzip -o $DOWNLOAD_DIR/v2ray.zip -d $DOWNLOAD_DIR/v2ray
           chmod +x $DOWNLOAD_DIR/v2ray/v2ray
 
-          # Clash core
-          curl -L -o $DOWNLOAD_DIR/clash.gz https://github.com/Dreamacro/clash/releases/latest/download/clash-linux-amd64.gz
-          gunzip -f $DOWNLOAD_DIR/clash.gz
-          chmod +x $DOWNLOAD_DIR/clash
+          # Download Mihomo (Clash.Meta)
+          curl -sSL https://github.com/MetaCubeX/mihomo/releases/latest/download/mihomo-linux-${PLATFORM}.tar.gz -o $DOWNLOAD_DIR/mihomo.tar.gz
+          tar -xzf $DOWNLOAD_DIR/mihomo.tar.gz -C $DOWNLOAD_DIR
+          chmod +x $DOWNLOAD_DIR/mihomo
 
-          # sing-box
-          curl -L -o $DOWNLOAD_DIR/sing-box.tar.gz https://github.com/SagerNet/sing-box/releases/latest/download/sing-box-linux-amd64.tar.gz
+          # Download sing-box
+          curl -sSL https://github.com/SagerNet/sing-box/releases/latest/download/sing-box-linux-${PLATFORM}.tar.gz -o $DOWNLOAD_DIR/sing-box.tar.gz
           tar -xzf $DOWNLOAD_DIR/sing-box.tar.gz -C $DOWNLOAD_DIR
           chmod +x $DOWNLOAD_DIR/sing-box
 
@@ -59,7 +63,7 @@ jobs:
         run: |
           CORE_BIN=""
           if [ "$CORE_TYPE" == "v2ray" ]; then CORE_BIN="$DOWNLOAD_DIR/v2ray/v2ray"; fi
-          if [ "$CORE_TYPE" == "clash" ]; then CORE_BIN="$DOWNLOAD_DIR/clash"; fi
+          if [ "$CORE_TYPE" == "mihomo" ]; then CORE_BIN="$DOWNLOAD_DIR/mihomo"; fi
           if [ "$CORE_TYPE" == "sing-box" ]; then CORE_BIN="$DOWNLOAD_DIR/sing-box"; fi
           export CORE_BIN
           scripts/determine_outlet_ips.sh
