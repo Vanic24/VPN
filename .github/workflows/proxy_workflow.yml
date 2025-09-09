@@ -33,59 +33,60 @@ jobs:
             -o scripts/sources.txt \
             https://api.github.com/repos/$SECRET_REPO/contents/sources.txt
 
-- name: Download and Extract Proxy Cores
-  run: |
-    # Fetch the latest release versions
-    MIHOMO_VERSION=$(curl -s https://api.github.com/repos/MetaCubeX/mihomo/releases/latest | jq -r .tag_name)
-    V2RAY_VERSION=$(curl -s https://api.github.com/repos/v2fly/v2ray-core/releases/latest | jq -r .tag_name)
-    SINGBOX_VERSION=$(curl -s https://api.github.com/repos/SagerNet/sing-box/releases/latest | jq -r .tag_name)
+      - name: Download latest proxy core binaries with architecture detection
+        run: |
+          mkdir -p $DOWNLOAD_DIR
+          ARCH=$(uname -m)
+          echo "Detected architecture: $ARCH"
 
-    # Determine architecture
-    ARCH=$(uname -m)
+          # Get latest release tags dynamically
+          MIHOMO_VERSION=$(curl -s https://api.github.com/repos/MetaCubeX/mihomo/releases/latest | jq -r .tag_name)
+          V2RAY_VERSION=$(curl -s https://api.github.com/repos/v2fly/v2ray-core/releases/latest | jq -r .tag_name)
+          SINGBOX_VERSION=$(curl -s https://api.github.com/repos/SagerNet/sing-box/releases/latest | jq -r .tag_name)
 
-    # Construct download URLs
-    if [[ "$ARCH" == "x86_64" ]]; then
-      MIHOMO_URL="https://github.com/MetaCubeX/mihomo/releases/download/${MIHOMO_VERSION}/mihomo-linux-amd64-${MIHOMO_VERSION}.gz"
-      V2RAY_URL="https://github.com/v2fly/v2ray-core/releases/download/${V2RAY_VERSION}/v2ray-linux-64.zip"
-      SINGBOX_URL="https://github.com/SagerNet/sing-box/releases/download/${SINGBOX_VERSION}/sing-box-linux-amd64-${SINGBOX_VERSION}.tar.gz"
-    elif [[ "$ARCH" == "aarch64" ]]; then
-      MIHOMO_URL="https://github.com/MetaCubeX/mihomo/releases/download/${MIHOMO_VERSION}/mihomo-linux-arm64-${MIHOMO_VERSION}.gz"
-      V2RAY_URL="https://github.com/v2fly/v2ray-core/releases/download/${V2RAY_VERSION}/v2ray-linux-arm64-v8a.zip"
-      SINGBOX_URL="https://github.com/SagerNet/sing-box/releases/download/${SINGBOX_VERSION}/sing-box-linux-arm64-${SINGBOX_VERSION}.tar.gz"
-    else
-      echo "Unsupported architecture: $ARCH"
-      exit 1
-    fi
+          # Construct download URLs
+          if [[ "$ARCH" == "x86_64" ]]; then
+            MIHOMO_URL="https://github.com/MetaCubeX/mihomo/releases/download/${MIHOMO_VERSION}/mihomo-linux-amd64-${MIHOMO_VERSION}.gz"
+            V2RAY_URL="https://github.com/v2fly/v2ray-core/releases/download/${V2RAY_VERSION}/v2ray-linux-64.zip"
+            SINGBOX_URL="https://github.com/SagerNet/sing-box/releases/download/${SINGBOX_VERSION}/sing-box-linux-amd64-${SINGBOX_VERSION}.tar.gz"
+          elif [[ "$ARCH" == "aarch64" ]]; then
+            MIHOMO_URL="https://github.com/MetaCubeX/mihomo/releases/download/${MIHOMO_VERSION}/mihomo-linux-arm64-${MIHOMO_VERSION}.gz"
+            V2RAY_URL="https://github.com/v2fly/v2ray-core/releases/download/${V2RAY_VERSION}/v2ray-linux-arm64-v8a.zip"
+            SINGBOX_URL="https://github.com/SagerNet/sing-box/releases/download/${SINGBOX_VERSION}/sing-box-linux-arm64-${SINGBOX_VERSION}.tar.gz"
+          else
+            echo "Unsupported architecture: $ARCH"
+            exit 1
+          fi
 
-    # Download and extract Mihomo
-    curl -L "$MIHOMO_URL" -o mihomo.gz
-    if gzip -t mihomo.gz; then
-      gzip -d mihomo.gz
-      chmod +x mihomo
-    else
-      echo "Mihomo download failed or is not a valid GZ file."
-      exit 1
-    fi
+          # Download and extract Mihomo
+          curl -L "$MIHOMO_URL" -o $DOWNLOAD_DIR/mihomo.gz
+          if gzip -t $DOWNLOAD_DIR/mihomo.gz; then
+            gzip -d $DOWNLOAD_DIR/mihomo.gz
+            chmod +x $DOWNLOAD_DIR/mihomo
+          else
+            echo "Mihomo download failed or is not a valid GZ file."
+            exit 1
+          fi
 
-    # Download and extract v2ray-core
-    curl -L "$V2RAY_URL" -o v2ray.zip
-    if unzip -tq v2ray.zip; then
-      unzip -o v2ray.zip
-      chmod +x v2ray
-    else
-      echo "v2ray-core download failed or is not a valid ZIP file."
-      exit 1
-    fi
+          # Download and extract v2ray-core
+          curl -L "$V2RAY_URL" -o $DOWNLOAD_DIR/v2ray.zip
+          if unzip -tq $DOWNLOAD_DIR/v2ray.zip; then
+            unzip -o $DOWNLOAD_DIR/v2ray.zip -d $DOWNLOAD_DIR/v2ray
+            chmod +x $DOWNLOAD_DIR/v2ray/v2ray
+          else
+            echo "v2ray-core download failed or is not a valid ZIP file."
+            exit 1
+          fi
 
-    # Download and extract sing-box
-    curl -L "$SINGBOX_URL" -o sing-box.tar.gz
-    if tar -tzf sing-box.tar.gz > /dev/null; then
-      tar -xzf sing-box.tar.gz
-      chmod +x sing-box
-    else
-      echo "sing-box download failed or is not a valid TAR file."
-      exit 1
-    fi
+          # Download and extract sing-box
+          curl -L "$SINGBOX_URL" -o $DOWNLOAD_DIR/sing-box.tar.gz
+          if tar -tzf $DOWNLOAD_DIR/sing-box.tar.gz > /dev/null; then
+            tar -xzf $DOWNLOAD_DIR/sing-box.tar.gz -C $DOWNLOAD_DIR
+            chmod +x $DOWNLOAD_DIR/sing-box
+          else
+            echo "sing-box download failed or is not a valid TAR file."
+            exit 1
+          fi
 
       - name: Parse and validate proxies
         run: scripts/parse_and_validate_proxies.sh
