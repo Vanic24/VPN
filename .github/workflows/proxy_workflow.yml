@@ -1,0 +1,79 @@
+name: Proxy Configuration Automation
+
+on:
+  workflow_dispatch:
+
+jobs:
+  generate_proxies_yaml:
+    runs-on: ubuntu-latest
+    env:
+      CORE_TYPE: "v2ray" # Change to "clash" or "sing-box" as needed
+      SECRET_REPO: "YourUsername/SecretRepo" # Where sources.txt is located
+      TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      DOWNLOAD_DIR: "$RUNNER_TEMP/proxy_cores"
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y curl jq bc unzip tar netcat uuid-runtime
+
+      - name: Make scripts executable
+        run: chmod +x scripts/*.sh
+
+      - name: Fetch sources.txt from secret repository
+        run: |
+          curl -H "Authorization: token $TOKEN" \
+            -H "Accept: application/vnd.github.v3.raw" \
+            -o scripts/sources.txt \
+            https://api.github.com/repos/$SECRET_REPO/contents/sources.txt
+
+      - name: Download v2ray-core, Clash core, and sing-box
+        run: |
+          mkdir -p $DOWNLOAD_DIR
+          
+          # v2ray-core
+          curl -L -o $DOWNLOAD_DIR/v2ray.zip https://github.com/v2fly/v2ray-core/releases/latest/download/v2ray-linux-64.zip
+          unzip -o $DOWNLOAD_DIR/v2ray.zip -d $DOWNLOAD_DIR/v2ray
+          chmod +x $DOWNLOAD_DIR/v2ray/v2ray
+
+          # Clash core
+          curl -L -o $DOWNLOAD_DIR/clash.gz https://github.com/Dreamacro/clash/releases/latest/download/clash-linux-amd64.gz
+          gunzip -f $DOWNLOAD_DIR/clash.gz
+          chmod +x $DOWNLOAD_DIR/clash
+
+          # sing-box
+          curl -L -o $DOWNLOAD_DIR/sing-box.tar.gz https://github.com/SagerNet/sing-box/releases/latest/download/sing-box-linux-amd64.tar.gz
+          tar -xzf $DOWNLOAD_DIR/sing-box.tar.gz -C $DOWNLOAD_DIR
+          chmod +x $DOWNLOAD_DIR/sing-box
+
+      - name: Parse and validate proxies
+        run: scripts/parse_and_validate_proxies.sh
+
+      - name: Test proxy connectivity
+        run: scripts/test_proxy_connectivity.sh
+
+      - name: Determine outlet IPs
+        run: |
+          CORE_BIN=""
+          if [ "$CORE_TYPE" == "v2ray" ]; then CORE_BIN="$DOWNLOAD_DIR/v2ray/v2ray"; fi
+          if [ "$CORE_TYPE" == "clash" ]; then CORE_BIN="$DOWNLOAD_DIR/clash"; fi
+          if [ "$CORE_TYPE" == "sing-box" ]; then CORE_BIN="$DOWNLOAD_DIR/sing-box"; fi
+          export CORE_BIN
+          scripts/determine_outlet_ips.sh
+
+      - name: Format proxies into JSON
+        run: scripts/format_proxies.sh
+
+      - name: Generate proxies.yaml for Clash
+        run: scripts/generate_proxies_yaml.sh
+
+      - name: Commit and push proxies.yaml
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git add proxies.yaml
+          git commit -m "Update proxies.yaml"
+          git push
