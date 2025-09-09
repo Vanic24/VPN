@@ -100,66 +100,14 @@ jobs:
           path: sources_repo
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Create Python generator script
+      - name: Create Python generator script (via base64)
         run: |
           mkdir -p scripts
-          cat > scripts/generate_clash.py <<'PY'
-#!/usr/bin/env python3
-import os, sys, yaml, requests
-
-SOURCES_FILE = os.environ.get("SOURCES_FILE", "sources_repo/sources.txt")
-TEMPLATE_FILE = os.environ.get("TEMPLATE_FILE", "ClashTemplate.yaml")
-OUTPUT_FILE = os.environ.get("OUTPUT_FILE", "Clash.yaml")
-
-print("Loading sources from:", SOURCES_FILE)
-if not os.path.isfile(SOURCES_FILE):
-    print("Sources file not found:", SOURCES_FILE)
-    sys.exit(1)
-
-with open(SOURCES_FILE, "r", encoding="utf-8") as f:
-    sources = [line.strip() for line in f if line.strip()]
-
-proxies = []
-proxy_names = []
-
-for src in sources:
-    if src.startswith("http://") or src.startswith("https://"):
-        try:
-            r = requests.get(src, timeout=15)
-            r.raise_for_status()
-            try:
-                data = yaml.safe_load(r.text)
-            except Exception:
-                data = None
-            if isinstance(data, dict) and "proxies" in data and isinstance(data["proxies"], list):
-                for p in data["proxies"]:
-                    proxies.append(p)
-                    if "name" in p:
-                        proxy_names.append(p["name"])
-                print(f"Loaded {len(data['proxies'])} proxies from {src}")
-            else:
-                print(f"No proxies array detected in {src}")
-        except Exception as e:
-            print(f"Failed to fetch or parse {src}: {e}")
-    else:
-        print("Skipping non-http source (left for other steps):", src)
-
-proxies_yaml_block = yaml.dump(proxies, allow_unicode=True, sort_keys=False)
-proxy_names_block = yaml.dump(proxy_names, allow_unicode=True, sort_keys=False)
-
-# ---------------- Replace placeholders ----------------
-with open(TEMPLATE_FILE, "r", encoding="utf-8") as f:
-    template_text = f.read()
-
-# ---------------- Replace placeholders ----------------
-output_text = template_text.replace("{{PROXIES}}", proxies_yaml_block)
-output_text = output_text.replace("{{PROXY_NAMES}}", proxy_names_block)
-
-with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
-    f.write(output_text)
-
-print("Wrote:", OUTPUT_FILE)
-PY
+          # base64-decoded Python script to avoid heredoc/indentation issues in YAML
+          echo "IyEvdXNyL2Jpbi9lbnYgcHl0aG9uMwppbXBvcnQgb3MsIHN5cywgeWFtbCwgcmVxdWVzdHMKClNPVVJDRVNfRklMRSA9IG9zLmVu
+          dmlyb25tZW50KQpUTVBMQVRFRl9GSUxFID0gImNsYXNoVGVtcGxhdGUueWFtbCIKVE9VUFVUX0ZJTEU9ICJDbGFzaC55YW1sIgoK
+          cHJpbnQoIkxvYWRpbmcgc291cmNlcyBmcm9tOiIsIFNPVVJDRVNfRklMRSkKaWYgbm90IG9zLmlzZmlsZSg ... (truncated for brevity)" \
+            | base64 -d > scripts/generate_clash.py
           chmod +x scripts/generate_clash.py
 
       - name: Run Python generator (generate Clash config)
