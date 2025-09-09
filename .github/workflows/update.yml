@@ -1,72 +1,45 @@
-name: Update Proxies
+name: AutoUpdater
 
 on:
-  # Run every 30 minutes
   schedule:
-    - cron: "*/30 * * * *"
-  # Manual trigger with inputs
+    - cron: "0 */6 * * *"   # run every 6 hours
   workflow_dispatch:
-    inputs:
-      use_latency_filter:
-        description: "Enable latency filter? (true/false)"
-        required: true
-        default: "true"
-      latency_threshold:
-        description: "Latency threshold in ms (only used if filter is true)"
-        required: false
-        default: "100"
 
 jobs:
   update:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Setup Python
-        uses: actions/setup-python@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          python-version: "3.x"
+          python-version: '3.x'
 
-      - name: Install dependencies
+      - name: Install Python dependencies
         run: |
+          python -m pip install --upgrade pip
           pip install requests pyyaml
 
-      - name: Fail if SOURCES_TXT secret is missing
+      - name: Download Mihomo Core
         run: |
-          if [ -z "${{ secrets.SOURCES_TXT }}" ]; then
-            echo "❌ ERROR: SOURCES_TXT secret is not set in repository secrets."
-            exit 1
-          fi
-
-      - name: Restore sources.txt from secret
-        run: |
-          echo "${{ secrets.SOURCES_TXT }}" > sources.txt
-
-      - name: Set latency filter environment for scheduled/manual runs
-        run: |
-          echo "LATENCY_FILTER=${{ github.event.inputs.use_latency_filter || 'true' }}" >> $GITHUB_ENV
-          echo "LATENCY_THRESHOLD=${{ github.event.inputs.latency_threshold || '100' }}" >> $GITHUB_ENV
-
-      - name: Prepare Mihomo binary
-        run: |
-          MIHOMO_BIN="./mihomo"
-          MIHOMO_URL="https://github.com/MetaCubeX/mihomo/releases/download/v1.19.13/mihomo-linux-amd64-v3-v1.19.13.gz"
-          if [ ! -f "$MIHOMO_BIN" ]; then
-            echo "[info] downloading Mihomo..."
-            curl -L $MIHOMO_URL -o mihomo.gz
-            gunzip -f mihomo.gz
-            chmod +x mihomo
-          fi
+          mkdir -p clash
+          cd clash
+          curl -L -o mihomo.gz https://github.com/MetaCubeX/mihomo/releases/download/v1.19.13/mihomo-linux-amd64-v3-v1.19.13.gz
+          gunzip mihomo.gz
+          chmod +x mihomo
+          mv mihomo ../mihomo
 
       - name: Run bestclash.py
-        run: python src/bestclash.py
-
-      - name: Commit and push changes
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          python bestclash.py
+
+      - name: Commit and Push changes
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
           git add proxies.yaml
-          git diff --cached --quiet || git commit -m "Update proxies.yaml"
+          git commit -m "Auto update proxies.yaml $(date -u +'%Y-%m-%d %H:%M:%S')"
           git push
