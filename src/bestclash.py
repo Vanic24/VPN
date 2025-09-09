@@ -1,6 +1,5 @@
 import os
 import sys
-import yaml
 import requests
 import socket
 import concurrent.futures
@@ -16,9 +15,7 @@ OUTPUT_FILE = os.path.join(REPO_ROOT, "proxies.yaml")
 SOURCES_FILE = os.path.join(REPO_ROOT, "sources.txt")
 TEMPLATE_URL = "https://raw.githubusercontent.com/Vanic24/VPN/refs/heads/main/ClashTemplate.ini"
 
-# ---------------- Inputs ----------------
 USE_LATENCY = os.environ.get("LATENCY_FILTER", "false").lower() == "true"
-
 try:
     LATENCY_THRESHOLD = int(os.environ.get("LATENCY_THRESHOLD", "100"))
 except ValueError:
@@ -132,7 +129,7 @@ def parse_proxy_line(line):
         return None
     return None
 
-# ---------------- Load proxies from URL ----------------
+# ---------------- Load proxies ----------------
 def load_proxies(url):
     try:
         r = requests.get(url, timeout=15)
@@ -165,6 +162,27 @@ def correct_node(p, country_counter):
     p["name"] = f"{flag}|{cc_upper}{index}|@SHFX"
     p["port"] = port
     return p
+
+# ---------------- Convert nodes to YAML manually ----------------
+def build_yaml_node(p):
+    lines = []
+    lines.append(f"- name: {p.get('name','')}")
+    lines.append(f"  type: {p.get('type','')}")
+    lines.append(f"  server: {p.get('server','')}")
+    lines.append(f"  port: {p.get('port',443)}")
+    lines.append(f"  uuid: {p.get('uuid','')}")
+    lines.append(f"  alterId: {p.get('alterId',0)}")
+    lines.append(f"  cipher: {p.get('cipher','auto')}")
+    lines.append(f"  tls: '{p.get('tls','')}'")
+    lines.append(f"  network: {p.get('network','')}")
+    ws = p.get("ws-opts", {})
+    path = ws.get("path","")
+    host = ws.get("headers",{}).get("Host","")
+    lines.append(f"  ws-opts:")
+    lines.append(f"    path: {path}")
+    lines.append(f"    headers:")
+    lines.append(f"      Host: '{host}'")
+    return "\n".join(lines)
 
 # ---------------- Main ----------------
 def main():
@@ -200,25 +218,9 @@ def main():
         print(f"[FATAL] failed to fetch template -> {e}")
         sys.exit(1)
 
-    # ---------------- Build ordered dicts for YAML ----------------
-    ordered_nodes = []
-    for p in corrected_nodes:
-        ordered_nodes.append({
-            "name": p.get("name", ""),
-            "type": p.get("type", ""),
-            "server": p.get("server", ""),
-            "port": p.get("port", 443),
-            "uuid": p.get("uuid", ""),
-            "alterId": p.get("alterId", 0),
-            "cipher": p.get("cipher", "auto"),
-            "tls": p.get("tls", ""),
-            "network": p.get("network", ""),
-            "ws-opts": p.get("ws-opts", {"path": "", "headers": {"Host": ""}})
-        })
-
-    proxies_yaml_block = yaml.safe_dump(ordered_nodes, allow_unicode=True, default_flow_style=False)
-
+    proxies_yaml_block = "\n".join([build_yaml_node(p) for p in corrected_nodes])
     proxy_names_block = "\n".join([f"      - {p['name']}" for p in corrected_nodes])
+
     output_text = template_text.replace("{{PROXIES}}", proxies_yaml_block)
     output_text = output_text.replace("{{PROXY_NAMES}}", proxy_names_block)
 
