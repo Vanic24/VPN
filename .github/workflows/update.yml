@@ -1,55 +1,72 @@
-name: AutoUpdater
+name: Update Proxies
 
 on:
+  # Run every 30 minutes
   schedule:
-    - cron: "*/30 * * * *"   # every 30 minutes
-  workflow_dispatch:         # allow manual run
+    - cron: "*/30 * * * *"
+  # Manual trigger with inputs
+  workflow_dispatch:
+    inputs:
+      use_latency_filter:
+        description: "Enable latency filter? (true/false)"
+        required: true
+        default: "true"
+      latency_threshold:
+        description: "Latency threshold in ms (only used if filter is true)"
+        required: false
+        default: "100"
 
 jobs:
   update:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout this repo
-        uses: actions/checkout@v4
-        with:
-          persist-credentials: true
-
-      - name: Clone secret repo (sources.txt provider)
-        run: |
-          git clone https://x-access-token:${{ secrets.SECRET_REPO_TOKEN }}@github.com/${{ secrets.SECRET_REPO }} secret_sources
-          cp secret_sources/sources.txt scr/sources.txt
+      - name: Checkout repo
+        uses: actions/checkout@v3
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v4
         with:
-          python-version: "3.11"
+          python-version: "3.x"
 
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install pyyaml requests
+          pip install requests pyyaml
 
-      - name: Download Mihomo core
+      - name: Fail if SOURCES_TXT is missing
         run: |
-          mkdir -p scr
-          cd scr
-          curl -L -o mihomo.gz https://github.com/MetaCubeX/mihomo/releases/download/v1.19.13/mihomo-linux-amd64-v3-v1.19.13.gz
-          gunzip -f mihomo.gz
-          mv mihomo-linux-amd64-v3-v1.19.13 mihomo
-          chmod +x mihomo
-          cd ..
+          if [ -z "${{ secrets.SOURCES_TXT }}" ]; then
+            echo "❌ ERROR: SOURCES_TXT secret is not set in repository secrets."
+            exit 1
+          fi
+
+      - name: Restore sources.txt from secret
+        run: |
+          echo "${{ secrets.SOURCES_TXT }}" > sources.txt
+
+      - name: Set latency filter environment for scheduled/manual runs
+        run: |
+          echo "LATENCY_FILTER=${{ github.event.inputs.use_latency_filter || 'true' }}" >> $GITHUB_ENV
+          echo "LATENCY_THRESHOLD=${{ github.event.inputs.latency_threshold || '100' }}" >> $GITHUB_ENV
+
+      - name: Ensure Mihomo download
+        run: |
+          mkdir -p mihomo
+          MIHOMO_BIN="mihomo/mihomo"
+          if [ ! -f "$MIHOMO_BIN" ]; then
+            echo "[info] Downloading Mihomo binary..."
+            wget -O mihomo/mihomo.gz https://github.com/MetaCubeX/mihomo/releases/download/v1.19.13/mihomo-linux-amd64-v3-v1.19.13.gz
+            gzip -d mihomo/mihomo.gz
+            chmod +x mihomo/mihomo
+          fi
 
       - name: Run bestclash.py
-        run: |
-          cd scr
-          python bestclash.py
-          cd ..
+        run: python src/bestclash.py
 
       - name: Commit and push changes
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add proxies.yaml
-          git commit -m "Auto update proxies.yaml at $(date -u +'%Y-%m-%d %H:%M:%S')" || echo "No changes"
+          git diff --cached --quiet || git commit -m "Update proxies.yaml"
           git push
