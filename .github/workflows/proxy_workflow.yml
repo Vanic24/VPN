@@ -13,7 +13,6 @@ jobs:
       SECRET_REPO: "YourUsername/SecretRepo"  # Replace with your secret repo
       TOKEN: ${{ secrets.GITHUB_TOKEN }}
       DOWNLOAD_DIR: "$RUNNER_TEMP/proxy_cores"
-      PLATFORM: "x86_64"  # Change to "arm64" if needed
 
     steps:
       - name: Checkout repository
@@ -34,12 +33,23 @@ jobs:
             -o scripts/sources.txt \
             https://api.github.com/repos/$SECRET_REPO/contents/sources.txt
 
-      - name: Download latest proxy core binaries
+      - name: Download latest proxy core binaries with architecture detection
         run: |
           mkdir -p $DOWNLOAD_DIR
+          ARCH=$(uname -m)
+          echo "Detected architecture: $ARCH"
 
-          # Download v2ray-core
-          curl -sSL https://github.com/v2fly/v2ray-core/releases/latest/download/v2ray-linux-${PLATFORM}.zip -o $DOWNLOAD_DIR/v2ray.zip
+          # v2ray-core
+          if [[ "$ARCH" == "x86_64" ]]; then
+            V2RAY_URL="https://github.com/v2fly/v2ray-core/releases/latest/download/v2ray-linux-64.zip"
+          elif [[ "$ARCH" == "aarch64" ]]; then
+            V2RAY_URL="https://github.com/v2fly/v2ray-core/releases/latest/download/v2ray-linux-arm64-v8a.zip"
+          else
+            echo "Unsupported architecture: $ARCH"
+            exit 1
+          fi
+          echo "Downloading v2ray-core from $V2RAY_URL ..."
+          curl -L "$V2RAY_URL" -o $DOWNLOAD_DIR/v2ray.zip
           if unzip -tq $DOWNLOAD_DIR/v2ray.zip; then
             unzip -o $DOWNLOAD_DIR/v2ray.zip -d $DOWNLOAD_DIR/v2ray
             chmod +x $DOWNLOAD_DIR/v2ray/v2ray
@@ -48,8 +58,17 @@ jobs:
             exit 1
           fi
 
-          # Download Mihomo (Clash.Meta)
-          curl -sSL https://github.com/MetaCubeX/mihomo/releases/latest/download/mihomo-linux-${PLATFORM}.tar.gz -o $DOWNLOAD_DIR/mihomo.tar.gz
+          # Mihomo (Clash.Meta fork)
+          if [[ "$ARCH" == "x86_64" ]]; then
+            MIHOMO_URL="https://github.com/MetaCubeX/mihomo/releases/latest/download/mihomo-linux-amd64.tar.gz"
+          elif [[ "$ARCH" == "aarch64" ]]; then
+            MIHOMO_URL="https://github.com/MetaCubeX/mihomo/releases/latest/download/mihomo-linux-arm64.tar.gz"
+          else
+            echo "Unsupported architecture: $ARCH"
+            exit 1
+          fi
+          echo "Downloading Mihomo from $MIHOMO_URL ..."
+          curl -L "$MIHOMO_URL" -o $DOWNLOAD_DIR/mihomo.tar.gz
           if tar -tzf $DOWNLOAD_DIR/mihomo.tar.gz > /dev/null; then
             tar -xzf $DOWNLOAD_DIR/mihomo.tar.gz -C $DOWNLOAD_DIR
             chmod +x $DOWNLOAD_DIR/mihomo
@@ -58,8 +77,17 @@ jobs:
             exit 1
           fi
 
-          # Download sing-box
-          curl -sSL https://github.com/SagerNet/sing-box/releases/latest/download/sing-box-linux-${PLATFORM}.tar.gz -o $DOWNLOAD_DIR/sing-box.tar.gz
+          # sing-box
+          if [[ "$ARCH" == "x86_64" ]]; then
+            SINGBOX_URL="https://github.com/SagerNet/sing-box/releases/latest/download/sing-box-linux-amd64.tar.gz"
+          elif [[ "$ARCH" == "aarch64" ]]; then
+            SINGBOX_URL="https://github.com/SagerNet/sing-box/releases/latest/download/sing-box-linux-arm64.tar.gz"
+          else
+            echo "Unsupported architecture: $ARCH"
+            exit 1
+          fi
+          echo "Downloading sing-box from $SINGBOX_URL ..."
+          curl -L "$SINGBOX_URL" -o $DOWNLOAD_DIR/sing-box.tar.gz
           if tar -tzf $DOWNLOAD_DIR/sing-box.tar.gz > /dev/null; then
             tar -xzf $DOWNLOAD_DIR/sing-box.tar.gz -C $DOWNLOAD_DIR
             chmod +x $DOWNLOAD_DIR/sing-box
