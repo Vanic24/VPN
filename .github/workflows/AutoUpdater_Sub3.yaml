@@ -170,16 +170,19 @@ jobs:
           const template_text = fs.readFileSync(templatePath, "utf8");
 
           // Build YAML blocks
-          const proxies_yaml_block = yaml.dump(proxies, { noRefs: true, lineWidth: 120 });
-          const proxy_names_block = yaml.dump(proxies.map(p => p.name), { noRefs: true, lineWidth: 120 });
+          const proxies_yaml_block = yaml.dump(proxies, { lineWidth: -1 }).trimEnd();
+          const proxy_names_block = proxies.map(p => `      - ${p.name}`).join("\n");
 
-          // Replace placeholders
+          // Replace placeholders in the template
           let output_text = template_text;
-          output_text = output_text.replace("{{PROXIES}}", proxies_yaml_block.trim());
-          output_text = output_text.replace("{{PROXY_NAMES}}", proxy_names_block.trim());
 
-          // Add forced update timestamp
-          const yamlData = `# Last update: ${new Date().toISOString()}\n` + output_text;
+          // Replace all {{PROXIES}} placeholders
+          output_text = output_text.replace(/{{PROXIES}}/g, proxies_yaml_block);
+          // Replace all {{PROXY_NAMES}} placeholders
+          output_text = output_text.replace(/{{PROXY_NAMES}}/g, proxy_names_block);
+
+              // Add forced update timestamp
+              const yamlData = output_text;
 
           fs.writeFileSync(GITHUB_FILE, yamlData, "utf8");
           fs.writeFileSync(path.join(process.cwd(), "Sub3.yml"), yamlData, "utf8");
