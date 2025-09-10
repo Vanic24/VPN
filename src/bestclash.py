@@ -395,7 +395,7 @@ def main():
     print(f"[collect] total {len(all_nodes)} nodes before filtering")
 
 # ---------------- Prepare node list ----------------
-all_nodes = merged_nodes
+all_nodes = nodes
 
 # ---------------- Node correction ----------------
 corrected_nodes = []
@@ -411,17 +411,14 @@ if USE_LATENCY:
     filtered_nodes = []
     with concurrent.futures.ThreadPoolExecutor(max_workers=50) as ex:
         futures = [ex.submit(tcp_latency_ms, n.get("server"), n.get("port")) for n in corrected_nodes]
-
-    for node, fut in zip(corrected_nodes, futures):
-        try:
-            latency = fut.result(timeout=5)
+        results = [f.result() for f in futures]
+        for node, latency in zip(corrected_nodes, results):
             if latency is not None and latency <= LATENCY_THRESHOLD:
-                node["_latency"] = latency
+                node["latency"] = latency
                 filtered_nodes.append(node)
-        except Exception:
-            pass  # skip node if latency check fails
-
-    corrected_nodes = filtered_nodes
+    nodes_out = filtered_nodes
+else:
+    nodes_out = corrected_nodes
 
     # ---------------- Load template ----------------
     try:
