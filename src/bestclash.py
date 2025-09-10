@@ -394,31 +394,28 @@ def main():
 
     print(f"[collect] total {len(all_nodes)} nodes before filtering")
 
-# ---------------- Prepare node list ----------------
-all_nodes = nodes
+    # ---------------- Latency filter ----------------
+    if USE_LATENCY:
+        print(f"[latency] filtering nodes > {LATENCY_THRESHOLD} ms")
+        country_counter = defaultdict(int)
+        filtered_nodes = []
+        with concurrent.futures.ThreadPoolExecutor(max_workers=50) as ex:
+            futures = [ex.submit(tcp_latency_ms, n.get("server"), n.get("port")) for n in all_nodes]
+            for n, f in zip(all_nodes, futures):
+                latency = f.result()
+                if latency <= LATENCY_THRESHOLD:
+                    filtered_nodes.append(n)
+        print(f"[latency] {len(filtered_nodes)} nodes after latency filtering")
+    else:
+        filtered_nodes = all_nodes
+        country_counter = defaultdict(int)
 
-# ---------------- Node correction ----------------
-corrected_nodes = []
-for node in all_nodes:
-    fixed = correct_node(node)
-    if fixed:
-        corrected_nodes.append(fixed)
+    # ---------------- Correct nodes ----------------
+    corrected_nodes = []
+    for n in filtered_nodes:
+        corrected_nodes.append(correct_node(n, country_counter))
 
-# ---------------- Latency filter ----------------
-if USE_LATENCY:
-    print(f"[latency] filtering nodes > {LATENCY_THRESHOLD} ms")
-    country_counter = defaultdict(int)
-    filtered_nodes = []
-    with concurrent.futures.ThreadPoolExecutor(max_workers=50) as ex:
-        futures = [ex.submit(tcp_latency_ms, n.get("server"), n.get("port")) for n in corrected_nodes]
-        results = [f.result() for f in futures]
-        for node, latency in zip(corrected_nodes, results):
-            if latency is not None and latency <= LATENCY_THRESHOLD:
-                node["latency"] = latency
-                filtered_nodes.append(node)
-    nodes_out = filtered_nodes
-else:
-    nodes_out = corrected_nodes
+    print(f"[done] final {len(corrected_nodes)} nodes ready")
 
     # ---------------- Load template ----------------
     try:
