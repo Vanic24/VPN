@@ -418,7 +418,7 @@ if USE_LATENCY:
                     filtered_nodes.append(n)
         print(f"[latency] {len(filtered_nodes)} nodes after latency filtering")
     else:
-        filtered_nodes = unique_nodes
+        filtered_nodes = corrected_nodes
         country_counter = defaultdict(int)
 
     # ---------------- Correct nodes ----------------
