@@ -188,8 +188,8 @@ jobs:
           output_text = output_text.replace("{{PROXIES}}", proxies_yaml_block.trim());
           output_text = output_text.replace("{{PROXY_NAMES}}", proxy_names_block.trim());
 
-            fs.writeFileSync(GITHUB_FILE, yamlData, "utf8");
-            fs.writeFileSync(path.join(process.cwd(), "9PB.yml"), yamlData, "utf8");
+              // Add forced update timestamp
+              const yamlData = `# Last update: ${new Date().toISOString()}\n` + output_text;
 
             if (!dryRun) {
               try {
