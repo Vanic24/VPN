@@ -77,6 +77,99 @@ dns:
       - 240.0.0.0/4
       - 0.0.0.0/32
 proxies:
+- down: null
+  name: 🇭🇰|HK1|@SHFX
+  password: 9e0f72bb-7ad6-4383-994a-497569a94d74
+  port: 56309
+  server: hkaws.ccwink.com
+  skip-cert-verify: true
+  sni: hkaws.ccwink.cc
+  type: hysteria2
+  up: null
+- name: 🇭🇰|HK2|@SHFX
+  password: 9e0f72bb-7ad6-4383-994a-497569a94d74
+  port: 6549
+  server: hkaws.ccwink.com
+  skip-cert-verify: true
+  sni: baidu.com
+  type: anytls
+  udp: true
+- down: null
+  name: 🇹🇼|TW1|@SHFX
+  password: 9e0f72bb-7ad6-4383-994a-497569a94d74
+  port: 30001
+  server: tw.akebi.cc
+  skip-cert-verify: true
+  sni: tw1-vds14.anyhk.co
+  type: hysteria2
+  up: null
+- name: 🇹🇼|TW2|@SHFX
+  password: 9e0f72bb-7ad6-4383-994a-497569a94d74
+  port: 6549
+  server: tw.akebi.cc
+  skip-cert-verify: true
+  sni: baidu.com
+  type: anytls
+  udp: true
+- down: 5000
+  name: 🇯🇵|JP1|@SHFX
+  password: 9e0f72bb-7ad6-4383-994a-497569a94d74
+  port: 56309
+  server: jpaws.ccwink.com
+  skip-cert-verify: true
+  sni: jpaws.ccwink.cc
+  type: hysteria2
+  up: 5000
+- name: 🇯🇵|JP2|@SHFX
+  password: 9e0f72bb-7ad6-4383-994a-497569a94d74
+  port: 3245
+  server: jpaws.ccwink.com
+  skip-cert-verify: true
+  sni: baidu.com
+  type: anytls
+  udp: true
+- down: 5000
+  name: 🇸🇬|SG1|@SHFX
+  password: 9e0f72bb-7ad6-4383-994a-497569a94d74
+  port: 56309
+  server: sgaws.ccwink.com
+  skip-cert-verify: true
+  sni: sgaws.ccwink.cc
+  type: hysteria2
+  up: 5000
+- name: 🇸🇬|SG2|@SHFX
+  password: 9e0f72bb-7ad6-4383-994a-497569a94d74
+  port: 3245
+  server: sgaws.ccwink.com
+  skip-cert-verify: true
+  sni: baidu.com
+  type: anytls
+  udp: true
+- down: null
+  name: 🇰🇷|KR1|@SHFX
+  password: 9e0f72bb-7ad6-4383-994a-497569a94d74
+  port: 56309
+  server: kr.ccwink.cc
+  skip-cert-verify: true
+  sni: kr.ccwink.cc
+  type: hysteria2
+  up: null
+- name: 🇰🇷|KR2|@SHFX
+  password: 9e0f72bb-7ad6-4383-994a-497569a94d74
+  port: 32455
+  server: kr.ccwink.cc
+  skip-cert-verify: true
+  sni: baidu.com
+  type: anytls
+  udp: true
+- name: 🇰🇷|KR3|@SHFX
+  password: 9e0f72bb-7ad6-4383-994a-497569a94d74
+  port: 60001
+  server: seoul-1ddns.aboutanime.eu.org
+  skip-cert-verify: true
+  sni: baidu.com
+  type: anytls
+  udp: true
 - name: 🇺🇸|US1|@SHFX
   password: 9e0f72bb-7ad6-4383-994a-497569a94d74
   port: 30002
@@ -93,12 +186,34 @@ proxy-groups:
     interval: 300
     tolerance: 50
     proxies:
+      - 🇭🇰|HK1|@SHFX
+      - 🇭🇰|HK2|@SHFX
+      - 🇹🇼|TW1|@SHFX
+      - 🇹🇼|TW2|@SHFX
+      - 🇯🇵|JP1|@SHFX
+      - 🇯🇵|JP2|@SHFX
+      - 🇸🇬|SG1|@SHFX
+      - 🇸🇬|SG2|@SHFX
+      - 🇰🇷|KR1|@SHFX
+      - 🇰🇷|KR2|@SHFX
+      - 🇰🇷|KR3|@SHFX
       - 🇺🇸|US1|@SHFX
   - name: 🚀 节点选择
     type: select
     proxies:
       - ♻️ 自动选择
       - DIRECT
+      - 🇭🇰|HK1|@SHFX
+      - 🇭🇰|HK2|@SHFX
+      - 🇹🇼|TW1|@SHFX
+      - 🇹🇼|TW2|@SHFX
+      - 🇯🇵|JP1|@SHFX
+      - 🇯🇵|JP2|@SHFX
+      - 🇸🇬|SG1|@SHFX
+      - 🇸🇬|SG2|@SHFX
+      - 🇰🇷|KR1|@SHFX
+      - 🇰🇷|KR2|@SHFX
+      - 🇰🇷|KR3|@SHFX
       - 🇺🇸|US1|@SHFX
   - name: 🌍 国外媒体
     type: select
@@ -106,24 +221,68 @@ proxy-groups:
       - 🚀 节点选择
       - ♻️ 自动选择
       - 🎯 全球直连
+      - 🇭🇰|HK1|@SHFX
+      - 🇭🇰|HK2|@SHFX
+      - 🇹🇼|TW1|@SHFX
+      - 🇹🇼|TW2|@SHFX
+      - 🇯🇵|JP1|@SHFX
+      - 🇯🇵|JP2|@SHFX
+      - 🇸🇬|SG1|@SHFX
+      - 🇸🇬|SG2|@SHFX
+      - 🇰🇷|KR1|@SHFX
+      - 🇰🇷|KR2|@SHFX
+      - 🇰🇷|KR3|@SHFX
       - 🇺🇸|US1|@SHFX
   - name: 📲 电报信息
     type: select
     proxies:
       - 🚀 节点选择
       - 🎯 全球直连
+      - 🇭🇰|HK1|@SHFX
+      - 🇭🇰|HK2|@SHFX
+      - 🇹🇼|TW1|@SHFX
+      - 🇹🇼|TW2|@SHFX
+      - 🇯🇵|JP1|@SHFX
+      - 🇯🇵|JP2|@SHFX
+      - 🇸🇬|SG1|@SHFX
+      - 🇸🇬|SG2|@SHFX
+      - 🇰🇷|KR1|@SHFX
+      - 🇰🇷|KR2|@SHFX
+      - 🇰🇷|KR3|@SHFX
       - 🇺🇸|US1|@SHFX
   - name: Ⓜ️ 微软服务
     type: select
     proxies:
       - 🎯 全球直连
       - 🚀 节点选择
+      - 🇭🇰|HK1|@SHFX
+      - 🇭🇰|HK2|@SHFX
+      - 🇹🇼|TW1|@SHFX
+      - 🇹🇼|TW2|@SHFX
+      - 🇯🇵|JP1|@SHFX
+      - 🇯🇵|JP2|@SHFX
+      - 🇸🇬|SG1|@SHFX
+      - 🇸🇬|SG2|@SHFX
+      - 🇰🇷|KR1|@SHFX
+      - 🇰🇷|KR2|@SHFX
+      - 🇰🇷|KR3|@SHFX
       - 🇺🇸|US1|@SHFX
   - name: 🍎 苹果服务
     type: select
     proxies:
       - 🚀 节点选择
       - 🎯 全球直连
+      - 🇭🇰|HK1|@SHFX
+      - 🇭🇰|HK2|@SHFX
+      - 🇹🇼|TW1|@SHFX
+      - 🇹🇼|TW2|@SHFX
+      - 🇯🇵|JP1|@SHFX
+      - 🇯🇵|JP2|@SHFX
+      - 🇸🇬|SG1|@SHFX
+      - 🇸🇬|SG2|@SHFX
+      - 🇰🇷|KR1|@SHFX
+      - 🇰🇷|KR2|@SHFX
+      - 🇰🇷|KR3|@SHFX
       - 🇺🇸|US1|@SHFX
   - name: 🎯 全球直连
     type: select
@@ -147,6 +306,17 @@ proxy-groups:
       - 🚀 节点选择
       - 🎯 全球直连
       - ♻️ 自动选择
+      - 🇭🇰|HK1|@SHFX
+      - 🇭🇰|HK2|@SHFX
+      - 🇹🇼|TW1|@SHFX
+      - 🇹🇼|TW2|@SHFX
+      - 🇯🇵|JP1|@SHFX
+      - 🇯🇵|JP2|@SHFX
+      - 🇸🇬|SG1|@SHFX
+      - 🇸🇬|SG2|@SHFX
+      - 🇰🇷|KR1|@SHFX
+      - 🇰🇷|KR2|@SHFX
+      - 🇰🇷|KR3|@SHFX
       - 🇺🇸|US1|@SHFX
 rules:
   - DOMAIN-SUFFIX,acl4.ssr,🎯 全球直连
