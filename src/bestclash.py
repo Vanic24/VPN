@@ -394,6 +394,9 @@ def main():
 
     print(f"[collect] total {len(all_nodes)} nodes before filtering")
 
+# ---------------- Prepare node list ----------------
+all_nodes = merged_nodes
+
 # ---------------- Node correction ----------------
 corrected_nodes = []
 for node in all_nodes:
