@@ -199,10 +199,7 @@ def parse_ss(line):
         # Extract name fragment (#name) if present
         if "#" in line:
             line, name_fragment = line.split("#", 1)
-            try:
-                name_fragment = urllib.parse.unquote(name_fragment)
-            except:
-                name_fragment = ""
+            name_fragment = urllib.parse.unquote(name_fragment)
         else:
             name_fragment = ""
 
