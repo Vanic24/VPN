@@ -394,13 +394,24 @@ def main():
 
     print(f"[collect] total {len(all_nodes)} nodes before filtering")
 
-    # ---------------- Latency filter ----------------
-    if USE_LATENCY:
-        print(f"[latency] filtering nodes > {LATENCY_THRESHOLD} ms")
-        country_counter = defaultdict(int)
-        filtered_nodes = []
-        with concurrent.futures.ThreadPoolExecutor(max_workers=50) as ex:
-            futures = [ex.submit(tcp_latency_ms, n.get("server"), n.get("port")) for n in unique_nodes]
+# ---------------- Latency filter ----------------
+if USE_LATENCY:
+    print(f"[latency] filtering nodes > {LATENCY_THRESHOLD} ms")
+    country_counter = defaultdict(int)
+    filtered_nodes = []
+    with concurrent.futures.ThreadPoolExecutor(max_workers=50) as ex:
+        futures = [ex.submit(tcp_latency_ms, n.get("server"), n.get("port")) for n in corrected_nodes]
+
+    for node, fut in zip(corrected_nodes, futures):
+        try:
+            latency = fut.result(timeout=5)
+            if latency is not None and latency <= LATENCY_THRESHOLD:
+                node["latency"] = latency
+                filtered_nodes.append(node)
+        except Exception:
+            continue
+    corrected_nodes = filtered_nodes
+
             for n, f in zip(unique_nodes, futures):
                 latency = f.result()
                 if latency <= LATENCY_THRESHOLD:
