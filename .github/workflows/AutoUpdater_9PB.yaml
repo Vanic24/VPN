@@ -185,8 +185,8 @@ jobs:
 
           // Replace placeholders
           let output_text = template_text;
-          output_text = template_text.replace("{{PROXY_NAMES}}", proxy_names_block)
-          output_text = output_text.replace("{{PROXIES}}", proxies_yaml_block)
+          output_text = re.sub(r"\{\{\s*PROXY_NAMES\s*\}\}", proxy_names_block, template_text)
+          output_text = re.sub(r"\{\{\s*PROXIES\s*\}\}", proxies_yaml_block, output_text)
 
               // Add forced update timestamp
               const yamlData = output_text;
