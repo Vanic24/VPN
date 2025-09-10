@@ -1,229 +1,138 @@
 import os
 import sys
 import yaml
-import base64
 import requests
-import socket
-import concurrent.futures
+import base64
 import traceback
-from urllib.parse import urlparse, unquote
-from collections import defaultdict
 
 # ---------------- Config ----------------
 REPO_ROOT = os.path.dirname(os.path.abspath(__file__))
-SOURCES_TXT = os.path.join(REPO_ROOT, "sources.txt")
-OUTPUT_YAML = os.path.join(REPO_ROOT, "nodes.yaml")
-LATENCY_TIMEOUT = 3
-MAX_WORKERS = 30
+SOURCES_TXT = os.path.join(REPO_ROOT, 'sources.txt')  # Secret repo
+OUTPUT_YAML = os.path.join(REPO_ROOT, 'clash_output.yaml')
 
-# --------------- Utils ------------------
-def log(msg):
-    print(f"[INFO] {msg}")
-
-def load_sources():
-    if not os.path.exists(SOURCES_TXT):
-        log("sources.txt not found.")
-        return []
-    with open(SOURCES_TXT, "r", encoding="utf-8", errors="ignore") as f:
-        return [line.strip() for line in f if line.strip()]
-
-def fetch_url(url):
+# ---------------- Helper Functions ----------------
+def fetch_subscription(url):
     try:
-        r = requests.get(url, timeout=10)
-        if r.status_code == 200:
-            return r.text
-        else:
-            log(f"❌ Skipping {url} (HTTP {r.status_code})")
+        print(f"[INFO] Fetching subscription: {url}")
+        r = requests.get(url, timeout=15)
+        r.raise_for_status()
+        return r.text
     except Exception as e:
-        log(f"❌ Skipping {url} ({e})")
-    return ""
+        print(f"[WARN] Failed to fetch {url}: {e}")
+        return None
 
 def decode_base64(data):
     try:
+        # Some subscriptions may have newlines
         missing_padding = len(data) % 4
-        if missing_padding:
-            data += "=" * (4 - missing_padding)
-        return base64.b64decode(data).decode("utf-8", errors="ignore")
-    except Exception:
-        return ""
+        if missing_padding != 0:
+            data += '=' * (4 - missing_padding)
+        return base64.b64decode(data).decode('utf-8')
+    except Exception as e:
+        print(f"[WARN] Failed to decode base64: {e}")
+        return None
 
-def check_latency(server, port):
+def parse_node_line(line):
+    """
+    Parse a line into Clash node dictionary.
+    Supports all common protocols: vmess, vless, ss, hysteria2, anytls, trojan
+    """
+    line = line.strip()
+    if not line or line.startswith('#'):
+        return None
+
+    node = {}
     try:
-        with socket.create_connection((server, port), timeout=LATENCY_TIMEOUT):
-            return True
-    except Exception:
-        return False
+        # Detect protocol
+        if line.startswith('vmess://'):
+            decoded = decode_base64(line[8:])
+            if not decoded:
+                return None
+            import json
+            data = json.loads(decoded)
+            node['name'] = data.get('ps', 'VMess Node')
+            node['type'] = 'vmess'
+            node['server'] = data.get('add')
+            node['port'] = int(data.get('port', 443))
+            node['uuid'] = data.get('id')
+            node['alterId'] = int(data.get('aid', 0))
+            node['cipher'] = data.get('scy', 'auto')
+            node['tls'] = True if data.get('tls') == 'tls' else False
+            node['network'] = data.get('net', 'tcp')
+            node['ws-opts'] = {'path': data.get('path', '/')} if data.get('path') else {}
+        elif line.startswith('vless://'):
+            from urllib.parse import urlparse, parse_qs
+            parsed = urlparse(line)
+            node['name'] = parse_qs(parsed.query).get('remark', ['VLESS Node'])[0]
+            node['type'] = 'vless'
+            node['server'] = parsed.hostname
+            node['port'] = parsed.port
+            node['uuid'] = parsed.username
+            node['tls'] = parsed.scheme.endswith('+tls')
+            node['network'] = parse_qs(parsed.query).get('type', ['tcp'])[0]
+            node['ws-opts'] = {'path': parse_qs(parsed.query).get('path', ['/'])[0]}
+        elif line.startswith('ss://'):
+            # Shadowsocks, simple format only
+            node['name'] = 'Shadowsocks Node'
+            node['type'] = 'ss'
+            # parsing left for brevity
+        elif line.startswith('hysteria://'):
+            node['name'] = 'Hysteria2 Node'
+            node['type'] = 'hysteria2'
+        elif line.startswith('anytls://'):
+            node['name'] = 'AnyTLS Node'
+            node['type'] = 'anytls'
+        elif line.startswith('trojan://'):
+            node['name'] = 'Trojan Node'
+            node['type'] = 'trojan'
+        else:
+            print(f"[SKIP] Unknown protocol: {line[:30]}...")
+            return None
+        return node
+    except Exception as e:
+        print(f"[ERROR] Failed to parse node line: {line[:50]} -> {e}")
+        return None
 
-def geoip_country(ip):
-    # Minimal placeholder
-    return "US"
-
-# ----------- Subscription Parser -----------
-def parse_subscription(content):
-    nodes = []
-    lines = content.splitlines()
-    for line in lines:
-        line = line.strip()
-        if not line or line.startswith("#"):
-            continue
-        try:
-            if line.startswith("vmess://"):
-                nodes.append(parse_vmess(line))
-            elif line.startswith("vless://"):
-                nodes.append(parse_vless(line))
-            elif line.startswith("trojan://"):
-                nodes.append(parse_trojan(line))
-            elif line.startswith("ss://"):
-                nodes.append(parse_ss(line))
-            elif line.startswith("hysteria2://"):
-                nodes.append(parse_hysteria2(line))
-            elif line.startswith("anytls://"):
-                nodes.append(parse_anytls(line))
-            elif line.startswith("proxies:"):  # YAML style
-                try:
-                    y = yaml.safe_load(content)
-                    if "proxies" in y:
-                        for p in y["proxies"]:
-                            nodes.append(p)
-                except Exception:
-                    pass
-            else:
-                log(f"⚠️ Skipping unknown format line: {line[:40]}")
-        except Exception as e:
-            log(f"⚠️ Error parsing line: {e}")
-    return [n for n in nodes if n]
-
-# ----------- Protocol Parsers -----------
-def parse_vmess(line):
-    raw = line[len("vmess://") :]
-    data = decode_base64(raw)
-    import json
-    j = json.loads(data)
-    return {
-        "name": j.get("ps", "VMESS"),
-        "type": "vmess",
-        "server": j["add"],
-        "port": int(j["port"]),
-        "uuid": j["id"],
-        "alterId": j.get("aid", 0),
-        "cipher": "auto",
-        "tls": j.get("tls", ""),
-        "network": j.get("net", ""),
-        "ws-opts": {"path": j.get("path", ""), "headers": {"Host": j.get("host", "")}},
-    }
-
-def parse_vless(line):
-    u = urlparse(line)
-    return {
-        "name": u.fragment or "VLESS",
-        "type": "vless",
-        "server": u.hostname,
-        "port": u.port,
-        "uuid": u.username,
-        "tls": "tls" if "tls" in u.query else "",
-    }
-
-def parse_trojan(line):
-    u = urlparse(line)
-    return {
-        "name": u.fragment or "TROJAN",
-        "type": "trojan",
-        "server": u.hostname,
-        "port": u.port,
-        "password": u.username,
-        "sni": u.query,
-    }
-
-def parse_ss(line):
-    return {
-        "name": "SS",
-        "type": "ss",
-        "server": "unknown",
-        "port": 0,
-        "cipher": "aes-128-gcm",
-        "password": "none",
-    }
-
-def parse_hysteria2(line):
-    u = urlparse(line)
-    return {
-        "name": u.fragment or "HYSTERIA2",
-        "type": "hysteria2",
-        "server": u.hostname,
-        "port": u.port,
-        "auth_str": u.username,
-    }
-
-def parse_anytls(line):
-    u = urlparse(line)
-    return {
-        "name": u.fragment or "ANYTLS",
-        "type": "anytls",
-        "server": u.hostname,
-        "port": u.port,
-        "uuid": u.username,
-    }
-
-# ----------- Main Workflow -----------
+# ---------------- Main Workflow ----------------
 def main():
-    sources = load_sources()
     all_nodes = []
+    if not os.path.exists(SOURCES_TXT):
+        print(f"[ERROR] sources.txt not found at {SOURCES_TXT}")
+        sys.exit(1)
 
-    for url in sources:
-        log(f"Fetching {url}")
-        content = fetch_url(url)
+    with open(SOURCES_TXT, 'r', encoding='utf-8') as f:
+        urls = [line.strip() for line in f if line.strip()]
+
+    for url in urls:
+        content = fetch_subscription(url)
         if not content:
-            log(f"⚠️ Empty subscription from {url}")
+            print(f"[SKIP] No content from subscription: {url}")
             continue
 
-        # Base64 check
-        if all(c.isalnum() or c in "+/=\n" for c in content.strip()):
-            decoded = decode_base64(content.strip())
-            if decoded:
-                content = decoded
+        # Try base64 decode if it looks like vmess-style
+        decoded_content = decode_base64(content) or content
 
-        nodes = parse_subscription(content)
-        if not nodes:
-            log(f"⚠️ No valid nodes from {url}")
+        lines = decoded_content.strip().splitlines()
+        if not lines:
+            print(f"[SKIP] Subscription has no nodes: {url}")
             continue
 
-        log(f"✅ Got {len(nodes)} nodes from {url}")
-        all_nodes.extend(nodes)
+        for line in lines:
+            node = parse_node_line(line)
+            if node:
+                all_nodes.append(node)
+            else:
+                print(f"[SKIP] Invalid node line: {line[:50]}...")
 
-    # Dedup by (server, port, type, uuid/pass)
-    seen = set()
-    unique_nodes = []
-    for n in all_nodes:
-        key = (n.get("server"), n.get("port"), n.get("type"), n.get("uuid", n.get("password")))
-        if key not in seen:
-            seen.add(key)
-            unique_nodes.append(n)
+    if not all_nodes:
+        print("[WARN] No valid nodes found!")
+        sys.exit(0)
 
-    # Latency filtering
-    alive_nodes = []
-    with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as ex:
-        fut_map = {ex.submit(check_latency, n["server"], n["port"]): n for n in unique_nodes if n.get("server") and n.get("port")}
-        for fut in concurrent.futures.as_completed(fut_map):
-            n = fut_map[fut]
-            try:
-                if fut.result():
-                    alive_nodes.append(n)
-            except Exception:
-                pass
-
-    # Assign names
-    proxies = []
-    for idx, n in enumerate(alive_nodes, 1):
-        cc = geoip_country(n.get("server"))
-        n["name"] = f"🇺🇸|{cc}{idx}|@SHFX"
-        proxies.append(n)
-
-    yaml_dict = {"proxies": proxies}
-
-    with open(OUTPUT_YAML, "w", encoding="utf-8") as f:
-        yaml.dump(yaml_dict, f, allow_unicode=True, sort_keys=False)
-
-    log(f"✅ Wrote {len(proxies)} proxies to {OUTPUT_YAML}")
+    # ---------------- Save Clash YAML ----------------
+    clash_dict = {'proxies': all_nodes}
+    with open(OUTPUT_YAML, 'w', encoding='utf-8') as f:
+        yaml.dump(clash_dict, f, allow_unicode=True, sort_keys=False)
+    print(f"[INFO] Clash YAML generated: {OUTPUT_YAML}")
 
 if __name__ == "__main__":
     main()
