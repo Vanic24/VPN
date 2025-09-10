@@ -354,7 +354,48 @@ def load_proxies(url):
         text = r.text.strip()
         nodes = []
 
-        # ---------------- Try parsing as Clash YAML ----------------
+        # ---------------- Clash YAML parser ----------------
+        if text.startswith("proxies:") or "proxies:" in text:
+            try:
+                data = yaml.safe_load(text)
+                if "proxies" in data:
+                    for p in data["proxies"]:
+                        nodes.append(p)
+            except Exception:
+                pass
+        else:
+            lines = text.splitlines()
+            for line in lines:
+                line = line.strip()
+                if not line:
+                    continue
+                node = parse_node_line(line)
+                if node:
+                    nodes.append(node)
+                else:
+                    print(f"[skip] invalid or unsupported line -> {line[:60]}...")
+        return nodes
+    except Exception as e:
+        print(f"[warn] failed to fetch {url} -> {e}")
+    return []
+
+# ---------------- Base64 parser ----------------
+def load_proxies(url):
+    try:
+        r = requests.get(url, timeout=15)
+        r.raise_for_status()
+        text = r.text.strip()
+        nodes = []
+
+        # Try Base64 decode first if it's a single line and looks like Base64
+        if len(text.splitlines()) == 1 and re.match(r'^[A-Za-z0-9+/=]+$', text):
+            try:
+                decoded = base64.b64decode(text + "=" * (-len(text) % 4)).decode("utf-8")
+                text = decoded
+            except Exception:
+                pass
+
+        # Try parsing as YAML first
         if text.startswith("proxies:") or "proxies:" in text:
             try:
                 data = yaml.safe_load(text)
