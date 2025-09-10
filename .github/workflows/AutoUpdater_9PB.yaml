@@ -175,21 +175,13 @@ jobs:
             console.log(`🔹 Total proxies parsed: ${proxies.length}`);
             console.log("Proxy names:", proxies.map(p => p.name).join(", "));
 
-              // Load ClashTemplate.ini
-              const templatePath = path.join(process.cwd(), "ClashTemplate.ini");
-              const template_text = fs.readFileSync(templatePath, "utf8");
-
-              // Build YAML blocks
-              const proxies_yaml_block = yaml.dump(proxies, { noRefs: true, lineWidth: 120 });
-              const proxy_names_block = yaml.dump(proxies.map(p => p.name), { noRefs: true, lineWidth: 120 });
-
-              // ---------------- Replace placeholders ----------------
+              // Replace placeholders
               let output_text = template_text;
               output_text = output_text.replace("{{PROXIES}}", proxies_yaml_block.trim());
               output_text = output_text.replace("{{PROXY_NAMES}}", proxy_names_block.trim());
-            // Force file to change every time with timestamp
-            const yamlData = `# Last update: ${new Date().toISOString()}\n` +
-              yaml.dump(clashConfig, { noRefs: true, forceQuotes: false, lineWidth: 120 });
+
+              // Add forced update timestamp
+              const yamlData = `# Last update: ${new Date().toISOString()}\n` + output_text;
 
             fs.writeFileSync(GITHUB_FILE, yamlData, "utf8");
             fs.writeFileSync(path.join(process.cwd(), "9PB.yml"), yamlData, "utf8");
