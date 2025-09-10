@@ -77,34 +77,7 @@ dns:
       - 240.0.0.0/4
       - 0.0.0.0/32
 proxies:
-- name: 🇺🇸|US1|@SHFX
-  network: tcp
-  port: 10001
-  server: 107.172.83.75
-  tls: false
-  type: vless
-  uuid: 9c79aceb-4649-44ea-9698-b5e9ecf6d6da
-- name: 🇺🇸|US2|@SHFX
-  network: tcp
-  port: 10001
-  server: 107.172.20.76
-  tls: false
-  type: vless
-  uuid: 9c79aceb-4649-44ea-9698-b5e9ecf6d6da
-- name: 🇺🇸|US3|@SHFX
-  network: tcp
-  port: 10001
-  server: 156.229.161.107
-  tls: false
-  type: vless
-  uuid: 9c79aceb-4649-44ea-9698-b5e9ecf6d6da
-- name: 🇺🇸|US4|@SHFX
-  network: tcp
-  port: 10001
-  server: 107.174.41.116
-  tls: false
-  type: vless
-  uuid: 9c79aceb-4649-44ea-9698-b5e9ecf6d6da
+[]
 
 proxy-groups:
   - name: ♻️ 自动选择
@@ -113,56 +86,38 @@ proxy-groups:
     interval: 300
     tolerance: 50
     proxies:
-      - 🇺🇸|US1|@SHFX
-      - 🇺🇸|US2|@SHFX
-      - 🇺🇸|US3|@SHFX
-      - 🇺🇸|US4|@SHFX
+
   - name: 🚀 节点选择
     type: select
     proxies:
       - ♻️ 自动选择
       - DIRECT
-      - 🇺🇸|US1|@SHFX
-      - 🇺🇸|US2|@SHFX
-      - 🇺🇸|US3|@SHFX
-      - 🇺🇸|US4|@SHFX
+
   - name: 🌍 国外媒体
     type: select
     proxies:
       - 🚀 节点选择
       - ♻️ 自动选择
       - 🎯 全球直连
-      - 🇺🇸|US1|@SHFX
-      - 🇺🇸|US2|@SHFX
-      - 🇺🇸|US3|@SHFX
-      - 🇺🇸|US4|@SHFX
+
   - name: 📲 电报信息
     type: select
     proxies:
       - 🚀 节点选择
       - 🎯 全球直连
-      - 🇺🇸|US1|@SHFX
-      - 🇺🇸|US2|@SHFX
-      - 🇺🇸|US3|@SHFX
-      - 🇺🇸|US4|@SHFX
+
   - name: Ⓜ️ 微软服务
     type: select
     proxies:
       - 🎯 全球直连
       - 🚀 节点选择
-      - 🇺🇸|US1|@SHFX
-      - 🇺🇸|US2|@SHFX
-      - 🇺🇸|US3|@SHFX
-      - 🇺🇸|US4|@SHFX
+
   - name: 🍎 苹果服务
     type: select
     proxies:
       - 🚀 节点选择
       - 🎯 全球直连
-      - 🇺🇸|US1|@SHFX
-      - 🇺🇸|US2|@SHFX
-      - 🇺🇸|US3|@SHFX
-      - 🇺🇸|US4|@SHFX
+
   - name: 🎯 全球直连
     type: select
     proxies:
@@ -185,10 +140,7 @@ proxy-groups:
       - 🚀 节点选择
       - 🎯 全球直连
       - ♻️ 自动选择
-      - 🇺🇸|US1|@SHFX
-      - 🇺🇸|US2|@SHFX
-      - 🇺🇸|US3|@SHFX
-      - 🇺🇸|US4|@SHFX
+
 rules:
   - DOMAIN-SUFFIX,acl4.ssr,🎯 全球直连
   - DOMAIN-SUFFIX,ip6-localhost,🎯 全球直连
