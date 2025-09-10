@@ -73,20 +73,24 @@ def load_sources():
         sys.exit(1)
     return sources
 
-# ---------------- Load proxies first ----------------
+# ---------------- Load and parse proxies ----------------
 def load_proxies(url):
     try:
         r = requests.get(url, timeout=15)
         r.raise_for_status()
-        text = r.text
+        text = r.text.strip()
 
-        # Try YAML first
-        nodes = parse_clash_yaml(text)
-        if nodes:
-            print(f"[info] parsed {len(nodes)} nodes from Clash YAML")
-            return nodes
+        # ---------------- Try parsing as Clash YAML ----------------
+        try:
+            data = yaml.safe_load(text)
+            if isinstance(data, dict) and "proxies" in data:
+                nodes = data["proxies"]
+                print(f"[clash] loaded {len(nodes)} nodes from Clash YAML")
+                return nodes
+        except Exception:
+            pass  # Not a valid Clash YAML, fallback to line-by-line
 
-        # Fallback: parse as subscription lines
+        # ---------------- Fallback: line-by-line parsing ----------------
         lines = text.splitlines()
         nodes = []
         for line in lines:
@@ -99,9 +103,10 @@ def load_proxies(url):
             else:
                 print(f"[skip] invalid or unsupported line -> {line[:60]}...")
         return nodes
+
     except Exception as e:
         print(f"[warn] failed to fetch {url} -> {e}")
-    return []
+        return []
 
 # ---------------- Vmess parser ----------------
 def parse_vmess(line):
