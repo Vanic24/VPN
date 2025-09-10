@@ -190,17 +190,13 @@ def parse_anytls(line):
     return None
 
 # ---------------- Shadowsocks (SS) parser ----------------
-import base64
-import urllib.parse
-import re
-
 def decode_b64(s):
-    """Decode base64 with padding, ignoring errors."""
+    """Decode base64 or URL-safe base64 with padding."""
     try:
         padded = s + "=" * (-len(s) % 4)
         return base64.urlsafe_b64decode(padded).decode("utf-8")
-    except:
-        return s  # fallback: return original string
+    except Exception:
+        return None
 
 def parse_ss(line):
     try:
@@ -218,19 +214,34 @@ def parse_ss(line):
         else:
             name_fragment = ""
 
-        if "@" not in line:
-            return None  # we only handle method:pass@host:port variant here
+        # If contains '@', assume standard method:pass@host:port
+        if "@" in line:
+            userinfo, hostport = line.split("@", 1)
+        else:
+            # Try full Base64 decode
+            decoded = decode_b64(line)
+            if not decoded or "@" not in decoded:
+                return None
+            userinfo, hostport = decoded.split("@", 1)
 
-        userinfo, hostport = line.split("@", 1)
-        host, port_str = hostport.split(":")
+        # Parse host and port
+        if ":" not in hostport:
+            return None
+        host, port_str = hostport.rsplit(":", 1)
         port = int(port_str)
 
-        # method:password
+        # Parse method and password
         if ":" not in userinfo:
             return None
-        method_b64, password_b64 = userinfo.split(":", 1)
-        method = decode_b64(method_b64)
-        password = decode_b64(password_b64)
+        method, password = userinfo.split(":", 1)
+
+        # Decode method/password if they look Base64
+        decoded_method = decode_b64(method)
+        if decoded_method:
+            method = decoded_method
+        decoded_password = decode_b64(password)
+        if decoded_password:
+            password = decoded_password
 
         node = {
             "name": name_fragment or "",
