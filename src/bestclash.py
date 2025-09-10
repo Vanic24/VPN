@@ -272,9 +272,9 @@ def parse_ss_url(ss_url):
     if plugin_opts:
         node["plugin-opts"] = plugin_opts
 
-    return node
-except Exception:
-    return None
+        return node
+    except Exception:
+        return None
 
 # ---------------- ShadowsocksR (SSR) parser ----------------
 def parse_ssr(line):
