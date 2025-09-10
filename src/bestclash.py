@@ -412,7 +412,7 @@ if USE_LATENCY:
             continue
     corrected_nodes = filtered_nodes
 
-            for n, f in zip(unique_nodes, futures):
+            for n, f in zip(corrected_nodes, futures):
                 latency = f.result()
                 if latency <= LATENCY_THRESHOLD:
                     filtered_nodes.append(n)
