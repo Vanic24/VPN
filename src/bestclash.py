@@ -412,15 +412,6 @@ if USE_LATENCY:
             continue
     corrected_nodes = filtered_nodes
 
-            for n, f in zip(corrected_nodes, futures):
-                latency = f.result()
-                if latency <= LATENCY_THRESHOLD:
-                    filtered_nodes.append(n)
-        print(f"[latency] {len(filtered_nodes)} nodes after latency filtering")
-    else:
-        filtered_nodes = corrected_nodes
-        country_counter = defaultdict(int)
-
     # ---------------- Correct nodes ----------------
     corrected_nodes = []
     for n in filtered_nodes:
