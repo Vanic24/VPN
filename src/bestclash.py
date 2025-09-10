@@ -77,7 +77,9 @@ def parse_vmess(line):
     try:
         if line.startswith("vmess://"):
             b64 = line[8:].strip()
-            json_str = base64.b64decode(b64).decode('utf-8')
+            # fix padding
+            padded = b64 + "=" * (-len(b64) % 4)
+            json_str = base64.b64decode(padded).decode('utf-8')
             data = json.loads(json_str)
             node = {
                 "name": data.get("ps") or "",
@@ -96,7 +98,7 @@ def parse_vmess(line):
                     "headers": {"Host": data.get("host", "")}
                 }
             return node
-    except Exception as e:
+    except Exception:
         return None
     return None
 
@@ -191,14 +193,30 @@ def parse_anytls(line):
 def parse_ss(line):
     try:
         if line.startswith("ss://"):
-            # ss://base64-encoded
-            b64 = line[5:].split("#")[0]
-            decoded = base64.urlsafe_b64decode(b64 + "===")
-            node = json.loads(decoded) if decoded.strip().startswith(b"{") else None
-            if node:
-                node["type"] = "ss"
+            # ss://base64-encoded[@host:port]#name
+            if "@" in line:
+                # full URI ss://method:pass@host:port
+                uri = line[5:]
+            else:
+                # older format: ss://base64-encoded#name
+                parts = line[5:].split("#")
+                b64 = parts[0]
+                padded = b64 + "=" * (-len(b64) % 4)
+                decoded = base64.urlsafe_b64decode(padded).decode("utf-8")
+                uri = decoded
+            m = re.match(r"([^:]+):([^@]+)@([^:]+):(\d+)", uri)
+            if m:
+                cipher, password, host, port = m.groups()
+                node = {
+                    "name": "",
+                    "type": "ss",
+                    "server": host,
+                    "port": int(port),
+                    "cipher": cipher,
+                    "password": password
+                }
                 return node
-    except:
+    except Exception:
         return None
     return None
 
