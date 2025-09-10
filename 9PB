@@ -1,13 +1,5 @@
-# Last update: 2025-09-10T06:20:39.441Z
+# Last update: 2025-09-10T12:27:13.245Z
 proxies:
-  - name: 维护备用
-    type: hysteria2
-    server: 03e37e-330-co.9966661.xyz
-    port: 3000
-    password: de8854c7-fa17-4266-ae18-50a9732a0c4e
-    udp: false
-    sni: 03e37e-330-co.9966661.xyz
-    skip-cert-verify: false
   - name: 🇯🇵日本
     type: hysteria2
     server: dv-jp.9966661.xyz
@@ -16,12 +8,29 @@ proxies:
     udp: false
     sni: dv-jp.9966661.xyz
     skip-cert-verify: false
+  - name: 🇺🇸美国1
+    type: hysteria2
+    server: 1e3fb9-330-co.9966661.xyz
+    port: 13000
+    password: de8854c7-fa17-4266-ae18-50a9732a0c4e
+    udp: false
+    sni: 1e3fb9-330-co.9966661.xyz
+    skip-cert-verify: false
+  - name: 🇺🇸美国2
+    type: hysteria2
+    server: 03e37e-330-co.9966661.xyz
+    port: 3000
+    password: de8854c7-fa17-4266-ae18-50a9732a0c4e
+    udp: false
+    sni: 03e37e-330-co.9966661.xyz
+    skip-cert-verify: false
 proxy-groups:
   - name: Auto
     type: url-test
     proxies:
-      - 维护备用
       - 🇯🇵日本
+      - 🇺🇸美国1
+      - 🇺🇸美国2
     url: http://www.gstatic.com/generate_204
     interval: 300
 rules:
