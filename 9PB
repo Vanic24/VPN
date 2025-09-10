@@ -125,6 +125,14 @@ proxies:
   udp: false
   sni: 20f7cc-330-co-hk.9966661.xyz
   skip-cert-verify: false
+- name: 🇦🇺澳大利亚
+  type: hysteria2
+  server: 32ffe6-330-co-au.9966661.xyz
+  port: 3000
+  password: de8854c7-fa17-4266-ae18-50a9732a0c4e
+  udp: false
+  sni: 32ffe6-330-co-au.9966661.xyz
+  skip-cert-verify: false
 
 proxy-groups:
   - name: ♻️ 自动选择
@@ -133,74 +141,38 @@ proxy-groups:
     interval: 300
     tolerance: 50
     proxies:
-- 🇸🇬新加坡
-- 🇯🇵日本
-- 🇺🇸美国1
-- 🇺🇸美国2
-- 🇮🇳印度
-- 🇭🇰香港
-
+{{PROXY_NAMES}}
   - name: 🚀 节点选择
     type: select
     proxies:
       - ♻️ 自动选择
       - DIRECT
-- 🇸🇬新加坡
-- 🇯🇵日本
-- 🇺🇸美国1
-- 🇺🇸美国2
-- 🇮🇳印度
-- 🇭🇰香港
-
+{{PROXY_NAMES}}
   - name: 🌍 国外媒体
     type: select
     proxies:
       - 🚀 节点选择
       - ♻️ 自动选择
       - 🎯 全球直连
-- 🇸🇬新加坡
-- 🇯🇵日本
-- 🇺🇸美国1
-- 🇺🇸美国2
-- 🇮🇳印度
-- 🇭🇰香港
-
+{{PROXY_NAMES}}
   - name: 📲 电报信息
     type: select
     proxies:
       - 🚀 节点选择
       - 🎯 全球直连
-- 🇸🇬新加坡
-- 🇯🇵日本
-- 🇺🇸美国1
-- 🇺🇸美国2
-- 🇮🇳印度
-- 🇭🇰香港
-
+{{PROXY_NAMES}}
   - name: Ⓜ️ 微软服务
     type: select
     proxies:
       - 🎯 全球直连
       - 🚀 节点选择
-- 🇸🇬新加坡
-- 🇯🇵日本
-- 🇺🇸美国1
-- 🇺🇸美国2
-- 🇮🇳印度
-- 🇭🇰香港
-
+{{PROXY_NAMES}}
   - name: 🍎 苹果服务
     type: select
     proxies:
       - 🚀 节点选择
       - 🎯 全球直连
-- 🇸🇬新加坡
-- 🇯🇵日本
-- 🇺🇸美国1
-- 🇺🇸美国2
-- 🇮🇳印度
-- 🇭🇰香港
-
+{{PROXY_NAMES}}
   - name: 🎯 全球直连
     type: select
     proxies:
@@ -223,13 +195,7 @@ proxy-groups:
       - 🚀 节点选择
       - 🎯 全球直连
       - ♻️ 自动选择
-- 🇸🇬新加坡
-- 🇯🇵日本
-- 🇺🇸美国1
-- 🇺🇸美国2
-- 🇮🇳印度
-- 🇭🇰香港
-
+{{PROXY_NAMES}}
 rules:
   - DOMAIN-SUFFIX,acl4.ssr,🎯 全球直连
   - DOMAIN-SUFFIX,ip6-localhost,🎯 全球直连
