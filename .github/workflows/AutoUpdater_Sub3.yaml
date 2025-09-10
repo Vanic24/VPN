@@ -1,8 +1,8 @@
-name: Update VPN Subscription (SUB_Sub3)
+name: Update VPN Subscription (SUB_3)
 
 on:
   schedule:
-    - cron: "0 */3 * * *" # Runs every 3 hours
+    - cron: "0 */3 * * *"  # Runs every 3 hours
   workflow_dispatch:
     inputs:
       dry_run:
@@ -13,245 +13,231 @@ on:
 jobs:
   update:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
+    - name: Checkout repo
+      uses: actions/checkout@v3
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: "20"
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: "20"
 
-      - name: Install dependencies
-        run: npm install axios js-yaml
+    - name: Install dependencies
+      run: npm install axios js-yaml
 
-      - name: Run update script
-        id: generate_yaml
-        run: |
-          node <<'EOF'
-          const axios = require('axios');
-          const yaml = require('js-yaml');
-          const fs = require('fs');
-          const { URL } = require('url');
-          const path = require('path');
+    - name: Run update script
+      id: generate_yaml
+      run: |
+        node <<'EOF'
+        const axios = require('axios');
+        const yaml = require('js-yaml');
+        const fs = require('fs');
+        const { URL } = require('url');
+        const path = require('path');
 
-          const SUB_URL = process.env.SUB_3;
-          const GH_TOKEN = process.env.GH_TOKEN;
-          const GITHUB_FILE = "Sub3";
-          const dryRun = process.env.DRY_RUN === "true";
+        const SUB_URL = process.env.SUB_3;
+        const GH_TOKEN = process.env.GH_TOKEN;
+        const GITHUB_FILE = "Sub3";
+        const dryRun = process.env.DRY_RUN === "true";
 
-          function b64decode(s) {
-            if (s.length % 4) s += "=".repeat(4 - (s.length % 4));
-            return Buffer.from(s, 'base64').toString('utf8');
-          }
+        function b64decode(s) {
+          if (s.length % 4) s += "=".repeat(4 - (s.length % 4));
+          return Buffer.from(s, 'base64').toString('utf8');
+        }
 
-          function parseVmess(link) {
-            try {
-              const conf = JSON.parse(b64decode(link.slice(8)));
-              const net = (conf.net || "tcp").toLowerCase();
-              const tls = (conf.tls || "").toLowerCase() === "tls";
-              const proxy = {
-                name: conf.ps || "vmess",
-                type: "vmess",
-                server: conf.add,
-                port: Number(conf.port),
-                uuid: conf.id,
-                alterId: Number(conf.aid || 0),
-                cipher: conf.type || "auto",
-                tls,
-                network: net,
-              };
-              if (net === "ws") proxy["ws-opts"] = { path: conf.path || "", headers: { Host: conf.host || "" } };
-              if (net === "grpc") proxy["grpc-opts"] = { "grpc-service-name": conf.path || "" };
-              if (conf.sni) proxy.servername = conf.sni;
-              return proxy;
-            } catch {
-              return null;
-            }
-          }
-
-          function parseVless(link) {
-            try {
-              const u = new URL(link);
-              const q = Object.fromEntries(u.searchParams.entries());
-              const net = (q.type || q.transport || "tcp").toLowerCase();
-              const tls = (q.security || "").toLowerCase() === "tls";
-              const proxy = {
-                name: decodeURIComponent(u.hash.slice(1)) || "vless",
-                type: "vless",
-                server: u.hostname,
-                port: Number(u.port || 443),
-                uuid: decodeURIComponent(u.username),
-                tls,
-                network: net
-              };
-              if (net === "ws") proxy["ws-opts"] = { path: q.path || "", headers: { Host: q.host || "" } };
-              if (net === "grpc") proxy["grpc-opts"] = { "grpc-service-name": q.serviceName || q["service-name"] || "" };
-              return proxy;
-            } catch {
-              return null;
-            }
-          }
-
-          function parseTrojan(link) {
-            try {
-              const u = new URL(link);
-              const q = Object.fromEntries(u.searchParams.entries());
-              const net = (q.type || q.transport || "tcp").toLowerCase();
-              const tls = (q.security || "").toLowerCase() === "tls";
-              const proxy = {
-                name: decodeURIComponent(u.hash.slice(1)) || "trojan",
-                type: "trojan",
-                server: u.hostname,
-                port: Number(u.port || 443),
-                password: decodeURIComponent(u.username),
-                tls,
-                network: net
-              };
-              if (net === "ws") proxy["ws-opts"] = { path: q.path || "", headers: { Host: q.host || "" } };
-              if (net === "grpc") proxy["grpc-opts"] = { "grpc-service-name": q.serviceName || q["service-name"] || "" };
-              return proxy;
-            } catch {
-              return null;
-            }
-          }
-
-          function parseHysteria2(link) {
-            try {
-              const u = new URL(link);
-              const name = decodeURIComponent(u.hash.slice(1)) || "hysteria2";
-              return {
-                name,
-                type: "hysteria2",
-                server: u.hostname,
-                port: Number(u.port),
-                password: decodeURIComponent(u.username),
-                udp: u.searchParams.get("udp") === "true",
-                sni: u.searchParams.get("sni") || undefined,
-                "skip-cert-verify": u.searchParams.get("skip-cert-verify") === "true"
-              };
-            } catch {
-              return null;
-            }
-          }
-
-          function parseAnytls(link) {
-            try {
-              const u = new URL(link);
-              const name = decodeURIComponent(u.hash.slice(1)) || "anytls";
-              return {
-                name,
-                type: "anytls",
-                server: u.hostname,
-                port: Number(u.port),
-                password: decodeURIComponent(u.username),
-                udp: u.searchParams.get("udp") === "true",
-                sni: u.searchParams.get("sni") || undefined,
-                "skip-cert-verify": u.searchParams.get("skip-cert-verify") === "true"
-              };
-            } catch {
-              return null;
-            }
-          }
-
-          async function main() {
-            const res = await axios.get(SUB_URL, { responseType: 'text' });
-
-            // Decode Base64 and remove first 3 nodes
-            let lines = b64decode(res.data.trim())
-              .split(/\r?\n/)
-              .filter(Boolean)
-              .slice(3);
-
-            const proxies = [];
-            for (const line of lines) {
-              if (line.startsWith("vmess://")) proxies.push(parseVmess(line));
-              else if (line.startsWith("vless://")) proxies.push(parseVless(line));
-              else if (line.startsWith("trojan://")) proxies.push(parseTrojan(line));
-              else if (line.startsWith("hysteria2://")) proxies.push(parseHysteria2(line));
-              else if (line.startsWith("anytls://")) proxies.push(parseAnytls(line));
-            }
-
-            console.log(`🔹 Total proxies parsed: ${proxies.length}`);
-            console.log("Proxy names:", proxies.map(p => p.name).join(", "));
-
-            const clashConfig = {
-              proxies,
-              "proxy-groups": [
-                {
-                  name: "Auto",
-                  type: "url-test",
-                  proxies: proxies.map(p => p.name),
-                  url: "http://www.gstatic.com/generate_204",
-                  interval: 300
-                }
-              ],
-              rules: ["MATCH,Auto"]
+        function parseVmess(link) {
+          try {
+            const conf = JSON.parse(b64decode(link.slice(8)));
+            const net = (conf.net || "tcp").toLowerCase();
+            const tls = (conf.tls || "").toLowerCase() === "tls";
+            const proxy = {
+              name: conf.ps || "vmess",
+              type: "vmess",
+              server: conf.add,
+              port: Number(conf.port),
+              uuid: conf.id,
+              alterId: Number(conf.aid || 0),
+              cipher: conf.type || "auto",
+              tls,
+              network: net,
             };
+            if (net === "ws") proxy["ws-opts"] = { path: conf.path || "", headers: { Host: conf.host || "" } };
+            if (net === "grpc") proxy["grpc-opts"] = { "grpc-service-name": conf.path || "" };
+            if (conf.sni) proxy.servername = conf.sni;
+            return proxy;
+          } catch { return null; }
+        }
 
-            // Force file to change every time with timestamp
-            const yamlData = `# Last update: ${new Date().toISOString()}\n` +
-              yaml.dump(clashConfig, { noRefs: true, forceQuotes: false, lineWidth: 120 });
+        function parseVless(link) {
+          try {
+            const u = new URL(link);
+            const q = Object.fromEntries(u.searchParams.entries());
+            const net = (q.type || q.transport || "tcp").toLowerCase();
+            const tls = (q.security || "").toLowerCase() === "tls";
+            const proxy = {
+              name: decodeURIComponent(u.hash.slice(1)) || "vless",
+              type: "vless",
+              server: u.hostname,
+              port: Number(u.port || 443),
+              uuid: decodeURIComponent(u.username),
+              tls,
+              network: net
+            };
+            if (net === "ws") proxy["ws-opts"] = { path: q.path || "", headers: { Host: q.host || "" } };
+            if (net === "grpc") proxy["grpc-opts"] = { "grpc-service-name": q.serviceName || q["service-name"] || "" };
+            return proxy;
+          } catch { return null; }
+        }
 
-            fs.writeFileSync(GITHUB_FILE, yamlData, "utf8");
-            fs.writeFileSync(path.join(process.cwd(), "Sub3.yml"), yamlData, "utf8");
+        function parseTrojan(link) {
+          try {
+            const u = new URL(link);
+            const q = Object.fromEntries(u.searchParams.entries());
+            const net = (q.type || q.transport || "tcp").toLowerCase();
+            const tls = (q.security || "").toLowerCase() === "tls";
+            const proxy = {
+              name: decodeURIComponent(u.hash.slice(1)) || "trojan",
+              type: "trojan",
+              server: u.hostname,
+              port: Number(u.port || 443),
+              password: decodeURIComponent(u.username),
+              tls,
+              network: net
+            };
+            if (net === "ws") proxy["ws-opts"] = { path: q.path || "", headers: { Host: q.host || "" } };
+            if (net === "grpc") proxy["grpc-opts"] = { "grpc-service-name": q.serviceName || q["service-name"] || "" };
+            return proxy;
+          } catch { return null; }
+        }
 
-            if (!dryRun) {
-              try {
-                const fileInfo = await axios.get(
-                  `https://api.github.com/repos/Vanic24/VPN/contents/${GITHUB_FILE}`,
-                  { headers: { Authorization: `token ${GH_TOKEN}` } }
-                );
+        function parseHysteria2(link) {
+          try {
+            const u = new URL(link);
+            const name = decodeURIComponent(u.hash.slice(1)) || "hysteria2";
+            return {
+              name,
+              type: "hysteria2",
+              server: u.hostname,
+              port: Number(u.port),
+              password: decodeURIComponent(u.username),
+              udp: u.searchParams.get("udp") === "true",
+              sni: u.searchParams.get("sni") || undefined,
+              "skip-cert-verify": u.searchParams.get("skip-cert-verify") === "true"
+            };
+          } catch { return null; }
+        }
 
-                await axios.put(
-                  `https://api.github.com/repos/Vanic24/VPN/contents/${GITHUB_FILE}`,
-                  {
-                    message: `Auto Updated Sub3 at ${new Date().toISOString()}`,
-                    content: Buffer.from(yamlData).toString('base64'),
-                    sha: fileInfo.data.sha
-                  },
-                  { headers: { Authorization: `token ${GH_TOKEN}` } }
-                );
+        function parseAnytls(link) {
+          try {
+            const u = new URL(link);
+            const name = decodeURIComponent(u.hash.slice(1)) || "anytls";
+            return {
+              name,
+              type: "anytls",
+              server: u.hostname,
+              port: Number(u.port),
+              password: decodeURIComponent(u.username),
+              udp: u.searchParams.get("udp") === "true",
+              sni: u.searchParams.get("sni") || undefined,
+              "skip-cert-verify": u.searchParams.get("skip-cert-verify") === "true"
+            };
+          } catch { return null; }
+        }
 
-                console.log("✅ GitHub updated successfully");
-              } catch (e) {
-                console.error("⚠️ Failed to update GitHub:", e.message);
-              }
-            } else {
-              console.log("⚠️ Dry run enabled — YAML generated but not pushed.");
-            }
+        async function main() {
+          const res = await axios.get(SUB_URL, { responseType: 'text' });
+          // Decode Base64 and remove first 3 lines (info nodes)
+          let lines = b64decode(res.data.trim())
+                        .split(/\r?\n/)
+                        .filter(Boolean)
+                        .slice(3);
+
+          const proxies = [];
+          for (const line of lines) {
+            if (line.startsWith("vmess://")) proxies.push(parseVmess(line));
+            else if (line.startsWith("vless://")) proxies.push(parseVless(line));
+            else if (line.startsWith("trojan://")) proxies.push(parseTrojan(line));
+            else if (line.startsWith("hysteria2://")) proxies.push(parseHysteria2(line));
+            else if (line.startsWith("anytls://")) proxies.push(parseAnytls(line));
           }
 
-          main().catch(e => {
-            console.error("❌ Error:", e);
-            process.exit(1);
-          });
-          EOF
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-          SUB_3: ${{ secrets.SUB_3 }}
-          DRY_RUN: ${{ github.event.inputs.dry_run }}
+          console.log(`🔹 Total proxies parsed: ${proxies.length}`);
+          console.log("Proxy names:", proxies.map(p => p.name).join(", "));
 
-      - name: Upload Clash YAML artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: Sub3
-          path: Sub3.yml
+          // Load Clash template
+          const templatePath = path.join(process.cwd(), "ClashTemplate.ini");
+          const template_text = fs.readFileSync(templatePath, "utf8");
 
-      - name: Delete old artifacts (keep latest 2 only)
-        run: |
-          echo "🔍 Checking for old artifacts..."
-          artifact_ids=$(gh api repos/${{ github.repository }}/actions/artifacts \
-            --jq '.artifacts[] | select(.name=="Sub3") | .id')
-          keep_ids=$(echo "$artifact_ids" | head -n 2)
-          delete_ids=$(echo "$artifact_ids" | tail -n +3)
-          if [ -z "$delete_ids" ]; then
-            echo "✅ No old artifacts to delete."
-          else
-            for id in $delete_ids; do
-              gh api --method DELETE repos/${{ github.repository }}/actions/artifacts/$id
-              echo "🗑 Deleted old artifact $id"
-            done
-          fi
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          // Build YAML blocks
+          const proxies_yaml_block = yaml.dump(proxies, { noRefs: true, lineWidth: 120 });
+          const proxy_names_block = yaml.dump(proxies.map(p => p.name), { noRefs: true, lineWidth: 120 });
+
+          // Replace placeholders
+          let output_text = template_text;
+          output_text = output_text.replace("{{PROXIES}}", proxies_yaml_block.trim());
+          output_text = output_text.replace("{{PROXY_NAMES}}", proxy_names_block.trim());
+
+          // Add forced update timestamp
+          const yamlData = `# Last update: ${new Date().toISOString()}\n` + output_text;
+
+          fs.writeFileSync(GITHUB_FILE, yamlData, "utf8");
+          fs.writeFileSync(path.join(process.cwd(), "Sub3.yml"), yamlData, "utf8");
+
+          if (!dryRun) {
+            try {
+              const fileInfo = await axios.get(
+                `https://api.github.com/repos/Vanic24/VPN/contents/${GITHUB_FILE}`,
+                { headers: { Authorization: `token ${GH_TOKEN}` } }
+              );
+              await axios.put(
+                `https://api.github.com/repos/Vanic24/VPN/contents/${GITHUB_FILE}`,
+                {
+                  message: `Auto Updated Sub3 at ${new Date().toISOString()}`,
+                  content: Buffer.from(yamlData).toString('base64'),
+                  sha: fileInfo.data.sha
+                },
+                { headers: { Authorization: `token ${GH_TOKEN}` } }
+              );
+              console.log("✅ GitHub updated successfully");
+            } catch (e) {
+              console.error("⚠️ Failed to update GitHub:", e.message);
+            }
+          } else {
+            console.log("⚠️ Dry run enabled — YAML generated but not pushed.");
+          }
+        }
+
+        main().catch(e => { console.error("❌ Error:", e); process.exit(1); });
+        EOF
+
+      env:
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        SUB_3: ${{ secrets.SUB_3 }}
+        DRY_RUN: ${{ github.event.inputs.dry_run }}
+
+    - name: Upload Clash YAML artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: Sub3
+        path: Sub3.yml
+
+    - name: Delete old artifacts (keep latest 2 Sub3 only)
+      run: |
+        echo "🔍 Checking for old artifacts..."
+        artifact_ids=$(gh api repos/${{ github.repository }}/actions/artifacts \
+          --jq '.artifacts[] | select(.name=="Sub3") | .id')
+
+        keep_ids=$(echo "$artifact_ids" | head -n 2)
+        delete_ids=$(echo "$artifact_ids" | tail -n +3)
+
+        if [ -z "$delete_ids" ]; then
+          echo "✅ No old artifacts to delete."
+        else
+          for id in $delete_ids; do
+            gh api --method DELETE repos/${{ github.repository }}/actions/artifacts/$id
+            echo "🗑 Deleted old artifact $id"
+          done
+        fi
+      env:
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
