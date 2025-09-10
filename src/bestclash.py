@@ -9,6 +9,7 @@ from collections import defaultdict
 import base64
 import re
 import json
+import urllib.parse
 
 # ---------------- Config ----------------
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
@@ -77,7 +78,6 @@ def parse_vmess(line):
     try:
         if line.startswith("vmess://"):
             b64 = line[8:].strip()
-            # fix padding
             padded = b64 + "=" * (-len(b64) % 4)
             json_str = base64.b64decode(padded).decode('utf-8')
             data = json.loads(json_str)
@@ -98,14 +98,13 @@ def parse_vmess(line):
                     "headers": {"Host": data.get("host", "")}
                 }
             return node
-    except Exception:
+    except:
         return None
     return None
 
 def parse_vless(line):
     try:
         if line.startswith("vless://"):
-            # Robust regex to handle missing query or name
             m = re.match(r"vless://([0-9a-fA-F-]+)@([^:]+):(\d+)(?:\?([^#]*))?(?:#(.*))?", line)
             if m:
                 uuid, host, port, query, name = m.groups()
@@ -118,7 +117,6 @@ def parse_vless(line):
                     "tls": False,
                     "network": "tcp"
                 }
-                # parse query params if exist
                 if query:
                     params = dict([p.split("=", 1) for p in query.split("&") if "=" in p])
                     node["tls"] = params.get("security", "").lower() == "tls"
@@ -129,14 +127,13 @@ def parse_vless(line):
                             "headers": {"Host": params.get("host", "")}
                         }
                 return node
-    except Exception:
+    except:
         return None
     return None
 
 def parse_trojan(line):
     try:
         if line.startswith("trojan://"):
-            # trojan://password@host:port#name
             m = re.match(r"trojan://([^@]+)@([^:]+):(\d+)#?(.*)", line)
             if m:
                 password, host, port, name = m.groups()
@@ -155,7 +152,6 @@ def parse_trojan(line):
 def parse_hysteria2(line):
     try:
         if line.startswith("hysteria2://"):
-            # hysteria2://password@host:port#name
             m = re.match(r"hysteria2://([^@]+)@([^:]+):(\d+)#?(.*)", line)
             if m:
                 password, host, port, name = m.groups()
@@ -174,7 +170,6 @@ def parse_hysteria2(line):
 def parse_anytls(line):
     try:
         if line.startswith("anytls://"):
-            # anytls://password@host:port#name
             m = re.match(r"anytls://([^@]+)@([^:]+):(\d+)#?(.*)", line)
             if m:
                 password, host, port, name = m.groups()
@@ -193,12 +188,9 @@ def parse_anytls(line):
 def parse_ss(line):
     try:
         if line.startswith("ss://"):
-            # ss://base64-encoded[@host:port]#name
             if "@" in line:
-                # full URI ss://method:pass@host:port
                 uri = line[5:]
             else:
-                # older format: ss://base64-encoded#name
                 parts = line[5:].split("#")
                 b64 = parts[0]
                 padded = b64 + "=" * (-len(b64) % 4)
@@ -216,12 +208,38 @@ def parse_ss(line):
                     "password": password
                 }
                 return node
-    except Exception:
+    except:
+        return None
+    return None
+
+def parse_ssr(line):
+    try:
+        if line.startswith("ssr://"):
+            b64 = line[6:].strip()
+            padded = b64 + "=" * (-len(b64) % 4)
+            decoded = base64.urlsafe_b64decode(padded).decode("utf-8")
+            parts = decoded.split(":")
+            if len(parts) < 6:
+                return None
+            server, port, protocol, method, obfs, password_b64 = parts[:6]
+            password = base64.urlsafe_b64decode(password_b64 + "=" * (-len(password_b64) % 4)).decode()
+            node = {
+                "name": "",
+                "type": "ssr",
+                "server": server,
+                "port": int(port),
+                "protocol": protocol,
+                "cipher": method,
+                "obfs": obfs,
+                "password": password
+            }
+            return node
+    except:
         return None
     return None
 
 def parse_node_line(line):
-    parsers = [parse_vmess, parse_vless, parse_trojan, parse_hysteria2, parse_anytls, parse_ss]
+    parsers = [parse_vmess, parse_vless, parse_trojan, parse_hysteria2, parse_anytls, parse_ss, parse_ssr]
     for parser in parsers:
         node = parser(line)
         if node:
@@ -247,7 +265,6 @@ def correct_node(p, country_counter):
     country_counter[cc_upper] += 1
     index = country_counter[cc_upper]
 
-    # rename
     p["name"] = f"{flag}|{cc_upper}{index}|@SHFX"
     return p
 
@@ -333,7 +350,7 @@ def main():
 
     # ---------------- Replace placeholders ----------------
     output_text = template_text.replace("{{PROXIES}}", proxies_yaml_block)
-    output_text = output_text.replace("{{PROXY_NAMES}}", proxy_names_block)
+    output_text = template_text.replace("{{PROXY_NAMES}}", proxy_names_block)
 
     # ---------------- Write output ----------------
     with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
