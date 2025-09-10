@@ -73,7 +73,7 @@ def load_sources():
         sys.exit(1)
     return sources
 
-# ---------------- Parsing helpers ----------------
+# ---------------- Vmess parser ----------------
 def parse_vmess(line):
     try:
         if line.startswith("vmess://"):
@@ -102,6 +102,7 @@ def parse_vmess(line):
         return None
     return None
 
+# ---------------- Vless parser ----------------
 def parse_vless(line):
     try:
         if line.startswith("vless://"):
@@ -131,6 +132,7 @@ def parse_vless(line):
         return None
     return None
 
+# ---------------- Trojan parser ----------------
 def parse_trojan(line):
     try:
         if line.startswith("trojan://"):
@@ -149,6 +151,7 @@ def parse_trojan(line):
         return None
     return None
 
+# ---------------- Hysteria2 parser ----------------
 def parse_hysteria2(line):
     try:
         if line.startswith("hysteria2://"):
@@ -167,6 +170,7 @@ def parse_hysteria2(line):
         return None
     return None
 
+# ---------------- Anytls parser ----------------
 def parse_anytls(line):
     try:
         if line.startswith("anytls://"):
@@ -185,58 +189,91 @@ def parse_anytls(line):
         return None
     return None
 
+# ---------------- Shadowsocks (SS) parser ----------------
 def parse_ss(line):
     try:
-        if line.startswith("ss://"):
-            if "@" in line:
-                uri = line[5:]
-            else:
-                parts = line[5:].split("#")
-                b64 = parts[0]
-                padded = b64 + "=" * (-len(b64) % 4)
-                decoded = base64.urlsafe_b64decode(padded).decode("utf-8")
-                uri = decoded
-            m = re.match(r"([^:]+):([^@]+)@([^:]+):(\d+)", uri)
-            if m:
-                cipher, password, host, port = m.groups()
-                node = {
-                    "name": "",
-                    "type": "ss",
-                    "server": host,
-                    "port": int(port),
-                    "cipher": cipher,
-                    "password": password
-                }
-                return node
-    except:
-        return None
-    return None
+        if not line.startswith("ss://"):
+            return None
+        line = line[5:].strip()
 
+        # Split name fragment (#) if present
+        if "#" in line:
+            line, name_fragment = line.split("#", 1)
+            name_fragment = urllib.parse.unquote(name_fragment)
+        else:
+            name_fragment = ""
+
+        # Check if line is base64-encoded
+        if "@" not in line:
+            padded = line + "=" * (-len(line) % 4)
+            decoded = base64.urlsafe_b64decode(padded).decode("utf-8")
+            line = decoded
+
+        # Parse method:password@host:port
+        m = re.match(r"(?P<cipher>[^:]+):(?P<password>[^@]+)@(?P<host>[^:]+):(?P<port>\d+)", line)
+        if not m:
+            return None
+        node = {
+            "name": name_fragment or "",
+            "type": "ss",
+            "server": m.group("host"),
+            "port": int(m.group("port")),
+            "cipher": m.group("cipher"),
+            "password": m.group("password")
+        }
+
+        # Optional UDP or plugin fields can be added if present in query string
+        return node
+    except Exception:
+        return None
+
+
+# ---------------- ShadowsocksR (SSR) parser ----------------
 def parse_ssr(line):
     try:
-        if line.startswith("ssr://"):
-            b64 = line[6:].strip()
-            padded = b64 + "=" * (-len(b64) % 4)
-            decoded = base64.urlsafe_b64decode(padded).decode("utf-8")
-            parts = decoded.split(":")
-            if len(parts) < 6:
-                return None
-            server, port, protocol, method, obfs, password_b64 = parts[:6]
-            password = base64.urlsafe_b64decode(password_b64 + "=" * (-len(password_b64) % 4)).decode()
-            node = {
-                "name": "",
-                "type": "ssr",
-                "server": server,
-                "port": int(port),
-                "protocol": protocol,
-                "cipher": method,
-                "obfs": obfs,
-                "password": password
-            }
-            return node
-    except:
+        if not line.startswith("ssr://"):
+            return None
+        b64 = line[6:].strip()
+        padded = b64 + "=" * (-len(b64) % 4)
+        decoded = base64.urlsafe_b64decode(padded).decode("utf-8")
+
+        # SSR format: server:port:protocol:method:obfs:password_base64/?params
+        parts = decoded.split("/")
+        main_part = parts[0]
+        if "?" in main_part:
+            main_part, query_string = main_part.split("?", 1)
+        else:
+            query_string = ""
+
+        items = main_part.split(":")
+        if len(items) < 6:
+            return None
+        server, port, protocol, method, obfs, password_b64 = items[:6]
+        password = base64.urlsafe_b64decode(password_b64 + "=" * (-len(password_b64) % 4)).decode()
+
+        node = {
+            "name": "",
+            "type": "ssr",
+            "server": server,
+            "port": int(port),
+            "protocol": protocol,
+            "cipher": method,
+            "obfs": obfs,
+            "password": password
+        }
+
+        # Parse query string parameters
+        if query_string:
+            qs = urllib.parse.parse_qs(query_string)
+            if "remarks" in qs:
+                node["name"] = urllib.parse.unquote(qs["remarks"][0])
+            if "obfsparam" in qs:
+                node["obfs_param"] = base64.urlsafe_b64decode(qs["obfsparam"][0] + "=" * (-len(qs["obfsparam"][0]) % 4)).decode()
+            if "protoparam" in qs:
+                node["protocol_param"] = base64.urlsafe_b64decode(qs["protoparam"][0] + "=" * (-len(qs["protoparam"][0]) % 4)).decode()
+        return node
+    except Exception:
         return None
-    return None
 
 def parse_node_line(line):
     parsers = [parse_vmess, parse_vless, parse_trojan, parse_hysteria2, parse_anytls, parse_ss, parse_ssr]
