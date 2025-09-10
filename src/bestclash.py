@@ -192,6 +192,7 @@ def parse_anytls(line):
 # ---------------- Shadowsocks (SS) parser ----------------
 import base64
 import urllib.parse
+import re
 
 def decode_b64(data: str) -> str | None:
     """Decode Base64 or URL-safe Base64 with padding."""
@@ -202,22 +203,25 @@ def decode_b64(data: str) -> str | None:
     except Exception:
         return None
 
-def parse_ss_url(ss_url: str) -> dict | None:
-    """Parse a single ss:// URL into Clash YAML dictionary."""
+def parse_ss(ss_url: str) -> dict | None:
+    """
+    Parse a single ss:// URL into a dictionary compatible with Clash YAML.
+    Supports standard SS, Base64-encoded, and plugin parameters.
+    """
     try:
         ss_url = ss_url.strip()
         if not ss_url.startswith("ss://"):
             return None
 
-        ss_url = ss_url[5:]
+        ss_url = ss_url[5:]  # Remove ss:// prefix
 
-        # Split name/comment if exists
-        name = "SS Node"
+        # Extract name/comment if exists
+        name_fragment = ""
         if "#" in ss_url:
             ss_url, name_fragment = ss_url.split("#", 1)
-            name = urllib.parse.unquote(name_fragment)
+            name_fragment = urllib.parse.unquote(name_fragment)
 
-        # Split plugin query if exists
+        # Extract plugin query if exists
         plugin = None
         plugin_opts = None
         if "/?" in ss_url:
@@ -226,10 +230,10 @@ def parse_ss_url(ss_url: str) -> dict | None:
             if "plugin" in query_params:
                 plugin_full = query_params["plugin"][0]
                 if ";" in plugin_full:
-                    parts = plugin_full.split(";")
-                    plugin = parts[0]
+                    plugin_parts = plugin_full.split(";")
+                    plugin = plugin_parts[0]
                     plugin_opts = {}
-                    for part in parts[1:]:
+                    for part in plugin_parts[1:]:
                         if "=" in part:
                             k, v = part.split("=", 1)
                             plugin_opts[k] = v
@@ -238,37 +242,35 @@ def parse_ss_url(ss_url: str) -> dict | None:
         else:
             ss_core = ss_url
 
-        # Check if '@' exists
-        if "@" not in ss_core:
+        # Parse credentials and server
+        if "@" in ss_core:
+            b64_part, server_port = ss_core.split("@", 1)
+            decoded = decode_b64(b64_part)
+            if decoded and ":" in decoded:
+                cipher, password = decoded.split(":", 1)
+            else:
+                cipher = "aes-256-cfb"
+                password = decoded or ""
+            if ":" not in server_port:
+                return None
+            server, port = server_port.rsplit(":", 1)
+        else:
+            # Only Base64 encoded full part
             decoded = decode_b64(ss_core)
             if not decoded or "@" not in decoded:
                 return None
-            ss_core = decoded
-
-        # Split cipher:password and server:port
-        userinfo, hostport = ss_core.split("@", 1)
-        if ":" not in hostport:
-            return None
-        server, port_str = hostport.rsplit(":", 1)
-        port = int(port_str)
-
-        # Decode method and password
-        if ":" not in userinfo:
-            return None
-        method, password = userinfo.split(":", 1)
-        method_decoded = decode_b64(method)
-        if method_decoded:
-            method = method_decoded
-        password_decoded = decode_b64(password)
-        if password_decoded:
-            password = password_decoded
+            userinfo, server_port = decoded.split("@", 1)
+            if ":" not in userinfo or ":" not in server_port:
+                return None
+            cipher, password = userinfo.split(":", 1)
+            server, port = server_port.rsplit(":", 1)
 
         node = {
-            "name": name,
+            "name": name_fragment or "SS Node",
             "type": "ss",
             "server": server.strip(),
-            "port": port,
-            "cipher": method,
+            "port": int(port.strip()),
+            "cipher": cipher,
             "password": password
         }
         if plugin:
@@ -277,6 +279,7 @@ def parse_ss_url(ss_url: str) -> dict | None:
             node["plugin-opts"] = plugin_opts
 
         return node
+
     except Exception:
         return None
 
