@@ -190,61 +190,52 @@ def parse_anytls(line):
     return None
 
 # ---------------- Shadowsocks (SS) parser ----------------
+def decode_b64(s):
+    """Decode base64 with padding, ignoring errors."""
+    try:
+        padded = s + "=" * (-len(s) % 4)
+        return base64.urlsafe_b64decode(padded).decode("utf-8")
+    except:
+        return s  # fallback: return original string
+
 def parse_ss(line):
     try:
         if not line.startswith("ss://"):
             return None
         line = line[5:].strip()
 
-        # Extract name fragment (#name) if present
+        # Extract name fragment
         if "#" in line:
             line, name_fragment = line.split("#", 1)
-            name_fragment = urllib.parse.unquote(name_fragment)
+            try:
+                name_fragment = urllib.parse.unquote(name_fragment)
+            except:
+                name_fragment = ""
         else:
             name_fragment = ""
 
-        # If line contains '@', standard format: method:pass@host:port
-        if "@" in line:
-            uri_part = line
-        else:
-            # Base64-encoded format
-            padded = line + "=" * (-len(line) % 4)
-            try:
-                uri_part = base64.urlsafe_b64decode(padded).decode("utf-8")
-            except:
-                return None
+        if "@" not in line:
+            return None  # we only handle method:pass@host:port variant here
 
-        # Separate main part and optional query string
-        if "?" in uri_part:
-            main_part, query_string = uri_part.split("?", 1)
-            qs = urllib.parse.parse_qs(query_string)
-        else:
-            main_part = uri_part
-            qs = {}
+        userinfo, hostport = line.split("@", 1)
+        host, port_str = hostport.split(":")
+        port = int(port_str)
 
-        # Parse method:password@host:port
-        m = re.match(r"(?P<cipher>[^:]+):(?P<password>[^@]+)@(?P<host>[^:]+):(?P<port>\d+)", main_part)
-        if not m:
+        # method:password
+        if ":" not in userinfo:
             return None
+        method_b64, password_b64 = userinfo.split(":", 1)
+        method = decode_b64(method_b64)
+        password = decode_b64(password_b64)
 
         node = {
             "name": name_fragment or "",
             "type": "ss",
-            "server": m.group("host"),
-            "port": int(m.group("port")),
-            "cipher": m.group("cipher"),
-            "password": m.group("password")
+            "server": host,
+            "port": port,
+            "cipher": method,
+            "password": password
         }
-
-        # Optional UDP field
-        if "udp" in qs:
-            node["udp"] = qs["udp"][0].lower() == "true"
-
-        # Optional plugin and plugin-opts
-        if "plugin" in qs:
-            node["plugin"] = qs["plugin"][0]
-        if "plugin-opts" in qs:
-            node["plugin-opts"] = qs["plugin-opts"][0]
 
         return node
     except Exception:
