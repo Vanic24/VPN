@@ -192,10 +192,9 @@ def parse_anytls(line):
 # ---------------- Shadowsocks (SS) parser ----------------
 import base64
 import urllib.parse
-import re
 
 def decode_b64(data: str) -> str | None:
-    """Decode Base64 or URL-safe Base64 with padding."""
+    """Decode Base64 or URL-safe Base64 with proper padding."""
     try:
         data = data.replace("-", "+").replace("_", "/")
         padding = "=" * (-len(data) % 4)
@@ -204,42 +203,38 @@ def decode_b64(data: str) -> str | None:
         return None
 
 def parse_ss(line: str) -> dict | None:
-    """Parse SS node from line. Returns dict or None if invalid."""
+    """Parse an SS link into Clash proxy dict."""
     try:
         if not line.startswith("ss://"):
             return None
-        line = line[5:].strip()
+        line = line.strip()[5:]
 
-        # Extract name fragment
-        name_fragment = ""
+        name = ""
         if "#" in line:
-            line, name_fragment = line.split("#", 1)
-            name_fragment = urllib.parse.unquote(name_fragment)
+            line, name = line.split("#", 1)
+            name = urllib.parse.unquote(name)
 
-        # Extract plugin params if exists
         plugin = None
         if "/?" in line:
             line, plugin = line.split("/?", 1)
             plugin = urllib.parse.unquote(plugin)
 
-        # Check if '@' exists, otherwise try Base64 decode
         if "@" not in line:
             decoded = decode_b64(line)
             if not decoded or "@" not in decoded:
                 return None
             line = decoded
 
-        # Split method:password and host:port
         userinfo, hostport = line.split("@", 1)
         if ":" not in hostport:
             return None
         host, port_str = hostport.rsplit(":", 1)
         port = int(port_str)
 
-        # Decode method and password
         if ":" not in userinfo:
             return None
         method, password = userinfo.split(":", 1)
+
         method_decoded = decode_b64(method)
         if method_decoded:
             method = method_decoded
@@ -248,20 +243,41 @@ def parse_ss(line: str) -> dict | None:
             password = password_decoded
 
         node = {
-            "name": name_fragment or "",
+            "name": name or f"{host}:{port}",
             "type": "ss",
             "server": host,
             "port": port,
             "cipher": method,
             "password": password
         }
-
         if plugin:
             node["plugin"] = plugin
-
         return node
     except Exception:
         return None
+
+def build_clash_yaml(proxies: list[dict]) -> str:
+    """Manually build a Clash YAML section."""
+    lines = ["proxies:"]
+    for p in proxies:
+        lines.append(f"  - name: \"{p['name']}\"")
+        lines.append(f"    type: ss")
+        lines.append(f"    server: {p['server']}")
+        lines.append(f"    port: {p['port']}")
+        lines.append(f"    cipher: {p['cipher']}")
+        lines.append(f"    password: \"{p['password']}\"")
+        if "plugin" in p:
+            lines.append(f"    plugin: {p['plugin']}")
+    return "\n".join(lines)
+
+# Example usage
+ss_links = [
+    "ss://Y2hhY2hhMjAtaWV0Zi1wb2x5MTMwNTo5SmVZeThTa1ZpWHVTSFZzOUdGZVNl@77.110.110.117:443#LB_84",
+    "ss://YWVzLTI1Ni1jZmI6ZjhmN2FDemNQS2JzRjhwMw@37.235.49.168:989#b2n.ir",
+]
+proxies = [parse_ss(link) for link in ss_links if parse_ss(link)]
+yaml_out = build_clash_yaml(proxies)
+print(yaml_out)
 
 # ---------------- ShadowsocksR (SSR) parser ----------------
 def parse_ssr(line):
