@@ -183,10 +183,14 @@ jobs:
           const proxies_yaml_block = yaml.dump(proxies, { noRefs: true, lineWidth: 120 });
           const proxy_names_block = yaml.dump(proxies.map(p => p.name), { noRefs: true, lineWidth: 120 });
 
-          // Replace placeholders
+          // Replace placeholders in the template
           let output_text = template_text;
-          output_text = output_text.replace("{{PROXIES}}", proxies_yaml_block)
-          output_text = template_text.replace("{{PROXY_NAMES}}", proxy_names_block)
+
+          // Replace all {{PROXIES}} placeholders
+          output_text = output_text.replace(/{{PROXIES}}/g, proxies_yaml_block);
+
+          // Replace all {{PROXY_NAMES}} placeholders
+          output_text = output_text.replace(/{{PROXY_NAMES}}/g, proxy_names_block);
 
               // Add forced update timestamp
               const yamlData = output_text;
