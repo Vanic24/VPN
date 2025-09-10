@@ -190,58 +190,62 @@ def parse_anytls(line):
     return None
 
 # ---------------- Shadowsocks (SS) parser ----------------
-def decode_b64(s):
-    """Decode base64 or URL-safe base64 with padding."""
+import base64
+import urllib.parse
+import re
+
+def decode_b64(data: str) -> str | None:
+    """Decode Base64 or URL-safe Base64 with padding."""
     try:
-        padded = s + "=" * (-len(s) % 4)
-        return base64.urlsafe_b64decode(padded).decode("utf-8")
+        data = data.replace("-", "+").replace("_", "/")
+        padding = "=" * (-len(data) % 4)
+        return base64.b64decode(data + padding).decode("utf-8")
     except Exception:
         return None
 
-def parse_ss(line):
+def parse_ss(line: str) -> dict | None:
+    """Parse SS node from line. Returns dict or None if invalid."""
     try:
         if not line.startswith("ss://"):
             return None
         line = line[5:].strip()
 
         # Extract name fragment
+        name_fragment = ""
         if "#" in line:
             line, name_fragment = line.split("#", 1)
-            try:
-                name_fragment = urllib.parse.unquote(name_fragment)
-            except:
-                name_fragment = ""
-        else:
-            name_fragment = ""
+            name_fragment = urllib.parse.unquote(name_fragment)
 
-        # If contains '@', assume standard method:pass@host:port
-        if "@" in line:
-            userinfo, hostport = line.split("@", 1)
-        else:
-            # Try full Base64 decode
+        # Extract plugin params if exists
+        plugin = None
+        if "/?" in line:
+            line, plugin = line.split("/?", 1)
+            plugin = urllib.parse.unquote(plugin)
+
+        # Check if '@' exists, otherwise try Base64 decode
+        if "@" not in line:
             decoded = decode_b64(line)
             if not decoded or "@" not in decoded:
                 return None
-            userinfo, hostport = decoded.split("@", 1)
+            line = decoded
 
-        # Parse host and port
+        # Split method:password and host:port
+        userinfo, hostport = line.split("@", 1)
         if ":" not in hostport:
             return None
         host, port_str = hostport.rsplit(":", 1)
         port = int(port_str)
 
-        # Parse method and password
+        # Decode method and password
         if ":" not in userinfo:
             return None
         method, password = userinfo.split(":", 1)
-
-        # Decode method/password if they look Base64
-        decoded_method = decode_b64(method)
-        if decoded_method:
-            method = decoded_method
-        decoded_password = decode_b64(password)
-        if decoded_password:
-            password = decoded_password
+        method_decoded = decode_b64(method)
+        if method_decoded:
+            method = method_decoded
+        password_decoded = decode_b64(password)
+        if password_decoded:
+            password = password_decoded
 
         node = {
             "name": name_fragment or "",
@@ -251,6 +255,9 @@ def parse_ss(line):
             "cipher": method,
             "password": password
         }
+
+        if plugin:
+            node["plugin"] = plugin
 
         return node
     except Exception:
