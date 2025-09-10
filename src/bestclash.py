@@ -394,6 +394,13 @@ def main():
 
     print(f"[collect] total {len(all_nodes)} nodes before filtering")
 
+# ---------------- Node correction ----------------
+corrected_nodes = []
+for node in all_nodes:
+    fixed = correct_node(node)
+    if fixed:
+        corrected_nodes.append(fixed)
+
 # ---------------- Latency filter ----------------
 if USE_LATENCY:
     print(f"[latency] filtering nodes > {LATENCY_THRESHOLD} ms")
@@ -401,7 +408,7 @@ if USE_LATENCY:
     filtered_nodes = []
     with concurrent.futures.ThreadPoolExecutor(max_workers=50) as ex:
         futures = [ex.submit(tcp_latency_ms, n.get("server"), n.get("port")) for n in corrected_nodes]
-    
+
     for node, fut in zip(corrected_nodes, futures):
         try:
             latency = fut.result(timeout=5)
@@ -410,15 +417,8 @@ if USE_LATENCY:
                 filtered_nodes.append(node)
         except Exception:
             pass  # skip node if latency check fails
-    
+
     corrected_nodes = filtered_nodes
-
-    # ---------------- Correct nodes ----------------
-    corrected_nodes = []
-    for n in filtered_nodes:
-        corrected_nodes.append(correct_node(n, country_counter))
-
-    print(f"[done] final {len(corrected_nodes)} nodes ready")
 
     # ---------------- Load template ----------------
     try:
