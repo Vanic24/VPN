@@ -394,16 +394,6 @@ def main():
 
     print(f"[collect] total {len(all_nodes)} nodes before filtering")
 
-    # ---------------- Filter duplicates ----------------
-    unique_set = set()
-    unique_nodes = []
-    for n in all_nodes:
-        key = (n.get("type"), n.get("server"), n.get("port"), n.get("uuid", n.get("password", "")))
-        if key not in unique_set:
-            unique_set.add(key)
-            unique_nodes.append(n)
-    print(f"[filter] {len(unique_nodes)} nodes after deduplication")
-
     # ---------------- Latency filter ----------------
     if USE_LATENCY:
         print(f"[latency] filtering nodes > {LATENCY_THRESHOLD} ms")
