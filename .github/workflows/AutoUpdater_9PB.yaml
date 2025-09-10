@@ -175,12 +175,12 @@ jobs:
             console.log(`🔹 Total proxies parsed: ${proxies.length}`);
             console.log("Proxy names:", proxies.map(p => p.name).join(", "));
 
-              // Load Clash template
+          // Load Clash template
           const templatePath = path.join(process.cwd(), "ClashTemplate.ini");
           const template_text = fs.readFileSync(templatePath, "utf8");
 
           // Build YAML blocks
-          const yamlContent = yaml.dump({ proxies: proxies }, { lineWidth: -1 });
+          const proxy_names_block = yaml.dump({ proxies: proxies }, { lineWidth: -1 });
           const proxy_names_block = proxies.map(p => `      - ${p.name}`).join("\n");
 
           // Replace placeholders in the template
