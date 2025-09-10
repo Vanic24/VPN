@@ -273,36 +273,8 @@ def parse_ss_url(ss_url):
         node["plugin-opts"] = plugin_opts
 
     return node
-
-
-def parse_ss_list(ss_list):
-    """
-    Parse a list of ss:// URLs into Clash YAML format.
-    """
-    proxies = []
-    for line in ss_list:
-        line = line.strip()
-        if line:
-            try:
-                node = parse_ss_url(line)
-                if node:
-                    proxies.append(node)
-            except Exception as e:
-                print(f"Error parsing: {line}\n{e}")
-    return {"proxies": proxies}
-
-
-# Example usage
-if __name__ == "__main__":
-    with open("ss_links.txt", "r", encoding="utf-8") as f:
-        ss_list = f.readlines()
-
-    clash_config = parse_ss_list(ss_list)
-
-    with open("clash_config.yaml", "w", encoding="utf-8") as f:
-        yaml.dump(clash_config, f, allow_unicode=True)
-
-    print("Clash YAML file generated: clash_config.yaml")
+except Exception:
+    return None
 
 # ---------------- ShadowsocksR (SSR) parser ----------------
 def parse_ssr(line):
