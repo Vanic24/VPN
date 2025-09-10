@@ -196,23 +196,34 @@ def parse_ss(line):
             return None
         line = line[5:].strip()
 
-        # Split name fragment (#) if present
+        # Extract name fragment (#name) if present
         if "#" in line:
             line, name_fragment = line.split("#", 1)
             name_fragment = urllib.parse.unquote(name_fragment)
         else:
             name_fragment = ""
 
-        # Check if line is base64-encoded
-        if "@" not in line:
+        # If line contains '@', assume method:pass@host:port
+        if "@" in line:
+            uri_part = line
+        else:
+            # Base64-encoded format
             padded = line + "=" * (-len(line) % 4)
-            decoded = base64.urlsafe_b64decode(padded).decode("utf-8")
-            line = decoded
+            uri_part = base64.urlsafe_b64decode(padded).decode("utf-8")
+
+        # Check for optional plugin params (ss://method:pass@host:port?plugin=...#name)
+        if "?" in uri_part:
+            main_part, query_string = uri_part.split("?", 1)
+            qs = urllib.parse.parse_qs(query_string)
+        else:
+            main_part = uri_part
+            qs = {}
 
         # Parse method:password@host:port
-        m = re.match(r"(?P<cipher>[^:]+):(?P<password>[^@]+)@(?P<host>[^:]+):(?P<port>\d+)", line)
+        m = re.match(r"(?P<cipher>[^:]+):(?P<password>[^@]+)@(?P<host>[^:]+):(?P<port>\d+)", main_part)
         if not m:
             return None
+
         node = {
             "name": name_fragment or "",
             "type": "ss",
@@ -222,11 +233,19 @@ def parse_ss(line):
             "password": m.group("password")
         }
 
-        # Optional UDP or plugin fields can be added if present in query string
+        # Optional UDP field
+        if "udp" in qs:
+            node["udp"] = qs["udp"][0].lower() == "true"
+
+        # Optional plugin and plugin-opts
+        if "plugin" in qs:
+            node["plugin"] = qs["plugin"][0]
+        if "plugin-opts" in qs:
+            node["plugin-opts"] = qs["plugin-opts"][0]
+
         return node
     except Exception:
         return None
-
 
 # ---------------- ShadowsocksR (SSR) parser ----------------
 def parse_ssr(line):
