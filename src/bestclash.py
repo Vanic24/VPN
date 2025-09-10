@@ -400,9 +400,9 @@ if USE_LATENCY:
     country_counter = defaultdict(int)
     filtered_nodes = []
     with concurrent.futures.ThreadPoolExecutor(max_workers=50) as ex:
-        futures = [ex.submit(tcp_latency_ms, n.get("server"), n.get("port")) for n in correct_nodes]
+        futures = [ex.submit(tcp_latency_ms, n.get("server"), n.get("port")) for n in correct_node]
 
-    for node, fut in zip(correct_nodes, futures):
+    for node, fut in zip(correct_node, futures):
         try:
             latency = fut.result(timeout=5)
             if latency is not None and latency <= LATENCY_THRESHOLD:
@@ -410,11 +410,11 @@ if USE_LATENCY:
                 filtered_nodes.append(node)
         except Exception:
             continue
-    correct_nodes = filtered_nodes
+    correct_node = filtered_nodes
 
 
     # ---------------- Correct nodes ----------------
-    corrected_nodes = []
+    correct_node = []
     for n in filtered_nodes:
         corrected_nodes.append(correct_node(n, country_counter))
 
