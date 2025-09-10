@@ -352,34 +352,32 @@ def load_proxies(url):
         r = requests.get(url, timeout=15)
         r.raise_for_status()
         text = r.text.strip()
+        nodes = []
 
         # ---------------- Try parsing as Clash YAML ----------------
-        try:
-            data = yaml.safe_load(text)
-            if isinstance(data, dict) and "proxies" in data:
-                nodes = data["proxies"]
-                print(f"[clash] loaded {len(nodes)} nodes from Clash YAML")
-                return nodes
-        except Exception:
-            pass  # Not a valid Clash YAML, fallback to line-by-line
-
-        # ---------------- Fallback: line-by-line parsing ----------------
-        lines = text.splitlines()
-        nodes = []
-        for line in lines:
-            line = line.strip()
-            if not line:
-                continue
-            node = parse_node_line(line)
-            if node:
-                nodes.append(node)
-            else:
-                print(f"[skip] invalid or unsupported line -> {line[:60]}...")
+        if text.startswith("proxies:") or "proxies:" in text:
+            try:
+                data = yaml.safe_load(text)
+                if "proxies" in data:
+                    for p in data["proxies"]:
+                        nodes.append(p)
+            except Exception:
+                pass
+        else:
+            lines = text.splitlines()
+            for line in lines:
+                line = line.strip()
+                if not line:
+                    continue
+                node = parse_node_line(line)
+                if node:
+                    nodes.append(node)
+                else:
+                    print(f"[skip] invalid or unsupported line -> {line[:60]}...")
         return nodes
-
     except Exception as e:
         print(f"[warn] failed to fetch {url} -> {e}")
-        return []
+    return []
 
 # ---------------- Main ----------------
 def main():
