@@ -190,6 +190,10 @@ def parse_anytls(line):
     return None
 
 # ---------------- Shadowsocks (SS) parser ----------------
+import base64
+import urllib.parse
+import re
+
 def decode_b64(s):
     """Decode base64 with padding, ignoring errors."""
     try:
