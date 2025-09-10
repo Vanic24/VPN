@@ -96,38 +96,44 @@ def parse_vmess(line):
                     "headers": {"Host": data.get("host", "")}
                 }
             return node
-    except Exception as e:
+    except Exception:
         return None
     return None
 
 def parse_vless(line):
     try:
         if line.startswith("vless://"):
-            # vless://uuid@host:port?params#name
-            m = re.match(r"vless://([0-9a-fA-F-]+)@([^:]+):(\d+)\??([^#]*)#?(.*)", line)
+            # Robust regex to handle missing query or name
+            m = re.match(r"vless://([0-9a-fA-F-]+)@([^:]+):(\d+)(?:\?([^#]*))?(?:#(.*))?", line)
             if m:
                 uuid, host, port, query, name = m.groups()
-                params = dict([p.split("=") for p in query.split("&") if "=" in p])
                 node = {
                     "name": name or "",
                     "type": "vless",
                     "server": host,
                     "port": int(port),
                     "uuid": uuid,
-                    "tls": params.get("security", "").lower() == "tls",
-                    "network": params.get("type", "tcp"),
+                    "tls": False,
+                    "network": "tcp"
                 }
-                if node["network"] == "ws":
-                    node["ws-opts"] = {"path": params.get("path", "/"), "headers": {"Host": params.get("host", "")}}
+                # parse query params if exist
+                if query:
+                    params = dict([p.split("=", 1) for p in query.split("&") if "=" in p])
+                    node["tls"] = params.get("security", "").lower() == "tls"
+                    node["network"] = params.get("type", "tcp")
+                    if node["network"] == "ws":
+                        node["ws-opts"] = {
+                            "path": params.get("path", "/"),
+                            "headers": {"Host": params.get("host", "")}
+                        }
                 return node
-    except:
+    except Exception:
         return None
     return None
 
 def parse_trojan(line):
     try:
         if line.startswith("trojan://"):
-            # trojan://password@host:port#name
             m = re.match(r"trojan://([^@]+)@([^:]+):(\d+)#?(.*)", line)
             if m:
                 password, host, port, name = m.groups()
@@ -146,7 +152,6 @@ def parse_trojan(line):
 def parse_hysteria2(line):
     try:
         if line.startswith("hysteria2://"):
-            # hysteria2://password@host:port#name
             m = re.match(r"hysteria2://([^@]+)@([^:]+):(\d+)#?(.*)", line)
             if m:
                 password, host, port, name = m.groups()
@@ -165,7 +170,6 @@ def parse_hysteria2(line):
 def parse_anytls(line):
     try:
         if line.startswith("anytls://"):
-            # anytls://password@host:port#name
             m = re.match(r"anytls://([^@]+)@([^:]+):(\d+)#?(.*)", line)
             if m:
                 password, host, port, name = m.groups()
@@ -186,10 +190,21 @@ def parse_ss(line):
         if line.startswith("ss://"):
             # ss://base64-encoded
             b64 = line[5:].split("#")[0]
-            decoded = base64.urlsafe_b64decode(b64 + "===")
-            node = json.loads(decoded) if decoded.strip().startswith(b"{") else None
-            if node:
-                node["type"] = "ss"
+            # append padding if missing
+            padded = b64 + "===" if len(b64) % 4 else b64
+            decoded = base64.urlsafe_b64decode(padded).decode("utf-8")
+            # ss format: method:password@host:port
+            m = re.match(r"([^:]+):([^@]+)@([^:]+):(\d+)", decoded)
+            if m:
+                cipher, password, host, port = m.groups()
+                node = {
+                    "name": "",
+                    "type": "ss",
+                    "server": host,
+                    "port": int(port),
+                    "cipher": cipher,
+                    "password": password
+                }
                 return node
     except:
         return None
@@ -308,7 +323,7 @@ def main():
 
     # ---------------- Replace placeholders ----------------
     output_text = template_text.replace("{{PROXIES}}", proxies_yaml_block)
-    output_text = output_text.replace("{{PROXY_NAMES}}", proxy_names_block)
+    output_text = template_text.replace("{{PROXY_NAMES}}", proxy_names_block)
 
     # ---------------- Write output ----------------
     with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
