@@ -53,16 +53,17 @@ jobs:
       - name: Run bestclash.py
         run: python src/bestclash.py
 
-      - name: Commit and push changes
+      - name: Commit and Push proxies.yaml
+        shell: bash
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
           git add proxies.yaml
-          git diff --cached --quiet || git commit -m "Update proxies.yaml"
+
+          if git diff --cached --quiet; then
             echo "No changes to commit"
           else
             git commit -m "Update proxies.yaml"
-            # Force push only if remote hasn't changed, safe for automated runs
             git push --force-with-lease origin main
           fi
-
