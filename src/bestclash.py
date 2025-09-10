@@ -73,41 +73,6 @@ def load_sources():
         sys.exit(1)
     return sources
 
-# ---------------- Load and parse proxies ----------------
-def load_proxies(url):
-    try:
-        r = requests.get(url, timeout=15)
-        r.raise_for_status()
-        text = r.text.strip()
-
-        # ---------------- Try parsing as Clash YAML ----------------
-        try:
-            data = yaml.safe_load(text)
-            if isinstance(data, dict) and "proxies" in data:
-                nodes = data["proxies"]
-                print(f"[clash] loaded {len(nodes)} nodes from Clash YAML")
-                return nodes
-        except Exception:
-            pass  # Not a valid Clash YAML, fallback to line-by-line
-
-        # ---------------- Fallback: line-by-line parsing ----------------
-        lines = text.splitlines()
-        nodes = []
-        for line in lines:
-            line = line.strip()
-            if not line:
-                continue
-            node = parse_node_line(line)
-            if node:
-                nodes.append(node)
-            else:
-                print(f"[skip] invalid or unsupported line -> {line[:60]}...")
-        return nodes
-
-    except Exception as e:
-        print(f"[warn] failed to fetch {url} -> {e}")
-        return []
-
 # ---------------- Vmess parser ----------------
 def parse_vmess(line):
     try:
@@ -225,12 +190,7 @@ def parse_anytls(line):
     return None
 
 # ---------------- Shadowsocks (SS) parser ----------------
-import base64
-import urllib.parse
-import re
-
 def decode_b64(data: str) -> str | None:
-    """Decode Base64 or URL-safe Base64 with padding."""
     try:
         data = data.replace("-", "+").replace("_", "/")
         padding = "=" * (-len(data) % 4)
@@ -239,16 +199,12 @@ def decode_b64(data: str) -> str | None:
         return None
 
 def parse_ss(ss_url: str) -> dict | None:
-    """
-    Parse a single ss:// URL into a dictionary compatible with Clash YAML.
-    Supports standard SS, Base64-encoded, and plugin parameters.
-    """
     try:
         ss_url = ss_url.strip()
         if not ss_url.startswith("ss://"):
             return None
 
-        ss_url = ss_url[5:]  # Remove ss:// prefix
+        ss_url = ss_url[5:]
 
         # Extract name/comment if exists
         name_fragment = ""
@@ -277,7 +233,6 @@ def parse_ss(ss_url: str) -> dict | None:
         else:
             ss_core = ss_url
 
-        # Parse credentials and server
         if "@" in ss_core:
             b64_part, server_port = ss_core.split("@", 1)
             decoded = decode_b64(b64_part)
@@ -290,7 +245,6 @@ def parse_ss(ss_url: str) -> dict | None:
                 return None
             server, port = server_port.rsplit(":", 1)
         else:
-            # Only Base64 encoded full part
             decoded = decode_b64(ss_core)
             if not decoded or "@" not in decoded:
                 return None
@@ -314,7 +268,6 @@ def parse_ss(ss_url: str) -> dict | None:
             node["plugin-opts"] = plugin_opts
 
         return node
-
     except Exception:
         return None
 
@@ -327,7 +280,6 @@ def parse_ssr(line):
         padded = b64 + "=" * (-len(b64) % 4)
         decoded = base64.urlsafe_b64decode(padded).decode("utf-8")
 
-        # SSR format: server:port:protocol:method:obfs:password_base64/?params
         parts = decoded.split("/")
         main_part = parts[0]
         if "?" in main_part:
@@ -352,7 +304,6 @@ def parse_ssr(line):
             "password": password
         }
 
-        # Parse query string parameters
         if query_string:
             qs = urllib.parse.parse_qs(query_string)
             if "remarks" in qs:
@@ -400,7 +351,20 @@ def load_proxies(url):
     try:
         r = requests.get(url, timeout=15)
         r.raise_for_status()
-        lines = r.text.splitlines()
+        text = r.text.strip()
+
+        # ---------------- Try parsing as Clash YAML ----------------
+        try:
+            data = yaml.safe_load(text)
+            if isinstance(data, dict) and "proxies" in data:
+                nodes = data["proxies"]
+                print(f"[clash] loaded {len(nodes)} nodes from Clash YAML")
+                return nodes
+        except Exception:
+            pass  # Not a valid Clash YAML, fallback to line-by-line
+
+        # ---------------- Fallback: line-by-line parsing ----------------
+        lines = text.splitlines()
         nodes = []
         for line in lines:
             line = line.strip()
@@ -412,9 +376,10 @@ def load_proxies(url):
             else:
                 print(f"[skip] invalid or unsupported line -> {line[:60]}...")
         return nodes
+
     except Exception as e:
         print(f"[warn] failed to fetch {url} -> {e}")
-    return []
+        return []
 
 # ---------------- Main ----------------
 def main():
