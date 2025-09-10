@@ -784,9 +784,6 @@ def main():
         log(f"[FATAL] failed to fetch template -> {e}")
         sys.exit(1)
 
-    # convert proxies to one-line yaml block
-    proxies_yaml_block = proxies_to_one_line_yaml(corrected)
-
     # build proxy names block for groups
     proxy_names_block = "\n".join([f"      - {p['name']}" for p in corrected])
 
