@@ -190,9 +190,6 @@ def parse_anytls(line):
     return None
 
 # ---------------- Shadowsocks (SS) parser ----------------
-import base64
-import urllib.parse
-
 def decode_b64(data: str) -> str | None:
     """Decode Base64 or URL-safe Base64 with proper padding."""
     try:
@@ -255,29 +252,6 @@ def parse_ss(line: str) -> dict | None:
         return node
     except Exception:
         return None
-
-def build_clash_yaml(proxies: list[dict]) -> str:
-    """Manually build a Clash YAML section."""
-    lines = ["proxies:"]
-    for p in proxies:
-        lines.append(f"  - name: \"{p['name']}\"")
-        lines.append(f"    type: ss")
-        lines.append(f"    server: {p['server']}")
-        lines.append(f"    port: {p['port']}")
-        lines.append(f"    cipher: {p['cipher']}")
-        lines.append(f"    password: \"{p['password']}\"")
-        if "plugin" in p:
-            lines.append(f"    plugin: {p['plugin']}")
-    return "\n".join(lines)
-
-# Example usage
-ss_links = [
-    "ss://Y2hhY2hhMjAtaWV0Zi1wb2x5MTMwNTo5SmVZeThTa1ZpWHVTSFZzOUdGZVNl@77.110.110.117:443#LB_84",
-    "ss://YWVzLTI1Ni1jZmI6ZjhmN2FDemNQS2JzRjhwMw@37.235.49.168:989#b2n.ir",
-]
-proxies = [parse_ss(link) for link in ss_links if parse_ss(link)]
-yaml_out = build_clash_yaml(proxies)
-print(yaml_out)
 
 # ---------------- ShadowsocksR (SSR) parser ----------------
 def parse_ssr(line):
