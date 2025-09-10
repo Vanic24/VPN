@@ -442,7 +442,7 @@ def main():
 
     # ---------------- Replace placeholders ----------------
     output_text = template_text.replace("{{PROXIES}}", proxies_yaml_block)
-    output_text = template_text.replace("{{PROXY_NAMES}}", proxy_names_block)
+    output_text = output_text.replace("{{PROXY_NAMES}}", proxy_names_block)
 
     # ---------------- Write output ----------------
     with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
