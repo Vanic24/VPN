@@ -77,7 +77,14 @@ dns:
       - 240.0.0.0/4
       - 0.0.0.0/32
 proxies:
-[]
+- name: 🇺🇸|US1|@SHFX
+  password: 9e0f72bb-7ad6-4383-994a-497569a94d74
+  port: 30002
+  server: 144.24.7.139
+  skip-cert-verify: true
+  sni: baidu.com
+  type: anytls
+  udp: true
 
 proxy-groups:
   - name: ♻️ 自动选择
@@ -86,38 +93,38 @@ proxy-groups:
     interval: 300
     tolerance: 50
     proxies:
-
+      - 🇺🇸|US1|@SHFX
   - name: 🚀 节点选择
     type: select
     proxies:
       - ♻️ 自动选择
       - DIRECT
-
+      - 🇺🇸|US1|@SHFX
   - name: 🌍 国外媒体
     type: select
     proxies:
       - 🚀 节点选择
       - ♻️ 自动选择
       - 🎯 全球直连
-
+      - 🇺🇸|US1|@SHFX
   - name: 📲 电报信息
     type: select
     proxies:
       - 🚀 节点选择
       - 🎯 全球直连
-
+      - 🇺🇸|US1|@SHFX
   - name: Ⓜ️ 微软服务
     type: select
     proxies:
       - 🎯 全球直连
       - 🚀 节点选择
-
+      - 🇺🇸|US1|@SHFX
   - name: 🍎 苹果服务
     type: select
     proxies:
       - 🚀 节点选择
       - 🎯 全球直连
-
+      - 🇺🇸|US1|@SHFX
   - name: 🎯 全球直连
     type: select
     proxies:
@@ -140,7 +147,7 @@ proxy-groups:
       - 🚀 节点选择
       - 🎯 全球直连
       - ♻️ 自动选择
-
+      - 🇺🇸|US1|@SHFX
 rules:
   - DOMAIN-SUFFIX,acl4.ssr,🎯 全球直连
   - DOMAIN-SUFFIX,ip6-localhost,🎯 全球直连
