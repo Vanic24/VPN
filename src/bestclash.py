@@ -199,19 +199,25 @@ def parse_ss(line):
         # Extract name fragment (#name) if present
         if "#" in line:
             line, name_fragment = line.split("#", 1)
-            name_fragment = urllib.parse.unquote(name_fragment)
+            try:
+                name_fragment = urllib.parse.unquote(name_fragment)
+            except:
+                name_fragment = ""
         else:
             name_fragment = ""
 
-        # If line contains '@', assume method:pass@host:port
+        # If line contains '@', standard format: method:pass@host:port
         if "@" in line:
             uri_part = line
         else:
             # Base64-encoded format
             padded = line + "=" * (-len(line) % 4)
-            uri_part = base64.urlsafe_b64decode(padded).decode("utf-8")
+            try:
+                uri_part = base64.urlsafe_b64decode(padded).decode("utf-8")
+            except:
+                return None
 
-        # Check for optional plugin params (ss://method:pass@host:port?plugin=...#name)
+        # Separate main part and optional query string
         if "?" in uri_part:
             main_part, query_string = uri_part.split("?", 1)
             qs = urllib.parse.parse_qs(query_string)
