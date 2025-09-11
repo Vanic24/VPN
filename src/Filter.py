@@ -483,11 +483,13 @@ def main():
     # ---------------- Upload to TextDB ----------------
 def upload_to_textdb(content):
     try:
-        # URL encode the content
+        # URL encode the content to ensure it's safe to send via URL
         encoded_content = urllib.parse.quote(content)
+
+        # Form the final URL with the encoded content
         url = TEXTDB_API.format(encoded_content)
 
-        # Make the request to upload content
+        # Make the request to upload the content
         r = requests.get(url, timeout=10)
 
         # Check if the upload was successful
@@ -498,8 +500,36 @@ def upload_to_textdb(content):
             print(f"[warn] Response: {r.text}")
     except Exception as e:
         print(f"[error] TextDB upload exception: {e}")
-        upload_to_textdb(output_text)
 
+# ---------------- Main ----------------
+def main():
+    # Assuming output_text is your final Clash YAML content to be uploaded
+    output_text = """
+    mixed-port: 7890
+    allow-lan: true
+    log-level: info
+    external-controller: 0.0.0.0:9090
+    dns:
+      enabled: true
+      listen: 0.0.0.0:1053
+      ipv6: true
+      default-nameserver:
+        - 223.5.5.5
+        - 114.114.114.114
+      enhanced-mode: fake-ip
+      fake-ip-range: 198.18.0.1/16
+      fake-ip-filter:
+        - '*.lan'
+    proxies:
+      - IP-CIDR,101.198.128.0/18,🎯 全球直连,no-resolve
+      - IP-CIDR,101.198.192.0/19,🎯 全球直连,no-resolve
+      - IP-CIDR,101.199.196.0/22,🎯 全球直连,no-resolve
+      - GEOIP,CN,🎯 全球直连
+      - MATCH,🐟 漏网之鱼
+    """
+
+    # Now, upload the Clash YAML content to TextDB
+    upload_to_textdb(output_text)
 
 # ---------------- Entry ----------------
 if __name__ == "__main__":
@@ -507,5 +537,3 @@ if __name__ == "__main__":
         main()
     except Exception as e:
         print("[FATAL ERROR]", str(e))
-        traceback.print_exc()
-        sys.exit(1)
