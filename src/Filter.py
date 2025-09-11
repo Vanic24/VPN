@@ -16,7 +16,7 @@ REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file_
 OUTPUT_FILE = os.path.join(REPO_ROOT, "Filter")
 SOURCES_FILE = os.path.join(REPO_ROOT, "Filter_Sources")
 TEMPLATE_URL = "https://raw.githubusercontent.com/Vanic24/VPN/refs/heads/main/ClashTemplate.ini"
-TEXTDB_API = "https://textdb.online/update/?key=Filter_SHFX={}"
+TEXTDB_API = "https://textdb.online/update/?key=Filter_SHFX"
 
 # ---------------- Inputs ----------------
 use_latency_env = os.environ.get("LATENCY_FILTER", "false").lower()
@@ -480,18 +480,18 @@ def main():
 
     print(f"[done] wrote {OUTPUT_FILE}")
 
-# ---------------- Upload to TextDB ----------------
-def upload_to_textdb(content):
-    try:
-        encoded = urllib.parse.quote(output_text)
-        url = TEXTDB_API.format(encoded)
-        r = requests.get(url, timeout=10)
-        if r.status_code == 200:
-            print("[done] uploaded to TextDB successfully")
-        else:
-            print(f"[warn] TextDB upload failed: {r.status_code}")
-    except Exception as e:
-        print(f"[error] TextDB upload exception: {e}")
+    # ---------------- Upload to TextDB ----------------
+    def upload_to_textdb(content):
+        try:
+            encoded = urllib.parse.quote(output_text)  # Encode output_text before uploading
+            url = TEXTDB_API + "&value=" + encoded  # Append to the URL for TextDB
+            r = requests.get(url, timeout=10)
+            if r.status_code == 200:
+                print("[done] uploaded to TextDB successfully")
+            else:
+                print(f"[warn] TextDB upload failed: {r.status_code}")
+        except Exception as e:
+            print(f"[error] TextDB upload exception: {e}")
         
     upload_to_textdb(output_text)
 
