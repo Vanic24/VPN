@@ -492,13 +492,6 @@ def main():
     except Exception as e:
         print(f"[error] TextDB upload exception: {e}")
 
-# ---------------- Main ----------------
-def main():
-    # Assuming output_text is your final Clash YAML content to be uploaded
-    output_text = """ """
-    # Now, upload the Clash YAML content to TextDB
-    upload_to_textdb(output_text)
-
 # ---------------- Entry ----------------
 if __name__ == "__main__":
     try:
