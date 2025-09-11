@@ -50,8 +50,8 @@ jobs:
           echo "LATENCY_FILTER=${{ github.event.inputs.use_latency_filter || 'true' }}" >> $GITHUB_ENV
           echo "LATENCY_THRESHOLD=${{ github.event.inputs.latency_threshold || '100' }}" >> $GITHUB_ENV
 
-      - name: Run AutoUpdater_Filter.py
-        run: python src/AutoUpdater_Filter.py
+      - name: Run Filter.py
+        run: python src/Filter.py
 
       - name: Commit and Push Filter
         shell: bash
