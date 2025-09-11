@@ -505,27 +505,6 @@ def upload_to_textdb(content):
 def main():
     # Assuming output_text is your final Clash YAML content to be uploaded
     output_text = """
-    mixed-port: 7890
-    allow-lan: true
-    log-level: info
-    external-controller: 0.0.0.0:9090
-    dns:
-      enabled: true
-      listen: 0.0.0.0:1053
-      ipv6: true
-      default-nameserver:
-        - 223.5.5.5
-        - 114.114.114.114
-      enhanced-mode: fake-ip
-      fake-ip-range: 198.18.0.1/16
-      fake-ip-filter:
-        - '*.lan'
-    proxies:
-      - IP-CIDR,101.198.128.0/18,🎯 全球直连,no-resolve
-      - IP-CIDR,101.198.192.0/19,🎯 全球直连,no-resolve
-      - IP-CIDR,101.199.196.0/22,🎯 全球直连,no-resolve
-      - GEOIP,CN,🎯 全球直连
-      - MATCH,🐟 漏网之鱼
     """
 
     # Now, upload the Clash YAML content to TextDB
