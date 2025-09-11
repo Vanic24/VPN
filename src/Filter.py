@@ -498,9 +498,7 @@ def upload_to_textdb(content):
             print(f"[warn] Response: {r.text}")
     except Exception as e:
         print(f"[error] TextDB upload exception: {e}")
-
-# Upload the output_text to TextDB
-upload_to_textdb(output_text)
+        upload_to_textdb(output_text)
 
 
 # ---------------- Entry ----------------
