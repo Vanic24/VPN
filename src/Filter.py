@@ -504,9 +504,14 @@ def upload_to_textdb(content):
 # ---------------- Main ----------------
 def main():
     # Assuming output_text is your final Clash YAML content to be uploaded
-    output_text = """
+        output_text = """
+    mixed-port: 7890
+    allow-lan: true
+    log-level: info
+    external-controller: 0.0.0.0:9090
+    dns:
+      - MATCH,🐟 漏网之鱼
     """
-
     # Now, upload the Clash YAML content to TextDB
     upload_to_textdb(output_text)
 
