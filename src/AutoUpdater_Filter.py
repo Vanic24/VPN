@@ -13,8 +13,8 @@ import urllib.parse
 
 # ---------------- Config ----------------
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-OUTPUT_FILE = os.path.join(REPO_ROOT, "proxies.yaml")
-SOURCES_FILE = os.path.join(REPO_ROOT, "sources.txt")
+OUTPUT_FILE = os.path.join(REPO_ROOT, "Filter")
+SOURCES_FILE = os.path.join(REPO_ROOT, "Filter_Sources")
 TEMPLATE_URL = "https://raw.githubusercontent.com/Vanic24/VPN/refs/heads/main/ClashTemplate.ini"
 
 # ---------------- Inputs ----------------
@@ -64,12 +64,12 @@ def country_to_flag(cc):
 # ---------------- Load sources ----------------
 def load_sources():
     if not os.path.exists(SOURCES_FILE):
-        print(f"[FATAL] sources.txt not found at {SOURCES_FILE}")
+        print(f"[FATAL] Filter_Sources not found at {SOURCES_FILE}")
         sys.exit(1)
     with open(SOURCES_FILE, "r", encoding="utf-8") as f:
         sources = [line.strip() for line in f if line.strip() and not line.startswith("#")]
     if not sources:
-        print(f"[FATAL] sources.txt is empty. Please check the secret or file content.")
+        print(f"[FATAL] Filter_Sources is empty. Please check the secret or file content.")
         sys.exit(1)
     return sources
 
@@ -423,7 +423,7 @@ def load_proxies(url):
 # ---------------- Main ----------------
 def main():
     sources = load_sources()
-    print(f"[start] loaded {len(sources)} sources from sources.txt")
+    print(f"[start] loaded {len(sources)} sources from Filter_Sources")
 
     all_nodes = []
     for url in sources:
@@ -478,6 +478,18 @@ def main():
         f.write(output_text)
 
     print(f"[done] wrote {OUTPUT_FILE}")
+
+# ---------------- Upload to TextDB ----------------
+    try:
+        encoded = urllib.parse.quote(output_text)
+        url = TEXTDB_API.format(encoded)
+        r = requests.get(url, timeout=10)
+        if r.status_code == 200:
+            print("[done] uploaded to TextDB successfully")
+        else:
+            print(f"[warn] TextDB upload failed: {r.status_code}")
+    except Exception as e:
+        print(f"[error] TextDB upload exception: {e}")
 
 # ---------------- Entry ----------------
 if __name__ == "__main__":
