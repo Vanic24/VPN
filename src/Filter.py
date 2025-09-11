@@ -481,6 +481,7 @@ def main():
     print(f"[done] wrote {OUTPUT_FILE}")
 
 # ---------------- Upload to TextDB ----------------
+def upload_to_textdb(content):
     try:
         encoded = urllib.parse.quote(output_text)
         url = TEXTDB_API.format(encoded)
@@ -491,6 +492,8 @@ def main():
             print(f"[warn] TextDB upload failed: {r.status_code}")
     except Exception as e:
         print(f"[error] TextDB upload exception: {e}")
+        
+    upload_to_textdb(output_text)
 
 # ---------------- Entry ----------------
 if __name__ == "__main__":
