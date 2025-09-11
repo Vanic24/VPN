@@ -1,4 +1,4 @@
-name: Update Proxies
+name: Update VPN Subscription (Filter)
 
 on:
   # Run every 30 minutes
@@ -33,16 +33,16 @@ jobs:
         run: |
           pip install requests pyyaml
 
-      - name: Fail if SOURCES_TXT is missing
+      - name: Fail if FILTER_SOURCES is missing
         run: |
-          if [ -z "${{ secrets.SOURCES_TXT }}" ]; then
-            echo "❌ ERROR: SOURCES_TXT secret is not set in repository secrets."
+          if [ -z "${{ secrets.FILTER_SOURCES }}" ]; then
+            echo "❌ ERROR: FILTER_SOURCES secret is not set in repository secrets."
             exit 1
           fi
 
-      - name: Restore sources.txt from secret
+      - name: Restore filter_sources from secret
         run: |
-          echo "${{ secrets.SOURCES_TXT }}" > sources.txt
+          echo "${{ secrets.FILTER_SOURCES }}" > filter_sources
 
       - name: Set latency filter environment for scheduled/manual runs
         run: |
@@ -50,20 +50,20 @@ jobs:
           echo "LATENCY_FILTER=${{ github.event.inputs.use_latency_filter || 'true' }}" >> $GITHUB_ENV
           echo "LATENCY_THRESHOLD=${{ github.event.inputs.latency_threshold || '100' }}" >> $GITHUB_ENV
 
-      - name: Run bestclash.py
-        run: python src/bestclash.py
+      - name: Run AutoUpdater_Filter.py
+        run: python src/AutoUpdater_Filter.py
 
-      - name: Commit and Push proxies.yaml
+      - name: Commit and Push Filter
         shell: bash
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-          git add proxies.yaml
+          git add Filter
 
           if git diff --cached --quiet; then
             echo "No changes to commit"
           else
-            git commit -m "Update proxies.yaml"
+            git commit -m "Update Filter"
             git push --force-with-lease origin main
           fi
