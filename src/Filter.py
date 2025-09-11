@@ -481,23 +481,14 @@ def main():
     print(f"[done] wrote {OUTPUT_FILE}")
 
     # ---------------- Upload to TextDB ----------------
-def upload_to_textdb(content):
     try:
-        # URL encode the content to ensure it's safe to send via URL
-        encoded_content = urllib.parse.quote(content)
-
-        # Form the final URL with the encoded content
-        url = TEXTDB_API.format(encoded_content)
-
-        # Make the request to upload the content
+        encoded = urllib.parse.quote(output_text)
+        url = f"https://textdb.online/update/?key=Filter_SHFX&value={encoded}"
         r = requests.get(url, timeout=10)
-
-        # Check if the upload was successful
         if r.status_code == 200:
             print("[done] uploaded to TextDB successfully")
         else:
             print(f"[warn] TextDB upload failed: {r.status_code}")
-            print(f"[warn] Response: {r.text}")
     except Exception as e:
         print(f"[error] TextDB upload exception: {e}")
 
