@@ -152,25 +152,25 @@ jobs:
               });
               console.log('✅ GitHub updated successfully');
 
-              // update TextDB using POST (fix for ERR_BAD_REQUEST)
-              const axios = require('axios');
+              // update TextDB using POST
+              const postData = new URLSearchParams({
+                key: '9PB_SHFX',
+                value: outputContent
+              }).toString();
 
-              const data = new URLSearchParams({
-              key: '9PB_SHFX',                // only the identifier
-              value: outputContent            // raw content or JSON.stringify if you want exact YAML with line breaks
-          }).toString();
+              const resTextDB = await axios.post(
+                'https://textdb.online/update/',
+                postData,
+                { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+              );
 
-          const res = await axios.post(
-            'https://textdb.online/update/', 
-            data,
-            { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
-          );
-
-          if (res.data.status === 1) {
-            console.log('✅ Textdb uploaded successfully: ' + res.data.data.url);
-          } else {
-            console.error('❌ Textdb upload failed:', res.data);
-          }
+              if (resTextDB.data.status === 1) {
+                console.log('✅ TextDB uploaded successfully: ' + resTextDB.data.data.url);
+              } else {
+                console.error('❌ TextDB upload failed:', resTextDB.data);
+              }
+            }
+          };
 
           generate9PB().catch(err => {
             console.error(err);
