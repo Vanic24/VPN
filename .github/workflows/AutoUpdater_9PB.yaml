@@ -258,49 +258,43 @@ jobs:
 
             fs.writeFileSync('9PB', outputContent);
             fs.writeFileSync('9PB.yml', proxies_yaml_block);
-            
-            if (!dry_run) {
-              // Update GitHub file
-              const ghUrl = `https://api.github.com/repos/${githubRepo}/contents/9PB`;
-              try {
-                const ghRes = await axios.get(ghUrl, {
-                  headers: { Authorization: `token ${githubToken}`, 'User-Agent': 'github-action' }
-                });
-                const sha = ghRes.data.sha;
-                await axios.put(ghUrl, {
-                  message: `Auto update 9PB ${new Date().toISOString()}`,
-                  content: Buffer.from(outputContent, 'utf8').toString('base64'),
-                  sha
-                }, {
-                  headers: { Authorization: `token ${githubToken}`, 'User-Agent': 'github-action' }
-                });
-                console.log('✅ GitHub updated successfully');
-              } catch (e) {
-                console.error('⚠️ Failed to update GitHub:', e && e.message ? e.message : e);
-              }
 
-              // Upload to Textdb using application/x-www-form-urlencoded
-              const textdbUrl = 'https://textdb.online/update/?key=9PB_SHFX';
-              try {
-                const params = new URLSearchParams({ value: outputContent }).toString();
-                const res = await axios.post(textdbUrl, params, {
-                  headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-                });
-                if (res.data && res.data.status === 1) {
-                  console.log('✅ Textdb uploaded successfully: ' + (res.data.data && res.data.data.url ? res.data.data.url : 'no-url'));
-                } else {
-                  console.error('❌ Textdb upload failed:', res.data);
-                }
-              } catch (err) {
-                console.error('⚠️ Error uploading to Textdb:', err && err.message ? err.message : err);
+            if (!dry_run) {
+              // Update GitHub
+              const ghUrl = `https://api.github.com/repos/${process.env.GITHUB_REPOSITORY}/contents/9PB`;
+              const ghRes = await axios.get(ghUrl, {
+                headers: { Authorization: `token ${process.env.GITHUB_TOKEN}` }
+              });
+              const sha = ghRes.data.sha;
+
+              await axios.put(ghUrl, {
+                message: `Auto update 9PB ${new Date().toISOString()}`,
+                content: Buffer.from(outputContent).toString('base64'),
+                sha
+              }, {
+                headers: { Authorization: `token ${process.env.GITHUB_TOKEN}` }
+              });
+              console.log('✅ GitHub updated successfully');
+
+              // Update Textdb using POST
+              const textdbUrl = 'https://textdb.online/update/?key=9PB_SHFX&value={}';
+
+              const res = await axios.post(
+                textdbUrl,
+                { value: outputContent },
+                { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+              );
+
+              if (res.data.status === 1) {
+                console.log('✅ Textdb uploaded successfully: ' + res.data.data.url);
+              } else {
+                console.error('❌ Textdb upload failed:', res.data);
               }
-            } else {
-              console.log('⚠️ Dry run enabled — YAML generated but not pushed.');
             }
-          }
+          };
 
           generate9PB().catch(err => {
-            console.error('❌ Fatal error:', err && err.message ? err.message : err);
+            console.error(err);
             process.exit(1);
           });
           JS
