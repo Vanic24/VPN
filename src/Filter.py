@@ -16,7 +16,8 @@ REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file_
 OUTPUT_FILE = os.path.join(REPO_ROOT, "Filter")   # changed from proxies.yaml → Filter
 SOURCES_FILE = os.path.join(REPO_ROOT, "Filter_Sources")  # changed from sources.txt → Filter_Sources
 TEMPLATE_URL = "https://raw.githubusercontent.com/Vanic24/VPN/refs/heads/main/ClashTemplate.ini"
-TEXTDB_API = "https://textdb.online/update/?key=Filter_SHFX&value={}"   # TextDB upload endpoint
+TEXTDB_API = "https://textdb.online/update/?key=Filter_SHFX&value={}"
+FILTER_RAW_URL = "https://raw.githubusercontent.com/Vanic24/VPN/refs/heads/main/Filter"
 
 # ---------------- Inputs ----------------
 use_latency_env = os.environ.get("LATENCY_FILTER", "false").lower()
@@ -480,33 +481,30 @@ def main():
 
     print(f"[done] wrote {OUTPUT_FILE}")
 
-import requests
-
 # ---------------- Upload to TextDB ----------------
-def upload_to_textdb():
+def upload_to_textdb_from_raw():
     try:
-        # Read the Filter file content
-        with open(OUTPUT_FILE, 'r', encoding='utf-8') as f:
-            filter_content = f.read()
+        # Step 1: Download the raw Filter file content
+        r = requests.get(FILTER_RAW_URL, timeout=15)
+        r.raise_for_status()
+        content = r.text  # This is the full Clash YAML
 
-        # Prepare the data to be uploaded
-        payload = {
-            'key': 'Filter_SHFX',
-            'value': filter_content
-        }
+        # Step 2: URL encode it
+        encoded_content = urllib.parse.quote(content)
 
-        # Make the POST request to upload to TextDB
-        response = requests.post("https://textdb.online/update/", data=payload)
+        # Step 3: Build API URL
+        url = TEXTDB_API.format(encoded_content)
 
-        # Check if the upload was successful
-        if response.status_code == 200:
-            print("[done] uploaded to TextDB successfully")
+        # Step 4: Send upload request
+        resp = requests.get(url, timeout=10)
+        if resp.status_code == 200:
+            print("[done] uploaded Filter raw content to TextDB successfully")
         else:
-            print(f"[warn] TextDB upload failed: {response.status_code} - {response.text}")
-    
+            print(f"[warn] TextDB upload failed: {resp.status_code}")
+            print(f"[warn] Response: {resp.text}")
+
     except Exception as e:
         print(f"[error] TextDB upload exception: {e}")
-        upload_to_textdb()
 
 # ---------------- Entry ----------------
 if __name__ == "__main__":
@@ -514,3 +512,5 @@ if __name__ == "__main__":
         main()
     except Exception as e:
         print("[FATAL ERROR]", str(e))
+        traceback.print_exc()
+        sys.exit(1)
