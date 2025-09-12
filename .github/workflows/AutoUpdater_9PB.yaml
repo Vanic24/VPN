@@ -37,7 +37,7 @@ jobs:
         const path = require('path');
 
         const SUB_URL = process.env.SUB_9PB;
-        const GH_TOKEN = process.env.GH_TOKEN;
+        const GH_TOKEN = process.env.GITHUB_TOKEN;
         const GITHUB_FILE = "9PB";
         const dryRun = process.env.DRY_RUN === "true";
 
@@ -191,16 +191,16 @@ jobs:
             try {
               const fileInfo = await axios.get(
                 `https://api.github.com/repos/Vanic24/VPN/contents/${GITHUB_FILE}`,
-                { headers: { Authorization: `token ${GH_TOKEN}` } }
+                { headers: { Authorization: `token ${GITHUB_TOKEN}` } }
               );
               await axios.put(
                 `https://api.github.com/repos/Vanic24/VPN/contents/${GITHUB_FILE}`,
                 {
-                  message: `Auto Updated Sub3 at ${new Date().toISOString()}`,
+                  message: `Auto Updated 9PB at ${new Date().toISOString()}`,
                   content: Buffer.from(yamlData).toString('base64'),
                   sha: fileInfo.data.sha
                 },
-                { headers: { Authorization: `token ${GH_TOKEN}` } }
+                { headers: { Authorization: `token ${GITHUB_TOKEN}` } }
               );
               console.log("✅ GitHub updated successfully");
 
@@ -233,7 +233,7 @@ jobs:
 
       env:
         GH_TOKEN: ${{ secrets.GH_TOKEN }}
-        SUB_3: ${{ secrets.SUB_9PB }}
+        SUB_9PB: ${{ secrets.SUB_9PB }}
         DRY_RUN: ${{ github.event.inputs.dry_run }}
 
     - name: Upload Clash YAML artifact
