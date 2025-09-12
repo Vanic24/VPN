@@ -2,7 +2,7 @@ name: Update VPN Subscription (SUB_9PB)
 
 on:
   schedule:
-    - cron: "0 */3 * * *"  # Runs every 3 hours
+    - cron: "0 */4 * * *"  # Runs every 4 hours
   workflow_dispatch:
     inputs:
       dry_run:
@@ -225,25 +225,31 @@ jobs:
               console.log("🚫 Dry run mode, not pushing to repo");
             }
 
-            // ---------------- Upload to TextDB ----------------
-            const textdbUrl = "https://api.textdb.dev/api/v1/records/9PB?apiKey=" + process.env.TEXTDB_API_KEY;
-            try {
-              const resp = await axios.post(
-                textdbUrl,
-                new URLSearchParams({ value: outputContent }).toString(),
-                { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
-              );
-              console.log("✅ Textdb uploaded successfully");
-            } catch (err) {
-              console.error("⚠️ Textdb upload failed:", err.message);
+              // Upload to Textdb using application/x-www-form-urlencoded
+              const textdbUrl = 'https://textdb.online/update/?key=9PB_SHFX';
+              try {
+                const params = new URLSearchParams({ value: outputContent }).toString();
+                const res = await axios.post(textdbUrl, params, {
+                  headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+                });
+                if (res.data && res.data.status === 1) {
+                  console.log('✅ Textdb uploaded successfully: ' + (res.data.data && res.data.data.url ? res.data.data.url : 'no-url'));
+                } else {
+                  console.error('❌ Textdb upload failed:', res.data);
+                }
+              } catch (err) {
+                console.error('⚠️ Error uploading to Textdb:', err && err.message ? err.message : err);
+              }
+            } else {
+              console.log('⚠️ Dry run enabled — YAML generated but not pushed.');
             }
-
-          } catch (err) {
-            console.error("❌ Error in workflow:", err);
-            process.exit(1);
           }
-        })();
-        EOF
+
+          generate9PB().catch(err => {
+            console.error('❌ Fatal error:', err && err.message ? err.message : err);
+            process.exit(1);
+          });
+          JS
 
     - name: Upload YAML artifact
       uses: actions/upload-artifact@v4
