@@ -2,194 +2,262 @@ name: Update VPN Subscription (SUB_9PB)
 
 on:
   schedule:
-    - cron: '0 */4 * * *' # every 4 hours
+    - cron: "0 */4 * * *"  # Runs every 4 hours
   workflow_dispatch:
     inputs:
       dry_run:
-        description: 'Set true to run without committing'
+        description: 'If true, only generate YAML locally without pushing'
         required: false
         default: 'false'
 
 jobs:
-  build:
+  update:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
+    - name: Checkout repo
+      uses: actions/checkout@v3
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '20'
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: "20"
 
-      - name: Install dependencies
-        run: npm install axios js-yaml
+    - name: Install dependencies
+      run: npm install axios js-yaml
 
-      - name: Run AutoUpdater Script
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SUB_9PB: ${{ secrets.SUB_9PB }}
-          DRY_RUN: ${{ github.event.inputs.dry_run }}
-        run: |
-          node <<'JS'
-          const fs = require('fs');
-          const path = require('path');
-          const axios = require('axios');
-          const yaml = require('js-yaml');
+    - name: Run update script
+      id: generate_yaml
+      run: |
+        node <<'EOF'
+        const axios = require('axios');
+        const yaml = require('js-yaml');
+        const fs = require('fs');
+        const { URL } = require('url');
+        const path = require('path');
 
-          const dry_run = process.env.DRY_RUN === 'true';
-          const subUrl = process.env.SUB_9PB;
+        const SUB_URL = process.env.SUB_9PB;
+        const GH_TOKEN = process.env.GH_TOKEN;
+        const GITHUB_FILE = "9PB";
+        const dryRun = process.env.DRY_RUN === "true";
 
-          const fetchSub = async () => {
-            const res = await axios.get(subUrl);
-            return Buffer.from(res.data, 'base64').toString();
-          };
+        function b64decode(s) {
+          if (s.length % 4) s += "=".repeat(4 - (s.length % 4));
+          return Buffer.from(s, 'base64').toString('utf8');
+        }
 
-          const generate9PB = async () => {
-            const rawData = await fetchSub();
-            const lines = rawData.split('\n').slice(2);
-            const proxies = [];
+        function parseVmess(link) {
+          try {
+            const conf = JSON.parse(b64decode(link.slice(8)));
+            const net = (conf.net || "tcp").toLowerCase();
+            const tls = (conf.tls || "").toLowerCase() === "tls";
+            const proxy = {
+              name: conf.ps || "vmess",
+              type: "vmess",
+              server: conf.add,
+              port: Number(conf.port),
+              uuid: conf.id,
+              alterId: Number(conf.aid || 0),
+              cipher: conf.type || "auto",
+              tls,
+              network: net,
+            };
+            if (net === "ws") proxy["ws-opts"] = { path: conf.path || "", headers: { Host: conf.host || "" } };
+            if (net === "grpc") proxy["grpc-opts"] = { "grpc-service-name": conf.path || "" };
+            if (conf.sni) proxy.servername = conf.sni;
+            return proxy;
+          } catch { return null; }
+        }
 
-            for (let line of lines) {
-              line = line.trim();
-              if (!line) continue;
+        function parseVless(link) {
+          try {
+            const u = new URL(link);
+            const q = Object.fromEntries(u.searchParams.entries());
+            const net = (q.type || q.transport || "tcp").toLowerCase();
+            const tls = (q.security || "").toLowerCase() === "tls";
+            const proxy = {
+              name: decodeURIComponent(u.hash.slice(1)) || "vless",
+              type: "vless",
+              server: u.hostname,
+              port: Number(u.port || 443),
+              uuid: decodeURIComponent(u.username),
+              tls,
+              network: net
+            };
+            if (net === "ws") proxy["ws-opts"] = { path: q.path || "", headers: { Host: q.host || "" } };
+            if (net === "grpc") proxy["grpc-opts"] = { "grpc-service-name": q.serviceName || q["service-name"] || "" };
+            return proxy;
+          } catch { return null; }
+        }
 
+        function parseTrojan(link) {
+          try {
+            const u = new URL(link);
+            const q = Object.fromEntries(u.searchParams.entries());
+            const net = (q.type || q.transport || "tcp").toLowerCase();
+            const tls = (q.security || "").toLowerCase() === "tls";
+            const proxy = {
+              name: decodeURIComponent(u.hash.slice(1)) || "trojan",
+              type: "trojan",
+              server: u.hostname,
+              port: Number(u.port || 443),
+              password: decodeURIComponent(u.username),
+              tls,
+              network: net
+            };
+            if (net === "ws") proxy["ws-opts"] = { path: q.path || "", headers: { Host: q.host || "" } };
+            if (net === "grpc") proxy["grpc-opts"] = { "grpc-service-name": q.serviceName || q["service-name"] || "" };
+            return proxy;
+          } catch { return null; }
+        }
+
+        function parseHysteria2(link) {
+          try {
+            const u = new URL(link);
+            const name = decodeURIComponent(u.hash.slice(1)) || "hysteria2";
+            return {
+              name,
+              type: "hysteria2",
+              server: u.hostname,
+              port: Number(u.port),
+              password: decodeURIComponent(u.username),
+              udp: u.searchParams.get("udp") === "true",
+              sni: u.searchParams.get("sni") || undefined,
+              "skip-cert-verify": u.searchParams.get("skip-cert-verify") === "true"
+            };
+          } catch { return null; }
+        }
+
+        function parseAnytls(link) {
+          try {
+            const u = new URL(link);
+            const name = decodeURIComponent(u.hash.slice(1)) || "anytls";
+            return {
+              name,
+              type: "anytls",
+              server: u.hostname,
+              port: Number(u.port),
+              password: decodeURIComponent(u.username),
+              udp: u.searchParams.get("udp") === "true",
+              sni: u.searchParams.get("sni") || undefined,
+              "skip-cert-verify": u.searchParams.get("skip-cert-verify") === "true"
+            };
+          } catch { return null; }
+        }
+
+        async function main() {
+          const res = await axios.get(SUB_URL, { responseType: 'text' });
+          // Decode Base64 and remove first 2 lines (info nodes)
+          let lines = b64decode(res.data.trim())
+                        .split(/\r?\n/)
+                        .filter(Boolean)
+                        .slice(2);
+
+          const proxies = [];
+          for (const line of lines) {
+            if (line.startsWith("vmess://")) proxies.push(parseVmess(line));
+            else if (line.startsWith("vless://")) proxies.push(parseVless(line));
+            else if (line.startsWith("trojan://")) proxies.push(parseTrojan(line));
+            else if (line.startsWith("hysteria2://")) proxies.push(parseHysteria2(line));
+            else if (line.startsWith("anytls://")) proxies.push(parseAnytls(line));
+          }
+
+          console.log(`🔹 Total proxies parsed: ${proxies.length}`);
+          console.log("Proxy names:", proxies.map(p => p.name).join(", "));
+
+          // Load Clash template
+          const templatePath = path.join(process.cwd(), "ClashTemplate.ini");
+          const template_text = fs.readFileSync(templatePath, "utf8");
+
+          // Build YAML blocks
+          const proxies_yaml_block = yaml.dump(proxies, { lineWidth: -1 }).trimEnd();
+          const proxy_names_block = proxies.map(p => `      - ${p.name}`).join("\n");
+
+          // Replace placeholders in the template
+          let output_text = template_text;
+
+          // Replace all {{PROXIES}} placeholders
+          output_text = output_text.replace(/{{PROXIES}}/g, proxies_yaml_block);
+          // Replace all {{PROXY_NAMES}} placeholders
+          output_text = output_text.replace(/{{PROXY_NAMES}}/g, proxy_names_block);
+
+          // Add forced update timestamp
+          const yamlData = output_text;
+
+          fs.writeFileSync(GITHUB_FILE, yamlData, "utf8");
+          fs.writeFileSync(path.join(process.cwd(), "9PB.yml"), yamlData, "utf8");
+
+          if (!dryRun) {
+            try {
+              const fileInfo = await axios.get(
+                `https://api.github.com/repos/Vanic24/VPN/contents/${GITHUB_FILE}`,
+                { headers: { Authorization: `token ${GH_TOKEN}` } }
+              );
+              await axios.put(
+                `https://api.github.com/repos/Vanic24/VPN/contents/${GITHUB_FILE}`,
+                {
+                  message: `Auto Updated Sub3 at ${new Date().toISOString()}`,
+                  content: Buffer.from(yamlData).toString('base64'),
+                  sha: fileInfo.data.sha
+                },
+                { headers: { Authorization: `token ${GH_TOKEN}` } }
+              );
+              console.log("✅ GitHub updated successfully");
+
+              // 🔹 Upload to Textdb
+              const textdbUrl = "https://textdb.online/update/?key=9PB_SHFX&value={}";
               try {
-                if (line.startsWith('vmess://')) {
-                  const data = JSON.parse(Buffer.from(line.slice(8), 'base64').toString());
-                  proxies.push({
-                    name: data.ps || 'vmess',
-                    type: 'vmess',
-                    server: data.add,
-                    port: parseInt(data.port),
-                    uuid: data.id,
-                    alterId: 0,
-                    cipher: data.type || 'auto',
-                    network: data.net,
-                    wsPath: data.path || '',
-                    tls: data.tls === 'tls',
-                    sni: data.sni || ''
-                  });
-                }
-                else if (line.startsWith('vless://')) {
-                  const [before, after] = line.slice(7).split('#');
-                  const url = new URL(before);
-                  proxies.push({
-                    name: decodeURIComponent(after) || 'vless',
-                    type: 'vless',
-                    server: url.hostname,
-                    port: parseInt(url.port),
-                    uuid: url.username,
-                    network: url.searchParams.get('type') || 'tcp',
-                    wsPath: url.searchParams.get('path') || '',
-                    tls: url.searchParams.get('security') === 'tls',
-                    sni: url.searchParams.get('sni') || ''
-                  });
-                }
-                else if (line.startsWith('trojan://')) {
-                  const [before, after] = line.slice(9).split('#');
-                  const url = new URL(`trojan://${before}`);
-                  proxies.push({
-                    name: decodeURIComponent(after) || 'trojan',
-                    type: 'trojan',
-                    server: url.hostname,
-                    port: parseInt(url.port),
-                    password: url.username,
-                    sni: url.searchParams.get('sni') || ''
-                  });
-                }
-                else if (line.startsWith('hysteria2://')) {
-                  proxies.push({
-                    name: line,
-                    type: 'hysteria2',
-                    server: line,
-                    port: 0
-                  });
-                }
-                else if (line.startsWith('anytls://')) {
-                  proxies.push({
-                    name: line,
-                    type: 'anytls',
-                    server: line,
-                    port: 0
-                  });
+                const resp = await axios.post(
+                  textdbUrl,
+                  new URLSearchParams({ value: yamlData }).toString(),
+                  { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
+                );
+                if (resp.data.status === 1) {
+                  console.log("✅ Textdb uploaded successfully: " + resp.data.data.url);
+                } else {
+                  console.error("❌ Textdb upload failed:", resp.data);
                 }
               } catch (err) {
-                console.error('Failed to parse line:', line, err);
+                console.error("⚠️ Error uploading to Textdb:", err.message);
               }
+            } catch (e) {
+              console.error("⚠️ Failed to update GitHub:", e.message);
             }
+          } else {
+            console.log("⚠️ Dry run enabled — YAML generated but not pushed.");
+          }
+        }
 
-            const template = fs.readFileSync(path.join(__dirname, 'ClashTemplate.ini'), 'utf-8');
+        main().catch(e => { console.error("❌ Error:", e); process.exit(1); });
+        EOF
 
-            const proxies_yaml_block = yaml.dump(proxies);
-            const proxy_names_block = proxies.map(p => p.name).join('\n');
+      env:
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        SUB_3: ${{ secrets.SUB_9PB }}
+        DRY_RUN: ${{ github.event.inputs.dry_run }}
 
-            const outputContent = template
-              .replace('{{PROXIES}}', proxies_yaml_block)
-              .replace('{{PROXY_NAMES}}', proxy_names_block);
+    - name: Upload Clash YAML artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: 9PB
+        path: 9PB.yml
 
-            fs.writeFileSync('9PB', outputContent);
-            fs.writeFileSync('9PB.yml', proxies_yaml_block);
+    - name: Delete old artifacts (keep latest 2 9PB only)
+      run: |
+        echo "🔍 Checking for old artifacts..."
+        artifact_ids=$(gh api repos/${{ github.repository }}/actions/artifacts \
+          --jq '.artifacts[] | select(.name=="9PB") | .id')
 
-            if (!dry_run) {
-              // Update GitHub
-              const ghUrl = `https://api.github.com/repos/${process.env.GITHUB_REPOSITORY}/contents/9PB`;
-              const ghRes = await axios.get(ghUrl, {
-                headers: { Authorization: `token ${process.env.GITHUB_TOKEN}` }
-              });
-              const sha = ghRes.data.sha;
+        keep_ids=$(echo "$artifact_ids" | head -n 2)
+        delete_ids=$(echo "$artifact_ids" | tail -n +3)
 
-              await axios.put(ghUrl, {
-                message: `Auto update 9PB ${new Date().toISOString()}`,
-                content: Buffer.from(outputContent).toString('base64'),
-                sha
-              }, {
-                headers: { Authorization: `token ${process.env.GITHUB_TOKEN}` }
-              });
-              console.log('✅ GitHub updated successfully');
-
-              // Update Textdb using POST
-              const textdbUrl = 'https://textdb.online/update/?key=9PB_SHFX&value={}';
-
-              const res = await axios.post(
-                textdbUrl,
-                { value: outputContent },
-                { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
-              );
-
-              if (res.data.status === 1) {
-                console.log('✅ Textdb uploaded successfully: ' + res.data.data.url);
-              } else {
-                console.error('❌ Textdb upload failed:', res.data);
-            }
-            }
-          };
-
-          generate9PB().catch(err => {
-            console.error(err);
-            process.exit(1);
-          });
-          JS
-
-      - name: Upload 9PB artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: 9PB
-          path: 9PB.yml
-
-      - name: Cleanup old artifacts
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const artifacts = await github.rest.actions.listArtifactsForRepo({
-              owner: context.repo.owner,
-              repo: context.repo.repo
-            });
-            for (const artifact of artifacts.data.artifacts.filter(a => a.name === '9PB').slice(2)) {
-              await github.rest.actions.deleteArtifact({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                artifact_id: artifact.id
-              });
-            }
+        if [ -z "$delete_ids" ]; then
+          echo "✅ No old artifacts to delete."
+        else
+          for id in $delete_ids; do
+            gh api --method DELETE repos/${{ github.repository }}/actions/artifacts/$id
+            echo "🗑 Deleted old artifact $id"
+          done
+        fi
+      env:
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
