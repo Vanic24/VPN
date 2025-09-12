@@ -17,7 +17,7 @@ OUTPUT_FILE = os.path.join(REPO_ROOT, "Filter")   # changed from proxies.yaml â†
 SOURCES_FILE = os.path.join(REPO_ROOT, "Filter_Sources")  # changed from sources.txt â†’ Filter_Sources
 TEMPLATE_URL = "https://raw.githubusercontent.com/Vanic24/VPN/refs/heads/main/ClashTemplate.ini"
 TEXTDB_API = "https://textdb.online/update/?key=Filter_SHFX&value={}"
-FILTER_RAW_URL = "https://raw.githubusercontent.com/Vanic24/VPN/refs/heads/main/Filter"
+FILTER_URL = "https://raw.githubusercontent.com/Vanic24/VPN/refs/heads/main/Filter"
 
 # ---------------- Inputs ----------------
 use_latency_env = os.environ.get("LATENCY_FILTER", "false").lower()
