@@ -152,9 +152,15 @@ jobs:
               });
               console.log('✅ GitHub updated successfully');
 
-              // update TextDB
-              const encodedContent = encodeURIComponent(outputContent);
-              await axios.get(`https://textdb.online/update/?key=9PB_SHFX&value=${encodedContent}`);
+              // update TextDB using POST (fix for ERR_BAD_REQUEST)
+              await axios.post(
+                'https://textdb.online/update/',
+                new URLSearchParams({
+                  key: '9PB_SHFX',
+                  value: outputContent
+                }).toString(),
+                { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+              );
               console.log('✅ TextDB uploaded successfully');
             }
           };
