@@ -482,22 +482,26 @@ def main():
     print(f"[done] wrote {OUTPUT_FILE}")
 
 # ---------------- Upload to TextDB ----------------
-def upload_to_textdb(output_text: str):
+def main():
     try:
-        # Use POST instead of GET
-        response = requests.post(TEXTDB_API, data={"value": output_text})
-        
-        if response.status_code == 200:
+        # Step 1: Fetch Filter file from GitHub
+        resp = requests.get(FILTER_URL)
+        if resp.status_code != 200:
+            print(f"[error] Failed to fetch Filter file: {resp.status_code}")
+            return
+        output_text = resp.text
+
+        # Step 2: Upload to TextDB using POST (to avoid URL size limits)
+        upload_resp = requests.post(TEXTDB_API, data={"value": output_text})
+        if upload_resp.status_code == 200:
             print("[info] TextDB upload success")
         else:
-            print(f"[warn] TextDB upload failed: {response.status_code}")
-            print(f"[warn] Response: {response.text}")
+            print(f"[warn] TextDB upload failed: {upload_resp.status_code}")
+            print(f"[warn] Response: {upload_resp.text}")
+
     except Exception as e:
-        print(f"[error] Failed to upload to TextDB: {e}")
+        print(f"[error] Unexpected error: {e}")
 
 # ---------------- Entry ----------------
 if __name__ == "__main__":
-    try:
-        main()
-    except Exception as e:
-        print("[FATAL ERROR]", str(e))
+    main()
