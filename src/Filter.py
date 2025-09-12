@@ -494,14 +494,14 @@ def main():
         # Step 2: Upload to TextDB using POST (to avoid URL size limits)
         upload_resp = requests.post(TEXTDB_API, data={"value": output_text})
         if upload_resp.status_code == 200:
-            print("[info] TextDB upload success")
+            print("[info] Successfully uploaded on textdb")
         else:
-            print(f"[warn] TextDB upload failed: {upload_resp.status_code}")
+            print(f"[warn] Failed to upload on textdb: {upload_resp.status_code}")
             print(f"[warn] Response: {upload_resp.text}")
 
     except Exception as e:
         print(f"[error] Unexpected error: {e}")
-
+        upload_to_textdb("Filter")
 # ---------------- Entry ----------------
 if __name__ == "__main__":
     main()
