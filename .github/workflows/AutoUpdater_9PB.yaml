@@ -319,19 +319,10 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo
             });
-            // Filter artifacts named '9PB' and sort by created_at descending (newest first)
-            const items = (artifacts.data.artifacts || [])
-              .filter(a => a.name === '9PB')
-              .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-            // Keep the latest 2, delete the rest
-            const toDelete = items.slice(2);
-            for (const art of toDelete) {
+            for (const artifact of artifacts.data.artifacts.filter(a => a.name === '9PB').slice(2)) {
               await github.rest.actions.deleteArtifact({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                artifact_id: art.id
+                artifact_id: artifact.id
               });
-              core.info(`Deleted old artifact id=${art.id} created_at=${art.created_at}`);
             }
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
