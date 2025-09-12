@@ -40,14 +40,12 @@ jobs:
 
           const dry_run = process.env.DRY_RUN === 'true';
           const subUrl = process.env.SUB_9PB;
-
-          // keep the original fetch and base64 decode behavior as in your script1
           const fetchSub = async () => {
             const res = await axios.get(subUrl);
             return Buffer.from(res.data, 'base64').toString();
           };
 
-          // --- Advanced parsing functions merged/adapted from script 2 ---
+          // --- Advanced parsing functions ---
           function safeNumber(v, fallback = 0) {
             const n = Number(v);
             return Number.isFinite(n) ? n : fallback;
@@ -81,9 +79,10 @@ jobs:
                 sni: conf.sni || (conf.servername || '') || ''
               };
 
-              // ws-specific extra fields (keep names compatible with your first script style)
+              // ---ws-specific extra fields ---
               if (net === 'ws') {
                 proxy.wsPath = conf.path || '';
+                
                 // keep simple header host field if provided
                 if (conf.host) proxy.host = conf.host;
               }
@@ -101,7 +100,6 @@ jobs:
 
           function parseVless(line) {
             try {
-              // original script1 did: const [before, after] = line.slice(7).split('#');
               const [before, after] = line.slice(7).split('#');
               const url = new URL(before);
               const q = Object.fromEntries(url.searchParams.entries());
@@ -170,7 +168,6 @@ jobs:
 
           function parseHysteria2(line) {
             try {
-              // script2 used new URL(link) directly for hysteria2
               const u = new URL(line);
               const name = decodeURIComponent(u.hash ? u.hash.slice(1) : '') || 'hysteria2';
               return {
