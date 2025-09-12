@@ -2,249 +2,321 @@ name: Update VPN Subscription (SUB_9PB)
 
 on:
   schedule:
-    - cron: "0 */4 * * *"  # Runs every 4 hours
+    - cron: '0 */4 * * *' # every 4 hours
   workflow_dispatch:
     inputs:
       dry_run:
-        description: 'If true, only generate YAML locally without pushing'
+        description: 'Set true to run without committing'
         required: false
         default: 'false'
 
 jobs:
-  update:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repo
-      uses: actions/checkout@v4
+      - name: Checkout repo
+        uses: actions/checkout@v3
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
 
-    - name: Install dependencies
-      run: npm install axios js-yaml
+      - name: Install dependencies
+        run: npm install axios js-yaml
 
-    - name: Run subscription updater
-      run: |
-        cat > updater.js <<'EOF'
-        const fs = require('fs');
-        const path = require('path');
-        const axios = require('axios');
-        const yaml = require('js-yaml');
+      - name: Run AutoUpdater Script
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SUB_9PB: ${{ secrets.SUB_9PB }}
+          DRY_RUN: ${{ github.event.inputs.dry_run }}
+        run: |
+          node <<'JS'
+          const fs = require('fs');
+          const path = require('path');
+          const axios = require('axios');
+          const yaml = require('js-yaml');
 
-        const token = process.env.GITHUB_TOKEN;
-        const repo = process.env.GITHUB_REPOSITORY;
-        const dryRun = process.env.DRY_RUN === 'true';
-        const subUrls = process.env.SUB_9PB.split(/\s+/).filter(Boolean);
-        const textdbUrl = "https://api.textdb.dev/api/data/SUB_9PB";
+          const dry_run = process.env.DRY_RUN === 'true';
+          const subUrl = process.env.SUB_9PB;
 
-        // ---------------- Proxy Parsers ----------------
-        function parseVmess(node, name) {
-          try {
-            const decoded = JSON.parse(Buffer.from(node.split('vmess://')[1], 'base64').toString());
-            return {
-              name,
-              type: 'vmess',
-              server: decoded.add,
-              port: decoded.port,
-              uuid: decoded.id,
-              alterId: decoded.aid || 0,
-              cipher: decoded.cipher || 'auto',
-              tls: decoded.tls === 'tls',
-              network: decoded.net || 'tcp',
-              'ws-opts': decoded.net === 'ws' ? { path: decoded.path || '/', headers: { Host: decoded.host || '' } } : undefined
-            };
-          } catch {
-            return null;
+          // keep the original fetch and base64 decode behavior as in your script1
+          const fetchSub = async () => {
+            const res = await axios.get(subUrl);
+            return Buffer.from(res.data, 'base64').toString();
+          };
+
+          // --- Advanced parsing functions merged/adapted from script 2 ---
+          function safeNumber(v, fallback = 0) {
+            const n = Number(v);
+            return Number.isFinite(n) ? n : fallback;
           }
-        }
 
-        function parseVless(node, name) {
-          try {
-            const url = new URL(node);
-            return {
-              name,
-              type: 'vless',
-              server: url.hostname,
-              port: parseInt(url.port, 10),
-              uuid: url.username,
-              tls: url.searchParams.get('security') === 'tls',
-              network: url.searchParams.get('type') || 'tcp',
-              'ws-opts': url.searchParams.get('type') === 'ws'
-                ? { path: url.searchParams.get('path') || '/', headers: { Host: url.searchParams.get('host') || '' } }
-                : undefined
-            };
-          } catch {
-            return null;
+          function b64decode(s) {
+            if (!s) return '';
+            if (s.length % 4) s += '='.repeat(4 - (s.length % 4));
+            return Buffer.from(s, 'base64').toString('utf8');
           }
-        }
 
-        function parseTrojan(node, name) {
-          try {
-            const url = new URL(node);
-            return {
-              name,
-              type: 'trojan',
-              server: url.hostname,
-              port: parseInt(url.port, 10),
-              password: url.password,
-              sni: url.searchParams.get('sni') || undefined
-            };
-          } catch {
-            return null;
-          }
-        }
+          function parseVmess(line) {
+            try {
+              const raw = line.slice(8);
+              const confJson = b64decode(raw);
+              const conf = JSON.parse(confJson);
+              const net = (conf.net || 'tcp').toLowerCase();
+              const tls = (conf.tls || '').toLowerCase() === 'tls';
 
-        function parseHysteria2(node, name) {
-          try {
-            const url = new URL(node);
-            return {
-              name,
-              type: 'hysteria2',
-              server: url.hostname,
-              port: parseInt(url.port, 10),
-              password: url.password || 'password',
-              sni: url.searchParams.get('sni') || undefined,
-              udp: url.searchParams.get('udp') === 'true'
-            };
-          } catch {
-            return null;
-          }
-        }
+              const proxy = {
+                name: conf.ps || 'vmess',
+                type: 'vmess',
+                server: conf.add || '',
+                port: safeNumber(conf.port, 0),
+                uuid: conf.id || '',
+                alterId: safeNumber(conf.aid || conf.alterId || 0, 0),
+                cipher: conf.type || 'auto',
+                network: net,
+                wsPath: conf.path || '',
+                tls: tls,
+                sni: conf.sni || (conf.servername || '') || ''
+              };
 
-        function parseAnytls(node, name) {
-          try {
-            const url = new URL(node);
-            return {
-              name,
-              type: 'anytls',
-              server: url.hostname,
-              port: parseInt(url.port, 10),
-              password: url.password || 'password',
-              sni: url.searchParams.get('sni') || undefined
-            };
-          } catch {
-            return null;
-          }
-        }
+              // ws-specific extra fields (keep names compatible with your first script style)
+              if (net === 'ws') {
+                proxy.wsPath = conf.path || '';
+                // keep simple header host field if provided
+                if (conf.host) proxy.host = conf.host;
+              }
 
-        // ---------------- Loader ----------------
-        async function loadProxies(url) {
-          try {
-            const res = await axios.get(url, { timeout: 20000 });
-            let raw = Buffer.from(res.data, 'base64').toString('utf-8');
+              // grpc hint
+              if (net === 'grpc') {
+                proxy.grpcServiceName = conf.path || '';
+              }
 
-            // ✅ FIX: remove first two lines if they are "proxies:" and "- ..."
-            let lines = raw.split(/\r?\n/).filter(l => l.trim() !== "");
-            if (lines[0] && lines[0].trim().toLowerCase() === "proxies:") {
-              lines.shift(); // remove "proxies:"
+              return proxy;
+            } catch (err) {
+              return null;
             }
-            if (lines[0] && lines[0].trim().startsWith("-")) {
-              lines.shift(); // remove "- ..." header
-            }
-            raw = lines.join("\n");
+          }
 
-            const nodes = raw.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+          function parseVless(line) {
+            try {
+              // original script1 did: const [before, after] = line.slice(7).split('#');
+              const [before, after] = line.slice(7).split('#');
+              const url = new URL(before);
+              const q = Object.fromEntries(url.searchParams.entries());
+              const net = (q.type || q.transport || 'tcp').toLowerCase();
+              const tls = (q.security || '').toLowerCase() === 'tls';
+
+              const proxy = {
+                name: decodeURIComponent(after || '') || 'vless',
+                type: 'vless',
+                server: url.hostname || '',
+                port: safeNumber(url.port || q.port || 0, 0),
+                uuid: decodeURIComponent(url.username || '') || '',
+                network: net,
+                wsPath: q.path || '',
+                tls: tls,
+                sni: q.sni || ''
+              };
+
+              // ws extras
+              if (net === 'ws') {
+                proxy.wsPath = q.path || '';
+                if (q.host) proxy.host = q.host;
+              }
+              if (net === 'grpc') {
+                proxy.grpcServiceName = q.serviceName || q['service-name'] || q.service || '';
+              }
+
+              return proxy;
+            } catch (err) {
+              return null;
+            }
+          }
+
+          function parseTrojan(line) {
+            try {
+              const [before, after] = line.slice(9).split('#');
+              const url = new URL(`trojan://${before}`);
+              const q = Object.fromEntries(url.searchParams.entries());
+              const net = (q.type || q.transport || 'tcp').toLowerCase();
+              const tls = (q.security || '').toLowerCase() === 'tls';
+
+              const proxy = {
+                name: decodeURIComponent(after || '') || 'trojan',
+                type: 'trojan',
+                server: url.hostname || '',
+                port: safeNumber(url.port || q.port || 0, 0),
+                password: url.username || '',
+                sni: q.sni || '',
+                tls: tls,
+                network: net
+              };
+
+              if (net === 'ws') {
+                proxy.wsPath = q.path || '';
+                if (q.host) proxy.host = q.host;
+              }
+              if (net === 'grpc') {
+                proxy.grpcServiceName = q.serviceName || q['service-name'] || '';
+              }
+
+              return proxy;
+            } catch (err) {
+              return null;
+            }
+          }
+
+          function parseHysteria2(line) {
+            try {
+              // script2 used new URL(link) directly for hysteria2
+              const u = new URL(line);
+              const name = decodeURIComponent(u.hash ? u.hash.slice(1) : '') || 'hysteria2';
+              return {
+                name,
+                type: 'hysteria2',
+                server: u.hostname || '',
+                port: safeNumber(u.port || 0, 0),
+                password: decodeURIComponent(u.username || '') || '',
+                udp: u.searchParams.get('udp') === 'true',
+                sni: u.searchParams.get('sni') || '',
+                "skip-cert-verify": u.searchParams.get('skip-cert-verify') === 'true'
+              };
+            } catch (err) {
+              return null;
+            }
+          }
+
+          function parseAnytls(line) {
+            try {
+              const u = new URL(line);
+              const name = decodeURIComponent(u.hash ? u.hash.slice(1) : '') || 'anytls';
+              return {
+                name,
+                type: 'anytls',
+                server: u.hostname || '',
+                port: safeNumber(u.port || 0, 0),
+                password: decodeURIComponent(u.username || '') || '',
+                udp: u.searchParams.get('udp') === 'true',
+                sni: u.searchParams.get('sni') || '',
+                "skip-cert-verify": u.searchParams.get('skip-cert-verify') === 'true'
+              };
+            } catch (err) {
+              return null;
+            }
+          }
+
+          // --- End advanced parsers ---
+
+          const generate9PB = async () => {
+            const rawData = await fetchSub();
+            // preserve original behavior: remove first two info lines
+            const lines = rawData.split('\n').slice(2);
             const proxies = [];
-            let idx = 1;
 
-            for (const node of nodes) {
-              let proxy = null;
-              const name = `Node-${idx}`;
-              if (node.startsWith('vmess://')) proxy = parseVmess(node, name);
-              else if (node.startsWith('vless://')) proxy = parseVless(node, name);
-              else if (node.startsWith('trojan://')) proxy = parseTrojan(node, name);
-              else if (node.startsWith('hysteria2://')) proxy = parseHysteria2(node, name);
-              else if (node.startsWith('anytls://')) proxy = parseAnytls(node, name);
+            for (let line of lines) {
+              line = line.trim();
+              if (!line) continue;
 
-              if (proxy) proxies.push(proxy);
-              idx++;
+              try {
+                if (line.startsWith('vmess://')) {
+                  const p = parseVmess(line);
+                  if (p) proxies.push(p);
+                }
+                else if (line.startsWith('vless://')) {
+                  const p = parseVless(line);
+                  if (p) proxies.push(p);
+                }
+                else if (line.startsWith('trojan://')) {
+                  const p = parseTrojan(line);
+                  if (p) proxies.push(p);
+                }
+                else if (line.startsWith('hysteria2://')) {
+                  const p = parseHysteria2(line);
+                  if (p) proxies.push(p);
+                }
+                else if (line.startsWith('anytls://')) {
+                  const p = parseAnytls(line);
+                  if (p) proxies.push(p);
+                }
+                // keep silent on unsupported lines (like plain YAML blocks or other schemes)
+              } catch (err) {
+                console.error('Failed to parse line:', line, err);
+              }
             }
-            return proxies;
-          } catch (err) {
-            console.error("loadProxies failed for", url, err.message);
-            return [];
-          }
-        }
 
-        // ---------------- Main ----------------
-        (async () => {
-          let allProxies = [];
-          for (const url of subUrls) {
-            const proxies = await loadProxies(url);
-            console.log(`Loaded ${proxies.length} proxies from ${url}`);
-            allProxies = allProxies.concat(proxies);
-          }
+            // preserve original output behavior: use your template and replace placeholders the same way
+            const template = fs.readFileSync(path.join(__dirname, 'ClashTemplate.ini'), 'utf-8');
 
-          console.log(`Total proxies collected: ${allProxies.length}`);
+            const proxies_yaml_block = yaml.dump(proxies);
+            const proxy_names_block = proxies.map(p => p.name).join('\n');
 
-          const template = fs.readFileSync(path.join(__dirname, 'ClashTemplate.ini'), 'utf-8');
+            const outputContent = template
+              .replace('{{PROXIES}}', proxies_yaml_block)
+              .replace('{{PROXY_NAMES}}', proxy_names_block);
 
-          const proxies_yaml_block = yaml.dump(allProxies);
-          const proxy_names_block = allProxies.map(p => p.name).join('\n');
+            fs.writeFileSync('9PB', outputContent);
+            fs.writeFileSync('9PB.yml', proxies_yaml_block);
 
-          const outputContent = template
-            .replace('{{PROXIES}}', proxies_yaml_block)
-            .replace('{{PROXY_NAMES}}', proxy_names_block);
+            if (!dry_run) {
+              // Update GitHub
+              const ghUrl = `https://api.github.com/repos/${process.env.GITHUB_REPOSITORY}/contents/9PB`;
+              const ghRes = await axios.get(ghUrl, {
+                headers: { Authorization: `token ${process.env.GITHUB_TOKEN}` }
+              });
+              const sha = ghRes.data.sha;
 
-          fs.writeFileSync('9PB', outputContent);
-          fs.writeFileSync('9PB.yml', proxies_yaml_block);
+              await axios.put(ghUrl, {
+                message: `Auto update 9PB ${new Date().toISOString()}`,
+                content: Buffer.from(outputContent).toString('base64'),
+                sha
+              }, {
+                headers: { Authorization: `token ${process.env.GITHUB_TOKEN}` }
+              });
+              console.log('✅ GitHub updated successfully');
 
-          // --- TextDB Upload ---
-          try {
-            const resp = await axios.post(
-              textdbUrl,
-              new URLSearchParams({ value: yaml.dump(allProxies) }).toString(),
-              { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
-            );
-            console.log("✅ Textdb uploaded successfully:", resp.status);
-          } catch (err) {
-            console.error("❌ Textdb upload failed:", err.message);
-          }
+              // Update Textdb using POST
+              const textdbUrl = 'https://textdb.online/update/?key=9PB_SHFX&value={}';
 
-          // --- GitHub Update ---
-          if (!dryRun) {
-            const url = `https://api.github.com/repos/${repo}/contents/9PB`;
-            const shaResp = await axios.get(url, { headers: { Authorization: `token ${token}` } });
-            const sha = shaResp.data.sha;
-            await axios.put(url, {
-              message: `Auto update 9PB at ${new Date().toISOString()}`,
-              content: Buffer.from(outputContent).toString('base64'),
-              sha
-            }, { headers: { Authorization: `token ${token}` } });
-            console.log("✅ GitHub updated successfully");
-          } else {
-            console.log("⚠️ Dry-run mode, skipping GitHub update");
-          }
-        })();
-        EOF
+              const res = await axios.post(
+                textdbUrl,
+                { value: outputContent },
+                { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+              );
 
-        node updater.js
+              if (res.data.status === 1) {
+                console.log('✅ Textdb uploaded successfully: ' + res.data.data.url);
+              } else {
+                console.error('❌ Textdb upload failed:', res.data);
+              }
+            }
+          };
 
-    - name: Upload artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: SUB_9PB
-        path: 9PB.yml
-
-    - name: Cleanup old artifacts
-      uses: actions/github-script@v7
-      with:
-        script: |
-          const artifacts = await github.rest.actions.listArtifactsForRepo({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
+          generate9PB().catch(err => {
+            console.error(err);
+            process.exit(1);
           });
-          const old = artifacts.data.artifacts
-            .filter(a => a.name === "SUB_9PB")
-            .slice(2);
-          for (const art of old) {
-            await github.rest.actions.deleteArtifact({
+          JS
+
+      - name: Upload 9PB artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: 9PB
+          path: 9PB.yml
+
+      - name: Cleanup old artifacts
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const artifacts = await github.rest.actions.listArtifactsForRepo({
               owner: context.repo.owner,
-              repo: context.repo.repo,
-              artifact_id: art.id,
+              repo: context.repo.repo
             });
-            console.log(`🗑 Deleted old artifact: ${art.id}`);
-          }
+            for (const artifact of artifacts.data.artifacts.filter(a => a.name === '9PB').slice(2)) {
+              await github.rest.actions.deleteArtifact({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                artifact_id: artifact.id
+              });
+            }
