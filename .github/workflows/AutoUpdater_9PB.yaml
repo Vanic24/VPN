@@ -269,19 +269,23 @@ jobs:
             if (!dry_run) {
               // Update GitHub
               const ghUrl = `https://api.github.com/repos/${process.env.GITHUB_REPOSITORY}/contents/9PB`;
-              const ghRes = await axios.get(ghUrl, {
-                headers: { Authorization: `token ${process.env.GITHUB_TOKEN}` }
-              });
-              const sha = ghRes.data.sha;
+              try {
+                const ghRes = await axios.get(ghUrl, {
+                  headers: { Authorization: `token ${process.env.GITHUB_TOKEN}` }
+                });
+                const sha = ghRes.data.sha;
 
-              await axios.put(ghUrl, {
-                message: `🎉Auto update successful🎉`,
-                content: Buffer.from(outputContent).toString('base64'),
-                sha
-              }, {
-                headers: { Authorization: `token ${process.env.GITHUB_TOKEN}` }
-              });
-              console.log('✅ GitHub updated successfully');
+                await axios.put(ghUrl, {
+                  message: `🎉Auto update successful🎉`,
+                  content: Buffer.from(outputContent).toString('base64'),
+                  sha
+                }, {
+                  headers: { Authorization: `token ${process.env.GITHUB_TOKEN}` }
+                });
+                  console.log('✅ GitHub updated successfully');
+                } catch (err) {
+                  console.error('❌ GitHub update failed:', err.response?.data || err.message);
+                }
 
               // Update Textdb using POST
               const textdbUrl = 'https://textdb.online/update/?key=9PB_SHFX&value={}';
