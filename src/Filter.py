@@ -505,11 +505,7 @@ def upload_to_textdb_from_raw():
 
     except Exception as e:
         print(f"[error] TextDB upload exception: {e}")
-        upload_to_textdb(output_text)
 
 # ---------------- Entry ----------------
 if __name__ == "__main__":
-    try:
-        main()
-    except Exception as e:
-        print("[FATAL ERROR]", str(e))
+    upload_to_textdb_from_raw()
