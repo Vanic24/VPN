@@ -480,17 +480,33 @@ def main():
 
     print(f"[done] wrote {OUTPUT_FILE}")
 
-    # ---------------- Upload to TextDB ----------------
+import requests
+
+# ---------------- Upload to TextDB ----------------
+def upload_to_textdb():
     try:
-        encoded = urllib.parse.quote(output_text)
-        url = f"https://textdb.online/update/?key=Filter_SHFX&value={encoded}"
-        r = requests.get(url, timeout=10)
-        if r.status_code == 200:
+        # Read the Filter file content
+        with open(OUTPUT_FILE, 'r', encoding='utf-8') as f:
+            filter_content = f.read()
+
+        # Prepare the data to be uploaded
+        payload = {
+            'key': 'Filter_SHFX',
+            'value': filter_content
+        }
+
+        # Make the POST request to upload to TextDB
+        response = requests.post("https://textdb.online/update/", data=payload)
+
+        # Check if the upload was successful
+        if response.status_code == 200:
             print("[done] uploaded to TextDB successfully")
         else:
-            print(f"[warn] TextDB upload failed: {r.status_code}")
+            print(f"[warn] TextDB upload failed: {response.status_code} - {response.text}")
+    
     except Exception as e:
         print(f"[error] TextDB upload exception: {e}")
+        upload_to_textdb()
 
 # ---------------- Entry ----------------
 if __name__ == "__main__":
