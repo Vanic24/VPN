@@ -257,7 +257,9 @@ jobs:
             // Build YAML blocks
             const proxies_yaml_block = yaml.dump(proxies, { lineWidth: -1 }).trimEnd();
             // Build proxy names block (list)
-            const proxy_names_block = proxies.map    (p =>p.name).join('\n');
+            const proxy_names_block = correctedNodes
+              .map(p => `      - ${p.name}`)
+              .join("\n");
 
             // Replace placeholders (all occurrences)
             let outputContent = template.replace(/{{PROXIES}}/g, proxies_yaml_block);
