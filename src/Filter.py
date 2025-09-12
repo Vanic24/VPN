@@ -482,7 +482,7 @@ def main():
     print(f"[done] wrote {OUTPUT_FILE}")
 
 # ---------------- Upload to TextDB ----------------
-def main():
+def upload_to_textdb():
     try:
         # Step 1: Fetch Filter file from GitHub
         resp = requests.get(FILTER_URL)
@@ -504,4 +504,9 @@ def main():
         upload_to_textdb("Filter")
 # ---------------- Entry ----------------
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        print("[FATAL ERROR]", str(e))
+        traceback.print_exc()
+        sys.exit(1)
