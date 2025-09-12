@@ -18,7 +18,7 @@ jobs:
     - name: Checkout repo
       uses: actions/checkout@v4
 
-    - name: Setup Node.js
+    - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '20'
@@ -26,235 +26,207 @@ jobs:
     - name: Install dependencies
       run: npm install axios js-yaml
 
-    - name: Run subscription update
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        SUB_9PB: ${{ secrets.SUB_9PB }}
-        DRY_RUN: ${{ github.event.inputs.dry_run }}
+    - name: Run subscription updater
       run: |
-        node <<'EOF'
+        cat > updater.js <<'EOF'
         const fs = require('fs');
         const path = require('path');
-        const yaml = require('js-yaml');
         const axios = require('axios');
+        const yaml = require('js-yaml');
 
+        const token = process.env.GITHUB_TOKEN;
+        const repo = process.env.GITHUB_REPOSITORY;
         const dryRun = process.env.DRY_RUN === 'true';
-        const subUrl = process.env.SUB_9PB;
-
-        // ---------------- Fetch Subscription ----------------
-        async function fetchSubscription(url) {
-          const res = await axios.get(url, { timeout: 20000 });
-          let text = res.data;
-
-          // 🔹 Exclude first 2 lines if they start with "proxies:" or metadata
-          let lines = text.split(/\r?\n/).filter(l => l.trim() !== '');
-          if (lines.length > 2 && lines[0].toLowerCase().includes("proxies")) {
-            lines = lines.slice(1); // drop "proxies:" header
-          }
-          if (lines.length > 1 && lines[0].startsWith('- {')) {
-            lines = lines.slice(2); // drop first 2 info lines if JSON style
-          }
-          return lines.join("\n");
-        }
+        const subUrls = process.env.SUB_9PB.split(/\s+/).filter(Boolean);
+        const textdbUrl = "https://api.textdb.dev/api/data/SUB_9PB";
 
         // ---------------- Proxy Parsers ----------------
-        function parseVmess(line) {
+        function parseVmess(node, name) {
           try {
-            const json = JSON.parse(line);
+            const decoded = JSON.parse(Buffer.from(node.split('vmess://')[1], 'base64').toString());
             return {
-              name: json.name || "vmess",
-              type: "vmess",
-              server: json.server,
-              port: json.port,
-              uuid: json.uuid,
-              alterId: json.alterId || 0,
-              cipher: json.cipher || "auto",
-              tls: json.tls || false,
-              sni: json.sni || undefined,
-              network: json.network || undefined,
-              "ws-opts": json['ws-opts'] || undefined,
-              "grpc-opts": json['grpc-opts'] || undefined,
-              udp: json.udp || false
+              name,
+              type: 'vmess',
+              server: decoded.add,
+              port: decoded.port,
+              uuid: decoded.id,
+              alterId: decoded.aid || 0,
+              cipher: decoded.cipher || 'auto',
+              tls: decoded.tls === 'tls',
+              network: decoded.net || 'tcp',
+              'ws-opts': decoded.net === 'ws' ? { path: decoded.path || '/', headers: { Host: decoded.host || '' } } : undefined
             };
-          } catch (e) {
+          } catch {
             return null;
           }
         }
 
-        function parseVless(line) {
+        function parseVless(node, name) {
           try {
-            const json = JSON.parse(line);
+            const url = new URL(node);
             return {
-              name: json.name || "vless",
-              type: "vless",
-              server: json.server,
-              port: json.port,
-              uuid: json.uuid,
-              tls: json.tls || false,
-              sni: json.sni || undefined,
-              network: json.network || undefined,
-              "ws-opts": json['ws-opts'] || undefined,
-              "grpc-opts": json['grpc-opts'] || undefined,
-              udp: json.udp || false
+              name,
+              type: 'vless',
+              server: url.hostname,
+              port: parseInt(url.port, 10),
+              uuid: url.username,
+              tls: url.searchParams.get('security') === 'tls',
+              network: url.searchParams.get('type') || 'tcp',
+              'ws-opts': url.searchParams.get('type') === 'ws'
+                ? { path: url.searchParams.get('path') || '/', headers: { Host: url.searchParams.get('host') || '' } }
+                : undefined
             };
-          } catch (e) {
+          } catch {
             return null;
           }
         }
 
-        function parseTrojan(line) {
+        function parseTrojan(node, name) {
           try {
-            const json = JSON.parse(line);
+            const url = new URL(node);
             return {
-              name: json.name || "trojan",
-              type: "trojan",
-              server: json.server,
-              port: json.port,
-              password: json.password,
-              sni: json.sni || undefined,
-              "skip-cert-verify": json['skip-cert-verify'] || false,
-              udp: json.udp || false
+              name,
+              type: 'trojan',
+              server: url.hostname,
+              port: parseInt(url.port, 10),
+              password: url.password,
+              sni: url.searchParams.get('sni') || undefined
             };
-          } catch (e) {
+          } catch {
             return null;
           }
         }
 
-        function parseHysteria2(line) {
+        function parseHysteria2(node, name) {
           try {
-            const json = JSON.parse(line);
+            const url = new URL(node);
             return {
-              name: json.name || "hysteria2",
-              type: "hysteria2",
-              server: json.server,
-              port: json.port,
-              password: json.password,
-              sni: json.sni || undefined,
-              alpn: json.alpn || undefined,
-              obfs: json.obfs || undefined,
-              "skip-cert-verify": json['skip-cert-verify'] || false
+              name,
+              type: 'hysteria2',
+              server: url.hostname,
+              port: parseInt(url.port, 10),
+              password: url.password || 'password',
+              sni: url.searchParams.get('sni') || undefined,
+              udp: url.searchParams.get('udp') === 'true'
             };
-          } catch (e) {
+          } catch {
             return null;
           }
         }
 
-        function parseAnytls(line) {
+        function parseAnytls(node, name) {
           try {
-            const json = JSON.parse(line);
+            const url = new URL(node);
             return {
-              name: json.name || "anytls",
-              type: "anytls",
-              server: json.server,
-              port: json.port,
-              password: json.password,
-              sni: json.sni || undefined,
-              "skip-cert-verify": json['skip-cert-verify'] || false
+              name,
+              type: 'anytls',
+              server: url.hostname,
+              port: parseInt(url.port, 10),
+              password: url.password || 'password',
+              sni: url.searchParams.get('sni') || undefined
             };
-          } catch (e) {
+          } catch {
             return null;
           }
         }
 
-        // ---------------- Parse Subscription ----------------
-        function parseProxies(data) {
-          const proxies = [];
-          const lines = data.split(/\r?\n/).filter(l => l.trim() !== '');
-          for (const line of lines) {
-            if (line.includes('"type":"vmess"')) {
-              const p = parseVmess(line); if (p) proxies.push(p);
-            } else if (line.includes('"type":"vless"')) {
-              const p = parseVless(line); if (p) proxies.push(p);
-            } else if (line.includes('"type":"trojan"')) {
-              const p = parseTrojan(line); if (p) proxies.push(p);
-            } else if (line.includes('"type":"hysteria2"')) {
-              const p = parseHysteria2(line); if (p) proxies.push(p);
-            } else if (line.includes('"type":"anytls"')) {
-              const p = parseAnytls(line); if (p) proxies.push(p);
+        // ---------------- Loader ----------------
+        async function loadProxies(url) {
+          try {
+            const res = await axios.get(url, { timeout: 20000 });
+            let raw = Buffer.from(res.data, 'base64').toString('utf-8');
+
+            // ✅ FIX: remove first two lines if they are "proxies:" and "- ..."
+            let lines = raw.split(/\r?\n/).filter(l => l.trim() !== "");
+            if (lines[0] && lines[0].trim().toLowerCase() === "proxies:") {
+              lines.shift(); // remove "proxies:"
             }
+            if (lines[0] && lines[0].trim().startsWith("-")) {
+              lines.shift(); // remove "- ..." header
+            }
+            raw = lines.join("\n");
+
+            const nodes = raw.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+            const proxies = [];
+            let idx = 1;
+
+            for (const node of nodes) {
+              let proxy = null;
+              const name = `Node-${idx}`;
+              if (node.startsWith('vmess://')) proxy = parseVmess(node, name);
+              else if (node.startsWith('vless://')) proxy = parseVless(node, name);
+              else if (node.startsWith('trojan://')) proxy = parseTrojan(node, name);
+              else if (node.startsWith('hysteria2://')) proxy = parseHysteria2(node, name);
+              else if (node.startsWith('anytls://')) proxy = parseAnytls(node, name);
+
+              if (proxy) proxies.push(proxy);
+              idx++;
+            }
+            return proxies;
+          } catch (err) {
+            console.error("loadProxies failed for", url, err.message);
+            return [];
           }
-          return proxies;
         }
 
         // ---------------- Main ----------------
         (async () => {
-          try {
-            console.log("🔍 Fetching subscription...");
-            const rawData = await fetchSubscription(subUrl);
-
-            console.log("📦 Parsing proxies...");
-            const proxies = parseProxies(rawData);
-            console.log(`✅ Got ${proxies.length} proxies`);
-
-            // ---------------- Template Merge ----------------
-            const template = fs.readFileSync(path.join(__dirname, 'ClashTemplate.ini'), 'utf-8');
-
-            const proxies_yaml_block = yaml.dump(proxies);
-            const proxy_names_block = proxies.map(p => p.name).join('\n');
-
-            const outputContent = template
-              .replace('{{PROXIES}}', proxies_yaml_block)
-              .replace('{{PROXY_NAMES}}', proxy_names_block);
-
-            fs.writeFileSync('9PB', outputContent);
-            fs.writeFileSync('9PB.yml', proxies_yaml_block);
-
-            console.log("💾 Files written: 9PB & 9PB.yml");
-
-            // ---------------- Update Repo ----------------
-            if (!dryRun) {
-              const repo = process.env.GITHUB_REPOSITORY;
-              const token = process.env.GITHUB_TOKEN;
-              const apiBase = `https://api.github.com/repos/${repo}/contents/9PB`;
-
-              // get sha
-              const current = await axios.get(apiBase, {
-                headers: { Authorization: `token ${token}` }
-              }).catch(() => null);
-
-              const sha = current?.data?.sha;
-
-              await axios.put(apiBase, {
-                message: `Auto update 9PB at ${new Date().toISOString()}`,
-                content: Buffer.from(outputContent).toString('base64'),
-                sha: sha
-              }, { headers: { Authorization: `token ${token}` } });
-
-              console.log("✅ GitHub updated successfully");
-            } else {
-              console.log("🚫 Dry run mode, not pushing to repo");
-            }
-
-              // Upload to Textdb using application/x-www-form-urlencoded
-              const textdbUrl = 'https://textdb.online/update/?key=9PB_SHFX';
-              try {
-                const params = new URLSearchParams({ value: outputContent }).toString();
-                const res = await axios.post(textdbUrl, params, {
-                  headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-                });
-                if (res.data && res.data.status === 1) {
-                  console.log('✅ Textdb uploaded successfully: ' + (res.data.data && res.data.data.url ? res.data.data.url : 'no-url'));
-                } else {
-                  console.error('❌ Textdb upload failed:', res.data);
-                }
-              } catch (err) {
-                console.error('⚠️ Error uploading to Textdb:', err && err.message ? err.message : err);
-              }
-            } else {
-              console.log('⚠️ Dry run enabled — YAML generated but not pushed.');
-            }
+          let allProxies = [];
+          for (const url of subUrls) {
+            const proxies = await loadProxies(url);
+            console.log(`Loaded ${proxies.length} proxies from ${url}`);
+            allProxies = allProxies.concat(proxies);
           }
 
-          generate9PB().catch(err => {
-            console.error('❌ Fatal error:', err && err.message ? err.message : err);
-            process.exit(1);
-          });
-          JS
+          console.log(`Total proxies collected: ${allProxies.length}`);
 
-    - name: Upload YAML artifact
+          const template = fs.readFileSync(path.join(__dirname, 'ClashTemplate.ini'), 'utf-8');
+
+          const proxies_yaml_block = yaml.dump(allProxies);
+          const proxy_names_block = allProxies.map(p => p.name).join('\n');
+
+          const outputContent = template
+            .replace('{{PROXIES}}', proxies_yaml_block)
+            .replace('{{PROXY_NAMES}}', proxy_names_block);
+
+          fs.writeFileSync('9PB', outputContent);
+          fs.writeFileSync('9PB.yml', proxies_yaml_block);
+
+          // --- TextDB Upload ---
+          try {
+            const resp = await axios.post(
+              textdbUrl,
+              new URLSearchParams({ value: yaml.dump(allProxies) }).toString(),
+              { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
+            );
+            console.log("✅ Textdb uploaded successfully:", resp.status);
+          } catch (err) {
+            console.error("❌ Textdb upload failed:", err.message);
+          }
+
+          // --- GitHub Update ---
+          if (!dryRun) {
+            const url = `https://api.github.com/repos/${repo}/contents/9PB`;
+            const shaResp = await axios.get(url, { headers: { Authorization: `token ${token}` } });
+            const sha = shaResp.data.sha;
+            await axios.put(url, {
+              message: `Auto update 9PB at ${new Date().toISOString()}`,
+              content: Buffer.from(outputContent).toString('base64'),
+              sha
+            }, { headers: { Authorization: `token ${token}` } });
+            console.log("✅ GitHub updated successfully");
+          } else {
+            console.log("⚠️ Dry-run mode, skipping GitHub update");
+          }
+        })();
+        EOF
+
+        node updater.js
+
+    - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
-        name: 9PB
+        name: SUB_9PB
         path: 9PB.yml
 
     - name: Cleanup old artifacts
@@ -264,17 +236,15 @@ jobs:
           const artifacts = await github.rest.actions.listArtifactsForRepo({
             owner: context.repo.owner,
             repo: context.repo.repo,
-            per_page: 100
           });
-          const oldArtifacts = artifacts.data.artifacts
-            .filter(a => a.name === "9PB")
-            .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+          const old = artifacts.data.artifacts
+            .filter(a => a.name === "SUB_9PB")
             .slice(2);
-          for (const artifact of oldArtifacts) {
+          for (const art of old) {
             await github.rest.actions.deleteArtifact({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              artifact_id: artifact.id
+              artifact_id: art.id,
             });
-            core.info(`🗑 Deleted old artifact ${artifact.name} (${artifact.id})`);
+            console.log(`🗑 Deleted old artifact: ${art.id}`);
           }
