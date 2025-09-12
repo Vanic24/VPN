@@ -152,14 +152,14 @@ jobs:
               });
               console.log('✅ GitHub updated successfully');
 
-              // update TextDB using POST
+              // update TextDB using POST (fix empty key issue)
               const postData = new URLSearchParams();
-              postData.append('key', '9PB-SHFX');  // safe key, alphanumeric + dash
+              postData.append('key', '9PB-SHFX'); // safer: replace _ with -
               postData.append('value', outputContent);
 
               const resTextDB = await axios.post(
                 'https://textdb.online/update/',
-                postData,  // pass URLSearchParams object directly
+                postData,
                 { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
               );
 
@@ -167,7 +167,7 @@ jobs:
                 console.log('✅ TextDB uploaded successfully: ' + resTextDB.data.data.url);
               } else {
                 console.error('❌ TextDB upload failed:', resTextDB.data);
-            }
+              }
             }
           };
 
