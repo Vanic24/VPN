@@ -247,17 +247,22 @@ jobs:
             }
 
             // preserve original output behavior: use your template and replace placeholders the same way
-            const template = fs.readFileSync(path.join(__dirname, 'ClashTemplate.ini'), 'utf-8');
+            const template = fs.readFileSync(templatePath, 'utf-8');
 
-            const proxies_yaml_block = yaml.dump(proxies);
-            const proxy_names_block = proxies.map(p => p.name).join('\n');
+            // Build YAML blocks
+            const proxies_yaml_block = yaml.dump(uniqueProxies, { lineWidth: -1 }).trimEnd();
+            // Build proxy names block (list)
+            const proxy_names_block = uniqueProxies.map(p =>    p.name).join('\n');
 
-            const outputContent = template
-              .replace('{{PROXIES}}', proxies_yaml_block)
-              .replace('{{PROXY_NAMES}}', proxy_names_block);
+            // Replace placeholders (all occurrences)
+            let outputContent = template.replace(/{{PROXIES}}/g, proxies_yaml_block);
+            outputContent = outputContent.replace(/{{PROXY_NAMES}}/g, proxy_names_block);
 
-            fs.writeFileSync('9PB', outputContent);
-            fs.writeFileSync('9PB.yml', proxies_yaml_block);
+            // Write output files
+            fs.writeFileSync('9PB', outputContent, 'utf8');
+            fs.writeFileSync('9PB.yml', outputContent, 'utf8');
+            
+            console.log('✅ Local files written: 9PB, 9PB.yml');
 
             if (!dry_run) {
               // Update GitHub
