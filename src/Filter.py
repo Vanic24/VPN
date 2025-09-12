@@ -434,7 +434,6 @@ def main():
         all_nodes.extend(nodes)
 
     print(f"[collect] total {len(all_nodes)} nodes before filtering")
-    upload_to_textdb("Filter")
 
     # ---------------- Latency filter ----------------
     if USE_LATENCY:
@@ -509,5 +508,6 @@ if __name__ == "__main__":
         main()
     except Exception as e:
         print("[FATAL ERROR]", str(e))
+        upload_to_textdb()
         traceback.print_exc()
         sys.exit(1)
