@@ -510,6 +510,7 @@ def upload_to_textdb_from_raw():
 if __name__ == "__main__":
     try:
         main()
+        upload_to_textdb(output_text)
     except Exception as e:
         print("[FATAL ERROR]", str(e))
         traceback.print_exc()
