@@ -497,4 +497,7 @@ def upload_to_textdb(output_text: str):
 
 # ---------------- Entry ----------------
 if __name__ == "__main__":
-    upload_to_textdb_from_raw()
+    try:
+        main()
+    except Exception as e:
+        print("[FATAL ERROR]", str(e))
