@@ -482,29 +482,18 @@ def main():
     print(f"[done] wrote {OUTPUT_FILE}")
 
 # ---------------- Upload to TextDB ----------------
-def upload_to_textdb_from_raw():
+def upload_to_textdb(output_text: str):
     try:
-        # Step 1: Download the raw Filter file content
-        r = requests.get(FILTER_RAW_URL, timeout=15)
-        r.raise_for_status()
-        content = r.text  # This is the full Clash YAML
-
-        # Step 2: URL encode it
-        encoded_content = urllib.parse.quote(content)
-
-        # Step 3: Build API URL
-        url = TEXTDB_API.format(encoded_content)
-
-        # Step 4: Send upload request
-        resp = requests.get(url, timeout=10)
-        if resp.status_code == 200:
-            print("[done] uploaded Filter raw content to TextDB successfully")
+        # Use POST instead of GET
+        response = requests.post(TEXTDB_API, data={"value": output_text})
+        
+        if response.status_code == 200:
+            print("[info] TextDB upload success")
         else:
-            print(f"[warn] TextDB upload failed: {resp.status_code}")
-            print(f"[warn] Response: {resp.text}")
-
+            print(f"[warn] TextDB upload failed: {response.status_code}")
+            print(f"[warn] Response: {response.text}")
     except Exception as e:
-        print(f"[error] TextDB upload exception: {e}")
+        print(f"[error] Failed to upload to TextDB: {e}")
 
 # ---------------- Entry ----------------
 if __name__ == "__main__":
