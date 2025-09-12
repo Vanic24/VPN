@@ -41,7 +41,6 @@ jobs:
           const dry_run = process.env.DRY_RUN === 'true';
           const subUrl = process.env.SUB_9PB;
 
-          // Fetch subscription content
           const fetchSub = async () => {
             const res = await axios.get(subUrl);
             return Buffer.from(res.data, 'base64').toString();
@@ -49,10 +48,9 @@ jobs:
 
           const generate9PB = async () => {
             const rawData = await fetchSub();
-            const lines = rawData.split('\n').slice(2); // skip first 2 lines
+            const lines = rawData.split('\n').slice(2);
             const proxies = [];
 
-            // parse proxies
             for (let line of lines) {
               line = line.trim();
               if (!line) continue;
@@ -122,7 +120,6 @@ jobs:
               }
             }
 
-            // read template
             const template = fs.readFileSync(path.join(__dirname, 'ClashTemplate.ini'), 'utf-8');
 
             const proxies_yaml_block = yaml.dump(proxies);
@@ -136,7 +133,7 @@ jobs:
             fs.writeFileSync('9PB.yml', proxies_yaml_block);
 
             if (!dry_run) {
-              // update GitHub
+              // Update GitHub
               const ghUrl = `https://api.github.com/repos/${process.env.GITHUB_REPOSITORY}/contents/9PB`;
               const ghRes = await axios.get(ghUrl, {
                 headers: { Authorization: `token ${process.env.GITHUB_TOKEN}` }
@@ -152,21 +149,22 @@ jobs:
               });
               console.log('✅ GitHub updated successfully');
 
-              // update TextDB using POST (fix empty key issue)
-              const postData = new URLSearchParams();
-              postData.append('key', '9PB_SHFX'); // safer: replace _ with -
-              postData.append('value', outputContent);
+              // Update TextDB using POST
+              const postData = new URLSearchParams({
+                key: '9PB_SHFX',
+                value: outputContent
+              }).toString();
 
-              const resTextDB = await axios.post(
+              const res = await axios.post(
                 'https://textdb.online/update/',
                 postData,
                 { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
               );
 
-              if (resTextDB.data.status === 1) {
-                console.log('✅ Textdb uploaded successfully: ' + resTextDB.data.data.url);
+              if (res.data.status === 1) {
+                console.log('✅ Textdb uploaded successfully: ' + res.data.data.url);
               } else {
-                console.error('❌ Textdb upload failed:', resTextDB.data);
+                console.error('❌ Textdb upload failed:', res.data);
               }
             }
           };
