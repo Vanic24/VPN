@@ -29,14 +29,14 @@ jobs:
     - name: Run update script
       id: generate_yaml
       run: |
-        node <<'EOF'
+        node <<'JS'
         const axios = require('axios');
         const yaml = require('js-yaml');
         const fs = require('fs');
         const { URL } = require('url');
         const path = require('path');
 
-        const SUB_URL = process.env.9PB;
+        const SUB_URL = process.env.SUB_9PB;
         const GH_TOKEN = process.env.GH_TOKEN;
         const GITHUB_FILE = "9PB";
         const dryRun = process.env.DRY_RUN === "true";
