@@ -153,17 +153,15 @@ jobs:
               console.log('✅ GitHub updated successfully');
 
               // update TextDB using POST
-              const postData = new URLSearchParams({
-                key: '9PB_SHFX',
-                value: outputContent
-              }).toString();
-
-              const resTextDB = await axios.post(
+              await axios.post(
                 'https://textdb.online/update/',
-                postData,
+                new URLSearchParams({
+                  key: '9PB_SHFX',
+                  value: outputContent
+                }).toString(),
                 { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
               );
-
+              
               if (resTextDB.data.status === 1) {
                 console.log('✅ Textdb uploaded successfully: ' + resTextDB.data.data.url);
               } else {
