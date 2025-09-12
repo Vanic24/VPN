@@ -154,20 +154,20 @@ jobs:
 
               // update TextDB using POST
               const postData = new URLSearchParams();
-              postData.append('key', '9PB-SHFX');
+              postData.append('key', '9PB-SHFX');  // safe key, alphanumeric + dash
               postData.append('value', outputContent);
 
               const resTextDB = await axios.post(
                 'https://textdb.online/update/',
-                postData,                                  // pass URLSearchParams object directly
+                postData,  // pass URLSearchParams object directly
                 { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
               );
 
               if (resTextDB.data.status === 1) {
-                console.log('✅ Textdb uploaded successfully: ' + resTextDB.data.data.url);
+                console.log('✅ TextDB uploaded successfully: ' + resTextDB.data.data.url);
               } else {
-                console.error('❌ Textdb upload failed:', resTextDB.data);
-              }
+                console.error('❌ TextDB upload failed:', resTextDB.data);
+            }
             }
           };
 
