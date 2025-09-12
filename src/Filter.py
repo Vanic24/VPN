@@ -466,6 +466,9 @@ def main():
     except Exception as e:
         print(f"[FATAL] failed to fetch template -> {e}")
         sys.exit(1)
+        
+    # Always upload after processing
+    upload_to_textdb()
 
     # ---------------- Convert to YAML ----------------
     proxies_yaml_block = yaml.dump(corrected_nodes, allow_unicode=True, default_flow_style=False)
