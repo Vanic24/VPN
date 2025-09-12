@@ -153,17 +153,24 @@ jobs:
               console.log('✅ GitHub updated successfully');
 
               // update TextDB using POST (fix for ERR_BAD_REQUEST)
-              await axios.post(
-                'https://textdb.online/update/',
-                new URLSearchParams({
-                  key: '9PB_SHFX',
-                  value: JSON.stringify(outputContent)
-              }).toString(),
-              { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
-            );
-            console.log('✅ TextDB uploaded successfully');
-            }
-          };
+              const axios = require('axios');
+
+              const data = new URLSearchParams({
+              key: '9PB_SHFX',                // only the identifier
+              value: outputContent            // raw content or JSON.stringify if you want exact YAML with line breaks
+          }).toString();
+
+          const res = await axios.post(
+            'https://textdb.online/update/', 
+            data,
+            { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+          );
+
+          if (res.data.status === 1) {
+            console.log('✅ Textdb uploaded successfully: ' + res.data.data.url);
+          } else {
+            console.error('❌ Textdb upload failed:', res.data);
+          }
 
           generate9PB().catch(err => {
             console.error(err);
