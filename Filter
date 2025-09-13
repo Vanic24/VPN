@@ -77,120 +77,93 @@ dns:
       - 240.0.0.0/4
       - 0.0.0.0/32
 proxies:
-- cipher: rc4-md5
+- client-fingerprint: chrome
+  grpc-opts: {}
   name: 🇺🇸|US1|@SHFX
-  password: 14fFPrbezE3HDZzsMOr6
-  port: 8080
-  server: 107.151.182.253
-  type: ss
-- alterId: 0
-  cipher: auto
+  network: grpc
+  port: 8880
+  server: 185.236.232.223
+  skip-cert-verify: true
+  tfo: true
+  tls: true
+  type: vless
+  udp: true
+  uuid: e4824193-4f54-453b-d037-88368e85ef0e
+- client-fingerprint: random
+  fingerprint: ''
   name: 🇺🇸|US2|@SHFX
   network: ws
-  port: 2082
-  server: 104.16.43.175
-  skip-cert-verify: true
-  tls: false
-  type: vmess
-  udp: true
-  uuid: 753443e5-052c-4476-9cfa-3f434ff2f986
+  port: 2087
+  server: www.visa.com.sg
+  servername: vl.hongkong6.qzz.io
+  tls: true
+  type: vless
+  udp: false
+  uuid: 90c7ad5e-cd15-4314-b39b-aeabd397d592
   ws-opts:
-    path: /ws?ed=2048
+    headers:
+      host: vl.hongkong6.qzz.io
+    path: /?ed=2560
 - alterId: 0
   cipher: auto
   name: 🇺🇸|US3|@SHFX
   network: ws
-  port: 8080
-  server: 172.67.185.64
-  skip-cert-verify: true
-  tls: false
-  type: vmess
-  udp: true
-  uuid: b551aa22-22af-11ee-b8d8-f23c932eb68d
-  ws-opts:
-    path: /
-- alterId: 0
-  cipher: auto
-  h2-opts: {}
-  http-opts: {}
-  name: 🇺🇸|US4|@SHFX
-  network: ws
-  port: 8080
-  server: npmjs.com
-  skip-cert-verify: true
-  type: vmess
-  uuid: 6cbc9c78-1cb1-57d4-a999-e2f4e34c1e03
-  ws-opts:
-    headers:
-      Host: ke7hz36ewz-4515017473.mashallahbet.com
-    path: /nasnet/cdn
-- alterId: 0
-  cipher: auto
-  name: 🇺🇸|US5|@SHFX
-  network: ws
   port: 443
-  server: 172.67.170.13
+  server: 104.19.49.6
   skip-cert-verify: true
   tls: true
   type: vmess
   udp: true
-  uuid: 76221bfb-e92f-4e80-81c5-6fe48f50ac0b
+  uuid: 5840ab2d-ab59-4eb0-9dea-122d0fbbd2d9
   ws-opts:
-    headers:
-      Host: glweidf.sbs
-    path: /linkws
+    path: /
 - alterId: 0
   cipher: auto
-  name: 🇺🇸|US6|@SHFX
+  name: 🇺🇸|US4|@SHFX
   network: ws
-  port: 80
-  server: 104.18.15.148
+  port: 8443
+  server: 172.67.184.53
   skip-cert-verify: true
-  tls: false
+  tls: true
   type: vmess
   udp: true
-  uuid: 002cdc9f-63ae-4b3f-8720-3b3f760b487d
+  uuid: 1cec1ebc-b489-4769-f2d9-e079b5832a60
   ws-opts:
-    path: /?ed=2048
+    path: /cloudconeaaa
 - alterId: 0
   cipher: auto
-  name: 🇺🇸|US7|@SHFX
-  network: ws
-  port: 80
-  server: 104.19.43.229
-  skip-cert-verify: true
-  tls: false
-  type: vmess
-  udp: true
-  uuid: 5d815dc6-a795-44ff-aeb6-7ee16a7a1c57
-  ws-opts:
-    path: /needay?ed=2048
-- alterId: 0
-  cipher: auto
-  name: 🇺🇸|US8|@SHFX
-  network: ws
-  port: 80
-  server: 104.19.44.33
-  skip-cert-verify: true
-  tls: false
-  type: vmess
-  udp: true
-  uuid: 1cfaad16-d2ba-4c49-af07-d7b9f11f43d0
-  ws-opts:
-    path: /xn--mes53ddysu0o3gl
-- alterId: 0
-  cipher: auto
-  name: 🇺🇸|US9|@SHFX
+  name: 🇺🇸|US5|@SHFX
   network: ws
   port: 2082
-  server: 104.19.42.89
+  server: 104.19.45.79
   skip-cert-verify: true
   tls: false
   type: vmess
   udp: true
-  uuid: 37d8c992-6170-40e9-89dd-e9a2647223f8
+  uuid: f1c67059-9b50-4866-bc0c-a7288c1b920a
   ws-opts:
     path: /ws?ed=2048
+- alterId: 0
+  cipher: auto
+  grpc-opts:
+    grpc-service-name: /
+  name: 🇺🇸|US6|@SHFX
+  network: grpc
+  port: 2087
+  server: 104.18.219.67
+  servername: ''
+  skip-cert-verify: true
+  tls: true
+  type: vmess
+  udp: true
+  uuid: 08ec6a06-8c15-4069-a781-8c725a30b7e7
+- cipher: aes-256-gcm
+  name: 🇺🇸|US7|@SHFX
+  password: pKEW8JPByTVTLtM
+  port: 443
+  server: 38.110.1.105
+  type: ss
+  udp: true
 
 proxy-groups:
   - name: ♻️ 自动选择
@@ -206,8 +179,6 @@ proxy-groups:
       - 🇺🇸|US5|@SHFX
       - 🇺🇸|US6|@SHFX
       - 🇺🇸|US7|@SHFX
-      - 🇺🇸|US8|@SHFX
-      - 🇺🇸|US9|@SHFX
   - name: 🚀 节点选择
     type: select
     proxies:
@@ -220,8 +191,6 @@ proxy-groups:
       - 🇺🇸|US5|@SHFX
       - 🇺🇸|US6|@SHFX
       - 🇺🇸|US7|@SHFX
-      - 🇺🇸|US8|@SHFX
-      - 🇺🇸|US9|@SHFX
   - name: 🌍 国外媒体
     type: select
     proxies:
@@ -235,8 +204,6 @@ proxy-groups:
       - 🇺🇸|US5|@SHFX
       - 🇺🇸|US6|@SHFX
       - 🇺🇸|US7|@SHFX
-      - 🇺🇸|US8|@SHFX
-      - 🇺🇸|US9|@SHFX
   - name: 📲 电报信息
     type: select
     proxies:
@@ -249,8 +216,6 @@ proxy-groups:
       - 🇺🇸|US5|@SHFX
       - 🇺🇸|US6|@SHFX
       - 🇺🇸|US7|@SHFX
-      - 🇺🇸|US8|@SHFX
-      - 🇺🇸|US9|@SHFX
   - name: Ⓜ️ 微软服务
     type: select
     proxies:
@@ -263,8 +228,6 @@ proxy-groups:
       - 🇺🇸|US5|@SHFX
       - 🇺🇸|US6|@SHFX
       - 🇺🇸|US7|@SHFX
-      - 🇺🇸|US8|@SHFX
-      - 🇺🇸|US9|@SHFX
   - name: 🍎 苹果服务
     type: select
     proxies:
@@ -277,8 +240,6 @@ proxy-groups:
       - 🇺🇸|US5|@SHFX
       - 🇺🇸|US6|@SHFX
       - 🇺🇸|US7|@SHFX
-      - 🇺🇸|US8|@SHFX
-      - 🇺🇸|US9|@SHFX
   - name: 🎯 全球直连
     type: select
     proxies:
@@ -308,8 +269,6 @@ proxy-groups:
       - 🇺🇸|US5|@SHFX
       - 🇺🇸|US6|@SHFX
       - 🇺🇸|US7|@SHFX
-      - 🇺🇸|US8|@SHFX
-      - 🇺🇸|US9|@SHFX
 rules:
   - DOMAIN-SUFFIX,acl4.ssr,🎯 全球直连
   - DOMAIN-SUFFIX,ip6-localhost,🎯 全球直连
