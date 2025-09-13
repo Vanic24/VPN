@@ -77,85 +77,111 @@ dns:
       - 240.0.0.0/4
       - 0.0.0.0/32
 proxies:
-- alterId: 64
-  cipher: auto
+- cipher: aes-128-gcm
   name: 🇺🇸|US1|@SHFX
-  network: tcp
-  port: 30002
-  server: 38.12.83.217
-  skip-cert-verify: true
-  tls: false
-  type: vmess
-  uuid: 418048af-a293-4b99-9b0c-98ca3580dd24
-  ws-headers:
-    Host: loosely.freetrade.link
-  ws-path: /
+  password: shadowsocks
+  port: 443
+  server: 37.19.198.243
+  type: ss
 - cipher: aes-128-gcm
   name: 🇬🇧|GB1|@SHFX
   password: shadowsocks
   port: 443
   server: 212.102.53.193
   type: ss
-- name: 🇺🇸|US2|@SHFX
-  password: 2dbd2a10-9512-4b60-84e6-5d9926a9fe5b
-  port: 2083
-  server: 104.18.203.232
-  skip-cert-verify: true
-  sni: laenatbar.seyedalikhameneibinamous.site
-  type: trojan
-  udp: true
 - alterId: 0
   cipher: auto
-  name: 🇺🇸|US3|@SHFX
+  name: 🇨🇦|CA1|@SHFX
   network: ws
-  port: 2082
-  server: 104.19.48.236
+  port: 8080
+  server: 23.227.38.44
   skip-cert-verify: true
   tls: false
   type: vmess
   udp: true
-  uuid: 753443e5-052c-4476-9cfa-3f434ff2f986
+  uuid: 55021a7c-bd6c-418e-be95-ceac8ba27b45
   ws-opts:
-    path: /ws?ed=2048
+    path: 55021a7c-bd6c-418e-be95-ceac8ba27b45-vm
 - alterId: 0
   cipher: auto
-  name: 🇺🇸|US4|@SHFX
-  network: ws
-  port: 2095
-  server: 104.19.45.147
-  skip-cert-verify: true
-  tls: false
-  type: vmess
-  udp: true
-  uuid: 7a737f41-b792-4260-94ff-3d864da67b80
-  ws-opts:
-    path: /
-- alterId: 0
-  cipher: auto
-  name: 🇺🇸|US5|@SHFX
-  network: ws
-  port: 8880
-  server: 104.19.40.84
-  skip-cert-verify: true
-  tls: false
-  type: vmess
-  udp: true
-  uuid: 57e0cb4d-eae5-48ec-8091-149dc2b309e0
-  ws-opts:
-    path: /d/65dd503.TG.WangCai2.WangCai_8:107690
-- alterId: 0
-  cipher: auto
-  name: 🇩🇪|DE1|@SHFX
+  name: 🇺🇸|US2|@SHFX
   network: ws
   port: 443
-  server: 23.158.56.60
+  server: 104.16.216.241
   skip-cert-verify: true
   tls: true
   type: vmess
   udp: true
   uuid: 03fcc618-b93d-6796-6aed-8a38c975d581
   ws-opts:
+    headers:
+      Host: nelly.homes
     path: /linkvws
+- alterId: 0
+  cipher: auto
+  name: 🇺🇸|US3|@SHFX
+  network: ws
+  port: 2052
+  server: 172.67.204.84
+  skip-cert-verify: true
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 726a2899-b33f-4116-8abd-581932352830
+  ws-opts:
+    path: /
+- alterId: 0
+  cipher: auto
+  name: 🇺🇸|US4|@SHFX
+  network: ws
+  port: 80
+  server: 172.67.193.36
+  skip-cert-verify: true
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 92da030f-e7be-40dd-b18a-dc830327c0c7
+  ws-opts:
+    path: /vmess
+- alterId: 0
+  cipher: auto
+  name: 🇺🇸|US5|@SHFX
+  network: ws
+  port: 2082
+  server: 104.16.42.110
+  skip-cert-verify: true
+  tls: false
+  type: vmess
+  udp: true
+  uuid: f7fe7b40-5eb2-450b-bee7-86e2ff2c97be
+  ws-opts:
+    path: /ws?ed=2048
+- alterId: 0
+  cipher: auto
+  name: 🇺🇸|US6|@SHFX
+  network: ws
+  port: 80
+  server: 104.21.237.85
+  skip-cert-verify: true
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 7022982f-da4c-48c9-c660-b2315abdcf7e
+  ws-opts:
+    path: /?ed=2048
+- alterId: 0
+  cipher: auto
+  name: 🇺🇸|US7|@SHFX
+  network: ws
+  port: 2082
+  server: 104.16.42.164
+  skip-cert-verify: true
+  tls: false
+  type: vmess
+  udp: true
+  uuid: f7fe7b40-5eb2-450b-bee7-86e2ff2c97be
+  ws-opts:
+    path: /ws?ed=2048
 
 proxy-groups:
   - name: ♻️ 自动选择
@@ -166,11 +192,13 @@ proxy-groups:
     proxies:
       - 🇺🇸|US1|@SHFX
       - 🇬🇧|GB1|@SHFX
+      - 🇨🇦|CA1|@SHFX
       - 🇺🇸|US2|@SHFX
       - 🇺🇸|US3|@SHFX
       - 🇺🇸|US4|@SHFX
       - 🇺🇸|US5|@SHFX
-      - 🇩🇪|DE1|@SHFX
+      - 🇺🇸|US6|@SHFX
+      - 🇺🇸|US7|@SHFX
   - name: 🚀 节点选择
     type: select
     proxies:
@@ -178,11 +206,13 @@ proxy-groups:
       - DIRECT
       - 🇺🇸|US1|@SHFX
       - 🇬🇧|GB1|@SHFX
+      - 🇨🇦|CA1|@SHFX
       - 🇺🇸|US2|@SHFX
       - 🇺🇸|US3|@SHFX
       - 🇺🇸|US4|@SHFX
       - 🇺🇸|US5|@SHFX
-      - 🇩🇪|DE1|@SHFX
+      - 🇺🇸|US6|@SHFX
+      - 🇺🇸|US7|@SHFX
   - name: 🌍 国外媒体
     type: select
     proxies:
@@ -191,11 +221,13 @@ proxy-groups:
       - 🎯 全球直连
       - 🇺🇸|US1|@SHFX
       - 🇬🇧|GB1|@SHFX
+      - 🇨🇦|CA1|@SHFX
       - 🇺🇸|US2|@SHFX
       - 🇺🇸|US3|@SHFX
       - 🇺🇸|US4|@SHFX
       - 🇺🇸|US5|@SHFX
-      - 🇩🇪|DE1|@SHFX
+      - 🇺🇸|US6|@SHFX
+      - 🇺🇸|US7|@SHFX
   - name: 📲 电报信息
     type: select
     proxies:
@@ -203,11 +235,13 @@ proxy-groups:
       - 🎯 全球直连
       - 🇺🇸|US1|@SHFX
       - 🇬🇧|GB1|@SHFX
+      - 🇨🇦|CA1|@SHFX
       - 🇺🇸|US2|@SHFX
       - 🇺🇸|US3|@SHFX
       - 🇺🇸|US4|@SHFX
       - 🇺🇸|US5|@SHFX
-      - 🇩🇪|DE1|@SHFX
+      - 🇺🇸|US6|@SHFX
+      - 🇺🇸|US7|@SHFX
   - name: Ⓜ️ 微软服务
     type: select
     proxies:
@@ -215,11 +249,13 @@ proxy-groups:
       - 🚀 节点选择
       - 🇺🇸|US1|@SHFX
       - 🇬🇧|GB1|@SHFX
+      - 🇨🇦|CA1|@SHFX
       - 🇺🇸|US2|@SHFX
       - 🇺🇸|US3|@SHFX
       - 🇺🇸|US4|@SHFX
       - 🇺🇸|US5|@SHFX
-      - 🇩🇪|DE1|@SHFX
+      - 🇺🇸|US6|@SHFX
+      - 🇺🇸|US7|@SHFX
   - name: 🍎 苹果服务
     type: select
     proxies:
@@ -227,11 +263,13 @@ proxy-groups:
       - 🎯 全球直连
       - 🇺🇸|US1|@SHFX
       - 🇬🇧|GB1|@SHFX
+      - 🇨🇦|CA1|@SHFX
       - 🇺🇸|US2|@SHFX
       - 🇺🇸|US3|@SHFX
       - 🇺🇸|US4|@SHFX
       - 🇺🇸|US5|@SHFX
-      - 🇩🇪|DE1|@SHFX
+      - 🇺🇸|US6|@SHFX
+      - 🇺🇸|US7|@SHFX
   - name: 🎯 全球直连
     type: select
     proxies:
@@ -256,11 +294,13 @@ proxy-groups:
       - ♻️ 自动选择
       - 🇺🇸|US1|@SHFX
       - 🇬🇧|GB1|@SHFX
+      - 🇨🇦|CA1|@SHFX
       - 🇺🇸|US2|@SHFX
       - 🇺🇸|US3|@SHFX
       - 🇺🇸|US4|@SHFX
       - 🇺🇸|US5|@SHFX
-      - 🇩🇪|DE1|@SHFX
+      - 🇺🇸|US6|@SHFX
+      - 🇺🇸|US7|@SHFX
 rules:
   - DOMAIN-SUFFIX,acl4.ssr,🎯 全球直连
   - DOMAIN-SUFFIX,ip6-localhost,🎯 全球直连
