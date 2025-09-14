@@ -10,11 +10,11 @@ on:
       use_latency_filter:
         description: "Enable latency filter? (true/false)"
         required: true
-        default: "true"
+        default: "false"
       latency_threshold:
         description: "Latency threshold in ms (only used if filter is true)"
         required: false
-        default: "500"
+        default: "100"
 
 jobs:
   update:
@@ -46,7 +46,7 @@ jobs:
 
       - name: Set latency filter environment for scheduled/manual runs
         run: |
-          # If manual run, use workflow inputs; if scheduled, default to true/500ms
+          # If manual run, use workflow inputs; if scheduled, default to false
           echo "LATENCY_FILTER=${{ github.event.inputs.use_latency_filter || 'true' }}" >> $GITHUB_ENV
           echo "LATENCY_THRESHOLD=${{ github.event.inputs.latency_threshold || '100' }}" >> $GITHUB_ENV
 
