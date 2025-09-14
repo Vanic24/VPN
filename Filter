@@ -83,67 +83,21 @@ proxies:
   port: 8080
   server: 23.251.121.242
   type: ss
-- cipher: aes-256-cfb
-  name: 🇳🇱|NL1|@SHFX
-  password: f8f7aCzcPKbsF8p3
-  port: 989
-  server: 51.15.17.169
-  type: ss
-- cipher: chacha20-ietf-poly1305
-  name: 🇳🇱|NL2|@SHFX
-  password: oZIoA69Q8yhcQV8ka3Pa3A
-  port: 8080
-  server: 103.104.247.47
-  type: ss
-- cipher: chacha20-ietf-poly1305
+- alterId: 32
+  cipher: auto
+  client-fingerprint: chrome
   name: 🇺🇸|US2|@SHFX
-  password: XUMTygEM1jVYIvysXKqA5T
-  port: 443
-  server: hackney-latest-strike.freesocks.work
-  type: ss
-- client-fingerprint: chrome
-  fingerprint: ''
-  name: 🇺🇸|US3|@SHFX
-  network: ws
-  port: 2096
-  server: 104.16.161.143
-  servername: baomei.pages.dev
-  tls: true
-  type: vless
-  udp: false
-  uuid: f690c2da-bdc3-4538-999e-d2bb8a541188
-  ws-opts:
-    headers:
-      host: baomei.pages.dev
-    path: /?ed
-- alterId: 0
-  cipher: auto
-  name: 🇺🇸|US4|@SHFX
   network: ws
   port: 443
-  server: 104.21.58.68
+  server: vc.fly.dev
   skip-cert-verify: true
   tls: true
   type: vmess
-  udp: true
-  uuid: 03fcc618-b93d-6796-6aed-8a38c975d581
+  uuid: 35379219-6535-4f2e-a4fe-3e44f61e0eee
   ws-opts:
     headers:
-      Host: maggiy.shop
-    path: /linkvws
-- alterId: 0
-  cipher: auto
-  name: 🇺🇸|US5|@SHFX
-  network: ws
-  port: 2082
-  server: 104.16.42.196
-  skip-cert-verify: true
-  tls: false
-  type: vmess
-  udp: true
-  uuid: f7fe7b40-5eb2-450b-bee7-86e2ff2c97be
-  ws-opts:
-    path: /ws?ed=2048
+      host: vc.fly.dev
+    path: /vc
 
 proxy-groups:
   - name: ♻️ 自动选择
@@ -153,24 +107,14 @@ proxy-groups:
     tolerance: 50
     proxies:
       - 🇺🇸|US1|@SHFX
-      - 🇳🇱|NL1|@SHFX
-      - 🇳🇱|NL2|@SHFX
       - 🇺🇸|US2|@SHFX
-      - 🇺🇸|US3|@SHFX
-      - 🇺🇸|US4|@SHFX
-      - 🇺🇸|US5|@SHFX
   - name: 🚀 节点选择
     type: select
     proxies:
       - ♻️ 自动选择
       - DIRECT
       - 🇺🇸|US1|@SHFX
-      - 🇳🇱|NL1|@SHFX
-      - 🇳🇱|NL2|@SHFX
       - 🇺🇸|US2|@SHFX
-      - 🇺🇸|US3|@SHFX
-      - 🇺🇸|US4|@SHFX
-      - 🇺🇸|US5|@SHFX
   - name: 🌍 国外媒体
     type: select
     proxies:
@@ -178,48 +122,28 @@ proxy-groups:
       - ♻️ 自动选择
       - 🎯 全球直连
       - 🇺🇸|US1|@SHFX
-      - 🇳🇱|NL1|@SHFX
-      - 🇳🇱|NL2|@SHFX
       - 🇺🇸|US2|@SHFX
-      - 🇺🇸|US3|@SHFX
-      - 🇺🇸|US4|@SHFX
-      - 🇺🇸|US5|@SHFX
   - name: 📲 电报信息
     type: select
     proxies:
       - 🚀 节点选择
       - 🎯 全球直连
       - 🇺🇸|US1|@SHFX
-      - 🇳🇱|NL1|@SHFX
-      - 🇳🇱|NL2|@SHFX
       - 🇺🇸|US2|@SHFX
-      - 🇺🇸|US3|@SHFX
-      - 🇺🇸|US4|@SHFX
-      - 🇺🇸|US5|@SHFX
   - name: Ⓜ️ 微软服务
     type: select
     proxies:
       - 🎯 全球直连
       - 🚀 节点选择
       - 🇺🇸|US1|@SHFX
-      - 🇳🇱|NL1|@SHFX
-      - 🇳🇱|NL2|@SHFX
       - 🇺🇸|US2|@SHFX
-      - 🇺🇸|US3|@SHFX
-      - 🇺🇸|US4|@SHFX
-      - 🇺🇸|US5|@SHFX
   - name: 🍎 苹果服务
     type: select
     proxies:
       - 🚀 节点选择
       - 🎯 全球直连
       - 🇺🇸|US1|@SHFX
-      - 🇳🇱|NL1|@SHFX
-      - 🇳🇱|NL2|@SHFX
       - 🇺🇸|US2|@SHFX
-      - 🇺🇸|US3|@SHFX
-      - 🇺🇸|US4|@SHFX
-      - 🇺🇸|US5|@SHFX
   - name: 🎯 全球直连
     type: select
     proxies:
@@ -243,12 +167,7 @@ proxy-groups:
       - 🎯 全球直连
       - ♻️ 自动选择
       - 🇺🇸|US1|@SHFX
-      - 🇳🇱|NL1|@SHFX
-      - 🇳🇱|NL2|@SHFX
       - 🇺🇸|US2|@SHFX
-      - 🇺🇸|US3|@SHFX
-      - 🇺🇸|US4|@SHFX
-      - 🇺🇸|US5|@SHFX
 rules:
   - DOMAIN-SUFFIX,acl4.ssr,🎯 全球直连
   - DOMAIN-SUFFIX,ip6-localhost,🎯 全球直连
