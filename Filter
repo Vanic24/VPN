@@ -83,17 +83,17 @@ proxies:
   port: 8080
   server: 23.251.121.242
   type: ss
-- cipher: chacha20-ietf-poly1305
-  name: 🇳🇱|NL1|@SHFX
-  password: oZIoA69Q8yhcQV8ka3Pa3A
-  port: 8080
-  server: 103.104.247.47
-  type: ss
 - cipher: aes-256-cfb
-  name: 🇳🇱|NL2|@SHFX
+  name: 🇳🇱|NL1|@SHFX
   password: f8f7aCzcPKbsF8p3
   port: 989
   server: 51.15.17.169
+  type: ss
+- cipher: chacha20-ietf-poly1305
+  name: 🇳🇱|NL2|@SHFX
+  password: oZIoA69Q8yhcQV8ka3Pa3A
+  port: 8080
+  server: 103.104.247.47
   type: ss
 - cipher: chacha20-ietf-poly1305
   name: 🇺🇸|US2|@SHFX
@@ -101,6 +101,21 @@ proxies:
   port: 443
   server: hackney-latest-strike.freesocks.work
   type: ss
+- alterId: 0
+  cipher: auto
+  client-fingerprint: chrome
+  name: 🇺🇸|US3|@SHFX
+  network: ws
+  port: 443
+  server: v2ray.codefyinc.com
+  skip-cert-verify: true
+  tls: false
+  type: vmess
+  uuid: 2c981164-9b93-4bca-94ff-b78d3f8498d7
+  ws-opts:
+    headers:
+      host: v2ray.codefyinc.com
+    path: /vmessws
 
 proxy-groups:
   - name: ♻️ 自动选择
@@ -113,6 +128,7 @@ proxy-groups:
       - 🇳🇱|NL1|@SHFX
       - 🇳🇱|NL2|@SHFX
       - 🇺🇸|US2|@SHFX
+      - 🇺🇸|US3|@SHFX
   - name: 🚀 节点选择
     type: select
     proxies:
@@ -122,6 +138,7 @@ proxy-groups:
       - 🇳🇱|NL1|@SHFX
       - 🇳🇱|NL2|@SHFX
       - 🇺🇸|US2|@SHFX
+      - 🇺🇸|US3|@SHFX
   - name: 🌍 国外媒体
     type: select
     proxies:
@@ -132,6 +149,7 @@ proxy-groups:
       - 🇳🇱|NL1|@SHFX
       - 🇳🇱|NL2|@SHFX
       - 🇺🇸|US2|@SHFX
+      - 🇺🇸|US3|@SHFX
   - name: 📲 电报信息
     type: select
     proxies:
@@ -141,6 +159,7 @@ proxy-groups:
       - 🇳🇱|NL1|@SHFX
       - 🇳🇱|NL2|@SHFX
       - 🇺🇸|US2|@SHFX
+      - 🇺🇸|US3|@SHFX
   - name: Ⓜ️ 微软服务
     type: select
     proxies:
@@ -150,6 +169,7 @@ proxy-groups:
       - 🇳🇱|NL1|@SHFX
       - 🇳🇱|NL2|@SHFX
       - 🇺🇸|US2|@SHFX
+      - 🇺🇸|US3|@SHFX
   - name: 🍎 苹果服务
     type: select
     proxies:
@@ -159,6 +179,7 @@ proxy-groups:
       - 🇳🇱|NL1|@SHFX
       - 🇳🇱|NL2|@SHFX
       - 🇺🇸|US2|@SHFX
+      - 🇺🇸|US3|@SHFX
   - name: 🎯 全球直连
     type: select
     proxies:
@@ -185,6 +206,7 @@ proxy-groups:
       - 🇳🇱|NL1|@SHFX
       - 🇳🇱|NL2|@SHFX
       - 🇺🇸|US2|@SHFX
+      - 🇺🇸|US3|@SHFX
 rules:
   - DOMAIN-SUFFIX,acl4.ssr,🎯 全球直连
   - DOMAIN-SUFFIX,ip6-localhost,🎯 全球直连
