@@ -46,7 +46,7 @@ jobs:
 
       - name: Set latency filter environment for scheduled/manual runs
         run: |
-          # If manual run, use workflow inputs; if scheduled, default to true/100ms
+          # If manual run, use workflow inputs; if scheduled, default to true/500ms
           echo "LATENCY_FILTER=${{ github.event.inputs.use_latency_filter || 'true' }}" >> $GITHUB_ENV
           echo "LATENCY_THRESHOLD=${{ github.event.inputs.latency_threshold || '100' }}" >> $GITHUB_ENV
 
