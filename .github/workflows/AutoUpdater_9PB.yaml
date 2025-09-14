@@ -287,6 +287,21 @@ jobs:
                   console.error('❌ GitHub update failed:', err.response?.data || err.message);
                 }
 
+              // Delete old record from TextDB first
+              const deleteUrl = 'https://textdb.online/update/?key=9PB_SHFX&value={}';
+
+              const delRes = await axios.post(
+                deleteUrl,
+                { value: '' },
+                { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+              );
+
+              if (delRes.data.status === 1) {
+                console.log('🗑️ Old Textdb record deleted successfully');
+              } else {
+                console.error('⚠️ Failed to delete old Textdb record:', delRes.data);
+              }
+              
               // Update Textdb using POST
               const textdbUrl = 'https://textdb.online/update/?key=9PB_SHFX&value={}';
 
