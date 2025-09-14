@@ -502,9 +502,6 @@ def upload_to_textdb():
             print(f"[warn] Failed to delete old record: {delete_resp.status_code}")
             print(f"[warn] Response: {delete_resp.text}")
 
-        # Wait for 3 seconds to ensure successful deletion.
-        time.sleep(3)
-
         # Step 3: Upload to TextDB using POST (to avoid URL size limits)
         upload_resp = requests.post(TEXTDB_API, data={"value": output_text})
         if upload_resp.status_code == 200:
