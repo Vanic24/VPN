@@ -77,29 +77,29 @@ dns:
       - 240.0.0.0/4
       - 0.0.0.0/32
 proxies:
-- cipher: chacha20-ietf-poly1305
-  name: 🇺🇸|US1|@SHFX
-  password: XUMTygEM1jVYIvysXKqA5T
-  port: 443
-  server: hackney-latest-strike.freesocks.work
-  type: ss
 - cipher: rc4-md5
-  name: 🇺🇸|US2|@SHFX
+  name: 🇺🇸|US1|@SHFX
   password: 14fFPrbezE3HDZzsMOr6
   port: 8080
   server: 23.251.121.242
   type: ss
-- cipher: aes-256-cfb
+- cipher: chacha20-ietf-poly1305
   name: 🇳🇱|NL1|@SHFX
+  password: oZIoA69Q8yhcQV8ka3Pa3A
+  port: 8080
+  server: 103.104.247.47
+  type: ss
+- cipher: aes-256-cfb
+  name: 🇳🇱|NL2|@SHFX
   password: f8f7aCzcPKbsF8p3
   port: 989
   server: 51.15.17.169
   type: ss
 - cipher: chacha20-ietf-poly1305
-  name: 🇳🇱|NL2|@SHFX
-  password: oZIoA69Q8yhcQV8ka3Pa3A
-  port: 8080
-  server: 103.104.247.47
+  name: 🇺🇸|US2|@SHFX
+  password: XUMTygEM1jVYIvysXKqA5T
+  port: 443
+  server: hackney-latest-strike.freesocks.work
   type: ss
 
 proxy-groups:
@@ -110,18 +110,18 @@ proxy-groups:
     tolerance: 50
     proxies:
       - 🇺🇸|US1|@SHFX
-      - 🇺🇸|US2|@SHFX
       - 🇳🇱|NL1|@SHFX
       - 🇳🇱|NL2|@SHFX
+      - 🇺🇸|US2|@SHFX
   - name: 🚀 节点选择
     type: select
     proxies:
       - ♻️ 自动选择
       - DIRECT
       - 🇺🇸|US1|@SHFX
-      - 🇺🇸|US2|@SHFX
       - 🇳🇱|NL1|@SHFX
       - 🇳🇱|NL2|@SHFX
+      - 🇺🇸|US2|@SHFX
   - name: 🌍 国外媒体
     type: select
     proxies:
@@ -129,36 +129,36 @@ proxy-groups:
       - ♻️ 自动选择
       - 🎯 全球直连
       - 🇺🇸|US1|@SHFX
-      - 🇺🇸|US2|@SHFX
       - 🇳🇱|NL1|@SHFX
       - 🇳🇱|NL2|@SHFX
+      - 🇺🇸|US2|@SHFX
   - name: 📲 电报信息
     type: select
     proxies:
       - 🚀 节点选择
       - 🎯 全球直连
       - 🇺🇸|US1|@SHFX
-      - 🇺🇸|US2|@SHFX
       - 🇳🇱|NL1|@SHFX
       - 🇳🇱|NL2|@SHFX
+      - 🇺🇸|US2|@SHFX
   - name: Ⓜ️ 微软服务
     type: select
     proxies:
       - 🎯 全球直连
       - 🚀 节点选择
       - 🇺🇸|US1|@SHFX
-      - 🇺🇸|US2|@SHFX
       - 🇳🇱|NL1|@SHFX
       - 🇳🇱|NL2|@SHFX
+      - 🇺🇸|US2|@SHFX
   - name: 🍎 苹果服务
     type: select
     proxies:
       - 🚀 节点选择
       - 🎯 全球直连
       - 🇺🇸|US1|@SHFX
-      - 🇺🇸|US2|@SHFX
       - 🇳🇱|NL1|@SHFX
       - 🇳🇱|NL2|@SHFX
+      - 🇺🇸|US2|@SHFX
   - name: 🎯 全球直连
     type: select
     proxies:
@@ -182,9 +182,9 @@ proxy-groups:
       - 🎯 全球直连
       - ♻️ 自动选择
       - 🇺🇸|US1|@SHFX
-      - 🇺🇸|US2|@SHFX
       - 🇳🇱|NL1|@SHFX
       - 🇳🇱|NL2|@SHFX
+      - 🇺🇸|US2|@SHFX
 rules:
   - DOMAIN-SUFFIX,acl4.ssr,🎯 全球直连
   - DOMAIN-SUFFIX,ip6-localhost,🎯 全球直连
