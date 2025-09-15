@@ -345,23 +345,12 @@ def correct_node(p, country_counter):
 
     p["port"] = port
 
-    original_name = str(p.get("name", ""))
+    country_counter[cc_upper] += 1
+    index = country_counter[cc_upper]
 
-    # Try to extract code like "01-HK01" or "02-SG02"
-    match = re.match(r".*?([A-Z]{2})(\d+)", original_name)
-    if match:
-        cc = match.group(1)   # e.g. HK, SG, TW
-        index = match.group(2)  # e.g. 01, 02, 03
-    else:
-        # fallback to geo_ip if pattern not found
-        cc = cc_upper
-        index = str(country_counter[cc_upper] + 1)
-
-    country_counter[cc] += 1
-
-    # New format: 🇭🇰|HK1-Gdrive
-    p["name"] = f"{country_to_flag(cc)}|{cc}{int(index)}-Gdrive"
+    p["name"] = f"{flag}|{cc_upper}{index}|@SHFX"
     return p
+
     
 # ---------------- Load and parse proxies ----------------
 def load_proxies(url):
