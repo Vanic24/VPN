@@ -1,0 +1,69 @@
+name: Update VPN Subscription (SUB_8EB)
+
+on:
+  # Run every 4 hours
+  schedule:
+    - cron: '0 */4 * * *'
+  # Manual trigger with inputs
+  workflow_dispatch:
+    inputs:
+      use_latency_filter:
+        description: "Enable latency filter? (true/false)"
+        required: false
+        default: "true"
+      latency_threshold:
+        description: "Latency threshold in ms (only used if filter is true)"
+        required: false
+        default: "100"
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.x"
+
+      - name: Install dependencies
+        run: |
+          pip install requests pyyaml
+
+      - name: Fail if SOURCES_8EB is missing
+        run: |
+          if [ -z "${{ secrets.SOURCES_8EB }}" ]; then
+            echo "❌ ERROR: SOURCES_8EB secret is not set in repository secrets."
+            exit 1
+          fi
+
+      - name: Restore filter_sources from secret
+        run: |
+          echo "${{ secrets.SOURCES_8EB }}" > Sources_8EB
+
+      - name: Set latency filter environment for scheduled/manual runs
+        run: |
+          # If manual run, use workflow inputs; if scheduled, default to false
+          echo "LATENCY_FILTER=${{ github.event.inputs.use_latency_filter || 'false' }}" >> $GITHUB_ENV
+          echo "LATENCY_THRESHOLD=${{ github.event.inputs.latency_threshold || '100' }}" >> $GITHUB_ENV
+
+      - name: Run 8EB.py
+        run: python src/8EB.py
+
+      - name: Commit and Push 8EB
+        shell: bash
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add 8EB
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "🎉8EB Auto update successful🎉"
+            git push --force-with-lease origin main
+          fi
