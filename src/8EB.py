@@ -339,18 +339,20 @@ def correct_node(p, country_counter):
         port = 443
 
     ip = resolve_ip(host) or host
-    cc_lower, cc_upper = geo_ip(ip)   # Example: ("hk", "HK")
+    cc_lower, cc_upper = geo_ip(ip)   # Example return: ("hk", "HK")
     flag = country_to_flag(cc_upper)
 
     p["port"] = port
 
     country_counter[cc_upper] += 1
-    index = country_counter[cc_upper]   # Running counter per country
+    index = country_counter[cc_upper]
 
     # ---------------- Name formatting ----------------
-    # Extract prefix number from original name (like 01, 02, etc.)
+    # Original name (e.g. "01-HK01|香港|x1.0")
     orig_name = str(p.get("name", ""))
-    m = re.match(r"^(\d+)-", orig_name)
+
+    # Extract the first number at the beginning (e.g. "01" from "01-HK01")
+    m = re.match(r"^(\d+)", orig_name)
     prefix_num = m.group(1) if m else str(index)
 
     # New name format: 🇭🇰|HK1-Gdrive
