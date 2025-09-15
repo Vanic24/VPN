@@ -47,16 +47,16 @@ def tcp_latency_ms(host, port, timeout=2.0):
         return 9999
 
 def geo_ip(ip):
+    resp = None   # <--- make sure resp is defined
     try:
-        r = requests.get(f"https://ipinfo.io/{ip}/json", timeout=5)
-        if r.status_code == 200:
-            data = r.json()
-            cc = data.get("country")
-            if cc:
-                return cc.lower(), cc.upper()
-    except:
-        pass
-    return "unknown", "UN"
+        resp = requests.get(f"https://some.api/{ip}", timeout=5)
+        data = resp.json()
+        cc_lower = data.get("countryCode", "").lower()
+        cc_upper = data.get("countryCode", "").upper()
+        return cc_lower, cc_upper
+    except Exception as e:
+        print(f"Unexpected error in geo_ip: {e}")
+        return "xx", "XX" 
 
 def country_to_flag(cc):
     if not cc or len(cc) != 2:
