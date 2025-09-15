@@ -30,35 +30,8 @@ except ValueError:
     LATENCY_THRESHOLD = 100
 
 # ---------------- Helpers ----------------
-def resolve_ip(host):
-    try:
-        return socket.gethostbyname(host)
-    except:
-        return None
-
-def tcp_latency_ms(host, port, timeout=2.0):
-    try:
-        import time
-        start = time.time()
-        sock = socket.create_connection((host, port), timeout=timeout)
-        sock.close()
-        return int((time.time() - start) * 1000)
-    except:
-        return 9999
-
-def geo_ip(ip):
-    try:
-        r = requests.get(f"https://ipinfo.io/{ip}/json", timeout=5)
-        if r.status_code == 200:
-            data = r.json()
-            cc = data.get("country")
-            if cc:
-                return cc.lower(), cc.upper()
-    except:
-        pass
-    return "unknown", "UN"
-    
 def country_to_flag(cc):
+    """Convert two-letter country code to emoji flag."""
     if not cc or len(cc) != 2:
         return "🏳️"
     return chr(0x1F1E6 + (ord(cc[0].upper()) - 65)) + \
@@ -331,35 +304,42 @@ import re
 
 # ---------------- Correct node ----------------
 def correct_node(p, country_counter):
-    host = str(p.get("server"))
-    raw_port = str(p.get("port", ""))
-
-    try:
-        port = int(raw_port)
-    except ValueError:
-        port = 443
-
-    ip = resolve_ip(host) or host
-
-    # Read original name and extract two-letter country code
+    # Extract first two-letter uppercase country code from original name
     original_name = str(p.get("name", ""))
-    match = re.search(r"([A-Z]{2})", original_name)
+    match = re.search(r"[A-Z]{2}", original_name)
     if match:
-        cc = match.group(1)
+        cc = match.group(0)
     else:
-        # fallback if not found
-        _, cc_upper = geo_ip(ip)
-        cc = cc_upper
+        cc = "UN"  # fallback for unknown
 
     # Increase counter for this country
     country_counter[cc] += 1
     index = country_counter[cc]
 
-    # Assign flag + format name
+    # Assign new name: flag + country code + index + -Gdrive
     p["name"] = f"{country_to_flag(cc)}|{cc}{index}-Gdrive"
-    p["port"] = port
+
+    # Ensure port is int (fallback to 443 if missing/invalid)
+    try:
+        p["port"] = int(p.get("port", 443))
+    except:
+        p["port"] = 443
 
     return p
+
+# ---------------- Example usage ----------------
+if __name__ == "__main__":
+    country_counter = defaultdict(int)
+    nodes = [
+        {"name": "01-HK01|香港|x1.0", "server": "1.1.1.1", "port": "443"},
+        {"name": "02-SG02|新加坡|x1.0", "server": "1.1.1.2", "port": "443"},
+        {"name": "01-TW03|台湾|x3.0", "server": "1.1.1.3", "port": "443"},
+    ]
+
+    corrected_nodes = [correct_node(n, country_counter) for n in nodes]
+
+    for n in corrected_nodes:
+        print(n)
 
 # ---------------- Load and parse proxies ----------------
 def load_proxies(url):
