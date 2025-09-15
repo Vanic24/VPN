@@ -319,19 +319,33 @@ import re
 
 # ---------------- Correct node ----------------
 def correct_node(p, country_counter):
+    host = str(p.get("server"))
+    raw_port = str(p.get("port", ""))
+
+    try:
+        port = int(raw_port)
+    except ValueError:
+        port = 443
+
+    ip = resolve_ip(host) or host
+
+    # Read original name and extract two-letter country code
     original_name = str(p.get("name", ""))
-    match = re.search(r"\b([A-Z]{2})\b", original_name)
+    match = re.search(r"([A-Z]{2})", original_name)
     if match:
-        cc_upper = match.group(1).upper()
+        cc = match.group(1)
     else:
-        cc_upper = "UN"
-    # Generate flag emoji
-    flag = country_to_flag(cc_upper)
-    # Increment country index
-    country_counter[cc_upper] += 1
-    index = country_counter[cc_upper]
-    # Assign new name with suffix
-    p["name"] = f"{flag}|{cc_upper}{index}-Gdrive"
+        # fallback if not found
+        _, cc_upper = geo_ip(ip)
+        cc = cc_upper
+
+    # Increase counter for this country
+    country_counter[cc] += 1
+    index = country_counter[cc]
+
+    # Assign flag + format name
+    p["name"] = f"{country_to_flag(cc)}|{cc}{index}-Gdrive"
+    p["port"] = port
 
     return p
 
