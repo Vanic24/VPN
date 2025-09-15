@@ -341,26 +341,28 @@ def correct_node(p, country_counter):
 
     ip = resolve_ip(host) or host
     cc_lower, cc_upper = geo_ip(ip)
-    
+    flag = country_to_flag(cc_upper)
+
     p["port"] = port
 
     original_name = str(p.get("name", ""))
 
-    # Extract two-letter country code like "HK", "SG", "TW"
-    match = re.search(r"([A-Z]{2})", original_name)
+    # Try to extract code like "01-HK01" or "02-SG02"
+    match = re.match(r".*?([A-Z]{2})(\d+)", original_name)
     if match:
-        cc = match.group(1)
+        cc = match.group(1)   # e.g. HK, SG, TW
+        index = match.group(2)  # e.g. 01, 02, 03
     else:
-        cc = cc_upper  # fallback to geo_ip if not found
+        # fallback to geo_ip if pattern not found
+        cc = cc_upper
+        index = str(country_counter[cc_upper] + 1)
 
-    # Increment country counter
     country_counter[cc] += 1
-    index = country_counter[cc]
 
     # New format: 🇭🇰|HK1-Gdrive
-    p["name"] = f"{country_to_flag(cc)}|{cc}{index}-Gdrive"
+    p["name"] = f"{country_to_flag(cc)}|{cc}{int(index)}-Gdrive"
     return p
-
+    
 # ---------------- Load and parse proxies ----------------
 def load_proxies(url):
     try:
