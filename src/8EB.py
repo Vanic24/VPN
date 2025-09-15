@@ -498,12 +498,12 @@ def main():
 # ---------------- Upload to TextDB ----------------
 def upload_to_textdb():
     try:
-        # Step 1: Fetch Filter file from GitHub
-        resp = requests.get(URL_8EB)
-        if resp.status_code != 200:
-            print(f"[error] Failed to fetch Filter file: {resp.status_code}")
-            return
-        output_text = resp.text
+       # ---------------- Upload to TextDB ----------------
+def upload_to_textdb():
+    try:
+        # Step 1: Read freshly generated Filter file (local, not GitHub raw)
+        with open("Filter", "r", encoding="utf-8") as f:
+            output_text = f.read()
 
         # Step 2: Delete old record
         delete_resp = requests.post(TEXTDB_API, data={"value": ""})
@@ -513,13 +513,13 @@ def upload_to_textdb():
             print(f"[warn] Failed to delete old record: {delete_resp.status_code}")
             print(f"[warn] Response: {delete_resp.text}")
 
-        # Wait for 3 seconds to ensure successful deletion.
+        # Wait 3 seconds
         time.sleep(3)
 
-        # Step 3: Upload to TextDB using POST (to avoid URL size limits)
+        # Step 3: Upload new record
         upload_resp = requests.post(TEXTDB_API, data={"value": output_text})
         if upload_resp.status_code == 200:
-            print("[info] Successfully uploaded on textdb")
+            print("[info] Successfully uploaded new data on textdb")
         else:
             print(f"[warn] Failed to upload on textdb: {upload_resp.status_code}")
             print(f"[warn] Response: {upload_resp.text}")
