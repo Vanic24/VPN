@@ -354,12 +354,12 @@ def correct_node(p, country_counter):
     else:
         # fallback to geo_ip if pattern not found
         cc = cc_upper
-        index = str(country_counter[cc_upper] + 1)
+        index = str(country_counter[cc_upper]
 
     country_counter[cc] += 1
 
     # New format: 🇭🇰|HK1-Gdrive
-    p["name"] = f"{country_to_flag(cc)}|{cc}(index)}-Gdrive"
+     p["name"] = f"{flag}|{cc_upper}{index}-Gdrive"
     return p
 
 # ---------------- Load and parse proxies ----------------
