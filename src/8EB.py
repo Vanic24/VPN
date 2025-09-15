@@ -18,7 +18,7 @@ OUTPUT_FILE = os.path.join(REPO_ROOT, "8EB")   # changed from proxies.yaml → 8
 SOURCES_FILE = os.path.join(REPO_ROOT, "Sources_8EB")  # changed from sources.txt → Sources_8EB
 TEMPLATE_URL = "https://raw.githubusercontent.com/Vanic24/VPN/refs/heads/main/ClashTemplate.ini"
 TEXTDB_API = "https://textdb.online/update/?key=8EB_SHFX&value={}"
-8EB_URL = "https://raw.githubusercontent.com/Vanic24/VPN/refs/heads/main/8EB"
+URL_8EB = "https://raw.githubusercontent.com/Vanic24/VPN/refs/heads/main/8EB"
 
 # ---------------- Inputs ----------------
 use_latency_env = os.environ.get("LATENCY_FILTER", "false").lower()
