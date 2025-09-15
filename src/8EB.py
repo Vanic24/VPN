@@ -354,7 +354,7 @@ def correct_node(p, country_counter):
     else:
         # fallback to geo_ip if pattern not found
         cc = cc_upper
-        index = str(country_counter[cc_upper]
+        index = str(country_counter[cc_upper])
 
     country_counter[cc] += 1
 
