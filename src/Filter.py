@@ -488,12 +488,9 @@ def main():
 # ---------------- Upload to TextDB ----------------
 def upload_to_textdb():
     try:
-        # Step 1: Fetch Filter file from GitHub
-        resp = requests.get(FILTER_URL)
-        if resp.status_code != 200:
-            print(f"[error] Failed to fetch Filter file: {resp.status_code}")
-            return
-        output_text = resp.text
+        # Step 1: Read freshly generated Filter file (local, not GitHub raw)
+        with open("Filter", "r", encoding="utf-8") as f:
+            output_text = f.read()
 
         # Step 2: Delete old record
         delete_resp = requests.post(TEXTDB_API, data={"value": ""})
