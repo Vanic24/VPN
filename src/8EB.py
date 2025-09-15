@@ -46,6 +46,18 @@ def tcp_latency_ms(host, port, timeout=2.0):
     except:
         return 9999
 
+def geo_ip(ip):
+    try:
+        r = requests.get(f"https://ipinfo.io/{ip}/json", timeout=5)
+        if r.status_code == 200:
+            data = r.json()
+            cc = data.get("country")
+            if cc:
+                return cc.lower(), cc.upper()
+    except:
+        pass
+    return "unknown", "UN"
+    
 def country_to_flag(cc):
     if not cc or len(cc) != 2:
         return "🏳️"
