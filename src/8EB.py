@@ -67,12 +67,12 @@ def country_to_flag(cc):
 # ---------------- Load sources ----------------
 def load_sources():
     if not os.path.exists(SOURCES_FILE):
-        print(f"[FATAL] Filter_Sources not found at {SOURCES_FILE}")
+        print(f"[FATAL] Sources_8EB not found at {SOURCES_FILE}")
         sys.exit(1)
     with open(SOURCES_FILE, "r", encoding="utf-8") as f:
         sources = [line.strip() for line in f if line.strip() and not line.startswith("#")]
     if not sources:
-        print(f"[FATAL] Filter_Sources is empty. Please check the secret or file content.")
+        print(f"[FATAL] Sources_8EB is empty. Please check the secret or file content.")
         sys.exit(1)
     return sources
 
