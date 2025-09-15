@@ -329,6 +329,7 @@ def parse_node_line(line):
 
 # ---------------- Correct node ----------------
 def correct_node(p, country_counter):
+
     host = str(p.get("server"))
     raw_port = str(p.get("port", ""))
 
@@ -338,29 +339,23 @@ def correct_node(p, country_counter):
         port = 443
 
     ip = resolve_ip(host) or host
-    cc_lower, cc_upper = geo_ip(ip)
+    cc_lower, cc_upper = geo_ip(ip)   # Example: ("hk", "HK")
     flag = country_to_flag(cc_upper)
 
     p["port"] = port
 
-    original_name = str(p.get("name", ""))
+    country_counter[cc_upper] += 1
+    index = country_counter[cc_upper]   # Running counter per country
 
-    # Extract country code like HK, SG, TW from the original name
-    match = re.search(r"([A-Z]{2})", original_name)
-    if match:
-        cc = match.group(1)
-    else:
-        # fallback if nothing found
-        cc = cc_upper
+    # ---------------- Name formatting ----------------
+    # Extract prefix number from original name (like 01, 02, etc.)
+    orig_name = str(p.get("name", ""))
+    m = re.match(r"^(\d+)-", orig_name)
+    prefix_num = m.group(1) if m else str(index)
 
-    # Increment fresh index for this country
-    country_counter[cc] += 1
-    index = country_counter[cc]
+    # New name format: 🇭🇰|HK1-Gdrive
+    p["name"] = f"{flag}|{cc_upper}{prefix_num}-Gdrive"
 
-    flag = country_to_flag(cc)
-
-    # New format: 🇭🇰|HK1-Gdrive
-    p["name"] = f"{flag}|{cc}{index}-Gdrive"
     return p
 
 # ---------------- Load and parse proxies ----------------
