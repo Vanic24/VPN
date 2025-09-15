@@ -14,8 +14,8 @@ import urllib.parse
 
 # ---------------- Config ----------------
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-OUTPUT_FILE = os.path.join(REPO_ROOT, "8EB")   # changed from proxies.yaml → 8EB
-SOURCES_FILE = os.path.join(REPO_ROOT, "Sources_8EB")  # changed from sources.txt → Sources_8EB
+OUTPUT_FILE = os.path.join(REPO_ROOT, "8EB")   # changed from proxies.yaml → Filter
+SOURCES_FILE = os.path.join(REPO_ROOT, "Sources_8EB")  # changed from sources.txt → Filter_Sources
 TEMPLATE_URL = "https://raw.githubusercontent.com/Vanic24/VPN/refs/heads/main/ClashTemplate.ini"
 TEXTDB_API = "https://textdb.online/update/?key=8EB_SHFX&value={}"
 URL_8EB = "https://raw.githubusercontent.com/Vanic24/VPN/refs/heads/main/8EB"
@@ -63,16 +63,16 @@ def country_to_flag(cc):
         return "🏳️"
     return chr(0x1F1E6 + (ord(cc[0].upper()) - 65)) + \
            chr(0x1F1E6 + (ord(cc[1].upper()) - 65))
-    
+
 # ---------------- Load sources ----------------
 def load_sources():
     if not os.path.exists(SOURCES_FILE):
-        print(f"[FATAL] Sources_8EB not found at {SOURCES_FILE}")
+        print(f"[FATAL] Filter_Sources not found at {SOURCES_FILE}")
         sys.exit(1)
     with open(SOURCES_FILE, "r", encoding="utf-8") as f:
         sources = [line.strip() for line in f if line.strip() and not line.startswith("#")]
     if not sources:
-        print(f"[FATAL] Sources_8EB is empty. Please check the secret or file content.")
+        print(f"[FATAL] Filter_Sources is empty. Please check the secret or file content.")
         sys.exit(1)
     return sources
 
@@ -327,8 +327,6 @@ def parse_node_line(line):
             return node
     return None
 
-import re
-
 # ---------------- Correct node ----------------
 def correct_node(p, country_counter):
     host = str(p.get("server"))
@@ -341,17 +339,26 @@ def correct_node(p, country_counter):
 
     ip = resolve_ip(host) or host
     cc_lower, cc_upper = geo_ip(ip)
-    flag = country_to_flag(cc_upper)
-
+    
     p["port"] = port
 
-    country_counter[cc_upper] += 1
-    index = country_counter[cc_upper]
+    original_name = str(p.get("name", ""))
 
-    p["name"] = f"{flag}|{cc_upper}{index}|@SHFX"
+    # Extract two-letter country code like "HK", "SG", "TW"
+    match = re.search(r"([A-Z]{2})", original_name)
+    if match:
+        cc = match.group(1)
+    else:
+        cc = cc_upper  # fallback to geo_ip if not found
+
+    # Increment country counter
+    country_counter[cc] += 1
+    index = country_counter[cc]
+
+    # New format: 🇭🇰|HK1-Gdrive
+    p["name"] = f"{country_to_flag(cc)}|{cc}{index}-Gdrive"
     return p
 
-    
 # ---------------- Load and parse proxies ----------------
 def load_proxies(url):
     try:
@@ -429,7 +436,7 @@ def load_proxies(url):
 # ---------------- Main ----------------
 def main():
     sources = load_sources()
-    print(f"[start] loaded {len(sources)} sources from Filter_Sources")
+    print(f"[start] loaded {len(sources)} sources from Sources_8EB")
 
     all_nodes = []
     for url in sources:
@@ -491,11 +498,12 @@ def main():
 # ---------------- Upload to TextDB ----------------
 def upload_to_textdb():
     try:
-        # Step 1:Read Filter file from GitHub
-        with open("Filter", "r", encoding="utf-8") as f:
-            print(f"[error] Failed to read Filter file: {resp.status_code}")
+        # Step 1: Fetch Filter file from GitHub
+        resp = requests.get(URL_8EB)
+        if resp.status_code != 200:
+            print(f"[error] Failed to fetch Filter file: {resp.status_code}")
             return
-        output_text = f.read()
+        output_text = resp.text
 
         # Step 2: Delete old record
         delete_resp = requests.post(TEXTDB_API, data={"value": ""})
