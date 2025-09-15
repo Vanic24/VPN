@@ -345,20 +345,22 @@ def correct_node(p, country_counter):
 
     original_name = str(p.get("name", ""))
 
-    # Try to extract code like "01-HK01" or "02-SG02"
-    match = re.match(r".*?([A-Z]{2})(\d+)", original_name)
+    # Extract country code like HK, SG, TW from the original name
+    match = re.search(r"([A-Z]{2})", original_name)
     if match:
-        cc = match.group(1)   # e.g. HK, SG, TW
-        index = match.group(2)  # e.g. 01, 02, 03
+        cc = match.group(1)
     else:
-        # fallback to geo_ip if pattern not found
+        # fallback if nothing found
         cc = cc_upper
-        index = str(country_counter[cc_upper] + 1)
 
+    # Increment fresh index for this country
     country_counter[cc] += 1
+    index = country_counter[cc]
+
+    flag = country_to_flag(cc)
 
     # New format: 🇭🇰|HK1-Gdrive
-    p["name"] = f"{country_to_flag(cc)}|{cc}{int(index)}-Gdrive"
+    p["name"] = f"{flag}|{cc}{index}-Gdrive"
     return p
 
 # ---------------- Load and parse proxies ----------------
@@ -500,12 +502,11 @@ def main():
 # ---------------- Upload to TextDB ----------------
 def upload_to_textdb():
     try:
-        # Step 1: Fetch Filter file from GitHub
-        resp = requests.get(URL_8EB)
-        if resp.status_code != 200:
-            print(f"[error] Failed to fetch Filter file: {resp.status_code}")
+        # Step 1:Read Filter file from GitHub
+        with open("Filter", "r", encoding="utf-8") as f:
+            print(f"[error] Failed to read Filter file: {resp.status_code}")
             return
-        output_text = resp.text
+        output_text = f.read()
 
         # Step 2: Delete old record
         delete_resp = requests.post(TEXTDB_API, data={"value": ""})
