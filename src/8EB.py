@@ -499,7 +499,7 @@ def main():
 def upload_to_textdb():
     try:
         # Step 1: Read freshly generated Filter file (local, not GitHub raw)
-        with open("Filter", "r", encoding="utf-8") as f:
+        with open("8EB", "r", encoding="utf-8") as f:
             output_text = f.read()
 
         # Step 2: Delete old record
