@@ -47,12 +47,12 @@ def tcp_latency_ms(host, port, timeout=2.0):
         return 9999
 
 def geo_ip(ip):
-    resp = None   # <--- make sure resp is defined
     try:
-        resp = requests.get(f"https://some.api/{ip}", timeout=5)
+        url = f"http://ip-api.com/json/{ip}?fields=countryCode"
+        resp = requests.get(url, timeout=5)
         data = resp.json()
-        cc_lower = data.get("countryCode", "").lower()
-        cc_upper = data.get("countryCode", "").upper()
+        cc_upper = data.get("countryCode", "XX")
+        cc_lower = cc_upper.lower()
         return cc_lower, cc_upper
     except Exception as e:
         print(f"Unexpected error in geo_ip: {e}")
