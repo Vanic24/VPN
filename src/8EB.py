@@ -331,35 +331,20 @@ import re
 
 # ---------------- Correct node ----------------
 def correct_node(p, country_counter):
-    host = str(p.get("server"))
-    raw_port = str(p.get("port", ""))
-
-    try:
-        port = int(raw_port)
-    except ValueError:
-        port = 443
-
-    ip = resolve_ip(host) or host
-    cc_lower, cc_upper = geo_ip(ip)
-    flag = country_to_flag(cc_upper)
-
-    p["port"] = port
-
     original_name = str(p.get("name", ""))
-
-    # Try to extract code like "01-HK01" or "02-SG02"
-    match = re.match(r".*?([A-Z]{2})(\d+)", original_name)
+    match = re.search(r"\b([A-Z]{2})\b", original_name)
     if match:
-        cc = match.group(1)   # e.g. HK, SG, TW
+        cc_upper = match.group(1).upper()
     else:
-        # fallback to geo_ip if pattern not found
-        cc = cc_upper
-        index = str(country_counter[cc_upper])
+        cc_upper = "UN"
+    # Generate flag emoji
+    flag = country_to_flag(cc_upper)
+    # Increment country index
+    country_counter[cc_upper] += 1
+    index = country_counter[cc_upper]
+    # Assign new name with suffix
+    p["name"] = f"{flag}|{cc_upper}{index}-Gdrive"
 
-    country_counter[cc] += 1
-
-    # New format: 🇭🇰|HK1-Gdrive
-     p["name"] = f"{flag}|{cc_upper}{index}-Gdrive"
     return p
 
 # ---------------- Load and parse proxies ----------------
