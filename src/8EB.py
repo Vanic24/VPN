@@ -495,9 +495,6 @@ def main():
     # Always upload after processing
     upload_to_textdb()
     
-# ---------------- Upload to TextDB ----------------
-def upload_to_textdb():
-    try:
        # ---------------- Upload to TextDB ----------------
 def upload_to_textdb():
     try:
