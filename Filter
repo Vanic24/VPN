@@ -83,13 +83,6 @@ proxies:
   port: 8080
   server: 23.251.121.242
   type: ss
-- cipher: chacha20-ietf-poly1305
-  name: 🇩🇪|DE1|@SHFX
-  password: Yx2sF4XRHe7rS8Ng6elm7B
-  port: 8443
-  server: 83.172.138.149
-  type: ss
-  udp: true
 - cipher: aes-256-cfb
   name: 🇰🇷|KR1|@SHFX
   password: f8f7aCzcPKbsF8p3
@@ -108,29 +101,9 @@ proxies:
   port: 989
   server: 38.54.57.90
   type: ss
-- cipher: chacha20-ietf-poly1305
-  name: 🇻🇳|VN1|@SHFX
-  password: Nk9asglDzHzjktVzTkvhaA
-  port: 443
-  server: arxfw2b78fi2q9hzylhn.freesocks.work
-  type: ss
-- client-fingerprint: random
-  flow: xtls-rprx-vision
-  name: 🇺🇸|US2|@SHFX
-  port: 17779
-  reality-opts:
-    public-key: zM_4XVYflnr-VmBsc06Qk_KzaUABAriVqqKEsEBb2C8
-    short-id: ea7bf16e8eb5769d
-  server: 38.244.39.95
-  servername: learn.microsoft.com
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: a83d7ca8-9ff7-3c65-ace5-b2f53dd5b1dc
 - client-fingerprint: firefox
   flow: xtls-rprx-vision
-  name: 🇺🇸|US3|@SHFX
+  name: 🇺🇸|US2|@SHFX
   port: 10101
   reality-opts:
     public-key: NZvgcP62A2MqgU6AQa_wSWW85BBc5wMIUQVNxbKBWR0
@@ -142,6 +115,12 @@ proxies:
   type: vless
   udp: true
   uuid: b0797d01-63a2-4a19-8ca1-674a09eca4f4
+- cipher: chacha20-ietf-poly1305
+  name: 🇻🇳|VN1|@SHFX
+  password: Nk9asglDzHzjktVzTkvhaA
+  port: 443
+  server: arxfw2b78fi2q9hzylhn.freesocks.work
+  type: ss
 - cipher: aes-256-cfb
   name: 🇵🇾|PY1|@SHFX
   password: f8f7aCzcPKbsF8p3
@@ -154,11 +133,34 @@ proxies:
   port: 989
   server: 46.183.184.60
   type: ss
+- auth: 80747420-96c4-4a2f-83e6-eea4e46beb09
+  name: 🇸🇪|SE1|@SHFX
+  obfs: salamander
+  obfs-password: U1wBrYQyFm
+  password: 80747420-96c4-4a2f-83e6-eea4e46beb09
+  port: 20335
+  server: 70.34.215.221
+  skip-cert-verify: false
+  sni: drhystuichdfy.samanidempire.org
+  type: hysteria2
+- name: 🇳🇱|NL2|@SHFX
+  network: ws
+  password: XWnVX2ASHl
+  port: 37757
+  server: 5.255.103.217
+  skip-cert-verify: false
+  sni: moshali.arshiacomplus.dpdns.org
+  type: trojan
+  udp: true
+  ws-opts:
+    headers:
+      Host: moshali.arshiacomplus.dpdns.org
+    path: /moshaliplus
 - cipher: aes-256-cfb
-  name: 🇬🇷|GR1|@SHFX
+  name: 🇸🇮|SI1|@SHFX
   password: f8f7aCzcPKbsF8p3
   port: 989
-  server: 192.71.166.100
+  server: 91.132.94.200
   type: ss
 - alterId: 2
   cipher: auto
@@ -176,14 +178,32 @@ proxies:
     headers:
       Host: ocbc.com
     path: /oooo
-- name: 🇮🇪|IE1|@SHFX
-  password: telegram-id-privatevpns
-  port: 22222
-  server: 54.155.61.41
-  skip-cert-verify: true
-  sni: trojan.burgerip.co.uk
-  type: trojan
+- cipher: aes-256-cfb
+  name: 🇲🇩|MD1|@SHFX
+  password: f8f7aCzcPKbsF8p3
+  port: 989
+  server: 185.153.197.5
+  type: ss
+- client-fingerprint: random
+  flow: xtls-rprx-vision
+  name: 🇺🇸|US3|@SHFX
+  port: 17779
+  reality-opts:
+    public-key: zM_4XVYflnr-VmBsc06Qk_KzaUABAriVqqKEsEBb2C8
+    short-id: ea7bf16e8eb5769d
+  server: 38.244.39.95
+  servername: learn.microsoft.com
+  skip-cert-verify: false
+  tls: true
+  type: vless
   udp: true
+  uuid: a83d7ca8-9ff7-3c65-ace5-b2f53dd5b1dc
+- cipher: aes-256-cfb
+  name: 🇲🇹|MT1|@SHFX
+  password: f8f7aCzcPKbsF8p3
+  port: 989
+  server: 171.22.254.17
+  type: ss
 
 proxy-groups:
   - name: ♻️ 自动选择
@@ -193,36 +213,40 @@ proxy-groups:
     tolerance: 50
     proxies:
       - 🇺🇸|US1|@SHFX
-      - 🇩🇪|DE1|@SHFX
       - 🇰🇷|KR1|@SHFX
       - 🇳🇱|NL1|@SHFX
       - 🇧🇷|BR1|@SHFX
-      - 🇻🇳|VN1|@SHFX
       - 🇺🇸|US2|@SHFX
-      - 🇺🇸|US3|@SHFX
+      - 🇻🇳|VN1|@SHFX
       - 🇵🇾|PY1|@SHFX
       - 🇭🇷|HR1|@SHFX
-      - 🇬🇷|GR1|@SHFX
+      - 🇸🇪|SE1|@SHFX
+      - 🇳🇱|NL2|@SHFX
+      - 🇸🇮|SI1|@SHFX
       - 🇨🇳|CN1|@SHFX
-      - 🇮🇪|IE1|@SHFX
+      - 🇲🇩|MD1|@SHFX
+      - 🇺🇸|US3|@SHFX
+      - 🇲🇹|MT1|@SHFX
   - name: 🚀 节点选择
     type: select
     proxies:
       - ♻️ 自动选择
       - DIRECT
       - 🇺🇸|US1|@SHFX
-      - 🇩🇪|DE1|@SHFX
       - 🇰🇷|KR1|@SHFX
       - 🇳🇱|NL1|@SHFX
       - 🇧🇷|BR1|@SHFX
-      - 🇻🇳|VN1|@SHFX
       - 🇺🇸|US2|@SHFX
-      - 🇺🇸|US3|@SHFX
+      - 🇻🇳|VN1|@SHFX
       - 🇵🇾|PY1|@SHFX
       - 🇭🇷|HR1|@SHFX
-      - 🇬🇷|GR1|@SHFX
+      - 🇸🇪|SE1|@SHFX
+      - 🇳🇱|NL2|@SHFX
+      - 🇸🇮|SI1|@SHFX
       - 🇨🇳|CN1|@SHFX
-      - 🇮🇪|IE1|@SHFX
+      - 🇲🇩|MD1|@SHFX
+      - 🇺🇸|US3|@SHFX
+      - 🇲🇹|MT1|@SHFX
   - name: 🌍 国外媒体
     type: select
     proxies:
@@ -230,72 +254,80 @@ proxy-groups:
       - ♻️ 自动选择
       - 🎯 全球直连
       - 🇺🇸|US1|@SHFX
-      - 🇩🇪|DE1|@SHFX
       - 🇰🇷|KR1|@SHFX
       - 🇳🇱|NL1|@SHFX
       - 🇧🇷|BR1|@SHFX
-      - 🇻🇳|VN1|@SHFX
       - 🇺🇸|US2|@SHFX
-      - 🇺🇸|US3|@SHFX
+      - 🇻🇳|VN1|@SHFX
       - 🇵🇾|PY1|@SHFX
       - 🇭🇷|HR1|@SHFX
-      - 🇬🇷|GR1|@SHFX
+      - 🇸🇪|SE1|@SHFX
+      - 🇳🇱|NL2|@SHFX
+      - 🇸🇮|SI1|@SHFX
       - 🇨🇳|CN1|@SHFX
-      - 🇮🇪|IE1|@SHFX
+      - 🇲🇩|MD1|@SHFX
+      - 🇺🇸|US3|@SHFX
+      - 🇲🇹|MT1|@SHFX
   - name: 📲 电报信息
     type: select
     proxies:
       - 🚀 节点选择
       - 🎯 全球直连
       - 🇺🇸|US1|@SHFX
-      - 🇩🇪|DE1|@SHFX
       - 🇰🇷|KR1|@SHFX
       - 🇳🇱|NL1|@SHFX
       - 🇧🇷|BR1|@SHFX
-      - 🇻🇳|VN1|@SHFX
       - 🇺🇸|US2|@SHFX
-      - 🇺🇸|US3|@SHFX
+      - 🇻🇳|VN1|@SHFX
       - 🇵🇾|PY1|@SHFX
       - 🇭🇷|HR1|@SHFX
-      - 🇬🇷|GR1|@SHFX
+      - 🇸🇪|SE1|@SHFX
+      - 🇳🇱|NL2|@SHFX
+      - 🇸🇮|SI1|@SHFX
       - 🇨🇳|CN1|@SHFX
-      - 🇮🇪|IE1|@SHFX
+      - 🇲🇩|MD1|@SHFX
+      - 🇺🇸|US3|@SHFX
+      - 🇲🇹|MT1|@SHFX
   - name: Ⓜ️ 微软服务
     type: select
     proxies:
       - 🎯 全球直连
       - 🚀 节点选择
       - 🇺🇸|US1|@SHFX
-      - 🇩🇪|DE1|@SHFX
       - 🇰🇷|KR1|@SHFX
       - 🇳🇱|NL1|@SHFX
       - 🇧🇷|BR1|@SHFX
-      - 🇻🇳|VN1|@SHFX
       - 🇺🇸|US2|@SHFX
-      - 🇺🇸|US3|@SHFX
+      - 🇻🇳|VN1|@SHFX
       - 🇵🇾|PY1|@SHFX
       - 🇭🇷|HR1|@SHFX
-      - 🇬🇷|GR1|@SHFX
+      - 🇸🇪|SE1|@SHFX
+      - 🇳🇱|NL2|@SHFX
+      - 🇸🇮|SI1|@SHFX
       - 🇨🇳|CN1|@SHFX
-      - 🇮🇪|IE1|@SHFX
+      - 🇲🇩|MD1|@SHFX
+      - 🇺🇸|US3|@SHFX
+      - 🇲🇹|MT1|@SHFX
   - name: 🍎 苹果服务
     type: select
     proxies:
       - 🚀 节点选择
       - 🎯 全球直连
       - 🇺🇸|US1|@SHFX
-      - 🇩🇪|DE1|@SHFX
       - 🇰🇷|KR1|@SHFX
       - 🇳🇱|NL1|@SHFX
       - 🇧🇷|BR1|@SHFX
-      - 🇻🇳|VN1|@SHFX
       - 🇺🇸|US2|@SHFX
-      - 🇺🇸|US3|@SHFX
+      - 🇻🇳|VN1|@SHFX
       - 🇵🇾|PY1|@SHFX
       - 🇭🇷|HR1|@SHFX
-      - 🇬🇷|GR1|@SHFX
+      - 🇸🇪|SE1|@SHFX
+      - 🇳🇱|NL2|@SHFX
+      - 🇸🇮|SI1|@SHFX
       - 🇨🇳|CN1|@SHFX
-      - 🇮🇪|IE1|@SHFX
+      - 🇲🇩|MD1|@SHFX
+      - 🇺🇸|US3|@SHFX
+      - 🇲🇹|MT1|@SHFX
   - name: 🎯 全球直连
     type: select
     proxies:
@@ -319,18 +351,20 @@ proxy-groups:
       - 🎯 全球直连
       - ♻️ 自动选择
       - 🇺🇸|US1|@SHFX
-      - 🇩🇪|DE1|@SHFX
       - 🇰🇷|KR1|@SHFX
       - 🇳🇱|NL1|@SHFX
       - 🇧🇷|BR1|@SHFX
-      - 🇻🇳|VN1|@SHFX
       - 🇺🇸|US2|@SHFX
-      - 🇺🇸|US3|@SHFX
+      - 🇻🇳|VN1|@SHFX
       - 🇵🇾|PY1|@SHFX
       - 🇭🇷|HR1|@SHFX
-      - 🇬🇷|GR1|@SHFX
+      - 🇸🇪|SE1|@SHFX
+      - 🇳🇱|NL2|@SHFX
+      - 🇸🇮|SI1|@SHFX
       - 🇨🇳|CN1|@SHFX
-      - 🇮🇪|IE1|@SHFX
+      - 🇲🇩|MD1|@SHFX
+      - 🇺🇸|US3|@SHFX
+      - 🇲🇹|MT1|@SHFX
 rules:
   - DOMAIN-SUFFIX,acl4.ssr,🎯 全球直连
   - DOMAIN-SUFFIX,ip6-localhost,🎯 全球直连
