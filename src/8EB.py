@@ -327,20 +327,6 @@ def correct_node(p, country_counter):
 
     return p
 
-# ---------------- Example usage ----------------
-if __name__ == "__main__":
-    country_counter = defaultdict(int)
-    nodes = [
-        {"name": "01-HK01|香港|x1.0", "server": "1.1.1.1", "port": "443"},
-        {"name": "02-SG02|新加坡|x1.0", "server": "1.1.1.2", "port": "443"},
-        {"name": "01-TW03|台湾|x3.0", "server": "1.1.1.3", "port": "443"},
-    ]
-
-    corrected_nodes = [correct_node(n, country_counter) for n in nodes]
-
-    for n in corrected_nodes:
-        print(n)
-
 # ---------------- Load and parse proxies ----------------
 def load_proxies(url):
     try:
