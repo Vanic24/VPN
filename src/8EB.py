@@ -48,15 +48,15 @@ def tcp_latency_ms(host, port, timeout=2.0):
 
 def geo_ip(ip):
     try:
-        url = f"http://ip-api.com/json/{ip}?fields=countryCode"
-        resp = requests.get(url, timeout=5)
-        data = resp.json()
-        cc_upper = data.get("countryCode", "XX")
-        cc_lower = cc_upper.lower()
-        return cc_lower, cc_upper
-    except Exception as e:
-        print(f"Unexpected error in geo_ip: {e}")
-        return "xx", "XX" 
+        r = requests.get(f"https://ipinfo.io/{ip}/json", timeout=5)
+        if r.status_code == 200:
+            data = r.json()
+            cc = data.get("country")
+            if cc:
+                return cc.lower(), cc.upper()
+    except:
+        pass
+    return "unknown", "UN"
 
 def country_to_flag(cc):
     if not cc or len(cc) != 2:
@@ -327,9 +327,10 @@ def parse_node_line(line):
             return node
     return None
 
+import re
+
 # ---------------- Correct node ----------------
 def correct_node(p, country_counter):
-
     host = str(p.get("server"))
     raw_port = str(p.get("port", ""))
 
@@ -339,25 +340,26 @@ def correct_node(p, country_counter):
         port = 443
 
     ip = resolve_ip(host) or host
-    cc_lower, cc_upper = geo_ip(ip)   # Example return: ("hk", "HK")
+    cc_lower, cc_upper = geo_ip(ip)
     flag = country_to_flag(cc_upper)
 
     p["port"] = port
 
-    country_counter[cc_upper] += 1
-    index = country_counter[cc_upper]
+    original_name = str(p.get("name", ""))
 
-    # ---------------- Name formatting ----------------
-    # Original name (e.g. "01-HK01|香港|x1.0")
-    orig_name = str(p.get("name", ""))
+    # Try to extract code like "01-HK01" or "02-SG02"
+    match = re.match(r".*?([A-Z]{2})(\d+)", original_name)
+    if match:
+        cc = match.group(1)   # e.g. HK, SG, TW
+    else:
+        # fallback to geo_ip if pattern not found
+        cc = cc_upper
+        index = str(country_counter[cc_upper] + 1)
 
-    # Extract the first number at the beginning (e.g. "01" from "01-HK01")
-    m = re.match(r"^(\d+)", orig_name)
-    prefix_num = m.group(1) if m else str(index)
+    country_counter[cc] += 1
 
-    # New name format: 🇭🇰|HK1-Gdrive
-    p["name"] = f"{flag}|{cc_upper}{prefix_num}-Gdrive"
-
+    # New format: 🇭🇰|HK1-Gdrive
+    p["name"] = f"{country_to_flag(cc)}|{cc}(index)}-Gdrive"
     return p
 
 # ---------------- Load and parse proxies ----------------
