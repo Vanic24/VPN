@@ -489,7 +489,7 @@ def main():
 def upload_to_textdb():
     try:
         # Step 1: Fetch Filter file from GitHub
-        resp = requests.get(8EB_URL)
+        resp = requests.get(URL_8EB)
         if resp.status_code != 200:
             print(f"[error] Failed to fetch Filter file: {resp.status_code}")
             return
