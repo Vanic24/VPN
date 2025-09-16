@@ -90,6 +90,12 @@ proxies:
   type: tuic
   udp-relay-mode: native
   uuid: 8687b6e0-ef24-4cd2-bcd2-02d3732bf554
+- cipher: aes-256-cfb
+  name: 🇰🇷|KR1|@SHFX
+  password: qwerREWQ@@
+  port: 4652
+  server: p141.panda001.net
+  type: ss
 - alterId: 0
   cipher: auto
   http-opts:
@@ -120,18 +126,18 @@ proxies:
   uuid: f2f00a89-cc9d-450f-b8bb-0d5b2d4c5a65
 - alterId: 2
   cipher: auto
-  client-fingerprint: chrome
   name: 🇭🇰|HK1|@SHFX
   network: ws
   port: 80
   server: 1e426046-t0fds0-t12cnj-1ol97.hk.p5pv.com
-  skip-cert-verify: true
+  servername: 🇭🇰HK-119.237.2.99-0279 | 1.572MB
+  skip-cert-verify: false
   tls: false
   type: vmess
   uuid: 93fb69fc-77cf-11ee-85ee-f23c91369f2d
   ws-opts:
     headers:
-      host: 1e426046-t0fds0-t12cnj-1ol97.hk.p5pv.com
+      Host: 1e426046-t0fds0-t12cnj-1ol97.hk.p5pv.com
     path: /
 - alterId: 2
   cipher: auto
@@ -149,72 +155,32 @@ proxies:
       host: hkt.gotochinatown.net
     path: /
 - cipher: aes-256-cfb
-  name: 🇰🇷|KR1|@SHFX
+  name: 🇰🇷|KR2|@SHFX
   password: f8f7aCzcPKbsF8p3
   port: 989
   server: 154.90.63.177
   type: ss
-- name: 🇺🇸|US3|@SHFX
-  network: ws
-  port: 80
-  server: crazy-identity.oneeat.co
-  servername: crazy-identity.oneeat.co
-  skip-cert-verify: false
-  tls: false
-  type: vless
-  udp: true
-  uuid: 64d6d0d4-3706-4837-b154-cda2816adcc5
-  ws-opts:
-    headers:
-      Host: crazy-identity.oneeat.co
-    path: /
 - cipher: aes-256-cfb
   name: 🇻🇳|VN1|@SHFX
-  password: Xn8jKdmDM00IeO%#$#fJAMtsEAEUOpH/YWYtYqDFnT0SV
-  port: 38388
-  server: 103.186.155.135
-  type: ss
-  udp: true
-- cipher: aes-256-cfb
-  name: 🇧🇷|BR1|@SHFX
-  password: f8f7aCzcPKbsF8p3
-  port: 989
-  server: 38.54.57.90
-  type: ss
-- cipher: aes-256-cfb
-  name: 🇻🇳|VN2|@SHFX
   password: Xn8jKdmDM00IeO%#$#fJAMtsEAEUOpH/YWYtYqDFnT0SV
   port: 38388
   server: 103.186.155.36
   type: ss
   udp: true
 - cipher: aes-256-cfb
-  name: 🇻🇳|VN3|@SHFX
+  name: 🇻🇳|VN2|@SHFX
   password: Xn8jKdmDM00IeO%#$#fJAMtsEAEUOpH/YWYtYqDFnT0SV
   port: 38388
   server: 103.186.155.183
   type: ss
   udp: true
-- alterId: 64
-  cipher: auto
-  name: 🇨🇳|CN1|@SHFX
-  port: 46622
-  server: 120.234.102.232
-  skip-cert-verify: false
-  tls: false
-  type: vmess
+- cipher: aes-256-cfb
+  name: 🇻🇳|VN3|@SHFX
+  password: Xn8jKdmDM00IeO%#$#fJAMtsEAEUOpH/YWYtYqDFnT0SV
+  port: 38388
+  server: 103.186.155.135
+  type: ss
   udp: true
-  uuid: 418048af-a293-4b99-9b0c-98ca3580dd24
-- auth: 80747420-96c4-4a2f-83e6-eea4e46beb09
-  name: 🇸🇪|SE1|@SHFX
-  obfs: salamander
-  obfs-password: U1wBrYQyFm
-  password: 80747420-96c4-4a2f-83e6-eea4e46beb09
-  port: 20335
-  server: drhystuichdfy.samanidempire.org
-  skip-cert-verify: false
-  sni: drhystuichdfy.samanidempire.org
-  type: hysteria2
 
 proxy-groups:
   - name: ♻️ 自动选择
@@ -224,36 +190,30 @@ proxy-groups:
     tolerance: 50
     proxies:
       - 🇫🇷|FR1|@SHFX
+      - 🇰🇷|KR1|@SHFX
       - 🇺🇸|US1|@SHFX
       - 🇺🇸|US2|@SHFX
       - 🇭🇰|HK1|@SHFX
       - 🇭🇰|HK2|@SHFX
-      - 🇰🇷|KR1|@SHFX
-      - 🇺🇸|US3|@SHFX
+      - 🇰🇷|KR2|@SHFX
       - 🇻🇳|VN1|@SHFX
-      - 🇧🇷|BR1|@SHFX
       - 🇻🇳|VN2|@SHFX
       - 🇻🇳|VN3|@SHFX
-      - 🇨🇳|CN1|@SHFX
-      - 🇸🇪|SE1|@SHFX
   - name: 🚀 节点选择
     type: select
     proxies:
       - ♻️ 自动选择
       - DIRECT
       - 🇫🇷|FR1|@SHFX
+      - 🇰🇷|KR1|@SHFX
       - 🇺🇸|US1|@SHFX
       - 🇺🇸|US2|@SHFX
       - 🇭🇰|HK1|@SHFX
       - 🇭🇰|HK2|@SHFX
-      - 🇰🇷|KR1|@SHFX
-      - 🇺🇸|US3|@SHFX
+      - 🇰🇷|KR2|@SHFX
       - 🇻🇳|VN1|@SHFX
-      - 🇧🇷|BR1|@SHFX
       - 🇻🇳|VN2|@SHFX
       - 🇻🇳|VN3|@SHFX
-      - 🇨🇳|CN1|@SHFX
-      - 🇸🇪|SE1|@SHFX
   - name: 🌍 国外媒体
     type: select
     proxies:
@@ -261,72 +221,60 @@ proxy-groups:
       - ♻️ 自动选择
       - 🎯 全球直连
       - 🇫🇷|FR1|@SHFX
+      - 🇰🇷|KR1|@SHFX
       - 🇺🇸|US1|@SHFX
       - 🇺🇸|US2|@SHFX
       - 🇭🇰|HK1|@SHFX
       - 🇭🇰|HK2|@SHFX
-      - 🇰🇷|KR1|@SHFX
-      - 🇺🇸|US3|@SHFX
+      - 🇰🇷|KR2|@SHFX
       - 🇻🇳|VN1|@SHFX
-      - 🇧🇷|BR1|@SHFX
       - 🇻🇳|VN2|@SHFX
       - 🇻🇳|VN3|@SHFX
-      - 🇨🇳|CN1|@SHFX
-      - 🇸🇪|SE1|@SHFX
   - name: 📲 电报信息
     type: select
     proxies:
       - 🚀 节点选择
       - 🎯 全球直连
       - 🇫🇷|FR1|@SHFX
+      - 🇰🇷|KR1|@SHFX
       - 🇺🇸|US1|@SHFX
       - 🇺🇸|US2|@SHFX
       - 🇭🇰|HK1|@SHFX
       - 🇭🇰|HK2|@SHFX
-      - 🇰🇷|KR1|@SHFX
-      - 🇺🇸|US3|@SHFX
+      - 🇰🇷|KR2|@SHFX
       - 🇻🇳|VN1|@SHFX
-      - 🇧🇷|BR1|@SHFX
       - 🇻🇳|VN2|@SHFX
       - 🇻🇳|VN3|@SHFX
-      - 🇨🇳|CN1|@SHFX
-      - 🇸🇪|SE1|@SHFX
   - name: Ⓜ️ 微软服务
     type: select
     proxies:
       - 🎯 全球直连
       - 🚀 节点选择
       - 🇫🇷|FR1|@SHFX
+      - 🇰🇷|KR1|@SHFX
       - 🇺🇸|US1|@SHFX
       - 🇺🇸|US2|@SHFX
       - 🇭🇰|HK1|@SHFX
       - 🇭🇰|HK2|@SHFX
-      - 🇰🇷|KR1|@SHFX
-      - 🇺🇸|US3|@SHFX
+      - 🇰🇷|KR2|@SHFX
       - 🇻🇳|VN1|@SHFX
-      - 🇧🇷|BR1|@SHFX
       - 🇻🇳|VN2|@SHFX
       - 🇻🇳|VN3|@SHFX
-      - 🇨🇳|CN1|@SHFX
-      - 🇸🇪|SE1|@SHFX
   - name: 🍎 苹果服务
     type: select
     proxies:
       - 🚀 节点选择
       - 🎯 全球直连
       - 🇫🇷|FR1|@SHFX
+      - 🇰🇷|KR1|@SHFX
       - 🇺🇸|US1|@SHFX
       - 🇺🇸|US2|@SHFX
       - 🇭🇰|HK1|@SHFX
       - 🇭🇰|HK2|@SHFX
-      - 🇰🇷|KR1|@SHFX
-      - 🇺🇸|US3|@SHFX
+      - 🇰🇷|KR2|@SHFX
       - 🇻🇳|VN1|@SHFX
-      - 🇧🇷|BR1|@SHFX
       - 🇻🇳|VN2|@SHFX
       - 🇻🇳|VN3|@SHFX
-      - 🇨🇳|CN1|@SHFX
-      - 🇸🇪|SE1|@SHFX
   - name: 🎯 全球直连
     type: select
     proxies:
@@ -350,18 +298,15 @@ proxy-groups:
       - 🎯 全球直连
       - ♻️ 自动选择
       - 🇫🇷|FR1|@SHFX
+      - 🇰🇷|KR1|@SHFX
       - 🇺🇸|US1|@SHFX
       - 🇺🇸|US2|@SHFX
       - 🇭🇰|HK1|@SHFX
       - 🇭🇰|HK2|@SHFX
-      - 🇰🇷|KR1|@SHFX
-      - 🇺🇸|US3|@SHFX
+      - 🇰🇷|KR2|@SHFX
       - 🇻🇳|VN1|@SHFX
-      - 🇧🇷|BR1|@SHFX
       - 🇻🇳|VN2|@SHFX
       - 🇻🇳|VN3|@SHFX
-      - 🇨🇳|CN1|@SHFX
-      - 🇸🇪|SE1|@SHFX
 rules:
   - DOMAIN-SUFFIX,acl4.ssr,🎯 全球直连
   - DOMAIN-SUFFIX,ip6-localhost,🎯 全球直连
