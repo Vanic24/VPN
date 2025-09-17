@@ -483,9 +483,9 @@ def main():
     timestamp = local_time.strftime("%d.%m.%Y %H:%M:%S")  # 24-hour format
 
     # ---------------- Write output ----------------
+    output_with_timestamp = f"# Last update: {timestamp}\n" + output_text
     with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
         f.write(output_text)
-    output_with_timestamp = f"# Last update: {timestamp}\n" + output_text
     print(f"[done] wrote {OUTPUT_FILE}")
 
     # Always upload after processing
@@ -496,7 +496,7 @@ def upload_to_textdb():
     try:
         # Step 1: Read freshly generated Filter file (local, not GitHub raw)
         with open("Filter", "r", encoding="utf-8") as f:
-            output_with_timestamp = f.read()
+            output_text = f.read()
 
         # Step 2: Delete old record
         delete_resp = requests.post(TEXTDB_API, data={"value": ""})
@@ -510,7 +510,7 @@ def upload_to_textdb():
         time.sleep(3)
 
         # Step 3: Upload to TextDB using POST (to avoid URL size limits)
-        upload_resp = requests.post(TEXTDB_API, data={"value": output_with_timestamp})
+        upload_resp = requests.post(TEXTDB_API, data={"value": output_text})
         if upload_resp.status_code == 200:
             print("[info] Successfully uploaded on textdb")
         else:
