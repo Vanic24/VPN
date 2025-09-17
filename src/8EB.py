@@ -14,8 +14,8 @@ import urllib.parse
 
 # ---------------- Config ----------------
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-OUTPUT_FILE = os.path.join(REPO_ROOT, "8EB")   # changed from proxies.yaml → Filter
-SOURCES_FILE = os.path.join(REPO_ROOT, "Sources_8EB")  # changed from sources.txt → Filter_Sources
+OUTPUT_FILE = os.path.join(REPO_ROOT, "8EB")
+SOURCES_FILE = os.path.join(REPO_ROOT, "Sources_8EB")
 TEMPLATE_URL = "https://raw.githubusercontent.com/Vanic24/VPN/refs/heads/main/ClashTemplate.ini"
 TEXTDB_API = "https://textdb.online/update/?key=8EB_SHFX&value={}"
 URL_8EB = "https://raw.githubusercontent.com/Vanic24/VPN/refs/heads/main/8EB"
@@ -486,10 +486,15 @@ def main():
     output_text = template_text.replace("{{PROXIES}}", proxies_yaml_block)
     output_text = output_text.replace("{{PROXY_NAMES}}", proxy_names_block)
 
+    # ---------------- Prepare GMT+6:30 timestamp ----------------
+    offset = timedelta(hours=6, minutes=30)  # +6:30 hours
+    utc_now = datetime.now(timezone.utc)      # timezone-aware UTC
+    local_time = utc_now + offset
+    timestamp = local_time.strftime("%d.%m.%Y %H:%M:%S")
+
     # ---------------- Write output ----------------
     with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
-        f.write(output_text)
-
+    f.write(f"# Last update: {timestamp}\n" + output_text)
     print(f"[done] wrote {OUTPUT_FILE}")
 
     # Always upload after processing
