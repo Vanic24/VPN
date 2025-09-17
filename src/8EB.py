@@ -482,10 +482,10 @@ def main():
         country_counter = defaultdict(int)
 
     # ---------------- Correct nodes ----------------
-    corrected_nodes = []
-    for n in filtered_nodes:
-        corrected_nodes.append(correct_node(n, country_counter))
-
+    corrected_nodes = [
+        new_n for n in filtered_nodes
+        if (new_n := correct_node(n, country_counter)) is not None
+    ]
     print(f"[done] final {len(corrected_nodes)} nodes ready")
 
     # ---------------- Load template ----------------
