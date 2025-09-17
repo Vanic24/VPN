@@ -69,11 +69,14 @@ def country_to_flag(cc):
 def flag_to_country_code(flag):
     if not flag or len(flag) < 2:
         return None
-    code_points = [ord(c) - 127397 for c in flag if 127462 <= ord(c) <= 127487]
-    if len(code_points) == 2:
-        return "".join(chr(65 + cp) for cp in code_points)
-    return None
-
+    try:
+        # Only take the first two regional indicator symbols
+        first, second = flag[0], flag[1]
+        cc = chr(ord(first) - 0x1F1E6 + 65) + chr(ord(second) - 0x1F1E6 + 65)
+        return cc
+    except Exception:
+        return None
+        
 # ---------------- Load sources ----------------
 def load_sources():
     if not os.path.exists(SOURCES_FILE):
