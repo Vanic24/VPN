@@ -35,13 +35,12 @@ jobs:
           node <<'JS'
           const fs = require('fs');
           const path = require('path');
-          const axios = require('axios');
+          const { execSync } = require("child_process");
           const yaml = require('js-yaml');
-
           const dry_run = process.env.DRY_RUN === 'true';
           const subUrl = process.env.SUB_9PB;
           const fetchSub = async () => {
-            const res = await axios.get(subUrl);
+          const res = await axios.get(subUrl);
             return Buffer.from(res.data, 'base64').toString();
           };
 
@@ -259,9 +258,6 @@ jobs:
             // Replace placeholders (all occurrences)
             let outputContent = template.replace(/{{PROXIES}}/g, proxies_yaml_block);
             outputContent = outputContent.replace(/{{PROXY_NAMES}}/g, proxy_names_block);
-
-            const fs = require("fs");
-            const { execSync } = require("child_process");
 
             // Write output normally
             fs.writeFileSync('9PB', outputContent, 'utf8');
