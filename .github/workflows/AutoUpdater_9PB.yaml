@@ -261,7 +261,7 @@ jobs:
             outputContent = outputContent.replace(/{{PROXY_NAMES}}/g, proxy_names_block);
 
             // Prepare YAML output with timestamp
-            const outputContent = `# Last update: ${new Date().toLocaleString()}\n` +
+            const yamlData = `# Last update: ${new Date().toLocaleString()}\n` + outputContent;
 
             // Write output files
             fs.writeFileSync('9PB', outputContent, 'utf8');
