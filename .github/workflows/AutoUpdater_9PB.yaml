@@ -280,7 +280,7 @@ jobs:
                 
                 await axios.put(ghUrl, {
                   message: `🎉9PB Auto update successful🎉 - ${new Date().toLocaleString()}`,
-                  content: Buffer.from(outputContent).toString('base64'),
+                  content: Buffer.from(yamlData).toString('base64'),
                   sha
                 }, {
                   headers: { Authorization: `token ${process.env.GITHUB_TOKEN}` }
