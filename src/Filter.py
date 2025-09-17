@@ -479,8 +479,9 @@ def main():
 
     # ---------------- Prepare GMT+6:30 timestamp ----------------
     offset = timedelta(hours=6, minutes=30)  # +6:30 hours
-    local_time = datetime.utcnow() + offset
-    timestamp = local_time.strftime("%d.%m.%Y %H:%M:%S")  # 24-hour format
+    utc_now = datetime.now(timezone.utc)      # timezone-aware UTC
+    local_time = utc_now + offset
+    timestamp = local_time.strftime("%d.%m.%Y %H:%M:%S")
 
     # ---------------- Write output ----------------
     output_with_timestamp = f"# Last update: {timestamp}\n" + output_text
