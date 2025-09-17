@@ -53,6 +53,17 @@ jobs:
       - name: Run 8EB.py
         run: python src/8EB.py
 
+      - name: Generate GMT+6:30 timestamp
+        id: timestamp
+        run: |
+          # Get UTC time in seconds since epoch
+          utc_seconds=$(date -u +%s)
+          # Add 6 hours 30 minutes = 23400 seconds
+          local_seconds=$((utc_seconds + 6*3600 + 30*60))
+          # Format as DD.MM.YYYY HH:MM:SS GMT+6:30
+          TIMESTAMP=$(date -u -d "@$local_seconds" +"%d.%m.%Y %H:%M:%S")
+          echo "TIMESTAMP=$TIMESTAMP" >> $GITHUB_ENV
+
       - name: Commit and Push 8EB
         shell: bash
         run: |
@@ -64,6 +75,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "No changes to commit"
           else
-            git commit -m "🎉8EB Auto update successful🎉"
+            git commit -m "🎉8EB Auto update successful🎉 - $TIMESTAMP"
             git push --force-with-lease origin main
           fi
