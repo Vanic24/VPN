@@ -7,6 +7,8 @@ import socket
 import concurrent.futures
 import traceback
 from collections import defaultdict
+from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import base64
 import re
 import json
@@ -476,10 +478,15 @@ def main():
     output_text = template_text.replace("{{PROXIES}}", proxies_yaml_block)
     output_text = output_text.replace("{{PROXY_NAMES}}", proxy_names_block)
 
+    # ---------------- Prepare GMT+6:30 timestamp ----------------
+    offset = timedelta(hours=6, minutes=30)  # +6:30 hours
+    utc_now = datetime.now(timezone.utc)      # timezone-aware UTC
+    local_time = utc_now + offset
+    timestamp = local_time.strftime("%d.%m.%Y %H:%M:%S")
+
     # ---------------- Write output ----------------
     with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
-        f.write(output_text)
-
+        f.write(f"# Last update: {timestamp}\n" + output_text)
     print(f"[done] wrote {OUTPUT_FILE}")
 
     # Always upload after processing
