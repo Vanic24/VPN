@@ -260,10 +260,10 @@ jobs:
             let outputContent = template.replace(/{{PROXIES}}/g, proxies_yaml_block);
             outputContent = outputContent.replace(/{{PROXY_NAMES}}/g, proxy_names_block);
 
-            const { execSync } = require("child_process");
             const fs = require("fs");
+            const { execSync } = require("child_process");
 
-            // Write your output normally
+            // Write output normally
             fs.writeFileSync('9PB', outputContent, 'utf8');
             fs.writeFileSync('9PB.yml', outputContent, 'utf8');
 
