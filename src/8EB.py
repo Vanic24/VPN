@@ -498,7 +498,7 @@ def main():
         sys.exit(1)
 
     # ---------------- Convert to YAML ----------------
-    proxies_yaml_block = yaml.dump(corrected_nodes, allow_unicode=True, default_flow_style=False)
+    proxies_yaml_block = yaml.dump(data, f, allow_unicode=True, sort_keys=False)
     proxy_names_block = "\n".join([f"      - {p['name']}" for p in corrected_nodes])
 
     # ---------------- Replace placeholders ----------------
