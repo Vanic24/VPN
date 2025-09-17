@@ -16,8 +16,8 @@ import urllib.parse
 
 # ---------------- Config ----------------
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-OUTPUT_FILE = os.path.join(REPO_ROOT, "Filter")   # changed from proxies.yaml → Filter
-SOURCES_FILE = os.path.join(REPO_ROOT, "Filter_Sources")  # changed from sources.txt → Filter_Sources
+OUTPUT_FILE = os.path.join(REPO_ROOT, "Filter")
+SOURCES_FILE = os.path.join(REPO_ROOT, "Filter_Sources")
 TEMPLATE_URL = "https://raw.githubusercontent.com/Vanic24/VPN/refs/heads/main/ClashTemplate.ini"
 TEXTDB_API = "https://textdb.online/update/?key=Filter_SHFX&value={}"
 FILTER_URL = "https://raw.githubusercontent.com/Vanic24/VPN/refs/heads/main/Filter"
@@ -486,7 +486,7 @@ def main():
 
     # ---------------- Write output ----------------
     with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
-        f.write(f"# Last update: {timestamp}\n" + output_text)
+    f.write(f"# Last update: {timestamp}\n" + output_text)
     print(f"[done] wrote {OUTPUT_FILE}")
 
     # Always upload after processing
