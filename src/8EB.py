@@ -513,7 +513,8 @@ def main():
 
     # ---------------- Write output ----------------
     with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
-        f.write(f"# Last update: {timestamp}\n" + output_text)
+        f.write(f"# Last update: {timestamp}\n")
+        f.write(output_text)
     print(f"[done] wrote {OUTPUT_FILE}")
 
     # Always upload after processing
