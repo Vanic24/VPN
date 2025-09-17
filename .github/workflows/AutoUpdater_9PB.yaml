@@ -260,32 +260,38 @@ jobs:
             let outputContent = template.replace(/{{PROXIES}}/g, proxies_yaml_block);
             outputContent = outputContent.replace(/{{PROXY_NAMES}}/g, proxy_names_block);
 
-            // Write output files
+            const { execSync } = require("child_process");
+            const fs = require("fs");
+
+            // Write your output normally
             fs.writeFileSync('9PB', outputContent, 'utf8');
             fs.writeFileSync('9PB.yml', outputContent, 'utf8');
 
             console.log('✅ Local files written: 9PB, 9PB.yml');
 
             if (!dry_run) {
-              // Update GitHub
-              const ghUrl = `https://api.github.com/repos/${process.env.GITHUB_REPOSITORY}/contents/9PB`;
               try {
-                const ghRes = await axios.get(ghUrl, {
-                  headers: { Authorization: `token ${process.env.GITHUB_TOKEN}` }
-                });
-                const sha = ghRes.data.sha;
+                // Configure Git
+                execSync("git config user.name 'github-actions[bot]'");
+                execSync("git config user.email '41898282+github-actions[bot]@users.noreply.github.com'");
 
-                await axios.put(ghUrl, {
-                  message: `🎉9PB Auto update successful🎉 - ${new Date().toUTCString()}`,
-                  content: Buffer.from(outputContent).toString('base64'),
-                  sha
-                }, {
-                  headers: { Authorization: `token ${process.env.GITHUB_TOKEN}` }
-                });
-                  console.log('✅ GitHub updated successfully');
-                } catch (err) {
-                  console.error('❌ GitHub update failed:', err.response?.data || err.message);
-                }
+                // Stage files
+                execSync("git add 9PB 9PB.yml");
+
+                // Commit normally, or empty if no changes
+              try {
+                execSync(`git commit -m "🎉9PB Auto update successful🎉 - ${new Date().toUTCString()}"`);
+            } catch {
+                execSync(`git commit --allow-empty -m "🎉9PB Auto update (no changes)🎉 - ${new Date().toUTCString()}"`);
+            }
+
+              // Push to repo
+              execSync("git push");
+              console.log("✅ GitHub updated successfully");
+            } catch (err) {
+              console.error("❌ GitHub update failed:", err.message);
+            }
+            }
 
               // Delete old record from TextDB first
               const deleteUrl = 'https://textdb.online/update/?key=9PB_SHFX&value={}';
