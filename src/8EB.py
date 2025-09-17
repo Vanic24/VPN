@@ -66,6 +66,14 @@ def country_to_flag(cc):
     return chr(0x1F1E6 + (ord(cc[0].upper()) - 65)) + \
            chr(0x1F1E6 + (ord(cc[1].upper()) - 65))
 
+def flag_to_country_code(flag):
+    if not flag or len(flag) < 2:
+        return None
+    code_points = [ord(c) - 127397 for c in flag if 127462 <= ord(c) <= 127487]
+    if len(code_points) == 2:
+        return "".join(chr(65 + cp) for cp in code_points)
+    return None
+
 # ---------------- Load sources ----------------
 def load_sources():
     if not os.path.exists(SOURCES_FILE):
@@ -341,24 +349,33 @@ def correct_node(p, country_counter):
 
     ip = resolve_ip(host) or host
     cc_lower, cc_upper = geo_ip(ip)
-    
-    p["port"] = port
 
+    p["port"] = port
     original_name = str(p.get("name", ""))
 
-    # Extract two-letter country code like "HK", "SG", "TW"
-    match = re.search(r"([A-Z]{2})", original_name)
-    if match:
-        cc = match.group(1)
-    else:
-        cc = cc_upper  # fallback to geo_ip if not found
+    # Skip nodes containing 🔒
+    if "🔒" in original_name:
+        return None
 
-    # Increment country counter
+    # Try to detect a flag emoji in the original name
+    flag_match = re.search(r'[\U0001F1E6-\U0001F1FF]{2}', original_name)
+    if flag_match:
+        flag = flag_match.group(0)
+        cc = flag_to_country_code(flag)
+    else:
+        # fallback: use geo_ip result
+        flag = country_to_flag(cc_upper)
+        cc = cc_upper
+
+    if not cc:
+        return None  # skip if no valid country code
+
+    # Increment per-country index
     country_counter[cc] += 1
     index = country_counter[cc]
 
-    # New format: 🇭🇰|HK1-Gdrive
-    p["name"] = f"{country_to_flag(cc)}|{cc}{index}-Gdrive"
+    # New format: 🇭🇰|HK1-StarLink
+    p["name"] = f"{flag}|{cc}{index}-StarLink"
     return p
 
 # ---------------- Load and parse proxies ----------------
