@@ -40,7 +40,7 @@ jobs:
           const now = new Date();
           const offset = 6.5 * 60; // +6:30 in minutes
           const localTime = new Date(now.getTime() + offsetMinutes * 60 * 1000);
-          onst pad = (n) => n.toString().padStart(2, '0');
+          const pad = (n) => n.toString().padStart(2, '0');
           const timestamp = `${pad(localTime.getDate())}.${pad(localTime.getMonth()+1)}.${localTime.getFullYear()} ${pad(localTime.getHours())}:${pad(localTime.getMinutes())}:${pad(localTime.getSeconds())} GMT+6:30`;
           const dry_run = process.env.DRY_RUN === 'true';
           const subUrl = process.env.SUB_9PB;
