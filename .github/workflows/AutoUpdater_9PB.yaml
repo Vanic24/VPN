@@ -41,7 +41,6 @@ jobs:
           const offset = 6.5 * 60; // +6:30 in minutes
           const localTime = new Date(now.getTime() + offset*60000);
           const timestamp = localTime.toISOString().replace('T', ' ').split('.')[0]; // simple format
-          const yamlData = `# Last update: ${timestamp}\n` + outputContent;
 
           const dry_run = process.env.DRY_RUN === 'true';
           const subUrl = process.env.SUB_9PB;
@@ -265,6 +264,9 @@ jobs:
             let outputContent = template.replace(/{{PROXIES}}/g, proxies_yaml_block);
             outputContent = outputContent.replace(/{{PROXY_NAMES}}/g, proxy_names_block);
 
+            // Prepare YAML output with timestamp
+            const yamlData = `# Last update: ${new Date().toLocaleString()}\n` + outputContent;
+            
             // Write output files
             fs.writeFileSync('9PB', outputContent, 'utf8');
             fs.writeFileSync('9PB.yml', outputContent, 'utf8');
