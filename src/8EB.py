@@ -555,6 +555,14 @@ def upload_to_textdb():
         print(f"[error] Unexpected error: {e}")
 
         # ---------------- Entry ----------------
+        if __name__ == "__run_pipeline__"
+            try:
+                run_pipeline()
+             except Exception as e:
+                print("[FATAL ERROR]", str(e))
+                upload_to_textdb()
+                traceback.print_exc()
+                sys.exit(1)
         if __name__ == "__main__":
             MAX_RETRIES = 3
             RETRY_DELAY = 10
