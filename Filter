@@ -1,4 +1,4 @@
-# Last update: 19.09.2025 02:47:15
+# Last update: 19.09.2025 03:08:58
 mixed-port: 7890
 allow-lan: true
 log-level: info
@@ -91,26 +91,70 @@ proxies:
   type: tuic
   udp-relay-mode: native
   uuid: 8687b6e0-ef24-4cd2-bcd2-02d3732bf554
-- cipher: aes-256-cfb
-  name: 🇰🇷|KR1|@SHFX
-  password: qwerREWQ@@
-  port: 4652
-  server: p141.panda001.net
-  type: ss
 - alterId: 2
   cipher: auto
+  client-fingerprint: chrome
   name: 🇭🇰|HK1|@SHFX
   network: ws
   port: 80
   server: 1e426046-t0fds0-t12cnj-1ol97.hk.p5pv.com
-  skip-cert-verify: false
+  skip-cert-verify: true
   tls: false
   type: vmess
   uuid: 93fb69fc-77cf-11ee-85ee-f23c91369f2d
   ws-opts:
     headers:
-      Host: broadcastlv.chat.bilibili.com
+      host: 1e426046-t0fds0-t12cnj-1ol97.hk.p5pv.com
     path: /
+- cipher: aes-256-cfb
+  name: 🇳🇱|NL1|@SHFX
+  password: f8f7aCzcPKbsF8p3
+  port: 989
+  server: 51.15.17.169
+  type: ss
+- alterId: 0
+  cipher: chacha20-ietf-poly1305
+  name: 🇻🇳|VN1|@SHFX
+  password: Nk9asglDzHzjktVzTkvhaA
+  port: 443
+  server: arxfw2b78fi2q9hzylhn.freesocks.work
+  skip-cert-verify: true
+  tls: true
+  type: ss
+- cipher: aes-256-cfb
+  name: 🇰🇷|KR1|@SHFX
+  password: f8f7aCzcPKbsF8p3
+  port: 989
+  server: 154.90.63.177
+  type: ss
+- cipher: aes-256-cfb
+  name: 🇻🇳|VN2|@SHFX
+  password: Xn8jKdmDM00IeO%#$#fJAMtsEAEUOpH/YWYtYqDFnT0SV
+  port: 38388
+  server: 103.186.155.28
+  type: ss
+- client-fingerprint: firefox
+  flow: xtls-rprx-vision
+  name: 🇹🇷|TR1|@SHFX
+  port: 2589
+  reality-opts:
+    public-key: 2hoQE6WBJlr4DHrp7TxqPOT8i24iodEaCQp-qugbD3U
+    short-id: e41865e506628f44
+  server: 188.132.183.15
+  servername: tgju.org
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 8f0120f1-ba26-e137-5e06-a99b844741aa
+- cipher: aes-256-cfb
+  client-fingerprint: chrome
+  name: 🇻🇳|VN3|@SHFX
+  password: Xn8jKdmDM00IeO%#$#fJAMtsEAEUOpH/YWYtYqDFnT0SV
+  port: 38388
+  server: 103.186.155.116
+  tfo: false
+  type: ss
 - alterId: 2
   cipher: auto
   client-fingerprint: chrome
@@ -127,52 +171,11 @@ proxies:
       host: hkt.gotochinatown.net
     path: /
 - cipher: aes-256-cfb
-  client-fingerprint: chrome
-  name: 🇻🇳|VN1|@SHFX
-  password: Xn8jKdmDM00IeO%#$#fJAMtsEAEUOpH/YWYtYqDFnT0SV
-  port: 38388
-  server: 103.186.155.116
-  tfo: false
-  type: ss
-- cipher: aes-256-cfb
-  name: 🇳🇱|NL1|@SHFX
+  name: 🇲🇩|MD1|@SHFX
   password: f8f7aCzcPKbsF8p3
   port: 989
-  server: 51.15.17.169
+  server: 185.153.197.5
   type: ss
-- cipher: aes-256-cfb
-  name: 🇻🇳|VN2|@SHFX
-  password: Xn8jKdmDM00IeO%#$#fJAMtsEAEUOpH/YWYtYqDFnT0SV
-  port: 38388
-  server: 103.186.155.28
-  type: ss
-- client-fingerprint: firefox
-  name: 🇺🇸|US1|@SHFX
-  port: 10001
-  reality-opts:
-    public-key: 1ltSdo2K6D9EEwebaDQPCb5ypbURcXyO9HsX4RUbbUo
-    short-id: 1a24af87
-  server: 172.233.153.209
-  servername: yahoo.com
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: e4412006-94f2-4f3c-b568-22a3e31dc264
-- client-fingerprint: firefox
-  flow: xtls-rprx-vision
-  name: 🇹🇷|TR1|@SHFX
-  port: 2589
-  reality-opts:
-    public-key: 2hoQE6WBJlr4DHrp7TxqPOT8i24iodEaCQp-qugbD3U
-    short-id: e41865e506628f44
-  server: 188.132.183.15
-  servername: tgju.org
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 8f0120f1-ba26-e137-5e06-a99b844741aa
 
 proxy-groups:
   - name: ♻️ 自动选择
@@ -182,28 +185,30 @@ proxy-groups:
     tolerance: 50
     proxies:
       - 🇫🇷|FR1|@SHFX
-      - 🇰🇷|KR1|@SHFX
       - 🇭🇰|HK1|@SHFX
-      - 🇭🇰|HK2|@SHFX
-      - 🇻🇳|VN1|@SHFX
       - 🇳🇱|NL1|@SHFX
+      - 🇻🇳|VN1|@SHFX
+      - 🇰🇷|KR1|@SHFX
       - 🇻🇳|VN2|@SHFX
-      - 🇺🇸|US1|@SHFX
       - 🇹🇷|TR1|@SHFX
+      - 🇻🇳|VN3|@SHFX
+      - 🇭🇰|HK2|@SHFX
+      - 🇲🇩|MD1|@SHFX
   - name: 🚀 节点选择
     type: select
     proxies:
       - ♻️ 自动选择
       - DIRECT
       - 🇫🇷|FR1|@SHFX
-      - 🇰🇷|KR1|@SHFX
       - 🇭🇰|HK1|@SHFX
-      - 🇭🇰|HK2|@SHFX
-      - 🇻🇳|VN1|@SHFX
       - 🇳🇱|NL1|@SHFX
+      - 🇻🇳|VN1|@SHFX
+      - 🇰🇷|KR1|@SHFX
       - 🇻🇳|VN2|@SHFX
-      - 🇺🇸|US1|@SHFX
       - 🇹🇷|TR1|@SHFX
+      - 🇻🇳|VN3|@SHFX
+      - 🇭🇰|HK2|@SHFX
+      - 🇲🇩|MD1|@SHFX
   - name: 🌍 国外媒体
     type: select
     proxies:
@@ -211,56 +216,60 @@ proxy-groups:
       - ♻️ 自动选择
       - 🎯 全球直连
       - 🇫🇷|FR1|@SHFX
-      - 🇰🇷|KR1|@SHFX
       - 🇭🇰|HK1|@SHFX
-      - 🇭🇰|HK2|@SHFX
-      - 🇻🇳|VN1|@SHFX
       - 🇳🇱|NL1|@SHFX
+      - 🇻🇳|VN1|@SHFX
+      - 🇰🇷|KR1|@SHFX
       - 🇻🇳|VN2|@SHFX
-      - 🇺🇸|US1|@SHFX
       - 🇹🇷|TR1|@SHFX
+      - 🇻🇳|VN3|@SHFX
+      - 🇭🇰|HK2|@SHFX
+      - 🇲🇩|MD1|@SHFX
   - name: 📲 电报信息
     type: select
     proxies:
       - 🚀 节点选择
       - 🎯 全球直连
       - 🇫🇷|FR1|@SHFX
-      - 🇰🇷|KR1|@SHFX
       - 🇭🇰|HK1|@SHFX
-      - 🇭🇰|HK2|@SHFX
-      - 🇻🇳|VN1|@SHFX
       - 🇳🇱|NL1|@SHFX
+      - 🇻🇳|VN1|@SHFX
+      - 🇰🇷|KR1|@SHFX
       - 🇻🇳|VN2|@SHFX
-      - 🇺🇸|US1|@SHFX
       - 🇹🇷|TR1|@SHFX
+      - 🇻🇳|VN3|@SHFX
+      - 🇭🇰|HK2|@SHFX
+      - 🇲🇩|MD1|@SHFX
   - name: Ⓜ️ 微软服务
     type: select
     proxies:
       - 🎯 全球直连
       - 🚀 节点选择
       - 🇫🇷|FR1|@SHFX
-      - 🇰🇷|KR1|@SHFX
       - 🇭🇰|HK1|@SHFX
-      - 🇭🇰|HK2|@SHFX
-      - 🇻🇳|VN1|@SHFX
       - 🇳🇱|NL1|@SHFX
+      - 🇻🇳|VN1|@SHFX
+      - 🇰🇷|KR1|@SHFX
       - 🇻🇳|VN2|@SHFX
-      - 🇺🇸|US1|@SHFX
       - 🇹🇷|TR1|@SHFX
+      - 🇻🇳|VN3|@SHFX
+      - 🇭🇰|HK2|@SHFX
+      - 🇲🇩|MD1|@SHFX
   - name: 🍎 苹果服务
     type: select
     proxies:
       - 🚀 节点选择
       - 🎯 全球直连
       - 🇫🇷|FR1|@SHFX
-      - 🇰🇷|KR1|@SHFX
       - 🇭🇰|HK1|@SHFX
-      - 🇭🇰|HK2|@SHFX
-      - 🇻🇳|VN1|@SHFX
       - 🇳🇱|NL1|@SHFX
+      - 🇻🇳|VN1|@SHFX
+      - 🇰🇷|KR1|@SHFX
       - 🇻🇳|VN2|@SHFX
-      - 🇺🇸|US1|@SHFX
       - 🇹🇷|TR1|@SHFX
+      - 🇻🇳|VN3|@SHFX
+      - 🇭🇰|HK2|@SHFX
+      - 🇲🇩|MD1|@SHFX
   - name: 🎯 全球直连
     type: select
     proxies:
@@ -284,14 +293,15 @@ proxy-groups:
       - 🎯 全球直连
       - ♻️ 自动选择
       - 🇫🇷|FR1|@SHFX
-      - 🇰🇷|KR1|@SHFX
       - 🇭🇰|HK1|@SHFX
-      - 🇭🇰|HK2|@SHFX
-      - 🇻🇳|VN1|@SHFX
       - 🇳🇱|NL1|@SHFX
+      - 🇻🇳|VN1|@SHFX
+      - 🇰🇷|KR1|@SHFX
       - 🇻🇳|VN2|@SHFX
-      - 🇺🇸|US1|@SHFX
       - 🇹🇷|TR1|@SHFX
+      - 🇻🇳|VN3|@SHFX
+      - 🇭🇰|HK2|@SHFX
+      - 🇲🇩|MD1|@SHFX
 rules:
   - DOMAIN-SUFFIX,acl4.ssr,🎯 全球直连
   - DOMAIN-SUFFIX,ip6-localhost,🎯 全球直连
