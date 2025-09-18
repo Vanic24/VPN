@@ -555,7 +555,7 @@ def upload_to_textdb():
         print(f"[error] Unexpected error: {e}")
 
         # ---------------- Entry ----------------
-        if __name__ == "__run_pipeline__"
+        if __name__ == "__run_pipeline__":
             try:
                 run_pipeline()
              except Exception as e:
