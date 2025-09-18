@@ -1,4 +1,4 @@
-# Last update: 18.09.2025 09:11:23
+# Last update: 18.09.2025 09:58:25
 mixed-port: 7890
 allow-lan: true
 log-level: info
@@ -91,13 +91,6 @@ proxies:
   type: tuic
   udp-relay-mode: native
   uuid: 8687b6e0-ef24-4cd2-bcd2-02d3732bf554
-- cipher: chacha20-ietf-poly1305
-  name: 🇨🇳|CN1|@SHFX
-  password: 102826c0-8ad3-4417-8843-6da0f5c80cfe
-  port: 35603
-  server: gw.liangyuandianwan.com
-  type: ss
-  udp: true
 - name: 🇰🇷|KR1|@SHFX
   password: test.+
   port: 30446
@@ -107,13 +100,6 @@ proxies:
   type: http
   udp: true
   username: test
-- cipher: chacha20-ietf-poly1305
-  name: 🇷🇺|RU1|@SHFX
-  password: 7Lt2sqUu9wsA4lAgPcXdjB
-  port: 8443
-  server: 95.81.106.102
-  type: ss
-  udp: true
 - name: 🇳🇱|NL1|@SHFX
   port: 46964
   server: 159.223.209.139
@@ -132,50 +118,46 @@ proxies:
   tls: true
   type: ss
 - client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: 🇫🇷|FR2|@SHFX
-  network: tcp
-  port: 34324
-  reality-opts:
-    public-key: pHn5CHa2P6-lNBIkTOI3zJQN19jfNFkXxGFuyefpP0M
-    short-id: ''
-  server: 2001:bc8:32d7:302::13
-  servername: dash.cloudflare.com
-  tls: true
+  name: 🇺🇸|US2|@SHFX
+  network: ws
+  port: 80
+  server: light-presence.oneeat.co
+  skip-cert-verify: true
+  tfo: true
+  tls: false
   type: vless
   udp: true
-  uuid: 26c462ba-a90c-4814-9d7c-a629bc0bdb5c
-- cipher: aes-256-cfb
+  uuid: 7e74ff43-3a90-48b3-8372-7d92a045c2d4
+  ws-opts:
+    headers:
+      Host: light-presence.oneeat.co
+      User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
+        like Gecko) Chrome/120.0.0.0 Safari/537.36
+    path: /
+- cipher: chacha20-ietf-poly1305
   name: 🇻🇳|VN1|@SHFX
-  password: Xn8jKdmDM00IeO%#$#fJAMtsEAEUOpH/YWYtYqDFnT0SV
-  port: 38388
-  server: 103.186.155.28
-  tfo: false
+  password: Nk9asglDzHzjktVzTkvhaA
+  port: 443
+  server: arxfw2b78fi2q9hzylhn.freesocks.work
   type: ss
 - cipher: aes-256-cfb
   name: 🇻🇳|VN2|@SHFX
   password: Xn8jKdmDM00IeO%#$#fJAMtsEAEUOpH/YWYtYqDFnT0SV
   port: 38388
-  server: 103.186.155.116
+  server: 103.186.155.207
   type: ss
 - cipher: aes-256-cfb
   name: 🇻🇳|VN3|@SHFX
   password: Xn8jKdmDM00IeO%#$#fJAMtsEAEUOpH/YWYtYqDFnT0SV
   port: 38388
-  server: 103.186.155.207
+  server: 103.186.155.213
   type: ss
+  udp: true
 - cipher: aes-256-cfb
   name: 🇻🇳|VN4|@SHFX
   password: Xn8jKdmDM00IeO%#$#fJAMtsEAEUOpH/YWYtYqDFnT0SV
   port: 38388
   server: 103.186.155.71
-  type: ss
-  udp: true
-- cipher: aes-256-cfb
-  name: 🇻🇳|VN5|@SHFX
-  password: Xn8jKdmDM00IeO%#$#fJAMtsEAEUOpH/YWYtYqDFnT0SV
-  port: 38388
-  server: 103.186.155.119
   type: ss
   udp: true
 
@@ -187,34 +169,28 @@ proxy-groups:
     tolerance: 50
     proxies:
       - 🇫🇷|FR1|@SHFX
-      - 🇨🇳|CN1|@SHFX
       - 🇰🇷|KR1|@SHFX
-      - 🇷🇺|RU1|@SHFX
       - 🇳🇱|NL1|@SHFX
       - 🇺🇸|US1|@SHFX
-      - 🇫🇷|FR2|@SHFX
+      - 🇺🇸|US2|@SHFX
       - 🇻🇳|VN1|@SHFX
       - 🇻🇳|VN2|@SHFX
       - 🇻🇳|VN3|@SHFX
       - 🇻🇳|VN4|@SHFX
-      - 🇻🇳|VN5|@SHFX
   - name: 🚀 节点选择
     type: select
     proxies:
       - ♻️ 自动选择
       - DIRECT
       - 🇫🇷|FR1|@SHFX
-      - 🇨🇳|CN1|@SHFX
       - 🇰🇷|KR1|@SHFX
-      - 🇷🇺|RU1|@SHFX
       - 🇳🇱|NL1|@SHFX
       - 🇺🇸|US1|@SHFX
-      - 🇫🇷|FR2|@SHFX
+      - 🇺🇸|US2|@SHFX
       - 🇻🇳|VN1|@SHFX
       - 🇻🇳|VN2|@SHFX
       - 🇻🇳|VN3|@SHFX
       - 🇻🇳|VN4|@SHFX
-      - 🇻🇳|VN5|@SHFX
   - name: 🌍 国外媒体
     type: select
     proxies:
@@ -222,68 +198,56 @@ proxy-groups:
       - ♻️ 自动选择
       - 🎯 全球直连
       - 🇫🇷|FR1|@SHFX
-      - 🇨🇳|CN1|@SHFX
       - 🇰🇷|KR1|@SHFX
-      - 🇷🇺|RU1|@SHFX
       - 🇳🇱|NL1|@SHFX
       - 🇺🇸|US1|@SHFX
-      - 🇫🇷|FR2|@SHFX
+      - 🇺🇸|US2|@SHFX
       - 🇻🇳|VN1|@SHFX
       - 🇻🇳|VN2|@SHFX
       - 🇻🇳|VN3|@SHFX
       - 🇻🇳|VN4|@SHFX
-      - 🇻🇳|VN5|@SHFX
   - name: 📲 电报信息
     type: select
     proxies:
       - 🚀 节点选择
       - 🎯 全球直连
       - 🇫🇷|FR1|@SHFX
-      - 🇨🇳|CN1|@SHFX
       - 🇰🇷|KR1|@SHFX
-      - 🇷🇺|RU1|@SHFX
       - 🇳🇱|NL1|@SHFX
       - 🇺🇸|US1|@SHFX
-      - 🇫🇷|FR2|@SHFX
+      - 🇺🇸|US2|@SHFX
       - 🇻🇳|VN1|@SHFX
       - 🇻🇳|VN2|@SHFX
       - 🇻🇳|VN3|@SHFX
       - 🇻🇳|VN4|@SHFX
-      - 🇻🇳|VN5|@SHFX
   - name: Ⓜ️ 微软服务
     type: select
     proxies:
       - 🎯 全球直连
       - 🚀 节点选择
       - 🇫🇷|FR1|@SHFX
-      - 🇨🇳|CN1|@SHFX
       - 🇰🇷|KR1|@SHFX
-      - 🇷🇺|RU1|@SHFX
       - 🇳🇱|NL1|@SHFX
       - 🇺🇸|US1|@SHFX
-      - 🇫🇷|FR2|@SHFX
+      - 🇺🇸|US2|@SHFX
       - 🇻🇳|VN1|@SHFX
       - 🇻🇳|VN2|@SHFX
       - 🇻🇳|VN3|@SHFX
       - 🇻🇳|VN4|@SHFX
-      - 🇻🇳|VN5|@SHFX
   - name: 🍎 苹果服务
     type: select
     proxies:
       - 🚀 节点选择
       - 🎯 全球直连
       - 🇫🇷|FR1|@SHFX
-      - 🇨🇳|CN1|@SHFX
       - 🇰🇷|KR1|@SHFX
-      - 🇷🇺|RU1|@SHFX
       - 🇳🇱|NL1|@SHFX
       - 🇺🇸|US1|@SHFX
-      - 🇫🇷|FR2|@SHFX
+      - 🇺🇸|US2|@SHFX
       - 🇻🇳|VN1|@SHFX
       - 🇻🇳|VN2|@SHFX
       - 🇻🇳|VN3|@SHFX
       - 🇻🇳|VN4|@SHFX
-      - 🇻🇳|VN5|@SHFX
   - name: 🎯 全球直连
     type: select
     proxies:
@@ -307,17 +271,14 @@ proxy-groups:
       - 🎯 全球直连
       - ♻️ 自动选择
       - 🇫🇷|FR1|@SHFX
-      - 🇨🇳|CN1|@SHFX
       - 🇰🇷|KR1|@SHFX
-      - 🇷🇺|RU1|@SHFX
       - 🇳🇱|NL1|@SHFX
       - 🇺🇸|US1|@SHFX
-      - 🇫🇷|FR2|@SHFX
+      - 🇺🇸|US2|@SHFX
       - 🇻🇳|VN1|@SHFX
       - 🇻🇳|VN2|@SHFX
       - 🇻🇳|VN3|@SHFX
       - 🇻🇳|VN4|@SHFX
-      - 🇻🇳|VN5|@SHFX
 rules:
   - DOMAIN-SUFFIX,acl4.ssr,🎯 全球直连
   - DOMAIN-SUFFIX,ip6-localhost,🎯 全球直连
