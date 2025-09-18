@@ -490,6 +490,7 @@ def main():
         if (new_n := correct_node(n, country_counter)) is not None
     ]
     print(f"[done] final {len(corrected_nodes)} nodes ready")
+	
 	if not corrected_nodes:
         raise RuntimeError("No proxies parsed — aborting to avoid empty config.")
 
