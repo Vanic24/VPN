@@ -1,4 +1,4 @@
-# Last update: 18.09.2025 07:40:36
+# Last update: 18.09.2025 09:11:23
 mixed-port: 7890
 allow-lan: true
 log-level: info
@@ -107,6 +107,13 @@ proxies:
   type: http
   udp: true
   username: test
+- cipher: chacha20-ietf-poly1305
+  name: 🇷🇺|RU1|@SHFX
+  password: 7Lt2sqUu9wsA4lAgPcXdjB
+  port: 8443
+  server: 95.81.106.102
+  type: ss
+  udp: true
 - name: 🇳🇱|NL1|@SHFX
   port: 46964
   server: 159.223.209.139
@@ -124,36 +131,51 @@ proxies:
   skip-cert-verify: true
   tls: true
   type: ss
-- cipher: aes-256-cfb
-  name: 🇰🇷|KR2|@SHFX
-  password: f8f7aCzcPKbsF8p3
-  port: 989
-  server: 154.90.63.177
-  type: ss
-- cipher: aes-256-cfb
-  name: 🇳🇱|NL2|@SHFX
-  password: f8f7aCzcPKbsF8p3
-  port: 989
-  server: 51.15.17.169
-  type: ss
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: 🇫🇷|FR2|@SHFX
+  network: tcp
+  port: 34324
+  reality-opts:
+    public-key: pHn5CHa2P6-lNBIkTOI3zJQN19jfNFkXxGFuyefpP0M
+    short-id: ''
+  server: 2001:bc8:32d7:302::13
+  servername: dash.cloudflare.com
+  tls: true
+  type: vless
+  udp: true
+  uuid: 26c462ba-a90c-4814-9d7c-a629bc0bdb5c
 - cipher: aes-256-cfb
   name: 🇻🇳|VN1|@SHFX
   password: Xn8jKdmDM00IeO%#$#fJAMtsEAEUOpH/YWYtYqDFnT0SV
   port: 38388
-  server: 103.186.155.207
+  server: 103.186.155.28
+  tfo: false
   type: ss
 - cipher: aes-256-cfb
   name: 🇻🇳|VN2|@SHFX
   password: Xn8jKdmDM00IeO%#$#fJAMtsEAEUOpH/YWYtYqDFnT0SV
   port: 38388
-  server: 103.186.155.213
+  server: 103.186.155.116
   type: ss
-  udp: true
 - cipher: aes-256-cfb
   name: 🇻🇳|VN3|@SHFX
   password: Xn8jKdmDM00IeO%#$#fJAMtsEAEUOpH/YWYtYqDFnT0SV
   port: 38388
+  server: 103.186.155.207
+  type: ss
+- cipher: aes-256-cfb
+  name: 🇻🇳|VN4|@SHFX
+  password: Xn8jKdmDM00IeO%#$#fJAMtsEAEUOpH/YWYtYqDFnT0SV
+  port: 38388
   server: 103.186.155.71
+  type: ss
+  udp: true
+- cipher: aes-256-cfb
+  name: 🇻🇳|VN5|@SHFX
+  password: Xn8jKdmDM00IeO%#$#fJAMtsEAEUOpH/YWYtYqDFnT0SV
+  port: 38388
+  server: 103.186.155.119
   type: ss
   udp: true
 
@@ -167,13 +189,15 @@ proxy-groups:
       - 🇫🇷|FR1|@SHFX
       - 🇨🇳|CN1|@SHFX
       - 🇰🇷|KR1|@SHFX
+      - 🇷🇺|RU1|@SHFX
       - 🇳🇱|NL1|@SHFX
       - 🇺🇸|US1|@SHFX
-      - 🇰🇷|KR2|@SHFX
-      - 🇳🇱|NL2|@SHFX
+      - 🇫🇷|FR2|@SHFX
       - 🇻🇳|VN1|@SHFX
       - 🇻🇳|VN2|@SHFX
       - 🇻🇳|VN3|@SHFX
+      - 🇻🇳|VN4|@SHFX
+      - 🇻🇳|VN5|@SHFX
   - name: 🚀 节点选择
     type: select
     proxies:
@@ -182,13 +206,15 @@ proxy-groups:
       - 🇫🇷|FR1|@SHFX
       - 🇨🇳|CN1|@SHFX
       - 🇰🇷|KR1|@SHFX
+      - 🇷🇺|RU1|@SHFX
       - 🇳🇱|NL1|@SHFX
       - 🇺🇸|US1|@SHFX
-      - 🇰🇷|KR2|@SHFX
-      - 🇳🇱|NL2|@SHFX
+      - 🇫🇷|FR2|@SHFX
       - 🇻🇳|VN1|@SHFX
       - 🇻🇳|VN2|@SHFX
       - 🇻🇳|VN3|@SHFX
+      - 🇻🇳|VN4|@SHFX
+      - 🇻🇳|VN5|@SHFX
   - name: 🌍 国外媒体
     type: select
     proxies:
@@ -198,13 +224,15 @@ proxy-groups:
       - 🇫🇷|FR1|@SHFX
       - 🇨🇳|CN1|@SHFX
       - 🇰🇷|KR1|@SHFX
+      - 🇷🇺|RU1|@SHFX
       - 🇳🇱|NL1|@SHFX
       - 🇺🇸|US1|@SHFX
-      - 🇰🇷|KR2|@SHFX
-      - 🇳🇱|NL2|@SHFX
+      - 🇫🇷|FR2|@SHFX
       - 🇻🇳|VN1|@SHFX
       - 🇻🇳|VN2|@SHFX
       - 🇻🇳|VN3|@SHFX
+      - 🇻🇳|VN4|@SHFX
+      - 🇻🇳|VN5|@SHFX
   - name: 📲 电报信息
     type: select
     proxies:
@@ -213,13 +241,15 @@ proxy-groups:
       - 🇫🇷|FR1|@SHFX
       - 🇨🇳|CN1|@SHFX
       - 🇰🇷|KR1|@SHFX
+      - 🇷🇺|RU1|@SHFX
       - 🇳🇱|NL1|@SHFX
       - 🇺🇸|US1|@SHFX
-      - 🇰🇷|KR2|@SHFX
-      - 🇳🇱|NL2|@SHFX
+      - 🇫🇷|FR2|@SHFX
       - 🇻🇳|VN1|@SHFX
       - 🇻🇳|VN2|@SHFX
       - 🇻🇳|VN3|@SHFX
+      - 🇻🇳|VN4|@SHFX
+      - 🇻🇳|VN5|@SHFX
   - name: Ⓜ️ 微软服务
     type: select
     proxies:
@@ -228,13 +258,15 @@ proxy-groups:
       - 🇫🇷|FR1|@SHFX
       - 🇨🇳|CN1|@SHFX
       - 🇰🇷|KR1|@SHFX
+      - 🇷🇺|RU1|@SHFX
       - 🇳🇱|NL1|@SHFX
       - 🇺🇸|US1|@SHFX
-      - 🇰🇷|KR2|@SHFX
-      - 🇳🇱|NL2|@SHFX
+      - 🇫🇷|FR2|@SHFX
       - 🇻🇳|VN1|@SHFX
       - 🇻🇳|VN2|@SHFX
       - 🇻🇳|VN3|@SHFX
+      - 🇻🇳|VN4|@SHFX
+      - 🇻🇳|VN5|@SHFX
   - name: 🍎 苹果服务
     type: select
     proxies:
@@ -243,13 +275,15 @@ proxy-groups:
       - 🇫🇷|FR1|@SHFX
       - 🇨🇳|CN1|@SHFX
       - 🇰🇷|KR1|@SHFX
+      - 🇷🇺|RU1|@SHFX
       - 🇳🇱|NL1|@SHFX
       - 🇺🇸|US1|@SHFX
-      - 🇰🇷|KR2|@SHFX
-      - 🇳🇱|NL2|@SHFX
+      - 🇫🇷|FR2|@SHFX
       - 🇻🇳|VN1|@SHFX
       - 🇻🇳|VN2|@SHFX
       - 🇻🇳|VN3|@SHFX
+      - 🇻🇳|VN4|@SHFX
+      - 🇻🇳|VN5|@SHFX
   - name: 🎯 全球直连
     type: select
     proxies:
@@ -275,13 +309,15 @@ proxy-groups:
       - 🇫🇷|FR1|@SHFX
       - 🇨🇳|CN1|@SHFX
       - 🇰🇷|KR1|@SHFX
+      - 🇷🇺|RU1|@SHFX
       - 🇳🇱|NL1|@SHFX
       - 🇺🇸|US1|@SHFX
-      - 🇰🇷|KR2|@SHFX
-      - 🇳🇱|NL2|@SHFX
+      - 🇫🇷|FR2|@SHFX
       - 🇻🇳|VN1|@SHFX
       - 🇻🇳|VN2|@SHFX
       - 🇻🇳|VN3|@SHFX
+      - 🇻🇳|VN4|@SHFX
+      - 🇻🇳|VN5|@SHFX
 rules:
   - DOMAIN-SUFFIX,acl4.ssr,🎯 全球直连
   - DOMAIN-SUFFIX,ip6-localhost,🎯 全球直连
