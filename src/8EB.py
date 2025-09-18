@@ -455,8 +455,8 @@ def load_proxies(url):
         print(f"[warn] failed to fetch {url} -> {e}")
     return []
 
-# ---------------- Main ----------------
-def main():
+# ---------------- Main Pipeline ----------------
+def run_pipeline():
     sources = load_sources()
     print(f"[start] loaded {len(sources)} sources from Sources_8EB")
 
@@ -490,6 +490,9 @@ def main():
         if (new_n := correct_node(n, country_counter)) is not None
     ]
     print(f"[done] final {len(corrected_nodes)} nodes ready")
+    
+    if not corrected_nodes:
+        raise RuntimeError("No proxies parsed — aborting to avoid empty config.")
 
     # ---------------- Load template ----------------
     try:
@@ -497,8 +500,7 @@ def main():
         r.raise_for_status()
         template_text = r.text
     except Exception as e:
-        print(f"[FATAL] failed to fetch template -> {e}")
-        sys.exit(1)
+        raise RuntimeError(f"Failed to fetch template -> {e}")
 
     # ---------------- Convert to YAML ----------------
     proxies_yaml_block = yaml.dump(corrected_nodes, allow_unicode=True, sort_keys=False)
@@ -552,12 +554,22 @@ def upload_to_textdb():
     except Exception as e:
         print(f"[error] Unexpected error: {e}")
 
-# ---------------- Entry ----------------
-if __name__ == "__main__":
-    try:
-        main()
-    except Exception as e:
-        print("[FATAL ERROR]", str(e))
-        upload_to_textdb()
-        traceback.print_exc()
-        sys.exit(1)
+        # ---------------- Entry ----------------
+        if __name__ == "__main__":
+            MAX_RETRIES = 3
+            RETRY_DELAY = 10
+            for attempt in range(1, MAX_RETRIES + 1):
+                try:
+                    print(f"\n[attempt {attempt}/{MAX_RETRIES}] Running pipeline...")
+                    run_pipeline()
+                    print("[success] Pipeline completed successfully.")
+                    sys.exit(0)
+                except Exception as e:
+                    print(f"[ERROR] Attempt {attempt} failed -> {e}")
+                    traceback.print_exc()
+                    if attempt < MAX_RETRIES:
+                        print(f"[retry] Waiting {RETRY_DELAY} seconds before retry...")
+                        time.sleep(RETRY_DELAY)
+                    else:
+                        print("[FATAL] All retries failed. Keeping last good config.")
+                        sys.exit(1)
