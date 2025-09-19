@@ -1,4 +1,4 @@
-# Last update: 19.09.2025 06:06:02
+# Last update: 19.09.2025 07:42:51
 mixed-port: 7890
 allow-lan: true
 log-level: info
@@ -91,6 +91,19 @@ proxies:
   type: tuic
   udp-relay-mode: native
   uuid: 8687b6e0-ef24-4cd2-bcd2-02d3732bf554
+- client-fingerprint: firefox
+  name: 🇺🇸|US1|@SHFX
+  port: 10001
+  reality-opts:
+    public-key: 1ltSdo2K6D9EEwebaDQPCb5ypbURcXyO9HsX4RUbbUo
+    short-id: 1a24af87
+  server: 172.233.153.209
+  servername: yahoo.com
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: e4412006-94f2-4f3c-b568-22a3e31dc264
 - alterId: 2
   cipher: auto
   client-fingerprint: chrome
@@ -112,12 +125,7 @@ proxies:
   port: 989
   server: 154.90.63.177
   type: ss
-- cipher: chacha20-ietf-poly1305
-  name: 🇻🇳|VN1|@SHFX
-  password: Nk9asglDzHzjktVzTkvhaA
-  port: 443
-  server: arxfw2b78fi2q9hzylhn.freesocks.work
-  type: ss
+  udp: true
 - client-fingerprint: chrome
   flow: xtls-rprx-vision
   name: 🇵🇱|PL1|@SHFX
@@ -132,6 +140,12 @@ proxies:
   type: vless
   udp: true
   uuid: e3847ec6-b2fc-4eb2-b919-174d986f882c
+- cipher: chacha20-ietf-poly1305
+  name: 🇻🇳|VN1|@SHFX
+  password: Nk9asglDzHzjktVzTkvhaA
+  port: 443
+  server: arxfw2b78fi2q9hzylhn.freesocks.work
+  type: ss
 - cipher: aes-256-cfb
   name: 🇧🇷|BR1|@SHFX
   password: f8f7aCzcPKbsF8p3
@@ -150,34 +164,31 @@ proxies:
   port: 989
   server: 38.165.233.93
   type: ss
-- client-fingerprint: randomized
-  fingerprint: ''
-  name: 🇺🇸|US1|@SHFX
-  network: ws
-  port: 443
-  server: openai.com
-  servername: nkAnG2rEpLACE.airlineSHoma.Com
-  tls: true
-  type: vless
-  udp: false
-  uuid: 101e6a7d-7d10-4859-a626-8a76daab4547
-  ws-opts:
-    headers:
-      host: nkAnG2rEpLACE.airlineSHoma.Com
-    path: /?ed=2560
-- client-fingerprint: firefox
-  name: 🇺🇸|US2|@SHFX
-  port: 10001
-  reality-opts:
-    public-key: 1ltSdo2K6D9EEwebaDQPCb5ypbURcXyO9HsX4RUbbUo
-    short-id: 1a24af87
-  server: 172.233.153.209
-  servername: yahoo.com
+- auth: 80747420-96c4-4a2f-83e6-eea4e46beb09
+  name: 🇸🇪|SE1|@SHFX
+  obfs: salamander
+  obfs-password: U1wBrYQyFm
+  password: 80747420-96c4-4a2f-83e6-eea4e46beb09
+  port: 20335
+  server: drhystuichdfy.samanidempire.org
   skip-cert-verify: false
-  tls: true
-  type: vless
+  sni: drhystuichdfy.samanidempire.org
+  type: hysteria2
+- alterId: 0
+  cipher: auto
+  http-opts:
+    method: GET
+    path:
+    - /
+  name: 🇮🇳|IN1|@SHFX
+  network: http
+  port: 18872
+  server: 123.58.203.92
+  skip-cert-verify: false
+  tls: false
+  type: vmess
   udp: true
-  uuid: e4412006-94f2-4f3c-b568-22a3e31dc264
+  uuid: edfe29a5-cc54-488d-a31d-ca71f39e38d4
 
 proxy-groups:
   - name: ♻️ 自动选择
@@ -187,30 +198,32 @@ proxy-groups:
     tolerance: 50
     proxies:
       - 🇫🇷|FR1|@SHFX
+      - 🇺🇸|US1|@SHFX
       - 🇭🇰|HK1|@SHFX
       - 🇰🇷|KR1|@SHFX
-      - 🇻🇳|VN1|@SHFX
       - 🇵🇱|PL1|@SHFX
+      - 🇻🇳|VN1|@SHFX
       - 🇧🇷|BR1|@SHFX
       - 🇬🇷|GR1|@SHFX
       - 🇵🇾|PY1|@SHFX
-      - 🇺🇸|US1|@SHFX
-      - 🇺🇸|US2|@SHFX
+      - 🇸🇪|SE1|@SHFX
+      - 🇮🇳|IN1|@SHFX
   - name: 🚀 节点选择
     type: select
     proxies:
       - ♻️ 自动选择
       - DIRECT
       - 🇫🇷|FR1|@SHFX
+      - 🇺🇸|US1|@SHFX
       - 🇭🇰|HK1|@SHFX
       - 🇰🇷|KR1|@SHFX
-      - 🇻🇳|VN1|@SHFX
       - 🇵🇱|PL1|@SHFX
+      - 🇻🇳|VN1|@SHFX
       - 🇧🇷|BR1|@SHFX
       - 🇬🇷|GR1|@SHFX
       - 🇵🇾|PY1|@SHFX
-      - 🇺🇸|US1|@SHFX
-      - 🇺🇸|US2|@SHFX
+      - 🇸🇪|SE1|@SHFX
+      - 🇮🇳|IN1|@SHFX
   - name: 🌍 国外媒体
     type: select
     proxies:
@@ -218,60 +231,64 @@ proxy-groups:
       - ♻️ 自动选择
       - 🎯 全球直连
       - 🇫🇷|FR1|@SHFX
+      - 🇺🇸|US1|@SHFX
       - 🇭🇰|HK1|@SHFX
       - 🇰🇷|KR1|@SHFX
-      - 🇻🇳|VN1|@SHFX
       - 🇵🇱|PL1|@SHFX
+      - 🇻🇳|VN1|@SHFX
       - 🇧🇷|BR1|@SHFX
       - 🇬🇷|GR1|@SHFX
       - 🇵🇾|PY1|@SHFX
-      - 🇺🇸|US1|@SHFX
-      - 🇺🇸|US2|@SHFX
+      - 🇸🇪|SE1|@SHFX
+      - 🇮🇳|IN1|@SHFX
   - name: 📲 电报信息
     type: select
     proxies:
       - 🚀 节点选择
       - 🎯 全球直连
       - 🇫🇷|FR1|@SHFX
+      - 🇺🇸|US1|@SHFX
       - 🇭🇰|HK1|@SHFX
       - 🇰🇷|KR1|@SHFX
-      - 🇻🇳|VN1|@SHFX
       - 🇵🇱|PL1|@SHFX
+      - 🇻🇳|VN1|@SHFX
       - 🇧🇷|BR1|@SHFX
       - 🇬🇷|GR1|@SHFX
       - 🇵🇾|PY1|@SHFX
-      - 🇺🇸|US1|@SHFX
-      - 🇺🇸|US2|@SHFX
+      - 🇸🇪|SE1|@SHFX
+      - 🇮🇳|IN1|@SHFX
   - name: Ⓜ️ 微软服务
     type: select
     proxies:
       - 🎯 全球直连
       - 🚀 节点选择
       - 🇫🇷|FR1|@SHFX
+      - 🇺🇸|US1|@SHFX
       - 🇭🇰|HK1|@SHFX
       - 🇰🇷|KR1|@SHFX
-      - 🇻🇳|VN1|@SHFX
       - 🇵🇱|PL1|@SHFX
+      - 🇻🇳|VN1|@SHFX
       - 🇧🇷|BR1|@SHFX
       - 🇬🇷|GR1|@SHFX
       - 🇵🇾|PY1|@SHFX
-      - 🇺🇸|US1|@SHFX
-      - 🇺🇸|US2|@SHFX
+      - 🇸🇪|SE1|@SHFX
+      - 🇮🇳|IN1|@SHFX
   - name: 🍎 苹果服务
     type: select
     proxies:
       - 🚀 节点选择
       - 🎯 全球直连
       - 🇫🇷|FR1|@SHFX
+      - 🇺🇸|US1|@SHFX
       - 🇭🇰|HK1|@SHFX
       - 🇰🇷|KR1|@SHFX
-      - 🇻🇳|VN1|@SHFX
       - 🇵🇱|PL1|@SHFX
+      - 🇻🇳|VN1|@SHFX
       - 🇧🇷|BR1|@SHFX
       - 🇬🇷|GR1|@SHFX
       - 🇵🇾|PY1|@SHFX
-      - 🇺🇸|US1|@SHFX
-      - 🇺🇸|US2|@SHFX
+      - 🇸🇪|SE1|@SHFX
+      - 🇮🇳|IN1|@SHFX
   - name: 🎯 全球直连
     type: select
     proxies:
@@ -295,15 +312,16 @@ proxy-groups:
       - 🎯 全球直连
       - ♻️ 自动选择
       - 🇫🇷|FR1|@SHFX
+      - 🇺🇸|US1|@SHFX
       - 🇭🇰|HK1|@SHFX
       - 🇰🇷|KR1|@SHFX
-      - 🇻🇳|VN1|@SHFX
       - 🇵🇱|PL1|@SHFX
+      - 🇻🇳|VN1|@SHFX
       - 🇧🇷|BR1|@SHFX
       - 🇬🇷|GR1|@SHFX
       - 🇵🇾|PY1|@SHFX
-      - 🇺🇸|US1|@SHFX
-      - 🇺🇸|US2|@SHFX
+      - 🇸🇪|SE1|@SHFX
+      - 🇮🇳|IN1|@SHFX
 rules:
   - DOMAIN-SUFFIX,acl4.ssr,🎯 全球直连
   - DOMAIN-SUFFIX,ip6-localhost,🎯 全球直连
