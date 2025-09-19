@@ -75,6 +75,7 @@ jobs:
           if git diff --cached --quiet; then
             echo "No changes to commit"
           else
+            git pull --rebase origin main
             git commit -m "🎉MIX Auto update successful🎉 - $TIMESTAMP"
-            git push --force-with-lease origin main
+            git push origin main
           fi
