@@ -1,4 +1,4 @@
-# Last update: 20.09.2025 05:43:41
+# Last update: 20.09.2025 06:05:52
 mixed-port: 7890
 allow-lan: true
 log-level: info
@@ -120,40 +120,27 @@ proxies:
   udp: true
   uuid: e4412006-94f2-4f3c-b568-22a3e31dc264
 - cipher: aes-256-cfb
-  name: 🇰🇷|KR2|@SHFX
-  password: f8f7aCzcPKbsF8p3
-  port: 989
-  server: 154.90.63.177
-  type: ss
-- cipher: aes-256-cfb
   name: 🇺🇸|US2|@SHFX
   password: f8f7aCzcPKbsF8p3
   port: 989
   server: 104.192.226.106
   type: ss
-- cipher: aes-256-cfb
-  name: 🇳🇱|NL1|@SHFX
-  password: f8f7aCzcPKbsF8p3
-  port: 989
-  server: 51.15.17.169
-  type: ss
-- alterId: 2
-  cipher: auto
-  name: 🇭🇰|HK1|@SHFX
+- name: 🇺🇸|US3|@SHFX
   network: ws
-  port: 80
-  server: 1e426046-t0fds0-t12cnj-1ol97.hk.p5pv.com
-  servername: 🇭🇰HK-203.218.216.175-0341 | 4.035MB
-  skip-cert-verify: false
-  tls: false
-  type: vmess
-  uuid: 93fb69fc-77cf-11ee-85ee-f23c91369f2d
+  port: 443
+  server: xn--ktff-jt6hr36l.tencentapp.cn
+  servername: baipiao.cmliussss.abrdns.com
+  skip-cert-verify: true
+  tls: true
+  type: vless
+  udp: true
+  uuid: 11f76d4f-7477-4187-bce7-b010022944c3
   ws-opts:
     headers:
-      Host: 1e426046-t0fds0-t12cnj-1ol97.hk.p5pv.com
-    path: /
+      Host: baipiao.cmliussss.abrdns.com
+    path: /snippets/ip=tw.tp81.netlib.re:81?ed=2560
 - client-fingerprint: randomized
-  name: 🇳🇱|NL2|@SHFX
+  name: 🇳🇱|NL1|@SHFX
   network: ws
   port: 443
   server: 104.248.193.151
@@ -167,6 +154,12 @@ proxies:
     headers:
       Host: joss.krikkrik.tech
     path: /Free-VPN-CF-Geo-Project/NL10
+- cipher: aes-256-cfb
+  name: 🇳🇱|NL2|@SHFX
+  password: f8f7aCzcPKbsF8p3
+  port: 989
+  server: 51.15.17.169
+  type: ss
 - alterId: 2
   cipher: auto
   name: 🇨🇳|CN1|@SHFX
@@ -183,20 +176,39 @@ proxies:
     headers:
       Host: baidu.com
     path: /oooo
-- name: 🇺🇸|US3|@SHFX
+- client-fingerprint: randomized
+  name: 🇺🇸|US4|@SHFX
   network: ws
   port: 443
-  server: xn--ktff-jt6hr36l.tencentapp.cn
-  servername: baipiao.cmliussss.abrdns.com
+  server: openai.com
+  servername: nkAnG2rEpLACE.airlineSHoma.Com
   skip-cert-verify: true
+  tfo: true
   tls: true
   type: vless
   udp: true
-  uuid: 11f76d4f-7477-4187-bce7-b010022944c3
+  uuid: 101e6a7d-7d10-4859-a626-8a76daab4547
   ws-opts:
     headers:
-      Host: baipiao.cmliussss.abrdns.com
-    path: /snippets/ip=tw.tp81.netlib.re:81?ed=2560
+      Host: nkAnG2rEpLACE.airlineSHoma.Com
+      User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
+        like Gecko) Chrome/120.0.0.0 Safari/537.36
+    path: /?ed=2560
+- alterId: 2
+  cipher: auto
+  name: 🇭🇰|HK1|@SHFX
+  network: ws
+  port: 80
+  server: 1e426046-t0fds0-t12cnj-1ol97.hk.p5pv.com
+  servername: 🇭🇰HK-203.218.216.175-0341 | 4.035MB
+  skip-cert-verify: false
+  tls: false
+  type: vmess
+  uuid: 93fb69fc-77cf-11ee-85ee-f23c91369f2d
+  ws-opts:
+    headers:
+      Host: 1e426046-t0fds0-t12cnj-1ol97.hk.p5pv.com
+    path: /
 - client-fingerprint: chrome
   fingerprint: ''
   name: 🇮🇷|IR1|@SHFX
@@ -219,13 +231,13 @@ proxy-groups:
       - 🇰🇷|KR1|@SHFX
       - 🇳🇴|NO1|@SHFX
       - 🇺🇸|US1|@SHFX
-      - 🇰🇷|KR2|@SHFX
       - 🇺🇸|US2|@SHFX
+      - 🇺🇸|US3|@SHFX
       - 🇳🇱|NL1|@SHFX
-      - 🇭🇰|HK1|@SHFX
       - 🇳🇱|NL2|@SHFX
       - 🇨🇳|CN1|@SHFX
-      - 🇺🇸|US3|@SHFX
+      - 🇺🇸|US4|@SHFX
+      - 🇭🇰|HK1|@SHFX
       - 🇮🇷|IR1|@SHFX
   - name: 🚀 节点选择
     type: select
@@ -236,13 +248,13 @@ proxy-groups:
       - 🇰🇷|KR1|@SHFX
       - 🇳🇴|NO1|@SHFX
       - 🇺🇸|US1|@SHFX
-      - 🇰🇷|KR2|@SHFX
       - 🇺🇸|US2|@SHFX
+      - 🇺🇸|US3|@SHFX
       - 🇳🇱|NL1|@SHFX
-      - 🇭🇰|HK1|@SHFX
       - 🇳🇱|NL2|@SHFX
       - 🇨🇳|CN1|@SHFX
-      - 🇺🇸|US3|@SHFX
+      - 🇺🇸|US4|@SHFX
+      - 🇭🇰|HK1|@SHFX
       - 🇮🇷|IR1|@SHFX
   - name: 🌍 国外媒体
     type: select
@@ -254,13 +266,13 @@ proxy-groups:
       - 🇰🇷|KR1|@SHFX
       - 🇳🇴|NO1|@SHFX
       - 🇺🇸|US1|@SHFX
-      - 🇰🇷|KR2|@SHFX
       - 🇺🇸|US2|@SHFX
+      - 🇺🇸|US3|@SHFX
       - 🇳🇱|NL1|@SHFX
-      - 🇭🇰|HK1|@SHFX
       - 🇳🇱|NL2|@SHFX
       - 🇨🇳|CN1|@SHFX
-      - 🇺🇸|US3|@SHFX
+      - 🇺🇸|US4|@SHFX
+      - 🇭🇰|HK1|@SHFX
       - 🇮🇷|IR1|@SHFX
   - name: 📲 电报信息
     type: select
@@ -271,13 +283,13 @@ proxy-groups:
       - 🇰🇷|KR1|@SHFX
       - 🇳🇴|NO1|@SHFX
       - 🇺🇸|US1|@SHFX
-      - 🇰🇷|KR2|@SHFX
       - 🇺🇸|US2|@SHFX
+      - 🇺🇸|US3|@SHFX
       - 🇳🇱|NL1|@SHFX
-      - 🇭🇰|HK1|@SHFX
       - 🇳🇱|NL2|@SHFX
       - 🇨🇳|CN1|@SHFX
-      - 🇺🇸|US3|@SHFX
+      - 🇺🇸|US4|@SHFX
+      - 🇭🇰|HK1|@SHFX
       - 🇮🇷|IR1|@SHFX
   - name: Ⓜ️ 微软服务
     type: select
@@ -288,13 +300,13 @@ proxy-groups:
       - 🇰🇷|KR1|@SHFX
       - 🇳🇴|NO1|@SHFX
       - 🇺🇸|US1|@SHFX
-      - 🇰🇷|KR2|@SHFX
       - 🇺🇸|US2|@SHFX
+      - 🇺🇸|US3|@SHFX
       - 🇳🇱|NL1|@SHFX
-      - 🇭🇰|HK1|@SHFX
       - 🇳🇱|NL2|@SHFX
       - 🇨🇳|CN1|@SHFX
-      - 🇺🇸|US3|@SHFX
+      - 🇺🇸|US4|@SHFX
+      - 🇭🇰|HK1|@SHFX
       - 🇮🇷|IR1|@SHFX
   - name: 🍎 苹果服务
     type: select
@@ -305,13 +317,13 @@ proxy-groups:
       - 🇰🇷|KR1|@SHFX
       - 🇳🇴|NO1|@SHFX
       - 🇺🇸|US1|@SHFX
-      - 🇰🇷|KR2|@SHFX
       - 🇺🇸|US2|@SHFX
+      - 🇺🇸|US3|@SHFX
       - 🇳🇱|NL1|@SHFX
-      - 🇭🇰|HK1|@SHFX
       - 🇳🇱|NL2|@SHFX
       - 🇨🇳|CN1|@SHFX
-      - 🇺🇸|US3|@SHFX
+      - 🇺🇸|US4|@SHFX
+      - 🇭🇰|HK1|@SHFX
       - 🇮🇷|IR1|@SHFX
   - name: 🎯 全球直连
     type: select
@@ -339,13 +351,13 @@ proxy-groups:
       - 🇰🇷|KR1|@SHFX
       - 🇳🇴|NO1|@SHFX
       - 🇺🇸|US1|@SHFX
-      - 🇰🇷|KR2|@SHFX
       - 🇺🇸|US2|@SHFX
+      - 🇺🇸|US3|@SHFX
       - 🇳🇱|NL1|@SHFX
-      - 🇭🇰|HK1|@SHFX
       - 🇳🇱|NL2|@SHFX
       - 🇨🇳|CN1|@SHFX
-      - 🇺🇸|US3|@SHFX
+      - 🇺🇸|US4|@SHFX
+      - 🇭🇰|HK1|@SHFX
       - 🇮🇷|IR1|@SHFX
 rules:
   - DOMAIN-SUFFIX,acl4.ssr,🎯 全球直连
