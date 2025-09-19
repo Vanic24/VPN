@@ -10,7 +10,7 @@ on:
       use_latency_filter:
         description: "Enable latency filter? (true/false)"
         required: false
-        default: "true"
+        default: "false"
       latency_threshold:
         description: "Latency threshold in ms (only used if filter is true)"
         required: false
@@ -70,12 +70,11 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           
-          git pull --rebase origin main
           git add MIX
 
           if git diff --cached --quiet; then
             echo "No changes to commit"
           else
             git commit -m "🎉MIX Auto update successful🎉 - $TIMESTAMP"
-            git push origin main
+            git push --force-with-lease origin main
           fi
