@@ -1,4 +1,4 @@
-# Last update: 20.09.2025 02:46:47
+# Last update: 20.09.2025 03:08:01
 mixed-port: 7890
 allow-lan: true
 log-level: info
@@ -113,6 +113,21 @@ proxies:
   type: vless
   udp: true
   uuid: e4412006-94f2-4f3c-b568-22a3e31dc264
+- alterId: 2
+  cipher: auto
+  client-fingerprint: chrome
+  name: 🇭🇰|HK1|@SHFX
+  network: ws
+  port: 80
+  server: 1e426046-t0fds0-t12cnj-1ol97.hk.p5pv.com
+  skip-cert-verify: true
+  tls: false
+  type: vmess
+  uuid: 93fb69fc-77cf-11ee-85ee-f23c91369f2d
+  ws-opts:
+    headers:
+      host: 1e426046-t0fds0-t12cnj-1ol97.hk.p5pv.com
+    path: /
 - name: 🇺🇸|US2|@SHFX
   network: ws
   port: 443
@@ -133,14 +148,24 @@ proxies:
   port: 989
   server: 154.90.62.168
   type: ss
-- name: 🇭🇰|HK1|@SHFX
-  password: 1640ef52-2db0-44ab-b3f3-8690b762ebc9
-  port: 12000
-  server: 165.154.112.107
+- client-fingerprint: chrome
+  name: 🇸🇬|SG1|@SHFX
+  network: ws
+  port: 443
+  server: hk3.kaipi.link
+  servername: hk3.kaipi.link
   skip-cert-verify: true
-  sni: aliyun.com
-  type: trojan
+  tfo: true
+  tls: true
+  type: vless
   udp: true
+  uuid: d8665d45-8103-46e9-9cb7-8902bb7559b4
+  ws-opts:
+    headers:
+      Host: hk3.kaipi.link
+      User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
+        like Gecko) Chrome/120.0.0.0 Safari/537.36
+    path: /texaws
 - cipher: aes-256-cfb
   name: 🇻🇳|VN1|@SHFX
   password: Xn8jKdmDM00IeO%#$#fJAMtsEAEUOpH/YWYtYqDFnT0SV
@@ -148,6 +173,21 @@ proxies:
   server: 103.186.155.28
   tfo: false
   type: ss
+- alterId: 32
+  cipher: auto
+  client-fingerprint: chrome
+  name: 🇺🇸|US3|@SHFX
+  network: ws
+  port: 443
+  server: vc.fly.dev
+  skip-cert-verify: true
+  tls: true
+  type: vmess
+  uuid: 35379219-6535-4f2e-a4fe-3e44f61e0eee
+  ws-opts:
+    headers:
+      host: vc.fly.dev
+    path: /vc
 
 proxy-groups:
   - name: ♻️ 自动选择
@@ -159,10 +199,12 @@ proxy-groups:
       - 🇫🇷|FR1|@SHFX
       - 🇰🇷|KR1|@SHFX
       - 🇺🇸|US1|@SHFX
+      - 🇭🇰|HK1|@SHFX
       - 🇺🇸|US2|@SHFX
       - 🇰🇷|KR2|@SHFX
-      - 🇭🇰|HK1|@SHFX
+      - 🇸🇬|SG1|@SHFX
       - 🇻🇳|VN1|@SHFX
+      - 🇺🇸|US3|@SHFX
   - name: 🚀 节点选择
     type: select
     proxies:
@@ -171,10 +213,12 @@ proxy-groups:
       - 🇫🇷|FR1|@SHFX
       - 🇰🇷|KR1|@SHFX
       - 🇺🇸|US1|@SHFX
+      - 🇭🇰|HK1|@SHFX
       - 🇺🇸|US2|@SHFX
       - 🇰🇷|KR2|@SHFX
-      - 🇭🇰|HK1|@SHFX
+      - 🇸🇬|SG1|@SHFX
       - 🇻🇳|VN1|@SHFX
+      - 🇺🇸|US3|@SHFX
   - name: 🌍 国外媒体
     type: select
     proxies:
@@ -184,10 +228,12 @@ proxy-groups:
       - 🇫🇷|FR1|@SHFX
       - 🇰🇷|KR1|@SHFX
       - 🇺🇸|US1|@SHFX
+      - 🇭🇰|HK1|@SHFX
       - 🇺🇸|US2|@SHFX
       - 🇰🇷|KR2|@SHFX
-      - 🇭🇰|HK1|@SHFX
+      - 🇸🇬|SG1|@SHFX
       - 🇻🇳|VN1|@SHFX
+      - 🇺🇸|US3|@SHFX
   - name: 📲 电报信息
     type: select
     proxies:
@@ -196,10 +242,12 @@ proxy-groups:
       - 🇫🇷|FR1|@SHFX
       - 🇰🇷|KR1|@SHFX
       - 🇺🇸|US1|@SHFX
+      - 🇭🇰|HK1|@SHFX
       - 🇺🇸|US2|@SHFX
       - 🇰🇷|KR2|@SHFX
-      - 🇭🇰|HK1|@SHFX
+      - 🇸🇬|SG1|@SHFX
       - 🇻🇳|VN1|@SHFX
+      - 🇺🇸|US3|@SHFX
   - name: Ⓜ️ 微软服务
     type: select
     proxies:
@@ -208,10 +256,12 @@ proxy-groups:
       - 🇫🇷|FR1|@SHFX
       - 🇰🇷|KR1|@SHFX
       - 🇺🇸|US1|@SHFX
+      - 🇭🇰|HK1|@SHFX
       - 🇺🇸|US2|@SHFX
       - 🇰🇷|KR2|@SHFX
-      - 🇭🇰|HK1|@SHFX
+      - 🇸🇬|SG1|@SHFX
       - 🇻🇳|VN1|@SHFX
+      - 🇺🇸|US3|@SHFX
   - name: 🍎 苹果服务
     type: select
     proxies:
@@ -220,10 +270,12 @@ proxy-groups:
       - 🇫🇷|FR1|@SHFX
       - 🇰🇷|KR1|@SHFX
       - 🇺🇸|US1|@SHFX
+      - 🇭🇰|HK1|@SHFX
       - 🇺🇸|US2|@SHFX
       - 🇰🇷|KR2|@SHFX
-      - 🇭🇰|HK1|@SHFX
+      - 🇸🇬|SG1|@SHFX
       - 🇻🇳|VN1|@SHFX
+      - 🇺🇸|US3|@SHFX
   - name: 🎯 全球直连
     type: select
     proxies:
@@ -249,10 +301,12 @@ proxy-groups:
       - 🇫🇷|FR1|@SHFX
       - 🇰🇷|KR1|@SHFX
       - 🇺🇸|US1|@SHFX
+      - 🇭🇰|HK1|@SHFX
       - 🇺🇸|US2|@SHFX
       - 🇰🇷|KR2|@SHFX
-      - 🇭🇰|HK1|@SHFX
+      - 🇸🇬|SG1|@SHFX
       - 🇻🇳|VN1|@SHFX
+      - 🇺🇸|US3|@SHFX
 rules:
   - DOMAIN-SUFFIX,acl4.ssr,🎯 全球直连
   - DOMAIN-SUFFIX,ip6-localhost,🎯 全球直连
