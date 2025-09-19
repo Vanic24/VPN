@@ -1,4 +1,4 @@
-# Last update: 20.09.2025 05:07:22
+# Last update: 20.09.2025 05:43:41
 mixed-port: 7890
 allow-lan: true
 log-level: info
@@ -91,16 +91,6 @@ proxies:
   type: tuic
   udp-relay-mode: native
   uuid: 8687b6e0-ef24-4cd2-bcd2-02d3732bf554
-- client-fingerprint: chrome
-  fingerprint: ''
-  name: 🇮🇷|IR1|@SHFX
-  network: tcp
-  port: 2020
-  server: dns21.miox.houselife.ir
-  tls: false
-  type: vless
-  udp: false
-  uuid: ef63d4e8-f79f-4f51-9b88-9b86f25f13e8
 - name: 🇰🇷|KR1|@SHFX
   password: test.+
   port: 30446
@@ -141,6 +131,58 @@ proxies:
   port: 989
   server: 104.192.226.106
   type: ss
+- cipher: aes-256-cfb
+  name: 🇳🇱|NL1|@SHFX
+  password: f8f7aCzcPKbsF8p3
+  port: 989
+  server: 51.15.17.169
+  type: ss
+- alterId: 2
+  cipher: auto
+  name: 🇭🇰|HK1|@SHFX
+  network: ws
+  port: 80
+  server: 1e426046-t0fds0-t12cnj-1ol97.hk.p5pv.com
+  servername: 🇭🇰HK-203.218.216.175-0341 | 4.035MB
+  skip-cert-verify: false
+  tls: false
+  type: vmess
+  uuid: 93fb69fc-77cf-11ee-85ee-f23c91369f2d
+  ws-opts:
+    headers:
+      Host: 1e426046-t0fds0-t12cnj-1ol97.hk.p5pv.com
+    path: /
+- client-fingerprint: randomized
+  name: 🇳🇱|NL2|@SHFX
+  network: ws
+  port: 443
+  server: 104.248.193.151
+  servername: joss.krikkrik.tech
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 00fcbecb-d832-40a0-b2b1-76bb56df166b
+  ws-opts:
+    headers:
+      Host: joss.krikkrik.tech
+    path: /Free-VPN-CF-Geo-Project/NL10
+- alterId: 2
+  cipher: auto
+  name: 🇨🇳|CN1|@SHFX
+  network: ws
+  port: 30808
+  server: v8.heduian.link
+  servername: ''
+  skip-cert-verify: false
+  tfo: false
+  tls: false
+  type: vmess
+  uuid: cbb3f877-d1fb-344c-87a9-d153bffd5484
+  ws-opts:
+    headers:
+      Host: baidu.com
+    path: /oooo
 - name: 🇺🇸|US3|@SHFX
   network: ws
   port: 443
@@ -155,18 +197,16 @@ proxies:
     headers:
       Host: baipiao.cmliussss.abrdns.com
     path: /snippets/ip=tw.tp81.netlib.re:81?ed=2560
-- cipher: aes-256-cfb
-  name: 🇳🇱|NL1|@SHFX
-  password: f8f7aCzcPKbsF8p3
-  port: 989
-  server: 51.15.17.169
-  type: ss
-- cipher: aes-256-cfb
-  name: 🇭🇷|HR1|@SHFX
-  password: f8f7aCzcPKbsF8p3
-  port: 989
-  server: 46.183.184.60
-  type: ss
+- client-fingerprint: chrome
+  fingerprint: ''
+  name: 🇮🇷|IR1|@SHFX
+  network: tcp
+  port: 2020
+  server: dns21.miox.houselife.ir
+  tls: false
+  type: vless
+  udp: false
+  uuid: ef63d4e8-f79f-4f51-9b88-9b86f25f13e8
 
 proxy-groups:
   - name: ♻️ 自动选择
@@ -176,30 +216,34 @@ proxy-groups:
     tolerance: 50
     proxies:
       - 🇫🇷|FR1|@SHFX
-      - 🇮🇷|IR1|@SHFX
       - 🇰🇷|KR1|@SHFX
       - 🇳🇴|NO1|@SHFX
       - 🇺🇸|US1|@SHFX
       - 🇰🇷|KR2|@SHFX
       - 🇺🇸|US2|@SHFX
-      - 🇺🇸|US3|@SHFX
       - 🇳🇱|NL1|@SHFX
-      - 🇭🇷|HR1|@SHFX
+      - 🇭🇰|HK1|@SHFX
+      - 🇳🇱|NL2|@SHFX
+      - 🇨🇳|CN1|@SHFX
+      - 🇺🇸|US3|@SHFX
+      - 🇮🇷|IR1|@SHFX
   - name: 🚀 节点选择
     type: select
     proxies:
       - ♻️ 自动选择
       - DIRECT
       - 🇫🇷|FR1|@SHFX
-      - 🇮🇷|IR1|@SHFX
       - 🇰🇷|KR1|@SHFX
       - 🇳🇴|NO1|@SHFX
       - 🇺🇸|US1|@SHFX
       - 🇰🇷|KR2|@SHFX
       - 🇺🇸|US2|@SHFX
-      - 🇺🇸|US3|@SHFX
       - 🇳🇱|NL1|@SHFX
-      - 🇭🇷|HR1|@SHFX
+      - 🇭🇰|HK1|@SHFX
+      - 🇳🇱|NL2|@SHFX
+      - 🇨🇳|CN1|@SHFX
+      - 🇺🇸|US3|@SHFX
+      - 🇮🇷|IR1|@SHFX
   - name: 🌍 国外媒体
     type: select
     proxies:
@@ -207,60 +251,68 @@ proxy-groups:
       - ♻️ 自动选择
       - 🎯 全球直连
       - 🇫🇷|FR1|@SHFX
-      - 🇮🇷|IR1|@SHFX
       - 🇰🇷|KR1|@SHFX
       - 🇳🇴|NO1|@SHFX
       - 🇺🇸|US1|@SHFX
       - 🇰🇷|KR2|@SHFX
       - 🇺🇸|US2|@SHFX
-      - 🇺🇸|US3|@SHFX
       - 🇳🇱|NL1|@SHFX
-      - 🇭🇷|HR1|@SHFX
+      - 🇭🇰|HK1|@SHFX
+      - 🇳🇱|NL2|@SHFX
+      - 🇨🇳|CN1|@SHFX
+      - 🇺🇸|US3|@SHFX
+      - 🇮🇷|IR1|@SHFX
   - name: 📲 电报信息
     type: select
     proxies:
       - 🚀 节点选择
       - 🎯 全球直连
       - 🇫🇷|FR1|@SHFX
-      - 🇮🇷|IR1|@SHFX
       - 🇰🇷|KR1|@SHFX
       - 🇳🇴|NO1|@SHFX
       - 🇺🇸|US1|@SHFX
       - 🇰🇷|KR2|@SHFX
       - 🇺🇸|US2|@SHFX
-      - 🇺🇸|US3|@SHFX
       - 🇳🇱|NL1|@SHFX
-      - 🇭🇷|HR1|@SHFX
+      - 🇭🇰|HK1|@SHFX
+      - 🇳🇱|NL2|@SHFX
+      - 🇨🇳|CN1|@SHFX
+      - 🇺🇸|US3|@SHFX
+      - 🇮🇷|IR1|@SHFX
   - name: Ⓜ️ 微软服务
     type: select
     proxies:
       - 🎯 全球直连
       - 🚀 节点选择
       - 🇫🇷|FR1|@SHFX
-      - 🇮🇷|IR1|@SHFX
       - 🇰🇷|KR1|@SHFX
       - 🇳🇴|NO1|@SHFX
       - 🇺🇸|US1|@SHFX
       - 🇰🇷|KR2|@SHFX
       - 🇺🇸|US2|@SHFX
-      - 🇺🇸|US3|@SHFX
       - 🇳🇱|NL1|@SHFX
-      - 🇭🇷|HR1|@SHFX
+      - 🇭🇰|HK1|@SHFX
+      - 🇳🇱|NL2|@SHFX
+      - 🇨🇳|CN1|@SHFX
+      - 🇺🇸|US3|@SHFX
+      - 🇮🇷|IR1|@SHFX
   - name: 🍎 苹果服务
     type: select
     proxies:
       - 🚀 节点选择
       - 🎯 全球直连
       - 🇫🇷|FR1|@SHFX
-      - 🇮🇷|IR1|@SHFX
       - 🇰🇷|KR1|@SHFX
       - 🇳🇴|NO1|@SHFX
       - 🇺🇸|US1|@SHFX
       - 🇰🇷|KR2|@SHFX
       - 🇺🇸|US2|@SHFX
-      - 🇺🇸|US3|@SHFX
       - 🇳🇱|NL1|@SHFX
-      - 🇭🇷|HR1|@SHFX
+      - 🇭🇰|HK1|@SHFX
+      - 🇳🇱|NL2|@SHFX
+      - 🇨🇳|CN1|@SHFX
+      - 🇺🇸|US3|@SHFX
+      - 🇮🇷|IR1|@SHFX
   - name: 🎯 全球直连
     type: select
     proxies:
@@ -284,15 +336,17 @@ proxy-groups:
       - 🎯 全球直连
       - ♻️ 自动选择
       - 🇫🇷|FR1|@SHFX
-      - 🇮🇷|IR1|@SHFX
       - 🇰🇷|KR1|@SHFX
       - 🇳🇴|NO1|@SHFX
       - 🇺🇸|US1|@SHFX
       - 🇰🇷|KR2|@SHFX
       - 🇺🇸|US2|@SHFX
-      - 🇺🇸|US3|@SHFX
       - 🇳🇱|NL1|@SHFX
-      - 🇭🇷|HR1|@SHFX
+      - 🇭🇰|HK1|@SHFX
+      - 🇳🇱|NL2|@SHFX
+      - 🇨🇳|CN1|@SHFX
+      - 🇺🇸|US3|@SHFX
+      - 🇮🇷|IR1|@SHFX
 rules:
   - DOMAIN-SUFFIX,acl4.ssr,🎯 全球直连
   - DOMAIN-SUFFIX,ip6-localhost,🎯 全球直连
