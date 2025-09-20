@@ -506,12 +506,12 @@ def main():
 
     # ---------------- Correct nodes ----------------
     country_counter = defaultdict(int)
-corrected_nodes = []
+    corrected_nodes = []
 
-for n in filtered_nodes:
-    res = correct_node(n, country_counter, CN_TO_CC)
-    if res:
-        corrected_nodes.append(res)
+    for n in filtered_nodes:
+        res = correct_node(n, country_counter, CN_TO_CC)
+        if res:
+            corrected_nodes.append(res)
 
     # ---------------- Load template ----------------
     try:
