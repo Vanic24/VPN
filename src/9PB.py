@@ -364,33 +364,32 @@ def correct_node(p, country_counter, CN_TO_CC):
     cc = None
     flag = None
 
-    # -------- 1️⃣ Flag emoji --------
+    # -------- 1️⃣ Check for flag emoji --------
     flag_match = re.search(r'[\U0001F1E6-\U0001F1FF]{2}', original_name)
     if flag_match:
         flag = flag_match.group(0)
         cc = flag_to_country_code(flag)
 
-    # -------- 2️⃣ Two-letter code in name --------
+    # -------- 2️⃣ Check for two-letter ISO code --------
     if not cc:
         match = re.search(r'\b([A-Z]{2})\b', original_name)
         if match:
             cc = match.group(1)
 
-    # -------- 3️⃣ Chinese country name --------
+    # -------- 3️⃣ Check Chinese names from CN_TO_CC --------
     if not cc:
-        cleaned = re.sub(r'[\d\s\-—–].*', '', original_name)  # remove digits/suffix
         for cn_name, code in CN_TO_CC.items():
-            if cn_name in cleaned:
+            if cn_name in original_name:
                 cc = code
                 break
 
-    # -------- 4️⃣ fallback to geo_ip --------
+    # -------- 4️⃣ Fallback to geo_ip --------
     if not cc:
         cc = cc_upper
         if not cc:
-            return None  # skip if no country code
+            return None  # skip if still no valid country code
 
-    # Assign flag if not already detected
+    # Assign flag if not detected
     if not flag:
         flag = country_to_flag(cc)
 
@@ -398,8 +397,8 @@ def correct_node(p, country_counter, CN_TO_CC):
     country_counter[cc] += 1
     index = country_counter[cc]
 
-    # Format: 🇭🇰|HK1-StarLink
-    p["name"] = f"{flag}|{cc}{index}-9PB"
+    # Final node name format: 🇭🇰|HK1-StarLink
+    p["name"] = f"{flag}|{cc}{index}-StarLink"
     return p
     
 # ---------------- Load and parse proxies ----------------
@@ -506,11 +505,13 @@ def main():
         country_counter = defaultdict(int)
 
     # ---------------- Correct nodes ----------------
-    corrected_nodes = []
-    for n in filtered_nodes:
-        res = correct_node(n, country_counter, CN_TO_CC)
-        if res:  # skip nodes returning None
-            corrected_nodes.append(res)
+    country_counter = defaultdict(int)
+corrected_nodes = []
+
+for n in filtered_nodes:
+    res = correct_node(n, country_counter, CN_TO_CC)
+    if res:
+        corrected_nodes.append(res)
 
     # ---------------- Load template ----------------
     try:
