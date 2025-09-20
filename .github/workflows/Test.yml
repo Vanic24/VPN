@@ -1,4 +1,4 @@
-name: Fetch & Process Nodes with FlClash AppImage
+name: Fetch & Process Nodes with FlClash AppImage (No FUSE)
 
 on:
   workflow_dispatch:
@@ -32,7 +32,14 @@ jobs:
           wget -O flclash.AppImage "$ASSET_URL"
           chmod +x flclash.AppImage
 
-      # 4️⃣ Download subscription content from secret
+      # 4️⃣ Extract AppImage (no FUSE required)
+      - name: Extract AppImage
+        run: |
+          ./flclash.AppImage --appimage-extract
+          echo "Binary extracted to squashfs-root/usr/bin/flclash"
+          ls -l squashfs-root/usr/bin/
+
+      # 5️⃣ Download subscription content from secret
       - name: Download subscription content
         run: |
           echo "Downloading subscription URL from secret..."
@@ -40,10 +47,10 @@ jobs:
           echo "Preview first 5 lines:"
           head -n5 subscription.txt
 
-      # 5️⃣ Run FlClash CLI to parse subscription
+      # 6️⃣ Run FlClash CLI to parse subscription
       - name: Parse subscription with FlClash
         run: |
-          ./flclash.AppImage parse -f subscription.txt -o nodes_checked.json
+          ./squashfs-root/usr/bin/flclash parse -f subscription.txt -o nodes_checked.json
           if [ -f nodes_checked.json ]; then
             echo "✅ nodes_checked.json created. Preview first 5 lines:"
             head -n5 nodes_checked.json
@@ -52,13 +59,13 @@ jobs:
             exit 1
           fi
 
-      # 6️⃣ Setup Python
+      # 7️⃣ Setup Python
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.11"
 
-      # 7️⃣ Process nodes in Python
+      # 8️⃣ Process nodes in Python
       - name: Process nodes in Python
         run: |
           python3 <<'EOF'
@@ -86,7 +93,7 @@ jobs:
           print("✅ Processed nodes saved to nodes_final.txt")
           EOF
 
-      # 8️⃣ Commit & push processed nodes
+      # 9️⃣ Commit & push processed nodes
       - name: Commit & push processed nodes
         run: |
           git config user.name "github-actions[bot]"
