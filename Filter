@@ -1,4 +1,4 @@
-# Last update: 20.09.2025 12:08:29
+# Last update: 20.09.2025 12:51:23
 mixed-port: 7890
 allow-lan: true
 log-level: info
@@ -78,6 +78,18 @@ dns:
       - 240.0.0.0/4
       - 0.0.0.0/32
 proxies:
+- alterId: 0
+  cipher: auto
+  name: 🇭🇰|HK1|@SHFX
+  network: http
+  port: 32026
+  server: 103.224.80.45
+  skip-cert-verify: false
+  tfo: false
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 1193769d-bea4-4f0e-bab7-70640e1a0b2e
 - alpn:
   - h3
   congestion-controller: bbr
@@ -91,12 +103,6 @@ proxies:
   type: tuic
   udp-relay-mode: native
   uuid: 8687b6e0-ef24-4cd2-bcd2-02d3732bf554
-- cipher: aes-256-cfb
-  name: 🇳🇴|NO1|@SHFX
-  password: f8f7aCzcPKbsF8p3
-  port: 989
-  server: 185.213.23.226
-  type: ss
 - alterId: 0
   cipher: auto
   client-fingerprint: chrome
@@ -112,6 +118,12 @@ proxies:
     headers:
       host: c004e6fe-t1i9s0-tm53cm-1ol97.hkt.tcpbbr.net
     path: /
+- cipher: aes-256-cfb
+  name: 🇳🇴|NO1|@SHFX
+  password: f8f7aCzcPKbsF8p3
+  port: 989
+  server: 185.213.23.226
+  type: ss
 - alterId: 0
   cipher: chacha20-ietf-poly1305
   name: 🇺🇸|US1|@SHFX
@@ -162,11 +174,14 @@ proxies:
     headers:
       Host: joss.krikkrik.tech
     path: /Free-VPN-CF-Geo-Project/NL10
-- cipher: aes-256-cfb
-  name: 🇰🇷|KR2|@SHFX
-  password: f8f7aCzcPKbsF8p3
-  port: 989
-  server: 154.90.62.168
+- alterId: 0
+  cipher: chacha20-ietf-poly1305
+  name: 🇻🇳|VN1|@SHFX
+  password: Nk9asglDzHzjktVzTkvhaA
+  port: 443
+  server: arxfw2b78fi2q9hzylhn.freesocks.work
+  skip-cert-verify: true
+  tls: true
   type: ss
 - name: 🇺🇸|US3|@SHFX
   network: ws
@@ -200,15 +215,16 @@ proxy-groups:
     interval: 300
     tolerance: 50
     proxies:
+      - 🇭🇰|HK1|@SHFX
       - 🇫🇷|FR1|@SHFX
-      - 🇳🇴|NO1|@SHFX
       - 🇺🇳|UN1|@SHFX
+      - 🇳🇴|NO1|@SHFX
       - 🇺🇸|US1|@SHFX
       - 🇵🇱|PL1|@SHFX
       - 🇺🇸|US2|@SHFX
       - 🇰🇷|KR1|@SHFX
       - 🇳🇱|NL1|@SHFX
-      - 🇰🇷|KR2|@SHFX
+      - 🇻🇳|VN1|@SHFX
       - 🇺🇸|US3|@SHFX
       - 🇮🇷|IR1|@SHFX
   - name: 🚀 节点选择
@@ -216,15 +232,16 @@ proxy-groups:
     proxies:
       - ♻️ 自动选择
       - DIRECT
+      - 🇭🇰|HK1|@SHFX
       - 🇫🇷|FR1|@SHFX
-      - 🇳🇴|NO1|@SHFX
       - 🇺🇳|UN1|@SHFX
+      - 🇳🇴|NO1|@SHFX
       - 🇺🇸|US1|@SHFX
       - 🇵🇱|PL1|@SHFX
       - 🇺🇸|US2|@SHFX
       - 🇰🇷|KR1|@SHFX
       - 🇳🇱|NL1|@SHFX
-      - 🇰🇷|KR2|@SHFX
+      - 🇻🇳|VN1|@SHFX
       - 🇺🇸|US3|@SHFX
       - 🇮🇷|IR1|@SHFX
   - name: 🌍 国外媒体
@@ -233,15 +250,16 @@ proxy-groups:
       - 🚀 节点选择
       - ♻️ 自动选择
       - 🎯 全球直连
+      - 🇭🇰|HK1|@SHFX
       - 🇫🇷|FR1|@SHFX
-      - 🇳🇴|NO1|@SHFX
       - 🇺🇳|UN1|@SHFX
+      - 🇳🇴|NO1|@SHFX
       - 🇺🇸|US1|@SHFX
       - 🇵🇱|PL1|@SHFX
       - 🇺🇸|US2|@SHFX
       - 🇰🇷|KR1|@SHFX
       - 🇳🇱|NL1|@SHFX
-      - 🇰🇷|KR2|@SHFX
+      - 🇻🇳|VN1|@SHFX
       - 🇺🇸|US3|@SHFX
       - 🇮🇷|IR1|@SHFX
   - name: 📲 电报信息
@@ -249,15 +267,16 @@ proxy-groups:
     proxies:
       - 🚀 节点选择
       - 🎯 全球直连
+      - 🇭🇰|HK1|@SHFX
       - 🇫🇷|FR1|@SHFX
-      - 🇳🇴|NO1|@SHFX
       - 🇺🇳|UN1|@SHFX
+      - 🇳🇴|NO1|@SHFX
       - 🇺🇸|US1|@SHFX
       - 🇵🇱|PL1|@SHFX
       - 🇺🇸|US2|@SHFX
       - 🇰🇷|KR1|@SHFX
       - 🇳🇱|NL1|@SHFX
-      - 🇰🇷|KR2|@SHFX
+      - 🇻🇳|VN1|@SHFX
       - 🇺🇸|US3|@SHFX
       - 🇮🇷|IR1|@SHFX
   - name: Ⓜ️ 微软服务
@@ -265,15 +284,16 @@ proxy-groups:
     proxies:
       - 🎯 全球直连
       - 🚀 节点选择
+      - 🇭🇰|HK1|@SHFX
       - 🇫🇷|FR1|@SHFX
-      - 🇳🇴|NO1|@SHFX
       - 🇺🇳|UN1|@SHFX
+      - 🇳🇴|NO1|@SHFX
       - 🇺🇸|US1|@SHFX
       - 🇵🇱|PL1|@SHFX
       - 🇺🇸|US2|@SHFX
       - 🇰🇷|KR1|@SHFX
       - 🇳🇱|NL1|@SHFX
-      - 🇰🇷|KR2|@SHFX
+      - 🇻🇳|VN1|@SHFX
       - 🇺🇸|US3|@SHFX
       - 🇮🇷|IR1|@SHFX
   - name: 🍎 苹果服务
@@ -281,15 +301,16 @@ proxy-groups:
     proxies:
       - 🚀 节点选择
       - 🎯 全球直连
+      - 🇭🇰|HK1|@SHFX
       - 🇫🇷|FR1|@SHFX
-      - 🇳🇴|NO1|@SHFX
       - 🇺🇳|UN1|@SHFX
+      - 🇳🇴|NO1|@SHFX
       - 🇺🇸|US1|@SHFX
       - 🇵🇱|PL1|@SHFX
       - 🇺🇸|US2|@SHFX
       - 🇰🇷|KR1|@SHFX
       - 🇳🇱|NL1|@SHFX
-      - 🇰🇷|KR2|@SHFX
+      - 🇻🇳|VN1|@SHFX
       - 🇺🇸|US3|@SHFX
       - 🇮🇷|IR1|@SHFX
   - name: 🎯 全球直连
@@ -314,15 +335,16 @@ proxy-groups:
       - 🚀 节点选择
       - 🎯 全球直连
       - ♻️ 自动选择
+      - 🇭🇰|HK1|@SHFX
       - 🇫🇷|FR1|@SHFX
-      - 🇳🇴|NO1|@SHFX
       - 🇺🇳|UN1|@SHFX
+      - 🇳🇴|NO1|@SHFX
       - 🇺🇸|US1|@SHFX
       - 🇵🇱|PL1|@SHFX
       - 🇺🇸|US2|@SHFX
       - 🇰🇷|KR1|@SHFX
       - 🇳🇱|NL1|@SHFX
-      - 🇰🇷|KR2|@SHFX
+      - 🇻🇳|VN1|@SHFX
       - 🇺🇸|US3|@SHFX
       - 🇮🇷|IR1|@SHFX
 rules:
