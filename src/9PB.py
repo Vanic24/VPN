@@ -344,7 +344,6 @@ def parse_node_line(line):
             return node
     return None
 
-# ---------------- Correct node ----------------
 def correct_node(p, country_counter):
     original_name = str(p.get("name", ""))
 
@@ -369,6 +368,7 @@ def correct_node(p, country_counter):
 
     # -------- 3️⃣ Chinese country name --------
     if not cc:
+        # Remove digits and suffixes
         cleaned = re.sub(r'[\d\s\-—–].*', '', original_name)
         for cn_name, code in CN_TO_CC.items():
             if cn_name in cleaned:
