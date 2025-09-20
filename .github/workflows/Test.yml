@@ -53,8 +53,17 @@ jobs:
       # 5️⃣ Run Karing latency check with outbound IP resolution
       - name: Karing latency check with outbound IP
         run: |
-          .\karing\karing.exe latency -i nodes_raw.txt -o nodes_checked.json --resolve-outbound
-          Get-Content nodes_checked.json -TotalCount 5
+          echo "Running Karing latency check..."
+          .\karing\karing.exe latency -i nodes_raw.txt -o nodes_checked.json --resolve-outbound || echo "Karing failed with exit code $LASTEXITCODE"
+          echo "Directory listing after Karing run:"
+          dir
+          if (Test-Path nodes_checked.json) {
+            echo "✅ nodes_checked.json created. Preview first 20 lines:"
+            Get-Content nodes_checked.json -TotalCount 20
+          } else {
+            echo "❌ nodes_checked.json not created. Dumping raw Karing output instead:"
+            .\karing\karing.exe latency --help
+          }
 
       # 6️⃣ Setup Python
       - name: Setup Python
