@@ -1,140 +1,98 @@
-name: Proxy Configuration Automation
+name: Fetch & Process Nodes
 
 on:
-  schedule:
-    - cron: '*/30 * * * *'  # Runs every 30 minutes
   workflow_dispatch:
 
 jobs:
-  generate_proxies_yaml:
+  process_nodes:
     runs-on: ubuntu-latest
-    env:
-      CORE_TYPE: "mihomo"  # Change to "v2ray" or "sing-box" as needed
-      SECRET_REPO: "SOURCES_TXT"
-      TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      DOWNLOAD_DIR: "$RUNNER_TEMP/proxy_cores"
-
     steps:
+      # 1️⃣ Checkout repository
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
-      - name: Install dependencies
+      # 2️⃣ Download latest Karing CLI (Linux x64)
+      - name: Download latest Karing CLI
         run: |
-          sudo apt-get update
-          sudo apt-get install -y curl jq bc unzip tar netcat-openbsd uuid-runtime
+          echo "Fetching latest Karing release..."
+          LATEST_TAG=$(curl -s https://api.github.com/repos/KaringX/karing/releases/latest | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+          echo "Latest Karing release: $LATEST_TAG"
+          curl -L -o karing https://github.com/KaringX/karing/releases/download/${LATEST_TAG}/karing-linux-amd64
+          chmod +x karing
+          ./karing --version
 
-      - name: Make scripts executable
-        run: chmod +x scripts/*.sh
-
-      - name: Fetch sources.txt from secret repository
+      # 3️⃣ Fetch subscription from secret
+      - name: Fetch subscription
         run: |
-          curl -H "Authorization: token $TOKEN" \
-            -H "Accept: application/vnd.github.v3.raw" \
-            -o scripts/sources.txt \
-            https://api.github.com/repos/$SECRET_REPO/contents/sources.txt
+          curl -s "${{ secrets.TEST_URL }}" -o subscription.txt
+          echo "Fetched subscription. Preview first 5 lines:"
+          head -n 5 subscription.txt
 
-      - name: Download latest proxy core binaries with architecture detection
+      # 4️⃣ Filter out info-only lines automatically
+      - name: Filter valid node lines
         run: |
-          mkdir -p $DOWNLOAD_DIR
-          ARCH=$(uname -m)
-          echo "Detected architecture: $ARCH"
+          python3 <<'EOF'
+          valid_prefixes = ("vmess://", "vless://", "trojan://", "ss://", "ssr://", "socks5://", "hysteria2://", "anytls://", "tuic://")
 
-          # v2ray-core
-          if [[ "$ARCH" == "x86_64" ]]; then
-            V2RAY_URL="https://github.com/v2fly/v2ray-core/releases/latest/download/v2ray-linux-64.zip"
-          elif [[ "$ARCH" == "aarch64" ]]; then
-            V2RAY_URL="https://github.com/v2fly/v2ray-core/releases/latest/download/v2ray-linux-arm64-v8a.zip"
-          else
-            echo "Unsupported architecture: $ARCH"
-            exit 1
-          fi
-          echo "Downloading v2ray-core from $V2RAY_URL ..."
-          curl -L "$V2RAY_URL" -o $DOWNLOAD_DIR/v2ray.zip
-          if unzip -tq $DOWNLOAD_DIR/v2ray.zip; then
-            unzip -o $DOWNLOAD_DIR/v2ray.zip -d $DOWNLOAD_DIR/v2ray
-            chmod +x $DOWNLOAD_DIR/v2ray/v2ray
-          else
-            echo "v2ray-core download failed or is not a valid ZIP file."
-            exit 1
-          fi
+          with open("subscription.txt", "r", encoding="utf-8") as f:
+              raw_lines = [line.strip() for line in f.readlines()]
 
-          # Mihomo - correct .gz binaries
-          if [[ "$ARCH" == "x86_64" ]]; then
-            MIHOMO_URL="https://github.com/MetaCubeX/mihomo/releases/download/v1.19.13/mihomo-linux-amd64-v1.19.13.gz"
-          elif [[ "$ARCH" == "aarch64" ]]; then
-            MIHOMO_URL="https://github.com/MetaCubeX/mihomo/releases/download/v1.19.13/mihomo-linux-arm64-v1.19.13.gz"
-          else
-            echo "Unsupported architecture: $ARCH"
-            exit 1
-          fi
-          echo "Downloading Mihomo from $MIHOMO_URL ..."
-          curl -L "$MIHOMO_URL" -o $DOWNLOAD_DIR/mihomo.gz
-          if gzip -t $DOWNLOAD_DIR/mihomo.gz; then
-            gzip -d $DOWNLOAD_DIR/mihomo.gz
-            chmod +x $DOWNLOAD_DIR/mihomo
-          else
-            echo "Mihomo download failed or is not a valid GZ file."
-            exit 1
-          fi
+          nodes_raw = [line for line in raw_lines if line.startswith(valid_prefixes)]
 
-          # sing-box - correct URLs and extraction
-          if [[ "$ARCH" == "x86_64" ]]; then
-            SINGBOX_URL="https://github.com/SagerNet/sing-box/releases/download/v1.12.4/sing-box-1.12.4-linux-amd64.tar.gz"
-          elif [[ "$ARCH" == "aarch64" ]]; then
-            SINGBOX_URL="https://github.com/SagerNet/sing-box/releases/download/v1.12.4/sing-box-1.12.4-linux-arm64.tar.gz"
-          else
-            echo "Unsupported architecture: $ARCH"
-            exit 1
-          fi
-          echo "Downloading sing-box from $SINGBOX_URL ..."
-          curl -L "$SINGBOX_URL" -o $DOWNLOAD_DIR/sing-box.tar.gz
+          with open("nodes_raw.txt", "w", encoding="utf-8") as f:
+              f.write("\n".join(nodes_raw))
 
-          # Extract the binary
-          mkdir -p $DOWNLOAD_DIR/sing-box
-          tar -xzf $DOWNLOAD_DIR/sing-box.tar.gz -C $DOWNLOAD_DIR/sing-box --strip-components=1
+          print(f"Filtered {len(nodes_raw)} valid nodes. Preview first 5:")
+          print("\n".join(nodes_raw[:5]))
+          EOF
 
-          # Make sure binary exists
-          if [ -f "$DOWNLOAD_DIR/sing-box/sing-box" ]; then
-            chmod +x $DOWNLOAD_DIR/sing-box/sing-box
-          else
-            echo "sing-box binary not found after extraction!"
-            exit 1
-          fi
-
-      - name: Parse and validate proxies
+      # 5️⃣ Run Karing latency check with outbound IP resolution
+      - name: Karing latency check with outbound IP
         run: |
-          set -ex
-          scripts/parse_and_validate_proxies.sh
+          ./karing latency -i nodes_raw.txt -o nodes_checked.json --resolve-outbound
+          echo "Latency check with outbound resolution complete. Preview first 5 lines:"
+          head -n 5 nodes_checked.json
 
-      - name: Test proxy connectivity
-        run: |
-          set -ex
-          scripts/test_proxy_connectivity.sh
+      # 6️⃣ Setup Python
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
 
-      - name: Determine outlet IPs
+      # 7️⃣ Process nodes: assign flag, country code, rename
+      - name: Assign flag, country code, rename nodes
         run: |
-          set -ex
-          CORE_BIN=""
-          if [ "$CORE_TYPE" == "v2ray" ]; then CORE_BIN="$DOWNLOAD_DIR/v2ray/v2ray"; fi
-          if [ "$CORE_TYPE" == "mihomo" ]; then CORE_BIN="$DOWNLOAD_DIR/mihomo"; fi
-          if [ "$CORE_TYPE" == "sing-box" ]; then CORE_BIN="$DOWNLOAD_DIR/sing-box/sing-box"; fi
-          export CORE_BIN
-          scripts/determine_outlet_ips.sh
+          python3 <<'EOF'
+          import json
 
-      - name: Format proxies into JSON
-        run: |
-          set -ex
-          scripts/format_proxies.sh
+          with open("nodes_checked.json", encoding="utf-8") as f:
+              data = json.load(f)
 
-      - name: Generate proxies.yaml for Clash
-        run: |
-          set -ex
-          scripts/generate_proxies_yaml.sh
+          output_lines = []
+          for idx, node in enumerate(data):
+              raw = node.get("raw", "").strip()
+              ip = node.get("ip", "")
+              country_code = node.get("country_code", "XX")
+              # Assign flag emoji based on resolved outbound IP
+              if len(country_code) == 2:
+                  flag = chr(0x1F1E6 + ord(country_code[0].upper()) - 65) + \
+                         chr(0x1F1E6 + ord(country_code[1].upper()) - 65)
+              else:
+                  flag = "🏳️"
+              new_name = f"{flag} {country_code}-{idx+1} | @SHFX"
+              output_lines.append(f"{raw}#{new_name}")
 
-      - name: Commit and push proxies.yaml
+          with open("nodes_final.txt", "w", encoding="utf-8") as f:
+              f.write("\n".join(output_lines))
+
+          print("Processed nodes saved to nodes_final.txt")
+          EOF
+
+      # 8️⃣ Commit final output back to GitHub
+      - name: Commit & push processed nodes
         run: |
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
-          git add proxies.yaml
-          git commit -m "Update proxies.yaml" || echo "No changes to commit"
-          git push || echo "Push failed or no changes"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add nodes_final.txt
+          git commit -m "Update processed nodes [Auto]" || echo "No changes to commit"
+          git push
