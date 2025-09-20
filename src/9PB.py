@@ -343,17 +343,11 @@ def parse_node_line(line):
     
 # ---------------- Correct node ----------------
 def correct_node(p, country_counter, CN_TO_CC):
+    import re
+
     original_name = str(p.get("name", "")).strip()
     add = p.get("add", "")
     cc, flag = None, ""
-
-    # 0️⃣ First: Chinese name mapping (substring match)
-    for cn_name, code in CN_TO_CC.items():
-        if cn_name and cn_name in original_name:
-            cc = code
-            flag = country_to_flag(cc)
-            country_counter[cc] += 1
-            break
 
     # Skip nodes containing 🔒
     if "🔒" in original_name:
@@ -362,7 +356,15 @@ def correct_node(p, country_counter, CN_TO_CC):
     cc = None
     flag = None
 
-    # 1️⃣ Second: Emoji flag in name
+    # 1️⃣ First: match against Chinese names (substring match only)
+    for cn_name, code in CN_TO_CC.items():
+        if cn_name in original_name:
+            cc = code
+            flag = country_to_flag(cc)
+            country_counter[cc] += 1
+            break  # ✅ stop at the first valid match
+
+    # 2️⃣ If not matched, check emoji flag in name
     if not cc:
         flag_match = re.search(r'[\U0001F1E6-\U0001F1FF]{2}', original_name)
         if flag_match:
@@ -371,7 +373,7 @@ def correct_node(p, country_counter, CN_TO_CC):
             if cc:
                 country_counter[cc] += 1
 
-    # 2️⃣ Third: Two-letter ISO code
+    # 3️⃣ If still not matched, check explicit two-letter ISO code
     if not cc:
         match = re.search(r'\b([A-Z]{2})\b', original_name)
         if match:
@@ -379,15 +381,16 @@ def correct_node(p, country_counter, CN_TO_CC):
             flag = country_to_flag(cc)
             country_counter[cc] += 1
 
-    # 3️⃣ Fourth: GeoIP fallback
+    # 4️⃣ If still not matched, fallback to GeoIP info (if available)
     if not cc and add:
-        cc_upper = country_counter.get(add, "").upper()
+        # Example: if "add" already resolved to cc
+        cc_upper = str(country_counter.get(add, "")).upper()
         if cc_upper:
             cc = cc_upper
             flag = country_to_flag(cc)
             country_counter[cc] += 1
 
-    # Final name formatting
+    # 5️⃣ Final: fallback to undefined flag
     if cc and flag:
         p["name"] = f"{flag}|{cc}{original_name}"
     else:
