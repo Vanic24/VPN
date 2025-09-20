@@ -1,80 +1,53 @@
-name: Fetch & Process Nodes with FlClash AppImage (Dynamic Binary)
+name: Fetch & Process Nodes with FlClash Windows
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 */6 * * *' # every 6 hours
+    - cron: '0 */6 * * *'  # every 6 hours
 
 jobs:
   process_nodes:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
       # 1️⃣ Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # 2️⃣ Install dependencies
-      - name: Install dependencies
-        run: sudo apt-get update && sudo apt-get install -y wget unzip jq
-
-      # 3️⃣ Download latest FlClash Linux AMD64 AppImage
-      - name: Download latest FlClash AppImage
-        run: |
-          echo "Fetching latest FlClash release..."
-          RELEASE_JSON=$(curl -s https://api.github.com/repos/chen08209/FlClash/releases/latest)
-          ASSET_URL=$(echo "$RELEASE_JSON" | jq -r '.assets[] | select(.name | test("linux-amd64\\.AppImage$")) | .browser_download_url' | head -n1)
-          if [ -z "$ASSET_URL" ]; then
-            echo "❌ No Linux AMD64 AppImage found!"
-            exit 1
-          fi
-          echo "Latest FlClash AppImage URL: $ASSET_URL"
-          wget -O flclash.AppImage "$ASSET_URL"
-          chmod +x flclash.AppImage
-
-      # 4️⃣ Extract AppImage and detect binary
-      - name: Extract AppImage and find flclash binary
-        run: |
-          ./flclash.AppImage --appimage-extract
-          FLCLASH_BIN=$(find squashfs-root -type f -name flclash | head -n1)
-          if [ -z "$FLCLASH_BIN" ]; then
-              echo "❌ flclash binary not found inside extracted AppImage!"
-              exit 1
-          fi
-          chmod +x "$FLCLASH_BIN"
-          echo "Found flclash binary at: $FLCLASH_BIN"
-          echo "FLCLASH_BIN=$FLCLASH_BIN" >> $GITHUB_ENV
-
-      # 5️⃣ Download subscription content from secret
-      - name: Download subscription content
-        run: |
-          echo "Downloading subscription URL from secret..."
-          curl -L "${{ secrets.TEST_URL }}" -o subscription.txt
-          echo "Preview first 5 lines:"
-          head -n5 subscription.txt
-
-      # 6️⃣ Run FlClash CLI to parse subscription
-      - name: Parse subscription with FlClash
-        run: |
-          "$FLCLASH_BIN" parse -f subscription.txt -o nodes_checked.json
-          if [ -f nodes_checked.json ]; then
-            echo "✅ nodes_checked.json created. Preview first 5 lines:"
-            head -n5 nodes_checked.json
-          else
-            echo "❌ nodes_checked.json not created. Check FlClash output."
-            exit 1
-          fi
-
-      # 7️⃣ Setup Python
+      # 2️⃣ Install dependencies (Python)
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.11"
 
-      # 8️⃣ Process nodes in Python
-      - name: Process nodes in Python
+      # 3️⃣ Download latest FlClash Windows portable zip
+      - name: Download latest FlClash Windows
         run: |
-          python3 <<'EOF'
+          echo Fetching latest FlClash release...
+          $release = Invoke-RestMethod -Uri "https://api.github.com/repos/chen08209/FlClash/releases/latest"
+          $asset = $release.assets | Where-Object { $_.name -match "windows-amd64.zip" } | Select-Object -First 1
+          if (-not $asset) { Write-Error "No windows-amd64.zip found"; exit 1 }
+          Invoke-WebRequest -Uri $asset.browser_download_url -OutFile flclash.zip
+          Expand-Archive flclash.zip -DestinationPath flclash
+
+      # 4️⃣ Download subscription from secret
+      - name: Download subscription content
+        run: |
+          Invoke-WebRequest -Uri "${{ secrets.TEST_URL }}" -OutFile subscription.txt
+          Get-Content subscription.txt -TotalCount 5
+
+      # 5️⃣ Run FlClash parse
+      - name: Parse subscription with FlClash
+        run: |
+          .\flclash\flclash.exe parse -f subscription.txt -o nodes_checked.json
+          if (-Not (Test-Path nodes_checked.json)) { Write-Error "nodes_checked.json not created"; exit 1 }
+          Get-Content nodes_checked.json -TotalCount 5
+
+      # 6️⃣ Process nodes in Python
+      - name: Process nodes in Python
+        shell: pwsh
+        run: |
+          python <<'EOF'
           import json
 
           with open("nodes_checked.json", encoding="utf-8") as f:
@@ -99,11 +72,12 @@ jobs:
           print("✅ Processed nodes saved to nodes_final.txt")
           EOF
 
-      # 9️⃣ Commit & push processed nodes
+      # 7️⃣ Commit & push processed nodes
       - name: Commit & push processed nodes
+        shell: pwsh
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add nodes_final.txt
-          git commit -m "Update processed nodes [Auto]" || echo "No changes to commit"
+          git commit -m "Update processed nodes [Auto]" -ErrorAction SilentlyContinue
           git push
