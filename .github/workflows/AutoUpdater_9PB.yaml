@@ -44,8 +44,9 @@ jobs:
           const timestamp = `${pad(localTime.getDate())}.${pad(localTime.getMonth() + 1)}.${localTime.getFullYear()} ${pad(localTime.getHours())}:${pad(localTime.getMinutes())}:${pad(localTime.getSeconds())}`;
           const dry_run = process.env.DRY_RUN === 'true';
           const subUrl = process.env.SUB_9PB;
+
           const fetchSub = async () => {
-          const res = await axios.get(subUrl);
+            const res = await axios.get(subUrl);
             return Buffer.from(res.data, 'base64').toString();
           };
 
@@ -83,21 +84,16 @@ jobs:
                 sni: conf.sni || (conf.servername || '') || ''
               };
 
-              // ---ws-specific extra fields ---
               if (net === 'ws') {
                 proxy.wsPath = conf.path || '';
-                
-                // keep simple header host field if provided
                 if (conf.host) proxy.host = conf.host;
               }
-
-              // grpc hint
               if (net === 'grpc') {
                 proxy.grpcServiceName = conf.path || '';
               }
 
               return proxy;
-            } catch (err) {
+            } catch {
               return null;
             }
           }
@@ -122,7 +118,6 @@ jobs:
                 sni: q.sni || ''
               };
 
-              // ws extras
               if (net === 'ws') {
                 proxy.wsPath = q.path || '';
                 if (q.host) proxy.host = q.host;
@@ -132,7 +127,7 @@ jobs:
               }
 
               return proxy;
-            } catch (err) {
+            } catch {
               return null;
             }
           }
@@ -165,7 +160,7 @@ jobs:
               }
 
               return proxy;
-            } catch (err) {
+            } catch {
               return null;
             }
           }
@@ -184,7 +179,7 @@ jobs:
                 sni: u.searchParams.get('sni') || '',
                 "skip-cert-verify": u.searchParams.get('skip-cert-verify') === 'true'
               };
-            } catch (err) {
+            } catch {
               return null;
             }
           }
@@ -203,7 +198,7 @@ jobs:
                 sni: u.searchParams.get('sni') || '',
                 "skip-cert-verify": u.searchParams.get('skip-cert-verify') === 'true'
               };
-            } catch (err) {
+            } catch {
               return null;
             }
           }
@@ -212,40 +207,41 @@ jobs:
 
           const generate9PB = async () => {
             const rawData = await fetchSub();
+            console.log(`[start] loaded 1 source from SUB_9PB`);
+
             // preserve original behavior: remove first two info lines
-            const lines = rawData.split('\n').slice(2);
+            const allLines = rawData.split('\n');
+            const lines = allLines.slice(2);
+
+            console.log(`[source] SUB_9PB -> ${allLines.length} total lines`);
+
             const proxies = [];
+            let validCount = 0;
 
             for (let line of lines) {
               line = line.trim();
               if (!line) continue;
 
+              let p = null;
               try {
-                if (line.startsWith('vmess://')) {
-                  const p = parseVmess(line);
-                  if (p) proxies.push(p);
-                }
-                else if (line.startsWith('vless://')) {
-                  const p = parseVless(line);
-                  if (p) proxies.push(p);
-                }
-                else if (line.startsWith('trojan://')) {
-                  const p = parseTrojan(line);
-                  if (p) proxies.push(p);
-                }
-                else if (line.startsWith('hysteria2://')) {
-                  const p = parseHysteria2(line);
-                  if (p) proxies.push(p);
-                }
-                else if (line.startsWith('anytls://')) {
-                  const p = parseAnytls(line);
-                  if (p) proxies.push(p);
-                }
-                // keep silent on unsupported lines (like plain YAML blocks or other schemes)
-              } catch (err) {
-                console.error('Failed to parse line:', line, err);
+                if (line.startsWith('vmess://')) p = parseVmess(line);
+                else if (line.startsWith('vless://')) p = parseVless(line);
+                else if (line.startsWith('trojan://')) p = parseTrojan(line);
+                else if (line.startsWith('hysteria2://')) p = parseHysteria2(line);
+                else if (line.startsWith('anytls://')) p = parseAnytls(line);
+              } catch {}
+
+              if (p) {
+                proxies.push(p);
+                validCount++;
               }
             }
+
+            const totalCount = allLines.length;
+            const filteredCount = totalCount - validCount - 2; // minus removed info lines
+            console.log(`[collect] total ${totalCount} lines before filtering`);
+            console.log(`[done] ${validCount} valid nodes, ${filteredCount} filtered out`);
+            console.log(`[done] final ${proxies.length} nodes ready`);
 
             // Load template
             const templatePath = path.join(__dirname, 'ClashTemplate.ini');
@@ -266,12 +262,12 @@ jobs:
 
             // Prepare YAML output with timestamp
             const yamlData = `# Last update: ${timestamp}\n` + outputContent;
-            
+
             // Write output files
             fs.writeFileSync('9PB', outputContent, 'utf8');
             fs.writeFileSync('9PB.yml', outputContent, 'utf8');
 
-            console.log('✅ Local files written: 9PB, 9PB.yml');
+            console.log(`[done] wrote ${path.join(process.cwd(), '9PB')}`);
 
             if (!dry_run) {
               // Update GitHub
@@ -290,10 +286,10 @@ jobs:
                   headers: { Authorization: `token ${process.env.GITHUB_TOKEN}` }
                 });
 
-                  console.log('✅ GitHub updated successfully');
-                } catch (err) {
-                  console.error('❌ GitHub update failed:', err.response?.data || err.message);
-                }
+                console.log('✅ GitHub updated successfully');
+              } catch (err) {
+                console.error('❌ GitHub update failed:', err.response?.data || err.message);
+              }
 
               // Delete old record from TextDB first
               const deleteUrl = 'https://textdb.online/update/?key=9PB_SHFX&value={}';
@@ -315,10 +311,9 @@ jobs:
 
               // Wait 3 seconds before uploading new data
               await sleep(3000);
-              
+
               // Update Textdb using POST
               const textdbUrl = 'https://textdb.online/update/?key=9PB_SHFX&value={}';
-
               const res = await axios.post(
                 textdbUrl,
                 { value: yamlData },
