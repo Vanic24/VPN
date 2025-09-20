@@ -15,9 +15,13 @@ jobs:
       - name: Download latest Karing CLI
         run: |
           echo "Fetching latest Karing release..."
-          LATEST_TAG=$(curl -s https://api.github.com/repos/KaringX/karing/releases/latest | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
-          echo "Latest Karing release: $LATEST_TAG"
-          curl -L -o karing https://github.com/KaringX/karing/releases/download/${LATEST_TAG}/karing-linux-amd64
+          LATEST_URL=$(curl -s https://api.github.com/repos/KaringX/karing/releases/latest \
+            | grep browser_download_url \
+            | grep linux-amd64 \
+            | cut -d '"' -f 4)
+          echo "Download URL: $LATEST_URL"
+          curl -L -o karing.tar.gz "$LATEST_URL"
+          tar -xzf karing.tar.gz
           chmod +x karing
           ./karing --version
 
