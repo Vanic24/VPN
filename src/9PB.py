@@ -62,14 +62,11 @@ def geo_ip(ip):
         pass
     return "unknown", "UN"
     
-locale_zh = Locale.parse('zh_CN')  # Chinese (Simplified)
-
 def country_to_flag(cc):
     """Convert ISO 3166 two-letter code to emoji flag"""
     if not cc or len(cc) != 2:
         return "🏳️"
-    return chr(0x1F1E6 + (ord(cc[0].upper()) - 65)) + \
-           chr(0x1F1E6 + (ord(cc[1].upper()) - 65))
+    return chr(0x1F1E6 + (ord(cc[0].upper()) - 65)) + chr(0x1F1E6 + (ord(cc[1].upper()) - 65))
 
 def flag_to_country_code(flag):
     """Convert emoji flag to ISO 3166 code"""
@@ -78,7 +75,7 @@ def flag_to_country_code(flag):
     try:
         first, second = flag[0], flag[1]
         return chr(ord(first) - 0x1F1E6 + 65) + chr(ord(second) - 0x1F1E6 + 65)
-    except Exception:
+    except:
         return None
 
 # ---------------- Load sources ----------------
@@ -343,7 +340,8 @@ def parse_node_line(line):
         if node:
             return node
     return None
-
+    
+# ---------------- Correct node ----------------
 def correct_node(p, country_counter):
     original_name = str(p.get("name", ""))
 
@@ -351,42 +349,53 @@ def correct_node(p, country_counter):
     if "🔒" in original_name:
         return None
 
-    cc = None
     flag = None
+    cc = None
 
-    # -------- 1️⃣ Flag emoji --------
+    # -------- 1️⃣ Check flag emoji --------
     flag_match = re.search(r'[\U0001F1E6-\U0001F1FF]{2}', original_name)
     if flag_match:
         flag = flag_match.group(0)
         cc = flag_to_country_code(flag)
 
-    # -------- 2️⃣ Two-letter code --------
+    # -------- 2️⃣ Check two-letter code --------
     if not cc:
         match = re.search(r'\b([A-Z]{2})\b', original_name)
         if match:
             cc = match.group(1)
 
-    # -------- 3️⃣ Chinese country name --------
+    # -------- 3️⃣ Check Chinese country name (strip digits/suffix) --------
     if not cc:
-        # Remove digits and suffixes
-        cleaned = re.sub(r'[\d\s\-—–].*', '', original_name)
+        cleaned = re.sub(r'\d.*', '', original_name)
         for cn_name, code in CN_TO_CC.items():
             if cn_name in cleaned:
                 cc = code
                 break
 
-    # -------- 4️⃣ Fallback geo_ip --------
+    # -------- 4️⃣ Fallback geo_ip if available --------
     if not cc:
-        cc = p.get("geo_ip_cc", None)
-        if not cc:
-            return None  # skip if no geo info
+        cc = p.get("geo_ip_cc", "US")  # fallback to US if geo_ip missing
 
-    # -------- Assign flag and final name --------
-    flag = country_to_flag(cc)
-    country_counter[cc] += 1
-    index = country_counter[cc]
-    p["name"] = f"{flag}|{cc}{index}-StarLink"
-    return p
+    # -------- Assign final name --------
+    if cc:
+        flag = country_to_flag(cc)
+        country_counter[cc] += 1
+        index = country_counter[cc]
+        p["name"] = f"{flag}|{cc}{index}-StarLink"
+        return p
+
+    return None
+
+    country_counter = defaultdict(int)
+    corrected_nodes = []
+    for n in nodes:
+        res = correct_node(n, country_counter)
+        if res:
+            corrected_nodes.append(res)
+
+    # Show results
+    for n in corrected_nodes:
+        print(n["name"])
     
 # ---------------- Load and parse proxies ----------------
 def load_proxies(url):
