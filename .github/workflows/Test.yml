@@ -6,41 +6,46 @@ on:
 jobs:
   process_nodes:
     runs-on: windows-latest
+
     steps:
       # 1️⃣ Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # 2️⃣ Download latest FlClash Windows portable ZIP
+      # 2️⃣ Download latest FlClash Windows AMD64 ZIP dynamically
       - name: Download latest FlClash
-        run: |
-          echo "Fetching latest FlClash..."
-          $release = Invoke-RestMethod -Uri "https://api.github.com/repos/chen08209/FlClash/releases/latest"
-          $asset = $release.assets | Where-Object { $_.name -match "windows_x64.zip" } | Select-Object -First 1
-          Invoke-WebRequest -Uri $asset.browser_download_url -OutFile flclash.zip
-          Expand-Archive -Path flclash.zip -DestinationPath flclash -Force
-          dir flclash
-          .\flclash\flclash.exe --version
-
-      # 3️⃣ Fetch subscription URL content
-      - name: Fetch subscription
         shell: powershell
         run: |
-          $url = "${{ secrets.TEST_URL }}"
-          Write-Output "Subscription URL: $url"
-          # FlClash can handle URL directly in CLI, no need to download content
+          Write-Output "Fetching latest FlClash release..."
+          $release = Invoke-RestMethod -Uri "https://api.github.com/repos/chen08209/FlClash/releases/latest"
+          $asset = $release.assets | Where-Object { $_.name -match "windows-amd64\.zip$" } | Select-Object -First 1
+          if (-not $asset) {
+              Write-Error "No Windows AMD64 ZIP asset found in latest release!"
+              exit 1
+          }
+          $downloadUrl = $asset.browser_download_url
+          Write-Output "Latest FlClash Windows AMD64 ZIP URL: $downloadUrl"
+          Invoke-WebRequest -Uri $downloadUrl -OutFile flclash.zip
+          Expand-Archive -Path flclash.zip -DestinationPath flclash -Force
+          .\flclash\flclash.exe --version
 
-      # 4️⃣ Run FlClash to parse subscription
+      # 3️⃣ Fetch subscription URL (FlClash can use it directly)
+      - name: Display subscription URL secret
+        shell: powershell
+        run: |
+          Write-Output "Using subscription URL from secret: ${{ secrets.TEST_URL }}"
+
+      # 4️⃣ Run FlClash CLI to parse subscription
       - name: FlClash parse subscription
         shell: powershell
         run: |
-          # Output to JSON
           .\flclash\flclash.exe parse -u "${{ secrets.TEST_URL }}" -o nodes_checked.json
           if (Test-Path nodes_checked.json) {
               Write-Output "✅ nodes_checked.json created. Preview first 5 lines:"
               Get-Content nodes_checked.json -TotalCount 5
           } else {
               Write-Output "❌ nodes_checked.json not created. Check FlClash output."
+              exit 1
           }
 
       # 5️⃣ Setup Python
@@ -62,7 +67,6 @@ jobs:
           output_lines = []
           for idx, node in enumerate(data):
               raw = node.get("raw", "").strip()
-              ip = node.get("ip", "")
               country_code = node.get("country_code", "XX")
               # Assign flag emoji
               if len(country_code) == 2:
