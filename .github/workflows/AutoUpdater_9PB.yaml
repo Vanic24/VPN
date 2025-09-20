@@ -299,20 +299,22 @@ jobs:
             }
 
             for (let line of lines) {
-              line = line.trim();
-              if (!line) continue;
-            
-              try {
-                const parsed = dispatchParse(line);
-                if (Array.isArray(parsed)) {
-                  proxies.push(...parsed);
-                } else if (parsed) {
-                  proxies.push(parsed);
+                line = line.trim();
+                if (!line) continue;
+
+                try {
+                  const parsed = dispatchParse(line);
+                  if (Array.isArray(parsed)) {
+                    proxies.push(...parsed);
+                    validCount += parsed.length;
+                  } else if (parsed) {
+                    proxies.push(parsed);
+                    validCount++;
+                  }
+                } catch (err) {
+                  console.error('Failed to parse line:', line, err);
                 }
-              } catch (err) {
-                console.error('Failed to parse line:', line, err);
               }
-            }
 
             const totalCount = allLines.length;
             const filteredCount = totalCount - validCount - 2; // minus removed info lines
