@@ -61,15 +61,17 @@ def geo_ip(ip):
         pass
     return "unknown", "UN"
     
-locale_zh = Locale.parse('zh_CN')  # Safer Chinese locale
+locale_zh = Locale.parse('zh_CN')  # Chinese (Simplified)
 
 def country_to_flag(cc):
+    """Convert ISO 3166 two-letter code to emoji flag"""
     if not cc or len(cc) != 2:
         return "🏳️"
     return chr(0x1F1E6 + (ord(cc[0].upper()) - 65)) + \
            chr(0x1F1E6 + (ord(cc[1].upper()) - 65))
 
 def flag_to_country_code(flag):
+    """Convert emoji flag to ISO 3166 code"""
     if not flag or len(flag) < 2:
         return None
     try:
@@ -79,10 +81,12 @@ def flag_to_country_code(flag):
         return None
 
 def chinese_name_to_code(name):
-    """Automatically detect country code from Chinese name"""
+    """Detect country code from Chinese name in node"""
+    # Remove digits and suffixes
+    cleaned = re.sub(r'\d.*', '', name)
     for c in pycountry.countries:
         cn_name = locale_zh.territories.get(c.alpha_2)
-        if cn_name and cn_name in name:
+        if cn_name and cn_name in cleaned:
             return c.alpha_2
     return None
 
@@ -372,7 +376,7 @@ def correct_node(p, country_counter):
     flag = None
     cc = None
 
-    # -------- 1️⃣ Check for flag emoji --------
+    # -------- 1️⃣ Flag emoji --------
     flag_match = re.search(r'[\U0001F1E6-\U0001F1FF]{2}', original_name)
     if flag_match:
         flag = flag_match.group(0)
@@ -381,29 +385,29 @@ def correct_node(p, country_counter):
             cc = None
             flag = None
 
-    # -------- 2️⃣ Check for two-letter country code --------
+    # -------- 2️⃣ Two-letter country code --------
     if not cc:
         match = re.search(r'\b([A-Z]{2})\b', original_name)
         if match and pycountry.countries.get(alpha_2=match.group(1)):
             cc = match.group(1)
             flag = country_to_flag(cc)
 
-    # -------- 3️⃣ Check for Chinese country name --------
+    # -------- 3️⃣ Chinese country name --------
     if not cc:
         cc = chinese_name_to_code(original_name)
         if cc:
             flag = country_to_flag(cc)
 
     # -------- 4️⃣ Fallback to geo_ip --------
-    if not cc:
+    if not cc or not pycountry.countries.get(alpha_2=cc):
         cc = cc_upper
         flag = country_to_flag(cc)
 
-    # -------- Final validation --------
+    # -------- Validate --------
     if not cc or not pycountry.countries.get(alpha_2=cc):
         return None
 
-    # -------- Assign name with per-country index --------
+    # -------- Assign final name --------
     country_counter[cc] += 1
     index = country_counter[cc]
     p["name"] = f"{flag}|{cc}{index}-StarLink"
