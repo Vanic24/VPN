@@ -378,25 +378,29 @@ def correct_node(p, country_counter):
         flag = flag_match.group(0)
         cc = flag_to_country_code(flag)
 
-    # 2️⃣ Try to detect two-letter uppercase code
+    # 2️⃣ Try to detect two-letter uppercase code and validate it
     if not cc:
         match = re.search(r'\b([A-Z]{2})\b', original_name)
-        if match:
+        if match and pycountry.countries.get(alpha_2=match.group(1)):
             cc = match.group(1)
             flag = country_to_flag(cc)
 
     # 3️⃣ Try to detect Chinese country name
     if not cc:
-        cc = chinese_name_to_code(original_name)
-        if cc:
-            flag = country_to_flag(cc)
+        for c in pycountry.countries:
+            cn_name = locale_zh.territories.get(c.alpha_2)
+            if cn_name and cn_name in original_name:
+                cc = c.alpha_2
+                flag = country_to_flag(cc)
+                break
 
-    # 4️⃣ Fallback to geo_ip
-    if not cc:
+    # 4️⃣ Fallback to geo_ip if still None and valid
+    if not cc or not pycountry.countries.get(alpha_2=cc):
         cc = cc_upper
         flag = country_to_flag(cc)
 
-    if not cc:
+    # Final validation: skip if cc is still invalid
+    if not cc or not pycountry.countries.get(alpha_2=cc):
         return None
 
     # Increment per-country index
