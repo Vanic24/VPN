@@ -1,4 +1,4 @@
-# Last update: 21.09.2025 04:43:17
+# Last update: 21.09.2025 05:06:30
 mixed-port: 7890
 allow-lan: true
 log-level: info
@@ -92,53 +92,24 @@ proxies:
   udp-relay-mode: native
   uuid: 8687b6e0-ef24-4cd2-bcd2-02d3732bf554
 - cipher: aes-256-cfb
-  name: 🇰🇷|KR1|@SHFX
-  password: qwerREWQ@@
-  port: 4652
-  server: 218.237.185.230
-  type: ss
-- cipher: aes-256-cfb
   name: 🇳🇴|NO1|@SHFX
   password: f8f7aCzcPKbsF8p3
   port: 989
   server: 185.213.23.226
   type: ss
-  udp: true
-- alterId: 0
-  cipher: chacha20-ietf-poly1305
+- cipher: chacha20-ietf-poly1305
   name: 🇺🇸|US1|@SHFX
   password: p78naCf2EfOlRSLTX0wFVx
   port: 443
   server: pupas-shirting-unsung.freesocks.work
-  skip-cert-verify: true
-  tls: true
   type: ss
-- alterId: 2
-  cipher: auto
-  name: 🇭🇰|HK1|@SHFX
-  network: ws
-  port: 80
-  server: 1e426046-t0fds0-t12cnj-1ol97.hk.p5pv.com
-  skip-cert-verify: false
-  tls: false
-  type: vmess
-  uuid: 93fb69fc-77cf-11ee-85ee-f23c91369f2d
-  ws-opts:
-    headers:
-      Host: broadcastlv.chat.bilibili.com
-    path: /
 - cipher: aes-256-cfb
   name: 🇺🇸|US2|@SHFX
   password: f8f7aCzcPKbsF8p3
   port: 989
   server: 104.192.226.106
   type: ss
-- cipher: aes-256-cfb
-  name: 🇳🇱|NL1|@SHFX
-  password: f8f7aCzcPKbsF8p3
-  port: 989
-  server: 51.15.17.169
-  type: ss
+  udp: true
 - name: 🇺🇸|US3|@SHFX
   network: ws
   port: 443
@@ -155,20 +126,44 @@ proxies:
     path: /snippets/ip=tw.tp81.netlib.re:81?ed=2560
 - alterId: 2
   cipher: auto
-  name: 🇨🇳|CN1|@SHFX
+  name: 🇭🇰|HK1|@SHFX
   network: ws
-  port: 30808
-  server: v8.heduian.link
-  servername: ''
+  port: 80
+  server: 1e426046-t0fds0-t12cnj-1ol97.hk.p5pv.com
   skip-cert-verify: false
-  tfo: false
   tls: false
   type: vmess
-  uuid: cbb3f877-d1fb-344c-87a9-d153bffd5484
+  uuid: 93fb69fc-77cf-11ee-85ee-f23c91369f2d
   ws-opts:
     headers:
-      Host: baidu.com
-    path: /oooo
+      Host: broadcastlv.chat.bilibili.com
+    path: /
+- cipher: aes-256-cfb
+  name: 🇨🇴|CO1|@SHFX
+  password: f8f7aCzcPKbsF8p3
+  port: 989
+  server: 154.223.16.212
+  type: ss
+- name: 🇺🇸|US4|@SHFX
+  network: ws
+  port: 8080
+  server: cafearz.com
+  servername: shad.ir.de.test.digicyber.click.
+  skip-cert-verify: false
+  tls: false
+  type: vless
+  udp: true
+  uuid: 5218f249-128d-40bf-d9b9-64004622b502
+  ws-opts:
+    headers:
+      Host: shad.ir.de.test.digicyber.click.
+    path: /olem/ws?ed=1024
+- cipher: aes-256-cfb
+  name: 🇰🇷|KR1|@SHFX
+  password: qwerREWQ@@
+  port: 4652
+  server: 218.237.185.230
+  type: ss
 
 proxy-groups:
   - name: ♻️ 自动选择
@@ -178,28 +173,28 @@ proxy-groups:
     tolerance: 50
     proxies:
       - 🇫🇷|FR1|@SHFX
-      - 🇰🇷|KR1|@SHFX
       - 🇳🇴|NO1|@SHFX
       - 🇺🇸|US1|@SHFX
-      - 🇭🇰|HK1|@SHFX
       - 🇺🇸|US2|@SHFX
-      - 🇳🇱|NL1|@SHFX
       - 🇺🇸|US3|@SHFX
-      - 🇨🇳|CN1|@SHFX
+      - 🇭🇰|HK1|@SHFX
+      - 🇨🇴|CO1|@SHFX
+      - 🇺🇸|US4|@SHFX
+      - 🇰🇷|KR1|@SHFX
   - name: 🚀 节点选择
     type: select
     proxies:
       - ♻️ 自动选择
       - DIRECT
       - 🇫🇷|FR1|@SHFX
-      - 🇰🇷|KR1|@SHFX
       - 🇳🇴|NO1|@SHFX
       - 🇺🇸|US1|@SHFX
-      - 🇭🇰|HK1|@SHFX
       - 🇺🇸|US2|@SHFX
-      - 🇳🇱|NL1|@SHFX
       - 🇺🇸|US3|@SHFX
-      - 🇨🇳|CN1|@SHFX
+      - 🇭🇰|HK1|@SHFX
+      - 🇨🇴|CO1|@SHFX
+      - 🇺🇸|US4|@SHFX
+      - 🇰🇷|KR1|@SHFX
   - name: 🌍 国外媒体
     type: select
     proxies:
@@ -207,56 +202,56 @@ proxy-groups:
       - ♻️ 自动选择
       - 🎯 全球直连
       - 🇫🇷|FR1|@SHFX
-      - 🇰🇷|KR1|@SHFX
       - 🇳🇴|NO1|@SHFX
       - 🇺🇸|US1|@SHFX
-      - 🇭🇰|HK1|@SHFX
       - 🇺🇸|US2|@SHFX
-      - 🇳🇱|NL1|@SHFX
       - 🇺🇸|US3|@SHFX
-      - 🇨🇳|CN1|@SHFX
+      - 🇭🇰|HK1|@SHFX
+      - 🇨🇴|CO1|@SHFX
+      - 🇺🇸|US4|@SHFX
+      - 🇰🇷|KR1|@SHFX
   - name: 📲 电报信息
     type: select
     proxies:
       - 🚀 节点选择
       - 🎯 全球直连
       - 🇫🇷|FR1|@SHFX
-      - 🇰🇷|KR1|@SHFX
       - 🇳🇴|NO1|@SHFX
       - 🇺🇸|US1|@SHFX
-      - 🇭🇰|HK1|@SHFX
       - 🇺🇸|US2|@SHFX
-      - 🇳🇱|NL1|@SHFX
       - 🇺🇸|US3|@SHFX
-      - 🇨🇳|CN1|@SHFX
+      - 🇭🇰|HK1|@SHFX
+      - 🇨🇴|CO1|@SHFX
+      - 🇺🇸|US4|@SHFX
+      - 🇰🇷|KR1|@SHFX
   - name: Ⓜ️ 微软服务
     type: select
     proxies:
       - 🎯 全球直连
       - 🚀 节点选择
       - 🇫🇷|FR1|@SHFX
-      - 🇰🇷|KR1|@SHFX
       - 🇳🇴|NO1|@SHFX
       - 🇺🇸|US1|@SHFX
-      - 🇭🇰|HK1|@SHFX
       - 🇺🇸|US2|@SHFX
-      - 🇳🇱|NL1|@SHFX
       - 🇺🇸|US3|@SHFX
-      - 🇨🇳|CN1|@SHFX
+      - 🇭🇰|HK1|@SHFX
+      - 🇨🇴|CO1|@SHFX
+      - 🇺🇸|US4|@SHFX
+      - 🇰🇷|KR1|@SHFX
   - name: 🍎 苹果服务
     type: select
     proxies:
       - 🚀 节点选择
       - 🎯 全球直连
       - 🇫🇷|FR1|@SHFX
-      - 🇰🇷|KR1|@SHFX
       - 🇳🇴|NO1|@SHFX
       - 🇺🇸|US1|@SHFX
-      - 🇭🇰|HK1|@SHFX
       - 🇺🇸|US2|@SHFX
-      - 🇳🇱|NL1|@SHFX
       - 🇺🇸|US3|@SHFX
-      - 🇨🇳|CN1|@SHFX
+      - 🇭🇰|HK1|@SHFX
+      - 🇨🇴|CO1|@SHFX
+      - 🇺🇸|US4|@SHFX
+      - 🇰🇷|KR1|@SHFX
   - name: 🎯 全球直连
     type: select
     proxies:
@@ -280,14 +275,14 @@ proxy-groups:
       - 🎯 全球直连
       - ♻️ 自动选择
       - 🇫🇷|FR1|@SHFX
-      - 🇰🇷|KR1|@SHFX
       - 🇳🇴|NO1|@SHFX
       - 🇺🇸|US1|@SHFX
-      - 🇭🇰|HK1|@SHFX
       - 🇺🇸|US2|@SHFX
-      - 🇳🇱|NL1|@SHFX
       - 🇺🇸|US3|@SHFX
-      - 🇨🇳|CN1|@SHFX
+      - 🇭🇰|HK1|@SHFX
+      - 🇨🇴|CO1|@SHFX
+      - 🇺🇸|US4|@SHFX
+      - 🇰🇷|KR1|@SHFX
 rules:
   - DOMAIN-SUFFIX,acl4.ssr,🎯 全球直连
   - DOMAIN-SUFFIX,ip6-localhost,🎯 全球直连
