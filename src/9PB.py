@@ -22,7 +22,7 @@ SOURCES_FILE = os.path.join(REPO_ROOT, "SUB_9PB")
 TEMPLATE_URL = "https://raw.githubusercontent.com/Vanic24/VPN/refs/heads/main/ClashTemplate.ini"
 TEXTDB_API = "https://textdb.online/update/?key=9PB_SHFX&value={}"
 URL9PB = "https://raw.githubusercontent.com/Vanic24/VPN/refs/heads/main/9PB"
-CN_TO_CC = json.loads(os.getenv("CN_TO_CC_JSON", "{}"))
+CN_TO_CC = json.loads(os.getenv("CN_TO_CC", "{}"))
 
 # ---------------- Inputs ----------------
 use_latency_env = os.environ.get("LATENCY_FILTER", "false").lower()
