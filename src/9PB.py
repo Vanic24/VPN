@@ -22,7 +22,6 @@ SOURCES_FILE = os.path.join(REPO_ROOT, "SUB_9PB")
 TEMPLATE_URL = "https://raw.githubusercontent.com/Vanic24/VPN/refs/heads/main/ClashTemplate.ini"
 TEXTDB_API = "https://textdb.online/update/?key=9PB_SHFX&value={}"
 URL9PB = "https://raw.githubusercontent.com/Vanic24/VPN/refs/heads/main/9PB"
-CN_TO_CC = json.loads(os.getenv("CN_TO_CC", "{}"))
 
 # ---------------- Inputs ----------------
 use_latency_env = os.environ.get("LATENCY_FILTER", "false").lower()
@@ -344,6 +343,12 @@ def parse_node_line(line):
             return node
     return None
 
+# ---------------- Load CN_TO_CC from secret ----------------
+cn_to_cc_str = os.getenv("CN_TO_CC", "").strip()
+if not cn_to_cc_str:
+    raise ValueError("CN_TO_CC secret not found or empty")
+CN_TO_CC = json.loads(cn_to_cc_str)
+
 # ---------------- Correct node ----------------
 def correct_node(p, country_counter):
     original_name = str(p.get("name", ""))
@@ -379,7 +384,7 @@ def correct_node(p, country_counter):
     if not cc:
         cc = p.get("geo_ip_cc", None)
         if not cc:
-            return None  # skip if no geo info
+            return None  # skip node if no geo info
 
     # -------- Assign flag and final name --------
     flag = country_to_flag(cc)
