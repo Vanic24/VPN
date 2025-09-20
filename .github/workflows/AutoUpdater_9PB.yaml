@@ -115,29 +115,26 @@ jobs:
               const q = Object.fromEntries(url.searchParams.entries());
               const net = (q.type || q.transport || 'tcp').toLowerCase();
               const tls = (q.security || '').toLowerCase() === 'tls';
-
+          
               const proxy = {
                 name: decodeURIComponent(after || '') || 'vless',
                 type: 'vless',
                 server: url.hostname || '',
-                port: safeNumber(url.port || q.port || 0, 0),
+                port: safeNumber(url.port || q.port || (tls ? 443 : 80), 0),
                 uuid: decodeURIComponent(url.username || '') || '',
                 network: net,
+                encryption: q.encryption || 'none',
                 wsPath: q.path || '',
                 tls: tls,
                 sni: q.sni || ''
               };
-
-              if (net === 'ws') {
-                proxy.wsPath = q.path || '';
-                if (q.host) proxy.host = q.host;
-              }
-              if (net === 'grpc') {
-                proxy.grpcServiceName = q.serviceName || q['service-name'] || q.service || '';
-              }
-
+          
+              if (net === 'ws' && q.host) proxy.host = q.host;
+              if (net === 'grpc') proxy.grpcServiceName = q.serviceName || '';
+          
               return proxy;
-            } catch {
+            } catch (err) {
+              console.error('parseVless failed:', err.message);
               return null;
             }
           }
