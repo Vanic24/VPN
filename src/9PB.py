@@ -22,6 +22,7 @@ SOURCES_FILE = os.path.join(REPO_ROOT, "SUB_9PB")
 TEMPLATE_URL = "https://raw.githubusercontent.com/Vanic24/VPN/refs/heads/main/ClashTemplate.ini"
 TEXTDB_API = "https://textdb.online/update/?key=9PB_SHFX&value={}"
 URL9PB = "https://raw.githubusercontent.com/Vanic24/VPN/refs/heads/main/9PB"
+CN_TO_CC = json.loads(os.getenv("CN_TO_CC_JSON", "{}"))
 
 # ---------------- Inputs ----------------
 use_latency_env = os.environ.get("LATENCY_FILTER", "false").lower()
@@ -79,16 +80,6 @@ def flag_to_country_code(flag):
         return chr(ord(first) - 0x1F1E6 + 65) + chr(ord(second) - 0x1F1E6 + 65)
     except Exception:
         return None
-
-def chinese_name_to_code(name):
-    """Detect country code from Chinese name in node"""
-    # Remove digits and suffixes
-    cleaned = re.sub(r'\d.*', '', name)
-    for c in pycountry.countries:
-        cn_name = locale_zh.territories.get(c.alpha_2)
-        if cn_name and cn_name in cleaned:
-            return c.alpha_2
-    return None
 
 # ---------------- Load sources ----------------
 def load_sources():
@@ -355,18 +346,6 @@ def parse_node_line(line):
 
 # ---------------- Correct node ----------------
 def correct_node(p, country_counter):
-    host = str(p.get("server"))
-    raw_port = str(p.get("port", ""))
-
-    try:
-        port = int(raw_port)
-    except ValueError:
-        port = 443
-
-    ip = resolve_ip(host) or host
-    cc_lower, cc_upper = geo_ip(ip)
-
-    p["port"] = port
     original_name = str(p.get("name", ""))
 
     # Skip locked nodes
@@ -376,42 +355,50 @@ def correct_node(p, country_counter):
     flag = None
     cc = None
 
-    # -------- 1️⃣ Flag emoji --------
+    # -------- 1️⃣ Check flag emoji --------
     flag_match = re.search(r'[\U0001F1E6-\U0001F1FF]{2}', original_name)
     if flag_match:
         flag = flag_match.group(0)
         cc = flag_to_country_code(flag)
-        if not cc or not pycountry.countries.get(alpha_2=cc):
-            cc = None
-            flag = None
 
-    # -------- 2️⃣ Two-letter country code --------
+    # -------- 2️⃣ Check two-letter code --------
     if not cc:
         match = re.search(r'\b([A-Z]{2})\b', original_name)
-        if match and pycountry.countries.get(alpha_2=match.group(1)):
+        if match:
             cc = match.group(1)
-            flag = country_to_flag(cc)
 
-    # -------- 3️⃣ Chinese country name --------
+    # -------- 3️⃣ Check Chinese country name (strip digits/suffix) --------
     if not cc:
-        cc = chinese_name_to_code(original_name)
-        if cc:
-            flag = country_to_flag(cc)
+        cleaned = re.sub(r'\d.*', '', original_name)
+        for cn_name, code in CN_TO_CC.items():
+            if cn_name in cleaned:
+                cc = code
+                break
 
-    # -------- 4️⃣ Fallback to geo_ip --------
-    if not cc or not pycountry.countries.get(alpha_2=cc):
-        cc = cc_upper
-        flag = country_to_flag(cc)
-
-    # -------- Validate --------
-    if not cc or not pycountry.countries.get(alpha_2=cc):
-        return None
+    # -------- 4️⃣ Fallback geo_ip if available --------
+    if not cc:
+        cc = p.get("geo_ip_cc", "US")  # fallback to US if geo_ip missing
 
     # -------- Assign final name --------
-    country_counter[cc] += 1
-    index = country_counter[cc]
-    p["name"] = f"{flag}|{cc}{index}-StarLink"
-    return p
+    if cc:
+        flag = country_to_flag(cc)
+        country_counter[cc] += 1
+        index = country_counter[cc]
+        p["name"] = f"{flag}|{cc}{index}-StarLink"
+        return p
+
+    return None
+
+    country_counter = defaultdict(int)
+    corrected_nodes = []
+    for n in nodes:
+        res = correct_node(n, country_counter)
+        if res:
+            corrected_nodes.append(res)
+
+    # Show results
+    for n in corrected_nodes:
+        print(n["name"])
 
 # ---------------- Load and parse proxies ----------------
 def load_proxies(url):
