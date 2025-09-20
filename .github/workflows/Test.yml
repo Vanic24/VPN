@@ -1,4 +1,4 @@
-name: Fetch & Process Nodes with FlClash AppImage (No FUSE)
+name: Fetch & Process Nodes with FlClash AppImage (Dynamic Binary)
 
 on:
   workflow_dispatch:
@@ -32,12 +32,18 @@ jobs:
           wget -O flclash.AppImage "$ASSET_URL"
           chmod +x flclash.AppImage
 
-      # 4️⃣ Extract AppImage (no FUSE required)
-      - name: Extract AppImage
+      # 4️⃣ Extract AppImage and detect binary
+      - name: Extract AppImage and find flclash binary
         run: |
           ./flclash.AppImage --appimage-extract
-          echo "Binary extracted to squashfs-root/usr/bin/flclash"
-          ls -l squashfs-root/usr/bin/
+          FLCLASH_BIN=$(find squashfs-root -type f -name flclash | head -n1)
+          if [ -z "$FLCLASH_BIN" ]; then
+              echo "❌ flclash binary not found inside extracted AppImage!"
+              exit 1
+          fi
+          chmod +x "$FLCLASH_BIN"
+          echo "Found flclash binary at: $FLCLASH_BIN"
+          echo "FLCLASH_BIN=$FLCLASH_BIN" >> $GITHUB_ENV
 
       # 5️⃣ Download subscription content from secret
       - name: Download subscription content
@@ -50,7 +56,7 @@ jobs:
       # 6️⃣ Run FlClash CLI to parse subscription
       - name: Parse subscription with FlClash
         run: |
-          ./squashfs-root/usr/bin/flclash parse -f subscription.txt -o nodes_checked.json
+          "$FLCLASH_BIN" parse -f subscription.txt -o nodes_checked.json
           if [ -f nodes_checked.json ]; then
             echo "✅ nodes_checked.json created. Preview first 5 lines:"
             head -n5 nodes_checked.json
