@@ -407,12 +407,14 @@ jobs:
             }
           };
 
-          await generate9PB();
-          })().catch(err => {
-            console.error(err);
-            process.exit(1);
-          });
-          JS
+          (async () => {
+            try {
+              await generate9PB();
+            } catch (err) {
+              console.error(err);
+              process.exit(1);
+            }
+          })();
 
       - name: Upload 9PB artifact
         uses: actions/upload-artifact@v4
