@@ -1,4 +1,4 @@
-# Last update: 20.09.2025 06:05:52
+# Last update: 20.09.2025 07:39:27
 mixed-port: 7890
 allow-lan: true
 log-level: info
@@ -91,6 +91,16 @@ proxies:
   type: tuic
   udp-relay-mode: native
   uuid: 8687b6e0-ef24-4cd2-bcd2-02d3732bf554
+- client-fingerprint: chrome
+  fingerprint: ''
+  name: 🇮🇷|IR1|@SHFX
+  network: tcp
+  port: 2020
+  server: dns21.miox.houselife.ir
+  tls: false
+  type: vless
+  udp: false
+  uuid: ef63d4e8-f79f-4f51-9b88-9b86f25f13e8
 - name: 🇰🇷|KR1|@SHFX
   password: test.+
   port: 30446
@@ -125,20 +135,6 @@ proxies:
   port: 989
   server: 104.192.226.106
   type: ss
-- name: 🇺🇸|US3|@SHFX
-  network: ws
-  port: 443
-  server: xn--ktff-jt6hr36l.tencentapp.cn
-  servername: baipiao.cmliussss.abrdns.com
-  skip-cert-verify: true
-  tls: true
-  type: vless
-  udp: true
-  uuid: 11f76d4f-7477-4187-bce7-b010022944c3
-  ws-opts:
-    headers:
-      Host: baipiao.cmliussss.abrdns.com
-    path: /snippets/ip=tw.tp81.netlib.re:81?ed=2560
 - client-fingerprint: randomized
   name: 🇳🇱|NL1|@SHFX
   network: ws
@@ -154,71 +150,40 @@ proxies:
     headers:
       Host: joss.krikkrik.tech
     path: /Free-VPN-CF-Geo-Project/NL10
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: 🇵🇱|PL1|@SHFX
+  port: 443
+  reality-opts:
+    public-key: oNYCpjXjcYAV9qSWBt95N9dDUPhc_QnauJZ3kSJVeSQ
+    short-id: 2a22
+  server: poland20.clearorbitllc.com
+  servername: poland20.clearorbitllc.com
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: e3847ec6-b2fc-4eb2-b919-174d986f882c
+- name: 🇺🇸|US3|@SHFX
+  network: ws
+  port: 443
+  server: xn--ktff-jt6hr36l.tencentapp.cn
+  servername: baipiao.cmliussss.abrdns.com
+  skip-cert-verify: true
+  tls: true
+  type: vless
+  udp: true
+  uuid: 11f76d4f-7477-4187-bce7-b010022944c3
+  ws-opts:
+    headers:
+      Host: baipiao.cmliussss.abrdns.com
+    path: /snippets/ip=tw.tp81.netlib.re:81?ed=2560
 - cipher: aes-256-cfb
   name: 🇳🇱|NL2|@SHFX
   password: f8f7aCzcPKbsF8p3
   port: 989
   server: 51.15.17.169
   type: ss
-- alterId: 2
-  cipher: auto
-  name: 🇨🇳|CN1|@SHFX
-  network: ws
-  port: 30808
-  server: v8.heduian.link
-  servername: ''
-  skip-cert-verify: false
-  tfo: false
-  tls: false
-  type: vmess
-  uuid: cbb3f877-d1fb-344c-87a9-d153bffd5484
-  ws-opts:
-    headers:
-      Host: baidu.com
-    path: /oooo
-- client-fingerprint: randomized
-  name: 🇺🇸|US4|@SHFX
-  network: ws
-  port: 443
-  server: openai.com
-  servername: nkAnG2rEpLACE.airlineSHoma.Com
-  skip-cert-verify: true
-  tfo: true
-  tls: true
-  type: vless
-  udp: true
-  uuid: 101e6a7d-7d10-4859-a626-8a76daab4547
-  ws-opts:
-    headers:
-      Host: nkAnG2rEpLACE.airlineSHoma.Com
-      User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
-        like Gecko) Chrome/120.0.0.0 Safari/537.36
-    path: /?ed=2560
-- alterId: 2
-  cipher: auto
-  name: 🇭🇰|HK1|@SHFX
-  network: ws
-  port: 80
-  server: 1e426046-t0fds0-t12cnj-1ol97.hk.p5pv.com
-  servername: 🇭🇰HK-203.218.216.175-0341 | 4.035MB
-  skip-cert-verify: false
-  tls: false
-  type: vmess
-  uuid: 93fb69fc-77cf-11ee-85ee-f23c91369f2d
-  ws-opts:
-    headers:
-      Host: 1e426046-t0fds0-t12cnj-1ol97.hk.p5pv.com
-    path: /
-- client-fingerprint: chrome
-  fingerprint: ''
-  name: 🇮🇷|IR1|@SHFX
-  network: tcp
-  port: 2020
-  server: dns21.miox.houselife.ir
-  tls: false
-  type: vless
-  udp: false
-  uuid: ef63d4e8-f79f-4f51-9b88-9b86f25f13e8
 
 proxy-groups:
   - name: ♻️ 自动选择
@@ -228,34 +193,30 @@ proxy-groups:
     tolerance: 50
     proxies:
       - 🇫🇷|FR1|@SHFX
+      - 🇮🇷|IR1|@SHFX
       - 🇰🇷|KR1|@SHFX
       - 🇳🇴|NO1|@SHFX
       - 🇺🇸|US1|@SHFX
       - 🇺🇸|US2|@SHFX
-      - 🇺🇸|US3|@SHFX
       - 🇳🇱|NL1|@SHFX
+      - 🇵🇱|PL1|@SHFX
+      - 🇺🇸|US3|@SHFX
       - 🇳🇱|NL2|@SHFX
-      - 🇨🇳|CN1|@SHFX
-      - 🇺🇸|US4|@SHFX
-      - 🇭🇰|HK1|@SHFX
-      - 🇮🇷|IR1|@SHFX
   - name: 🚀 节点选择
     type: select
     proxies:
       - ♻️ 自动选择
       - DIRECT
       - 🇫🇷|FR1|@SHFX
+      - 🇮🇷|IR1|@SHFX
       - 🇰🇷|KR1|@SHFX
       - 🇳🇴|NO1|@SHFX
       - 🇺🇸|US1|@SHFX
       - 🇺🇸|US2|@SHFX
-      - 🇺🇸|US3|@SHFX
       - 🇳🇱|NL1|@SHFX
+      - 🇵🇱|PL1|@SHFX
+      - 🇺🇸|US3|@SHFX
       - 🇳🇱|NL2|@SHFX
-      - 🇨🇳|CN1|@SHFX
-      - 🇺🇸|US4|@SHFX
-      - 🇭🇰|HK1|@SHFX
-      - 🇮🇷|IR1|@SHFX
   - name: 🌍 国外媒体
     type: select
     proxies:
@@ -263,68 +224,60 @@ proxy-groups:
       - ♻️ 自动选择
       - 🎯 全球直连
       - 🇫🇷|FR1|@SHFX
+      - 🇮🇷|IR1|@SHFX
       - 🇰🇷|KR1|@SHFX
       - 🇳🇴|NO1|@SHFX
       - 🇺🇸|US1|@SHFX
       - 🇺🇸|US2|@SHFX
-      - 🇺🇸|US3|@SHFX
       - 🇳🇱|NL1|@SHFX
+      - 🇵🇱|PL1|@SHFX
+      - 🇺🇸|US3|@SHFX
       - 🇳🇱|NL2|@SHFX
-      - 🇨🇳|CN1|@SHFX
-      - 🇺🇸|US4|@SHFX
-      - 🇭🇰|HK1|@SHFX
-      - 🇮🇷|IR1|@SHFX
   - name: 📲 电报信息
     type: select
     proxies:
       - 🚀 节点选择
       - 🎯 全球直连
       - 🇫🇷|FR1|@SHFX
+      - 🇮🇷|IR1|@SHFX
       - 🇰🇷|KR1|@SHFX
       - 🇳🇴|NO1|@SHFX
       - 🇺🇸|US1|@SHFX
       - 🇺🇸|US2|@SHFX
-      - 🇺🇸|US3|@SHFX
       - 🇳🇱|NL1|@SHFX
+      - 🇵🇱|PL1|@SHFX
+      - 🇺🇸|US3|@SHFX
       - 🇳🇱|NL2|@SHFX
-      - 🇨🇳|CN1|@SHFX
-      - 🇺🇸|US4|@SHFX
-      - 🇭🇰|HK1|@SHFX
-      - 🇮🇷|IR1|@SHFX
   - name: Ⓜ️ 微软服务
     type: select
     proxies:
       - 🎯 全球直连
       - 🚀 节点选择
       - 🇫🇷|FR1|@SHFX
+      - 🇮🇷|IR1|@SHFX
       - 🇰🇷|KR1|@SHFX
       - 🇳🇴|NO1|@SHFX
       - 🇺🇸|US1|@SHFX
       - 🇺🇸|US2|@SHFX
-      - 🇺🇸|US3|@SHFX
       - 🇳🇱|NL1|@SHFX
+      - 🇵🇱|PL1|@SHFX
+      - 🇺🇸|US3|@SHFX
       - 🇳🇱|NL2|@SHFX
-      - 🇨🇳|CN1|@SHFX
-      - 🇺🇸|US4|@SHFX
-      - 🇭🇰|HK1|@SHFX
-      - 🇮🇷|IR1|@SHFX
   - name: 🍎 苹果服务
     type: select
     proxies:
       - 🚀 节点选择
       - 🎯 全球直连
       - 🇫🇷|FR1|@SHFX
+      - 🇮🇷|IR1|@SHFX
       - 🇰🇷|KR1|@SHFX
       - 🇳🇴|NO1|@SHFX
       - 🇺🇸|US1|@SHFX
       - 🇺🇸|US2|@SHFX
-      - 🇺🇸|US3|@SHFX
       - 🇳🇱|NL1|@SHFX
+      - 🇵🇱|PL1|@SHFX
+      - 🇺🇸|US3|@SHFX
       - 🇳🇱|NL2|@SHFX
-      - 🇨🇳|CN1|@SHFX
-      - 🇺🇸|US4|@SHFX
-      - 🇭🇰|HK1|@SHFX
-      - 🇮🇷|IR1|@SHFX
   - name: 🎯 全球直连
     type: select
     proxies:
@@ -348,17 +301,15 @@ proxy-groups:
       - 🎯 全球直连
       - ♻️ 自动选择
       - 🇫🇷|FR1|@SHFX
+      - 🇮🇷|IR1|@SHFX
       - 🇰🇷|KR1|@SHFX
       - 🇳🇴|NO1|@SHFX
       - 🇺🇸|US1|@SHFX
       - 🇺🇸|US2|@SHFX
-      - 🇺🇸|US3|@SHFX
       - 🇳🇱|NL1|@SHFX
+      - 🇵🇱|PL1|@SHFX
+      - 🇺🇸|US3|@SHFX
       - 🇳🇱|NL2|@SHFX
-      - 🇨🇳|CN1|@SHFX
-      - 🇺🇸|US4|@SHFX
-      - 🇭🇰|HK1|@SHFX
-      - 🇮🇷|IR1|@SHFX
 rules:
   - DOMAIN-SUFFIX,acl4.ssr,🎯 全球直连
   - DOMAIN-SUFFIX,ip6-localhost,🎯 全球直连
