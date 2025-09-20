@@ -108,24 +108,14 @@ jobs:
             }
           }
 
-          // npm i punycode if needed
-          import punycode from 'punycode/';
           function parseVless(line) {
             try {
               const [before, after] = line.slice(7).split('#');
           
-              // Split user info, host, port, query
-              const urlMatch = before.match(/^([^@]+)@([^:/?]+)(?::(\d+))?(.*)$/);
-              if (!urlMatch) throw new Error('Invalid VLESS URL format');
+              // Encode only non-ASCII characters in the URL
+              const safeBefore = before.replace(/[^\x00-\x7F]/g, encodeURIComponent);
           
-              const [, user, hostRaw, portRaw, queryRaw] = urlMatch;
-          
-              // Convert hostname to punycode (ASCII)
-              const host = punycode.toASCII(hostRaw);
-          
-              // Reconstruct safe URL
-              const safeUrl = `https://${user}@${host}${portRaw ? ':' + portRaw : ''}${queryRaw}`;
-              const url = new URL(safeUrl);
+              const url = new URL(safeBefore);
           
               const q = Object.fromEntries(url.searchParams.entries());
               const net = (q.type || q.transport || 'tcp').toLowerCase();
@@ -152,6 +142,12 @@ jobs:
               console.error('parseVless failed:', err.message);
               return null;
             }
+          }
+          
+          // Helper for port
+          function safeNumber(n, def) {
+            const num = parseInt(n);
+            return isNaN(num) ? def : num;
           }
 
           function parseTrojan(line) {
