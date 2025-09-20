@@ -56,10 +56,20 @@ jobs:
             return Number.isFinite(n) ? n : fallback;
           }
 
-          function b64decode(s) {
-            if (!s) return '';
-            if (s.length % 4) s += '='.repeat(4 - (s.length % 4));
-            return Buffer.from(s, 'base64').toString('utf8');
+          function b64decode(input) {
+            if (!input) return '';
+            try {
+              // Normalize base64 padding
+              let s = input.replace(/-/g, '+').replace(/_/g, '/');
+              if (s.length % 4) s += '='.repeat(4 - (s.length % 4));
+          
+              // Try decoding as UTF-8
+              const buf = Buffer.from(s, 'base64');
+              return buf.toString('utf8');
+            } catch (e) {
+              console.error('Base64 decode failed:', e.message);
+              return '';
+            }
           }
 
           function parseVmess(line) {
@@ -202,6 +212,62 @@ jobs:
               return null;
             }
           }
+
+          function parseTuic(line) {
+            try {
+              const u = new URL(line);
+              return {
+                name: decodeURIComponent(u.hash ? u.hash.slice(1) : '') || 'tuic',
+                type: 'tuic',
+                server: u.hostname || '',
+                port: safeNumber(u.port || 0, 0),
+                uuid: decodeURIComponent(u.username || '') || '',
+                password: decodeURIComponent(u.password || '') || '',
+                sni: u.searchParams.get('sni') || '',
+                alpn: u.searchParams.getAll('alpn')
+              };
+            } catch {
+              return null;
+            }
+          }
+
+          function parseSS(line) {
+            try {
+              // ss://<base64(method:password)>@host:port#name
+              const raw = line.slice(5);
+              const [beforeHash, afterHash] = raw.split('#');
+              const decoded = b64decode(beforeHash.split('@')[0]);
+              let method = '', password = '';
+              if (decoded.includes(':')) {
+                [method, password] = decoded.split(':');
+              }
+              const atPart = beforeHash.includes('@') ? beforeHash.split('@')[1] : '';
+              const [host, port] = atPart.split(':');
+              return {
+                name: decodeURIComponent(afterHash || '') || 'ss',
+                type: 'ss',
+                server: host || '',
+                port: safeNumber(port, 0),
+                cipher: method || 'aes-128-gcm',
+                password: password || ''
+              };
+            } catch {
+              return null;
+            }
+          }
+
+          function parseClashJson(line) {
+            try {
+              if (line.trim().startsWith('- {') || line.trim().startsWith('{')) {
+                const clean = line.replace(/^-/, '').trim();
+                return JSON.parse(clean);
+              }
+              return null;
+            } catch {
+              return null;
+            }
+          }
+
 
           // --- End advanced parsers ---
 
