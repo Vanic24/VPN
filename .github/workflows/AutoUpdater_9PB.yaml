@@ -268,7 +268,6 @@ jobs:
             }
           }
 
-
           // --- End advanced parsers ---
 
           const generate9PB = async () => {
@@ -284,18 +283,36 @@ jobs:
             const proxies = [];
             let validCount = 0;
 
+            function dispatchParse(line) {
+              if (line.startsWith('vmess://')) return parseVmess(line);
+              if (line.startsWith('vless://')) return parseVless(line);
+              if (line.startsWith('trojan://')) return parseTrojan(line);
+              if (line.startsWith('hysteria2://')) return parseHysteria2(line);
+              if (line.startsWith('anytls://')) return parseAnytls(line);
+              if (line.startsWith('ss://')) return parseSS(line);
+              if (line.startsWith('tuic://')) return parseTuic(line);
+              const clashJson = parseClashJson(line);
+              if (clashJson) return clashJson;
+              const b64Block = parseBase64Block(line);
+              if (b64Block) return b64Block; // returns array
+              return null;
+            }
+
             for (let line of lines) {
               line = line.trim();
               if (!line) continue;
-
-              let p = null;
+            
               try {
-                if (line.startsWith('vmess://')) p = parseVmess(line);
-                else if (line.startsWith('vless://')) p = parseVless(line);
-                else if (line.startsWith('trojan://')) p = parseTrojan(line);
-                else if (line.startsWith('hysteria2://')) p = parseHysteria2(line);
-                else if (line.startsWith('anytls://')) p = parseAnytls(line);
-              } catch {}
+                const parsed = dispatchParse(line);
+                if (Array.isArray(parsed)) {
+                  proxies.push(...parsed);
+                } else if (parsed) {
+                  proxies.push(parsed);
+                }
+              } catch (err) {
+                console.error('Failed to parse line:', line, err);
+              }
+            }
 
               if (p) {
                 proxies.push(p);
