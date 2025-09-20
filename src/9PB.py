@@ -342,7 +342,7 @@ def parse_node_line(line):
     return None
     
 # ---------------- Correct node ----------------
-def correct_node(p, ip_to_cc):
+def correct_node(p, country_counter, CN_TO_CC):
     original_name = str(p.get("name", "")).strip()
     add = p.get("add", "")
     cc, flag = None, ""
@@ -352,6 +352,7 @@ def correct_node(p, ip_to_cc):
         if cn_name and cn_name in original_name:
             cc = code
             flag = country_to_flag(cc)
+            country_counter[cc] += 1
             break
 
     # Skip nodes containing 🔒
@@ -367,20 +368,24 @@ def correct_node(p, ip_to_cc):
         if flag_match:
             flag = flag_match.group(0)
             cc = flag_to_country_code(flag)
+            if cc:
+                country_counter[cc] += 1
 
-    # 2️⃣ Third: Two-letter ISO code (surrounded by non-letters or boundaries)
+    # 2️⃣ Third: Two-letter ISO code
     if not cc:
         match = re.search(r'\b([A-Z]{2})\b', original_name)
         if match:
             cc = match.group(1)
             flag = country_to_flag(cc)
+            country_counter[cc] += 1
 
     # 3️⃣ Fourth: GeoIP fallback
     if not cc and add:
-        cc_upper = ip_to_cc.get(add, "").upper()
+        cc_upper = country_counter.get(add, "").upper()
         if cc_upper:
             cc = cc_upper
             flag = country_to_flag(cc)
+            country_counter[cc] += 1
 
     # Final name formatting
     if cc and flag:
