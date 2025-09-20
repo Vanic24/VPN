@@ -364,32 +364,32 @@ def correct_node(p, country_counter, CN_TO_CC):
     cc = None
     flag = None
 
-    # -------- 1️⃣ Check for flag emoji --------
+    # 1️⃣ Check for flag emoji
     flag_match = re.search(r'[\U0001F1E6-\U0001F1FF]{2}', original_name)
     if flag_match:
         flag = flag_match.group(0)
         cc = flag_to_country_code(flag)
 
-    # -------- 2️⃣ Check for two-letter ISO code --------
+    # 2️⃣ Check for two-letter ISO code (e.g., US, CN)
     if not cc:
-        match = re.search(r'\b([A-Z]{2})\b', original_name)
-        if match:
-            cc = match.group(1)
+        iso_match = re.search(r'\b([A-Z]{2})\b', original_name)
+        if iso_match:
+            cc = iso_match.group(1)
 
-    # -------- 3️⃣ Check Chinese names from CN_TO_CC --------
+    # 3️⃣ Check for Chinese country name in CN_TO_CC mapping
     if not cc:
         for cn_name, code in CN_TO_CC.items():
             if cn_name in original_name:
                 cc = code
                 break
 
-    # -------- 4️⃣ Fallback to geo_ip --------
+    # 4️⃣ Fallback to geo_ip
     if not cc:
         cc = cc_upper
         if not cc:
             return None  # skip if still no valid country code
 
-    # Assign flag if not detected
+    # Assign flag emoji if not detected
     if not flag:
         flag = country_to_flag(cc)
 
@@ -397,7 +397,7 @@ def correct_node(p, country_counter, CN_TO_CC):
     country_counter[cc] += 1
     index = country_counter[cc]
 
-    # Final node name format: 🇭🇰|HK1-StarLink
+    # Final node name: 🇭🇰|HK1-StarLink
     p["name"] = f"{flag}|{cc}{index}-StarLink"
     return p
     
