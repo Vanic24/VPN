@@ -23,43 +23,34 @@ jobs:
           echo "Karing extracted. Checking version..."
           .\karing\karing.exe --version
 
-      # 3️⃣ Fetch subscription from secret
-      - name: Fetch subscription
+      # 3️⃣ Fetch subscription from secret URL
+      - name: Fetch subscription content
         shell: powershell
         run: |
           Invoke-WebRequest -Uri "${{ secrets.TEST_URL }}" -OutFile subscription.txt
-          Write-Output "Fetched subscription. Preview first 5 lines:"
+          Write-Output "Fetched subscription content. Preview first 5 lines:"
           Get-Content subscription.txt -TotalCount 5
 
-      # 4️⃣ Parse subscription first
-      - name: Karing parse subscription
+      # 4️⃣ Run Karing CLI to parse + latency + resolve outbound
+      - name: Karing parse + latency + resolve outbound
+        shell: powershell
         run: |
-          .\karing\karing.exe parse subscription.txt -o nodes_parsed.json
-          if (Test-Path nodes_parsed.json) {
-            Write-Output "✅ nodes_parsed.json created."
-            Get-Content nodes_parsed.json -TotalCount 5
-          } else {
-            Write-Output "❌ nodes_parsed.json not created. Check Karing output."
-          }
-      
-      # 5️⃣ Latency check + resolve outbound
-      - name: Karing latency check
-        run: |
-          .\karing\karing.exe latency -i nodes_parsed.json -o nodes_checked.json --resolve-outbound
+          # Karing CLI expects raw subscription content as input
+          .\karing\karing.exe latency -i subscription.txt -o nodes_checked.json --resolve-outbound
           if (Test-Path nodes_checked.json) {
-            Write-Output "✅ nodes_checked.json created."
+            Write-Output "✅ nodes_checked.json created. Preview first 5 lines:"
             Get-Content nodes_checked.json -TotalCount 5
           } else {
             Write-Output "❌ nodes_checked.json not created. Check Karing output."
           }
 
-      # 5️⃣ Setup Python
+      # 5️⃣ Setup Python for renaming nodes
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.11"
 
-      # 6️⃣ Process nodes: assign flag, country code, rename
+      # 6️⃣ Rename nodes using Karing output
       - name: Assign flag, country code, rename nodes
         shell: bash
         run: |
@@ -74,6 +65,7 @@ jobs:
               raw = node.get("raw", "").strip()
               ip = node.get("ip", "")
               country_code = node.get("country_code", "XX")
+              
               # Assign flag emoji based on country code
               if len(country_code) == 2:
                   flag = chr(0x1F1E6 + ord(country_code[0].upper()) - 65) + \
