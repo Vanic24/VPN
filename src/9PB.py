@@ -342,60 +342,65 @@ def parse_node_line(line):
     return None
     
 # ---------------- Correct node ----------------
-def correct_node(p, country_counter):
+def correct_node(p, country_counter, CN_TO_CC):
+    host = str(p.get("server"))
+    raw_port = str(p.get("port", ""))
+
+    try:
+        port = int(raw_port)
+    except ValueError:
+        port = 443
+
+    ip = resolve_ip(host) or host
+    cc_lower, cc_upper = geo_ip(ip)
+
+    p["port"] = port
     original_name = str(p.get("name", ""))
 
-    # Skip locked nodes
+    # Skip nodes containing 🔒
     if "🔒" in original_name:
         return None
 
-    flag = None
     cc = None
+    flag = None
 
-    # -------- 1️⃣ Check flag emoji --------
+    # -------- 1️⃣ Flag emoji --------
     flag_match = re.search(r'[\U0001F1E6-\U0001F1FF]{2}', original_name)
     if flag_match:
         flag = flag_match.group(0)
         cc = flag_to_country_code(flag)
 
-    # -------- 2️⃣ Check two-letter code --------
+    # -------- 2️⃣ Two-letter code in name --------
     if not cc:
         match = re.search(r'\b([A-Z]{2})\b', original_name)
         if match:
             cc = match.group(1)
 
-    # -------- 3️⃣ Check Chinese country name (strip digits/suffix) --------
+    # -------- 3️⃣ Chinese country name --------
     if not cc:
-        cleaned = re.sub(r'\d.*', '', original_name)
+        cleaned = re.sub(r'[\d\s\-—–].*', '', original_name)  # remove digits/suffix
         for cn_name, code in CN_TO_CC.items():
             if cn_name in cleaned:
                 cc = code
                 break
 
-    # -------- 4️⃣ Fallback geo_ip if available --------
+    # -------- 4️⃣ fallback to geo_ip --------
     if not cc:
-        cc = p.get("geo_ip_cc", "US")  # fallback to US if geo_ip missing
+        cc = cc_upper
+        if not cc:
+            return None  # skip if no country code
 
-    # -------- Assign final name --------
-    if cc:
+    # Assign flag if not already detected
+    if not flag:
         flag = country_to_flag(cc)
-        country_counter[cc] += 1
-        index = country_counter[cc]
-        p["name"] = f"{flag}|{cc}{index}-StarLink"
-        return p
 
-    return None
+    # Increment per-country index
+    country_counter[cc] += 1
+    index = country_counter[cc]
 
-    country_counter = defaultdict(int)
-    corrected_nodes = []
-    for n in nodes:
-        res = correct_node(n, country_counter)
-        if res:
-            corrected_nodes.append(res)
-
-    # Show results
-    for n in corrected_nodes:
-        print(n["name"])
+    # Format: 🇭🇰|HK1-StarLink
+    p["name"] = f"{flag}|{cc}{index}-StarLink"
+    return p
     
 # ---------------- Load and parse proxies ----------------
 def load_proxies(url):
