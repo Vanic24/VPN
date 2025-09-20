@@ -399,7 +399,7 @@ def correct_node(p, country_counter, CN_TO_CC):
     index = country_counter[cc]
 
     # Format: 🇭🇰|HK1-StarLink
-    p["name"] = f"{flag}|{cc}{index}-StarLink"
+    p["name"] = f"{flag}|{cc}{index}-9PB"
     return p
     
 # ---------------- Load and parse proxies ----------------
@@ -508,9 +508,9 @@ def main():
     # ---------------- Correct nodes ----------------
     corrected_nodes = []
     for n in filtered_nodes:
-        corrected_nodes.append(correct_node(n, country_counter))
-
-    print(f"[done] final {len(corrected_nodes)} nodes ready")
+        res = correct_node(n, country_counter, CN_TO_CC)
+        if res:  # skip nodes returning None
+            corrected_nodes.append(res)
 
     # ---------------- Load template ----------------
     try:
