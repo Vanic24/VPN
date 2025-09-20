@@ -1,4 +1,4 @@
-# Last update: 20.09.2025 10:48:21
+# Last update: 20.09.2025 11:10:01
 mixed-port: 7890
 allow-lan: true
 log-level: info
@@ -116,8 +116,14 @@ proxies:
   skip-cert-verify: true
   tls: true
   type: ss
-- client-fingerprint: firefox
+- cipher: aes-256-cfb
   name: 🇺🇸|US2|@SHFX
+  password: f8f7aCzcPKbsF8p3
+  port: 989
+  server: 104.192.226.106
+  type: ss
+- client-fingerprint: firefox
+  name: 🇺🇸|US3|@SHFX
   port: 10001
   reality-opts:
     public-key: 1ltSdo2K6D9EEwebaDQPCb5ypbURcXyO9HsX4RUbbUo
@@ -129,12 +135,6 @@ proxies:
   type: vless
   udp: true
   uuid: e4412006-94f2-4f3c-b568-22a3e31dc264
-- cipher: aes-256-cfb
-  name: 🇺🇸|US3|@SHFX
-  password: f8f7aCzcPKbsF8p3
-  port: 989
-  server: 104.192.226.106
-  type: ss
 - alterId: 2
   cipher: auto
   name: 🇭🇰|HK1|@SHFX
@@ -155,20 +155,6 @@ proxies:
   port: 989
   server: 154.90.63.177
   type: ss
-- name: 🇺🇸|US4|@SHFX
-  network: ws
-  port: 443
-  server: xn--ktff-jt6hr36l.tencentapp.cn
-  servername: baipiao.cmliussss.abrdns.com
-  skip-cert-verify: true
-  tls: true
-  type: vless
-  udp: true
-  uuid: 11f76d4f-7477-4187-bce7-b010022944c3
-  ws-opts:
-    headers:
-      Host: baipiao.cmliussss.abrdns.com
-    path: /snippets/ip=tw.tp81.netlib.re:81?ed=2560
 - client-fingerprint: randomized
   name: 🇳🇱|NL1|@SHFX
   network: ws
@@ -184,26 +170,20 @@ proxies:
     headers:
       Host: joss.krikkrik.tech
     path: /Free-VPN-CF-Geo-Project/NL10
-- client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: 🇵🇱|PL1|@SHFX
+- name: 🇺🇸|US4|@SHFX
+  network: ws
   port: 443
-  reality-opts:
-    public-key: oNYCpjXjcYAV9qSWBt95N9dDUPhc_QnauJZ3kSJVeSQ
-    short-id: 2a22
-  server: poland20.clearorbitllc.com
-  servername: poland20.clearorbitllc.com
-  skip-cert-verify: false
+  server: xn--ktff-jt6hr36l.tencentapp.cn
+  servername: baipiao.cmliussss.abrdns.com
+  skip-cert-verify: true
   tls: true
   type: vless
   udp: true
-  uuid: e3847ec6-b2fc-4eb2-b919-174d986f882c
-- cipher: aes-256-cfb
-  name: 🇸🇰|SK1|@SHFX
-  password: f8f7aCzcPKbsF8p3
-  port: 989
-  server: 156.146.40.194
-  type: ss
+  uuid: 11f76d4f-7477-4187-bce7-b010022944c3
+  ws-opts:
+    headers:
+      Host: baipiao.cmliussss.abrdns.com
+    path: /snippets/ip=tw.tp81.netlib.re:81?ed=2560
 
 proxy-groups:
   - name: ♻️ 自动选择
@@ -220,10 +200,8 @@ proxy-groups:
       - 🇺🇸|US3|@SHFX
       - 🇭🇰|HK1|@SHFX
       - 🇰🇷|KR1|@SHFX
-      - 🇺🇸|US4|@SHFX
       - 🇳🇱|NL1|@SHFX
-      - 🇵🇱|PL1|@SHFX
-      - 🇸🇰|SK1|@SHFX
+      - 🇺🇸|US4|@SHFX
   - name: 🚀 节点选择
     type: select
     proxies:
@@ -237,10 +215,8 @@ proxy-groups:
       - 🇺🇸|US3|@SHFX
       - 🇭🇰|HK1|@SHFX
       - 🇰🇷|KR1|@SHFX
-      - 🇺🇸|US4|@SHFX
       - 🇳🇱|NL1|@SHFX
-      - 🇵🇱|PL1|@SHFX
-      - 🇸🇰|SK1|@SHFX
+      - 🇺🇸|US4|@SHFX
   - name: 🌍 国外媒体
     type: select
     proxies:
@@ -255,10 +231,8 @@ proxy-groups:
       - 🇺🇸|US3|@SHFX
       - 🇭🇰|HK1|@SHFX
       - 🇰🇷|KR1|@SHFX
-      - 🇺🇸|US4|@SHFX
       - 🇳🇱|NL1|@SHFX
-      - 🇵🇱|PL1|@SHFX
-      - 🇸🇰|SK1|@SHFX
+      - 🇺🇸|US4|@SHFX
   - name: 📲 电报信息
     type: select
     proxies:
@@ -272,10 +246,8 @@ proxy-groups:
       - 🇺🇸|US3|@SHFX
       - 🇭🇰|HK1|@SHFX
       - 🇰🇷|KR1|@SHFX
-      - 🇺🇸|US4|@SHFX
       - 🇳🇱|NL1|@SHFX
-      - 🇵🇱|PL1|@SHFX
-      - 🇸🇰|SK1|@SHFX
+      - 🇺🇸|US4|@SHFX
   - name: Ⓜ️ 微软服务
     type: select
     proxies:
@@ -289,10 +261,8 @@ proxy-groups:
       - 🇺🇸|US3|@SHFX
       - 🇭🇰|HK1|@SHFX
       - 🇰🇷|KR1|@SHFX
-      - 🇺🇸|US4|@SHFX
       - 🇳🇱|NL1|@SHFX
-      - 🇵🇱|PL1|@SHFX
-      - 🇸🇰|SK1|@SHFX
+      - 🇺🇸|US4|@SHFX
   - name: 🍎 苹果服务
     type: select
     proxies:
@@ -306,10 +276,8 @@ proxy-groups:
       - 🇺🇸|US3|@SHFX
       - 🇭🇰|HK1|@SHFX
       - 🇰🇷|KR1|@SHFX
-      - 🇺🇸|US4|@SHFX
       - 🇳🇱|NL1|@SHFX
-      - 🇵🇱|PL1|@SHFX
-      - 🇸🇰|SK1|@SHFX
+      - 🇺🇸|US4|@SHFX
   - name: 🎯 全球直连
     type: select
     proxies:
@@ -340,10 +308,8 @@ proxy-groups:
       - 🇺🇸|US3|@SHFX
       - 🇭🇰|HK1|@SHFX
       - 🇰🇷|KR1|@SHFX
-      - 🇺🇸|US4|@SHFX
       - 🇳🇱|NL1|@SHFX
-      - 🇵🇱|PL1|@SHFX
-      - 🇸🇰|SK1|@SHFX
+      - 🇺🇸|US4|@SHFX
 rules:
   - DOMAIN-SUFFIX,acl4.ssr,🎯 全球直连
   - DOMAIN-SUFFIX,ip6-localhost,🎯 全球直连
