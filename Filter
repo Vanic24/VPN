@@ -1,4 +1,4 @@
-# Last update: 20.09.2025 18:06:16
+# Last update: 20.09.2025 18:59:39
 mixed-port: 7890
 allow-lan: true
 log-level: info
@@ -108,19 +108,24 @@ proxies:
   type: ss
 - alterId: 2
   cipher: auto
-  client-fingerprint: chrome
   name: 🇭🇰|HK1|@SHFX
   network: ws
   port: 80
-  server: hkt.gotochinatown.net
-  skip-cert-verify: true
+  server: 1e426046-t0fds0-t12cnj-1ol97.hk.p5pv.com
+  skip-cert-verify: false
   tls: false
   type: vmess
   uuid: 93fb69fc-77cf-11ee-85ee-f23c91369f2d
   ws-opts:
     headers:
-      host: hkt.gotochinatown.net
+      Host: broadcastlv.chat.bilibili.com
     path: /
+- cipher: aes-256-cfb
+  name: 🇰🇷|KR1|@SHFX
+  password: f8f7aCzcPKbsF8p3
+  port: 989
+  server: 154.90.63.177
+  type: ss
 - cipher: aes-256-cfb
   name: 🇺🇸|US2|@SHFX
   password: f8f7aCzcPKbsF8p3
@@ -133,18 +138,6 @@ proxies:
   password: f8f7aCzcPKbsF8p3
   port: 989
   server: 51.15.17.169
-  type: ss
-- cipher: aes-256-cfb
-  name: 🇰🇷|KR1|@SHFX
-  password: f8f7aCzcPKbsF8p3
-  port: 989
-  server: 154.90.63.177
-  type: ss
-- cipher: aes-256-cfb
-  name: 🇰🇷|KR2|@SHFX
-  password: f8f7aCzcPKbsF8p3
-  port: 989
-  server: 154.90.62.168
   type: ss
 - alterId: 0
   cipher: chacha20-ietf-poly1305
@@ -175,36 +168,48 @@ proxies:
     headers:
       Host: baipiao.cmliussss.abrdns.com
     path: /snippets/ip=tw.tp81.netlib.re:81?ed=2560
+- alterId: 2
+  cipher: auto
+  client-fingerprint: chrome
+  name: 🇭🇰|HK2|@SHFX
+  network: ws
+  port: 80
+  server: hkt.gotochinatown.net
+  skip-cert-verify: true
+  tls: false
+  type: vmess
+  uuid: 93fb69fc-77cf-11ee-85ee-f23c91369f2d
+  ws-opts:
+    headers:
+      host: hkt.gotochinatown.net
+    path: /
 - cipher: aes-256-cfb
   name: 🇲🇩|MD1|@SHFX
   password: f8f7aCzcPKbsF8p3
   port: 989
   server: 185.153.197.5
   type: ss
-- cipher: aes-256-cfb
-  name: 🇻🇳|VN2|@SHFX
-  password: Xn8jKdmDM00IeO%#$#fJAMtsEAEUOpH/YWYtYqDFnT0SV
-  port: 38388
-  server: 103.186.155.28
-  tfo: false
-  type: ss
-- http-opts:
+- alterId: 32
+  cipher: auto
+  client-fingerprint: chrome
+  name: 🇺🇸|US4|@SHFX
+  network: ws
+  port: 443
+  server: vc.fly.dev
+  skip-cert-verify: true
+  tls: true
+  type: vmess
+  uuid: 35379219-6535-4f2e-a4fe-3e44f61e0eee
+  ws-opts:
     headers:
-      Host:
-      - varzesh3.ir
-    method: GET
-    path:
-    - /
-  name: 🇬🇧|GB1|@SHFX
-  network: http
-  port: 33801
-  server: m44a.vip784.com
-  servername: varzesh3.ir
-  skip-cert-verify: false
-  tls: false
-  type: vless
-  udp: true
-  uuid: 39c8e0d3-c932-4ff7-b3e3-83002647907b
+      host: vc.fly.dev
+    path: /vc
+- cipher: aes-256-cfb
+  name: 🇵🇹|PT1|@SHFX
+  password: f8f7aCzcPKbsF8p3
+  port: 989
+  server: 185.231.233.112
+  type: ss
 
 proxy-groups:
   - name: ♻️ 自动选择
@@ -217,16 +222,16 @@ proxy-groups:
       - 🇳🇴|NO1|@SHFX
       - 🇺🇸|US1|@SHFX
       - 🇭🇰|HK1|@SHFX
+      - 🇰🇷|KR1|@SHFX
       - 🇺🇸|US2|@SHFX
       - 🇳🇱|NL1|@SHFX
-      - 🇰🇷|KR1|@SHFX
-      - 🇰🇷|KR2|@SHFX
       - 🇻🇳|VN1|@SHFX
       - 🇧🇷|BR1|@SHFX
       - 🇺🇸|US3|@SHFX
+      - 🇭🇰|HK2|@SHFX
       - 🇲🇩|MD1|@SHFX
-      - 🇻🇳|VN2|@SHFX
-      - 🇬🇧|GB1|@SHFX
+      - 🇺🇸|US4|@SHFX
+      - 🇵🇹|PT1|@SHFX
   - name: 🚀 节点选择
     type: select
     proxies:
@@ -236,16 +241,16 @@ proxy-groups:
       - 🇳🇴|NO1|@SHFX
       - 🇺🇸|US1|@SHFX
       - 🇭🇰|HK1|@SHFX
+      - 🇰🇷|KR1|@SHFX
       - 🇺🇸|US2|@SHFX
       - 🇳🇱|NL1|@SHFX
-      - 🇰🇷|KR1|@SHFX
-      - 🇰🇷|KR2|@SHFX
       - 🇻🇳|VN1|@SHFX
       - 🇧🇷|BR1|@SHFX
       - 🇺🇸|US3|@SHFX
+      - 🇭🇰|HK2|@SHFX
       - 🇲🇩|MD1|@SHFX
-      - 🇻🇳|VN2|@SHFX
-      - 🇬🇧|GB1|@SHFX
+      - 🇺🇸|US4|@SHFX
+      - 🇵🇹|PT1|@SHFX
   - name: 🌍 国外媒体
     type: select
     proxies:
@@ -256,16 +261,16 @@ proxy-groups:
       - 🇳🇴|NO1|@SHFX
       - 🇺🇸|US1|@SHFX
       - 🇭🇰|HK1|@SHFX
+      - 🇰🇷|KR1|@SHFX
       - 🇺🇸|US2|@SHFX
       - 🇳🇱|NL1|@SHFX
-      - 🇰🇷|KR1|@SHFX
-      - 🇰🇷|KR2|@SHFX
       - 🇻🇳|VN1|@SHFX
       - 🇧🇷|BR1|@SHFX
       - 🇺🇸|US3|@SHFX
+      - 🇭🇰|HK2|@SHFX
       - 🇲🇩|MD1|@SHFX
-      - 🇻🇳|VN2|@SHFX
-      - 🇬🇧|GB1|@SHFX
+      - 🇺🇸|US4|@SHFX
+      - 🇵🇹|PT1|@SHFX
   - name: 📲 电报信息
     type: select
     proxies:
@@ -275,16 +280,16 @@ proxy-groups:
       - 🇳🇴|NO1|@SHFX
       - 🇺🇸|US1|@SHFX
       - 🇭🇰|HK1|@SHFX
+      - 🇰🇷|KR1|@SHFX
       - 🇺🇸|US2|@SHFX
       - 🇳🇱|NL1|@SHFX
-      - 🇰🇷|KR1|@SHFX
-      - 🇰🇷|KR2|@SHFX
       - 🇻🇳|VN1|@SHFX
       - 🇧🇷|BR1|@SHFX
       - 🇺🇸|US3|@SHFX
+      - 🇭🇰|HK2|@SHFX
       - 🇲🇩|MD1|@SHFX
-      - 🇻🇳|VN2|@SHFX
-      - 🇬🇧|GB1|@SHFX
+      - 🇺🇸|US4|@SHFX
+      - 🇵🇹|PT1|@SHFX
   - name: Ⓜ️ 微软服务
     type: select
     proxies:
@@ -294,16 +299,16 @@ proxy-groups:
       - 🇳🇴|NO1|@SHFX
       - 🇺🇸|US1|@SHFX
       - 🇭🇰|HK1|@SHFX
+      - 🇰🇷|KR1|@SHFX
       - 🇺🇸|US2|@SHFX
       - 🇳🇱|NL1|@SHFX
-      - 🇰🇷|KR1|@SHFX
-      - 🇰🇷|KR2|@SHFX
       - 🇻🇳|VN1|@SHFX
       - 🇧🇷|BR1|@SHFX
       - 🇺🇸|US3|@SHFX
+      - 🇭🇰|HK2|@SHFX
       - 🇲🇩|MD1|@SHFX
-      - 🇻🇳|VN2|@SHFX
-      - 🇬🇧|GB1|@SHFX
+      - 🇺🇸|US4|@SHFX
+      - 🇵🇹|PT1|@SHFX
   - name: 🍎 苹果服务
     type: select
     proxies:
@@ -313,16 +318,16 @@ proxy-groups:
       - 🇳🇴|NO1|@SHFX
       - 🇺🇸|US1|@SHFX
       - 🇭🇰|HK1|@SHFX
+      - 🇰🇷|KR1|@SHFX
       - 🇺🇸|US2|@SHFX
       - 🇳🇱|NL1|@SHFX
-      - 🇰🇷|KR1|@SHFX
-      - 🇰🇷|KR2|@SHFX
       - 🇻🇳|VN1|@SHFX
       - 🇧🇷|BR1|@SHFX
       - 🇺🇸|US3|@SHFX
+      - 🇭🇰|HK2|@SHFX
       - 🇲🇩|MD1|@SHFX
-      - 🇻🇳|VN2|@SHFX
-      - 🇬🇧|GB1|@SHFX
+      - 🇺🇸|US4|@SHFX
+      - 🇵🇹|PT1|@SHFX
   - name: 🎯 全球直连
     type: select
     proxies:
@@ -349,16 +354,16 @@ proxy-groups:
       - 🇳🇴|NO1|@SHFX
       - 🇺🇸|US1|@SHFX
       - 🇭🇰|HK1|@SHFX
+      - 🇰🇷|KR1|@SHFX
       - 🇺🇸|US2|@SHFX
       - 🇳🇱|NL1|@SHFX
-      - 🇰🇷|KR1|@SHFX
-      - 🇰🇷|KR2|@SHFX
       - 🇻🇳|VN1|@SHFX
       - 🇧🇷|BR1|@SHFX
       - 🇺🇸|US3|@SHFX
+      - 🇭🇰|HK2|@SHFX
       - 🇲🇩|MD1|@SHFX
-      - 🇻🇳|VN2|@SHFX
-      - 🇬🇧|GB1|@SHFX
+      - 🇺🇸|US4|@SHFX
+      - 🇵🇹|PT1|@SHFX
 rules:
   - DOMAIN-SUFFIX,acl4.ssr,🎯 全球直连
   - DOMAIN-SUFFIX,ip6-localhost,🎯 全球直连
