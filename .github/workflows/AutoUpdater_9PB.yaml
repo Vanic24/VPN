@@ -108,10 +108,25 @@ jobs:
             }
           }
 
+          import punycode from 'punycode/'; // npm i punycode if needed
+
           function parseVless(line) {
             try {
               const [before, after] = line.slice(7).split('#');
-              const url = new URL(before);
+          
+              // Split user info, host, port, query
+              const urlMatch = before.match(/^([^@]+)@([^:/?]+)(?::(\d+))?(.*)$/);
+              if (!urlMatch) throw new Error('Invalid VLESS URL format');
+          
+              const [, user, hostRaw, portRaw, queryRaw] = urlMatch;
+          
+              // Convert hostname to punycode (ASCII)
+              const host = punycode.toASCII(hostRaw);
+          
+              // Reconstruct safe URL
+              const safeUrl = `https://${user}@${host}${portRaw ? ':' + portRaw : ''}${queryRaw}`;
+              const url = new URL(safeUrl);
+          
               const q = Object.fromEntries(url.searchParams.entries());
               const net = (q.type || q.transport || 'tcp').toLowerCase();
               const tls = (q.security || '').toLowerCase() === 'tls';
