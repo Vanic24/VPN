@@ -31,16 +31,26 @@ jobs:
           Write-Output "Fetched subscription. Preview first 5 lines:"
           Get-Content subscription.txt -TotalCount 5
 
-      # 4️⃣ Let Karing parse nodes & run latency check with outbound IP
-      - name: Karing parse + latency + resolve outbound
+      # 4️⃣ Parse subscription first
+      - name: Karing parse subscription
         run: |
-          echo "Running Karing parser and latency check..."
-          .\karing\karing.exe latency -i subscription.txt -o nodes_checked.json --resolve-outbound
+          .\karing\karing.exe parse subscription.txt -o nodes_parsed.json
+          if (Test-Path nodes_parsed.json) {
+            Write-Output "✅ nodes_parsed.json created."
+            Get-Content nodes_parsed.json -TotalCount 5
+          } else {
+            Write-Output "❌ nodes_parsed.json not created. Check Karing output."
+          }
+      
+      # 5️⃣ Latency check + resolve outbound
+      - name: Karing latency check
+        run: |
+          .\karing\karing.exe latency -i nodes_parsed.json -o nodes_checked.json --resolve-outbound
           if (Test-Path nodes_checked.json) {
-            Write-Output "✅ nodes_checked.json created. Preview first 5 lines:"
+            Write-Output "✅ nodes_checked.json created."
             Get-Content nodes_checked.json -TotalCount 5
           } else {
-            Write-Output "❌ nodes_checked.json not created. Check Karing output"
+            Write-Output "❌ nodes_checked.json not created. Check Karing output."
           }
 
       # 5️⃣ Setup Python
