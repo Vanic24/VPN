@@ -61,7 +61,7 @@ def geo_ip(ip):
         pass
     return "unknown", "UN"
     
-locale_zh = Locale('zh', 'CN')  # Chinese (Simplified)
+locale_zh = Locale.parse('zh_CN')  # safer way to get Chinese (Simplified)
 
 def country_to_flag(cc):
     if not cc or len(cc) != 2:
@@ -347,37 +347,6 @@ def parse_node_line(line):
         node = parser(line)
         if node:
             return node
-    return None
-
-import re
-import pycountry
-from babel import Locale
-from collections import defaultdict
-
-# ---------------- Helper ----------------
-locale_zh = Locale('zh', 'CN')  # Chinese (Simplified)
-
-def country_to_flag(cc):
-    if not cc or len(cc) != 2:
-        return "🏳️"
-    return chr(0x1F1E6 + (ord(cc[0].upper()) - 65)) + \
-           chr(0x1F1E6 + (ord(cc[1].upper()) - 65))
-
-def flag_to_country_code(flag):
-    if not flag or len(flag) < 2:
-        return None
-    try:
-        first, second = flag[0], flag[1]
-        return chr(ord(first) - 0x1F1E6 + 65) + chr(ord(second) - 0x1F1E6 + 65)
-    except Exception:
-        return None
-
-def chinese_name_to_code(name):
-    """Automatically detect country code from Chinese name"""
-    for c in pycountry.countries:
-        cn_name = locale_zh.territories.get(c.alpha_2)
-        if cn_name and cn_name in name:
-            return c.alpha_2
     return None
 
 # ---------------- Correct node ----------------
