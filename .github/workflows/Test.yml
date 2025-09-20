@@ -1,4 +1,4 @@
-name: Fetch & Process Nodes
+name: Fetch & Process Nodes with FlClash
 
 on:
   workflow_dispatch:
@@ -11,46 +11,45 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # 2️⃣ Download latest Karing Windows portable ZIP automatically
-      - name: Download latest Karing Windows portable
+      # 2️⃣ Download latest FlClash Windows portable ZIP
+      - name: Download latest FlClash
         run: |
-          echo "Fetching latest Karing Windows portable..."
-          $release = Invoke-RestMethod -Uri "https://api.github.com/repos/KaringX/karing/releases/latest"
+          echo "Fetching latest FlClash..."
+          $release = Invoke-RestMethod -Uri "https://api.github.com/repos/chen08209/FlClash/releases/latest"
           $asset = $release.assets | Where-Object { $_.name -match "windows_x64.zip" } | Select-Object -First 1
-          Invoke-WebRequest -Uri $asset.browser_download_url -OutFile karing.zip
-          Expand-Archive -Path karing.zip -DestinationPath karing -Force
-          dir karing
-          echo "Karing extracted. Checking version..."
-          .\karing\karing.exe --version
+          Invoke-WebRequest -Uri $asset.browser_download_url -OutFile flclash.zip
+          Expand-Archive -Path flclash.zip -DestinationPath flclash -Force
+          dir flclash
+          .\flclash\flclash.exe --version
 
-      # 3️⃣ Fetch subscription from secret URL
-      - name: Fetch subscription content
+      # 3️⃣ Fetch subscription URL content
+      - name: Fetch subscription
         shell: powershell
         run: |
-          Invoke-WebRequest -Uri "${{ secrets.TEST_URL }}" -OutFile subscription.txt
-          Write-Output "Fetched subscription content. Preview first 5 lines:"
-          Get-Content subscription.txt -TotalCount 5
+          $url = "${{ secrets.TEST_URL }}"
+          Write-Output "Subscription URL: $url"
+          # FlClash can handle URL directly in CLI, no need to download content
 
-      # 4️⃣ Run Karing CLI to parse + latency + resolve outbound
-      - name: Karing parse + latency + resolve outbound
+      # 4️⃣ Run FlClash to parse subscription
+      - name: FlClash parse subscription
         shell: powershell
         run: |
-          # Karing CLI expects raw subscription content as input
-          .\karing\karing.exe latency -i subscription.txt -o nodes_checked.json --resolve-outbound
+          # Output to JSON
+          .\flclash\flclash.exe parse -u "${{ secrets.TEST_URL }}" -o nodes_checked.json
           if (Test-Path nodes_checked.json) {
-            Write-Output "✅ nodes_checked.json created. Preview first 5 lines:"
-            Get-Content nodes_checked.json -TotalCount 5
+              Write-Output "✅ nodes_checked.json created. Preview first 5 lines:"
+              Get-Content nodes_checked.json -TotalCount 5
           } else {
-            Write-Output "❌ nodes_checked.json not created. Check Karing output."
+              Write-Output "❌ nodes_checked.json not created. Check FlClash output."
           }
 
-      # 5️⃣ Setup Python for renaming nodes
+      # 5️⃣ Setup Python
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.11"
 
-      # 6️⃣ Rename nodes using Karing output
+      # 6️⃣ Rename nodes using FlClash output
       - name: Assign flag, country code, rename nodes
         shell: bash
         run: |
@@ -65,8 +64,7 @@ jobs:
               raw = node.get("raw", "").strip()
               ip = node.get("ip", "")
               country_code = node.get("country_code", "XX")
-              
-              # Assign flag emoji based on country code
+              # Assign flag emoji
               if len(country_code) == 2:
                   flag = chr(0x1F1E6 + ord(country_code[0].upper()) - 65) + \
                          chr(0x1F1E6 + ord(country_code[1].upper()) - 65)
