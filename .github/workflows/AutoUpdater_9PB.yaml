@@ -314,12 +314,6 @@ jobs:
               }
             }
 
-              if (p) {
-                proxies.push(p);
-                validCount++;
-              }
-            }
-
             const totalCount = allLines.length;
             const filteredCount = totalCount - validCount - 2; // minus removed info lines
             console.log(`[collect] total ${totalCount} lines before filtering`);
@@ -411,7 +405,8 @@ jobs:
             }
           };
 
-          generate9PB().catch(err => {
+          await generate9PB();
+          })().catch(err => {
             console.error(err);
             process.exit(1);
           });
