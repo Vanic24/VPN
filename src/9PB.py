@@ -6,11 +6,12 @@ import requests
 import socket
 import concurrent.futures
 import traceback
+from babel import Locale
 from collections import defaultdict
-from datetime import datetime, timedelta
 from datetime import datetime, timedelta, timezone
 import base64
 import re
+import pycountry
 import json
 import urllib.parse
 
@@ -31,7 +32,7 @@ try:
 except ValueError:
     LATENCY_THRESHOLD = 100
 
-# ---------------- Helpers ----------------
+# ---------------- Helper ----------------
 def resolve_ip(host):
     try:
         return socket.gethostbyname(host)
@@ -59,12 +60,31 @@ def geo_ip(ip):
     except:
         pass
     return "unknown", "UN"
+    
+locale_zh = Locale('zh', 'CN')  # Chinese (Simplified)
 
 def country_to_flag(cc):
     if not cc or len(cc) != 2:
         return "🏳️"
     return chr(0x1F1E6 + (ord(cc[0].upper()) - 65)) + \
            chr(0x1F1E6 + (ord(cc[1].upper()) - 65))
+
+def flag_to_country_code(flag):
+    if not flag or len(flag) < 2:
+        return None
+    try:
+        first, second = flag[0], flag[1]
+        return chr(ord(first) - 0x1F1E6 + 65) + chr(ord(second) - 0x1F1E6 + 65)
+    except Exception:
+        return None
+
+def chinese_name_to_code(name):
+    """Automatically detect country code from Chinese name"""
+    for c in pycountry.countries:
+        cn_name = locale_zh.territories.get(c.alpha_2)
+        if cn_name and cn_name in name:
+            return c.alpha_2
+    return None
 
 # ---------------- Load sources ----------------
 def load_sources():
@@ -329,6 +349,37 @@ def parse_node_line(line):
             return node
     return None
 
+import re
+import pycountry
+from babel import Locale
+from collections import defaultdict
+
+# ---------------- Helper ----------------
+locale_zh = Locale('zh', 'CN')  # Chinese (Simplified)
+
+def country_to_flag(cc):
+    if not cc or len(cc) != 2:
+        return "🏳️"
+    return chr(0x1F1E6 + (ord(cc[0].upper()) - 65)) + \
+           chr(0x1F1E6 + (ord(cc[1].upper()) - 65))
+
+def flag_to_country_code(flag):
+    if not flag or len(flag) < 2:
+        return None
+    try:
+        first, second = flag[0], flag[1]
+        return chr(ord(first) - 0x1F1E6 + 65) + chr(ord(second) - 0x1F1E6 + 65)
+    except Exception:
+        return None
+
+def chinese_name_to_code(name):
+    """Automatically detect country code from Chinese name"""
+    for c in pycountry.countries:
+        cn_name = locale_zh.territories.get(c.alpha_2)
+        if cn_name and cn_name in name:
+            return c.alpha_2
+    return None
+
 # ---------------- Correct node ----------------
 def correct_node(p, country_counter):
     host = str(p.get("server"))
@@ -341,14 +392,50 @@ def correct_node(p, country_counter):
 
     ip = resolve_ip(host) or host
     cc_lower, cc_upper = geo_ip(ip)
-    flag = country_to_flag(cc_upper)
 
     p["port"] = port
+    original_name = str(p.get("name", ""))
 
-    country_counter[cc_upper] += 1
-    index = country_counter[cc_upper]
+    # Skip locked nodes
+    if "🔒" in original_name:
+        return None
 
-    p["name"] = f"{flag}|{cc_upper}{index}|@SHFX"
+    flag = None
+    cc = None
+
+    # 1️⃣ Try to detect flag emoji
+    flag_match = re.search(r'[\U0001F1E6-\U0001F1FF]{2}', original_name)
+    if flag_match:
+        flag = flag_match.group(0)
+        cc = flag_to_country_code(flag)
+
+    # 2️⃣ Try to detect two-letter uppercase code
+    if not cc:
+        match = re.search(r'\b([A-Z]{2})\b', original_name)
+        if match:
+            cc = match.group(1)
+            flag = country_to_flag(cc)
+
+    # 3️⃣ Try to detect Chinese country name
+    if not cc:
+        cc = chinese_name_to_code(original_name)
+        if cc:
+            flag = country_to_flag(cc)
+
+    # 4️⃣ Fallback to geo_ip
+    if not cc:
+        cc = cc_upper
+        flag = country_to_flag(cc)
+
+    if not cc:
+        return None
+
+    # Increment per-country index
+    country_counter[cc] += 1
+    index = country_counter[cc]
+
+    # Assign final name
+    p["name"] = f"{flag}|{cc}{index}-StarLink"
     return p
 
 # ---------------- Load and parse proxies ----------------
