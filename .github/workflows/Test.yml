@@ -32,16 +32,33 @@ jobs:
           head -n 5 subscription.txt
 
       # 4️⃣ Filter out info-only lines automatically
-      - name: Filter valid node lines
+            - name: Filter valid node lines
         shell: bash
         run: |
           python3 <<'EOF'
+          import base64
+
           valid_prefixes = ("vmess://", "vless://", "trojan://", "ss://", "ssr://", "socks5://", "hysteria2://", "anytls://", "tuic://")
 
           with open("subscription.txt", "r", encoding="utf-8") as f:
-              raw_lines = [line.strip() for line in f.readlines()]
+              content = f.read().strip()
 
-          nodes_raw = [line for line in raw_lines if line.startswith(valid_prefixes)]
+          lines = []
+
+          # Detect Base64 by trying to decode safely
+          try:
+              decoded = base64.b64decode(content).decode("utf-8")
+              if any(p in decoded for p in valid_prefixes):
+                  print("Detected Base64 subscription → Decoded successfully.")
+                  lines = decoded.splitlines()
+              else:
+                  print("Subscription not Base64 → Using raw lines.")
+                  lines = content.splitlines()
+          except Exception:
+              print("Failed Base64 decode → Using raw lines.")
+              lines = content.splitlines()
+
+          nodes_raw = [line.strip() for line in lines if line.strip().startswith(valid_prefixes)]
 
           with open("nodes_raw.txt", "w", encoding="utf-8") as f:
               f.write("\n".join(nodes_raw))
