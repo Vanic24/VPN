@@ -342,20 +342,17 @@ def parse_node_line(line):
     return None
     
 # ---------------- Correct node ----------------
-def correct_node(p, country_counter, CN_TO_CC):
-    host = str(p.get("server"))
-    raw_port = str(p.get("port", ""))
+def correct_node(p, ip_to_cc):
+    original_name = str(p.get("name", "")).strip()
+    add = p.get("add", "")
+    cc, flag = None, ""
 
-    try:
-        port = int(raw_port)
-    except ValueError:
-        port = 443
-
-    ip = resolve_ip(host) or host
-    cc_lower, cc_upper = geo_ip(ip)
-
-    p["port"] = port
-    original_name = str(p.get("name", ""))
+    # 0️⃣ First: Chinese name mapping (substring match)
+    for cn_name, code in CN_TO_CC.items():
+        if cn_name and cn_name in original_name:
+            cc = code
+            flag = country_to_flag(cc)
+            break
 
     # Skip nodes containing 🔒
     if "🔒" in original_name:
@@ -364,41 +361,33 @@ def correct_node(p, country_counter, CN_TO_CC):
     cc = None
     flag = None
 
-    # 1️⃣ Check for flag emoji
-    flag_match = re.search(r'[\U0001F1E6-\U0001F1FF]{2}', original_name)
-    if flag_match:
-        flag = flag_match.group(0)
-        cc = flag_to_country_code(flag)
-
-    # 2️⃣ Check for two-letter ISO code (e.g., US, CN)
+    # 1️⃣ Second: Emoji flag in name
     if not cc:
-        iso_match = re.search(r'\b([A-Z]{2})\b', original_name)
-        if iso_match:
-            cc = iso_match.group(1)
+        flag_match = re.search(r'[\U0001F1E6-\U0001F1FF]{2}', original_name)
+        if flag_match:
+            flag = flag_match.group(0)
+            cc = flag_to_country_code(flag)
 
-    # 3️⃣ Check for Chinese country name in CN_TO_CC mapping
+    # 2️⃣ Third: Two-letter ISO code (surrounded by non-letters or boundaries)
     if not cc:
-        for cn_name, code in CN_TO_CC.items():
-            if cn_name in original_name:
-                cc = code
-                break
+        match = re.search(r'\b([A-Z]{2})\b', original_name)
+        if match:
+            cc = match.group(1)
+            flag = country_to_flag(cc)
 
-    # 4️⃣ Fallback to geo_ip
-    if not cc:
-        cc = cc_upper
-        if not cc:
-            return None  # skip if still no valid country code
+    # 3️⃣ Fourth: GeoIP fallback
+    if not cc and add:
+        cc_upper = ip_to_cc.get(add, "").upper()
+        if cc_upper:
+            cc = cc_upper
+            flag = country_to_flag(cc)
 
-    # Assign flag emoji if not detected
-    if not flag:
-        flag = country_to_flag(cc)
+    # Final name formatting
+    if cc and flag:
+        p["name"] = f"{flag}|{cc}{original_name}"
+    else:
+        p["name"] = f"🏳|{original_name}"
 
-    # Increment per-country index
-    country_counter[cc] += 1
-    index = country_counter[cc]
-
-    # Final node name: 🇭🇰|HK1-StarLink
-    p["name"] = f"{flag}|{cc}{index}-StarLink"
     return p
     
 # ---------------- Load and parse proxies ----------------
