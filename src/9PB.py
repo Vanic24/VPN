@@ -590,30 +590,6 @@ def load_proxies(url):
         print(f"[warn] failed fetch {url} -> {e}")
         return []
 
-# ---------------- Upload to TextDB ----------------
-def upload_to_textdb(output_text):
-    try:
-        # Step 1: Delete old record
-        delete_resp = requests.post(TEXTDB_API, data={"value": ""})
-        if delete_resp.status_code != 200:
-            print(f"[warn] Failed to delete old record: {delete_resp.status_code}")
-            return False
-
-        time.sleep(3)
-
-        # Step 2: Upload new
-        upload_resp = requests.post(TEXTDB_API, data={"value": output_text})
-        if upload_resp.status_code == 200:
-            print("[info] Successfully uploaded on textdb")
-            return True
-        else:
-            print(f"[warn] Failed to upload on textdb: {upload_resp.status_code}")
-            return False
-
-    except Exception as e:
-        print(f"[error] Unexpected error: {e}")
-        return False
-
 # ---------------- Main ----------------
 def main():
     try:
