@@ -234,13 +234,6 @@ def parse_trojan(line):
 
 # ---------------- Hysteria2 parser ----------------
 def parse_hysteria2(line):
-    """
-    Robust, backward-compatible hysteria2 parser.
-    - Primary parsing via a single regex similar to your original.
-    - Captures optional query string and fragment (name).
-    - Only adds optional fields if they exist (doesn't force defaults that could break import).
-    - Always returns keys minimal clients expect: name, type, server, port, password.
-    """
     try:
         if not line.startswith("hysteria2://"):
             return None
@@ -273,6 +266,7 @@ def parse_hysteria2(line):
             "server": host,
             "port": int(port),
             "password": urllib.parse.unquote(password or ""),
+            "skip-cert-verify": True
         }
 
         # Parse query string into dict of lists
