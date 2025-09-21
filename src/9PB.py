@@ -614,19 +614,19 @@ def upload_to_textdb(output_text):
         print(f"[error] Unexpected error: {e}")
         return False
 
-# ---------------- Main ----------------
-def main():
-    try:
-        sources = load_sources()
-        print(f"[start] loaded {len(sources)} sources from Filter_Sources")
-
-        all_nodes = []
-        for url in sources:
-            nodes = load_proxies(url)
-            print(f"[source] {url} -> {len(nodes)} valid nodes")
-            all_nodes.extend(nodes)
-
-        print(f"[collect] total {len(all_nodes)} nodes before filtering")
+        # ---------------- Main ----------------
+        def main():
+            try:
+                sources = load_sources()
+                print(f"[start] loaded {len(sources)} sources from Filter_Sources")
+        
+                all_nodes = []
+                for url in sources:
+                    nodes = load_proxies(url)
+                    print(f"[source] {url} -> {len(nodes)} valid nodes")
+                    all_nodes.extend(nodes)
+        
+                print(f"[collect] total {len(all_nodes)} nodes before filtering")
 
         # ---------------- Latency filter ----------------
         if USE_LATENCY:
