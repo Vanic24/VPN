@@ -245,21 +245,23 @@ def parse_hysteria2(line):
             if m:
                 password, host, port, name = m.groups()
                 node = {
-                    "name": name or "",
-                    "type": "hysteria2",
-                    "server": host,
-                    "port": int(port),
-                    "password": password,
-            		"attach": "",
-                    "groupid": query.get("groupid", [""])[0],
-                    "latency": query.get("latency", [""])[0],
-                    "tls": {
-                            "enabled": True,
-                            "insecure": query.get("insecure", ["true"])[0].lower() == "true",
-                            "server_name": query.get("sni", [""])[0] or host,
-                    "outlet_ip": query.get("outlet_ip", [""])[0],
-                    "outlet_region": query.get("outlet_region", [""])[0],
-                    }
+            "tag": name or "",
+            "server": host,
+            "server_port": port,
+            "password": password,
+            "type": "hysteria2",
+            "attach": "",
+            "groupid": query.get("groupid", [""])[0],
+            "latency": query.get("latency", [""])[0],
+            "outlet_ip": query.get("outlet_ip", [""])[0],
+            "outlet_region": query.get("outlet_region", [""])[0],
+            "tls": {
+                "enabled": True,
+                "insecure": query.get("insecure", ["true"])[0].lower() == "true",
+                "server_name": query.get("sni", [""])[0] or host,
+            }
+
+        }        
                 return node
         except:
             return None
