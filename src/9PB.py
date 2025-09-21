@@ -467,15 +467,15 @@ def load_proxies(url):
                     continue
                 node = parse_node_line(line)
                 if node:
+                    print(f"[parsed] {json.dumps(node, ensure_ascii=False)}")
                     nodes.append(node)
-                    print(f"[parse] Node: {node.get('name','')} [{node.get('type')}]")
-                else:
-                    print(f"[skip] invalid line -> {line[:60]}...")
+                 else:
+                    print(f"[skip] invalid or unsupported line -> {line[:60]}...")
 
-        return nodes
-    except Exception as e:
-        print(f"[warn] failed fetch {url} -> {e}")
-        return []
+                return nodes
+            except Exception as e:
+                print(f"[warn] failed fetch {url} -> {e}")
+                return []
 
 # ---------------- Upload to TextDB ----------------
 def upload_to_textdb(output_text):
