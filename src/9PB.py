@@ -238,28 +238,43 @@ def parse_trojan(line: str) -> dict | None:
         return None
         
 # ---------------- Hysteria2 parser ----------------
-def parse_hysteria2(line: str) -> dict | None:
+def parse_hysteria2(line):
     try:
         if not line.startswith("hysteria2://"):
             return None
-        name_fragment = ""
-        if "#" in line:
-            line, name_fragment = line.split("#", 1)
-            name_fragment = urllib.parse.unquote(name_fragment)
-        line = line[len("hysteria2://"):]
-        if "@" not in line:
-            return None
-        password, rest = line.split("@", 1)
-        server, port = rest.split(":", 1)
+
+        parsed = urllib.parse.urlparse(line)
+        name = urllib.parse.unquote(parsed.fragment) if parsed.fragment else ""
+
+        # Extract userinfo and host/port
+        password = urllib.parse.unquote(parsed.username) if parsed.username else ""
+        host = parsed.hostname
+        port = parsed.port or 443
+
+        # Query params
+        query = urllib.parse.parse_qs(parsed.query)
+
         node = {
-            "name": name_fragment or "Hysteria2 Node",
+            "name": name,
             "type": "hysteria2",
-            "server": server,
-            "port": int(port),
-            "auth": password
+            "server": host,
+            "port": port,
+            "password": password,
         }
+
+        # Optional fields
+        if "obfs" in query:
+            node["obfs"] = query["obfs"][0]
+        if "sni" in query:
+            node["sni"] = query["sni"][0]
+        if "alpn" in query:
+            node["alpn"] = query["alpn"][0].split(",")
+        if "udp" in query:
+            node["udp"] = query["udp"][0].lower() == "true"
+
         return node
-    except:
+    except Exception as e:
+        print(f"[warn] hysteria2 parse error: {e}")
         return None
 
 # ---------------- Anytls parser ----------------
@@ -437,7 +452,7 @@ def correct_node(p, country_counter, CN_TO_CC):
             country_counter[cc] += 1
             index = country_counter[cc]
             # Only update the name field
-            p["name"] = f"{flag}|{cc}{index}-StarLink"
+            p["name"] = f"{flag} {cc}-{index} | 9PB"
             return p
 
     # 2️⃣ Emoji flag in name
@@ -449,7 +464,7 @@ def correct_node(p, country_counter, CN_TO_CC):
             cc = cc.upper()
             country_counter[cc] += 1
             index = country_counter[cc]
-            p["name"] = f"{flag}|{cc}{index}-StarLink"
+            p["name"] = f"{flag} {cc}-{index} | 9PB"
             return p
 
     # 3️⃣ Two-letter ISO code
@@ -459,7 +474,7 @@ def correct_node(p, country_counter, CN_TO_CC):
         flag = country_to_flag(cc)
         country_counter[cc] += 1
         index = country_counter[cc]
-        p["name"] = f"{flag}|{cc}{index}-StarLink"
+        p["name"] = f"{flag} {cc}-{index} | 9PB"
         return p
 
     # 4️⃣ GeoIP fallback
@@ -470,7 +485,7 @@ def correct_node(p, country_counter, CN_TO_CC):
         flag = country_to_flag(cc)
         country_counter[cc] += 1
         index = country_counter[cc]
-        p["name"] = f"{flag}|{cc}{index}-StarLink"
+        p["name"] = f"{flag} {cc}-{index} | 9PB"
         return p
 
     # 5️⃣ Give up if nothing matched (return original node unchanged)
