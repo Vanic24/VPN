@@ -526,17 +526,17 @@ def main():
         filtered_nodes = all_nodes
         country_counter = defaultdict(int)
 
-       # ---------------- Correct nodes ----------------
-country_counter = defaultdict(int)
-corrected_nodes = []
-
-# load CN_TO_CC mapping from secrets repo (JSON file)
-cn_to_cc = load_cn_to_cc()  
-
-for n in filtered_nodes:
-    res = correct_node(n, country_counter, cn_to_cc)
-    if res:
-        corrected_nodes.append(res)
+     # ---------------- Correct nodes ----------------
+        country_counter = defaultdict(int)
+        corrected_nodes = []
+        
+        # Load CN_TO_CC mapping from secrets repo (JSON file)
+        cn_to_cc = load_cn_to_cc()  
+      
+        for n in filtered_nodes:
+            res = correct_node(n, country_counter, cn_to_cc)
+            if res:
+                corrected_nodes.append(res)
 
     # ---------------- Load template ----------------
     try:
