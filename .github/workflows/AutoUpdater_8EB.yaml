@@ -1,16 +1,16 @@
 name: Update VPN Subscription (SUB_8EB)
 
 on:
-  # Run every 4 hours
   schedule:
-    - cron: '0 */4 * * *'
+    - cron: '0 */4 * * *' # every 4 hours
+    
   # Manual trigger with inputs
   workflow_dispatch:
     inputs:
       use_latency_filter:
         description: "Enable latency filter? (true/false)"
-        required: false
-        default: "true"
+        required: true
+        default: "false"
       latency_threshold:
         description: "Latency threshold in ms (only used if filter is true)"
         required: false
@@ -31,7 +31,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install requests pyyaml
+          python -m pip install --upgrade pip
+          pip install requests pyyaml babel pycountry
 
       - name: Fail if SOURCES_8EB is missing
         run: |
@@ -40,9 +41,9 @@ jobs:
             exit 1
           fi
 
-      - name: Restore sources_8EB from secret
+      - name: Restore SOURCES_8EB from secret
         run: |
-          echo "${{ secrets.SOURCES_8EB }}" > Sources_8EB
+          echo "${{ secrets.SOURCES_8EB }}" > SOURCES_8EB
 
       - name: Set latency filter environment for scheduled/manual runs
         run: |
@@ -50,8 +51,10 @@ jobs:
           echo "LATENCY_FILTER=${{ github.event.inputs.use_latency_filter || 'false' }}" >> $GITHUB_ENV
           echo "LATENCY_THRESHOLD=${{ github.event.inputs.latency_threshold || '100' }}" >> $GITHUB_ENV
 
-      - name: Run 8EB.py
+      - name: Run Python script
         run: python src/8EB.py
+        env:
+          CN_TO_CC: ${{ secrets.CN_TO_CC }}
 
       - name: Generate GMT+6:30 timestamp
         id: timestamp
@@ -70,7 +73,7 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-          git add 8EB
+          git add 9PB
 
           if git diff --cached --quiet; then
             echo "No changes to commit"
