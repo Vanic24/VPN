@@ -431,7 +431,7 @@ def correct_node(p, country_counter, CN_TO_CC):
             country_counter[cc] += 1
             index = country_counter[cc]
             # Only update the name field
-            p["name"] = f"{flag} {cc}-{index} | 9PB"
+            p["name"] = f"{flag} {cc}-{index} | SN"
             return p
 
     # 2️⃣ Emoji flag in name
@@ -443,7 +443,7 @@ def correct_node(p, country_counter, CN_TO_CC):
             cc = cc.upper()
             country_counter[cc] += 1
             index = country_counter[cc]
-            p["name"] = f"{flag} {cc}-{index} | 9PB"
+            p["name"] = f"{flag} {cc}-{index} | SN"
             return p
 
     # 3️⃣ Two-letter ISO code
@@ -453,7 +453,7 @@ def correct_node(p, country_counter, CN_TO_CC):
         flag = country_to_flag(cc)
         country_counter[cc] += 1
         index = country_counter[cc]
-        p["name"] = f"{flag} {cc}-{index} | 9PB"
+        p["name"] = f"{flag} {cc}-{index} | SN"
         return p
 
     # 4️⃣ GeoIP fallback
@@ -464,7 +464,7 @@ def correct_node(p, country_counter, CN_TO_CC):
         flag = country_to_flag(cc)
         country_counter[cc] += 1
         index = country_counter[cc]
-        p["name"] = f"{flag} {cc}-{index} | 9PB"
+        p["name"] = f"{flag} {cc}-{index} | SN"
         return p
 
     # 5️⃣ Give up if nothing matched (return original node unchanged)
