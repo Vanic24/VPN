@@ -251,19 +251,19 @@ def parse_hysteria2(line):
                     "port": int(port),
                     "password": password,
             		"attach": "",
-                      	 "groupid": query.get("groupid", [""])[0],
-                        	"latency": query.get("latency", [""])[0],
-                        	"outlet_ip": query.get("outlet_ip", [""])[0],
-                        	"outlet_region": query.get("outlet_region", [""])[0],
-                        	"tls": {
-                            		"enabled": True,
-                            		"insecure": query.get("insecure", ["true"])[0].lower() == "true",
-                            		"server_name": query.get("sni", [""])[0] or host,
-                            }
-                            return node
-                except:
-                    return None
-                return None
+                    "groupid": query.get("groupid", [""])[0],
+                    "latency": query.get("latency", [""])[0],
+                    "tls": {
+                            "enabled": True,
+                            "insecure": query.get("insecure", ["true"])[0].lower() == "true",
+                            "server_name": query.get("sni", [""])[0] or host,
+                    "outlet_ip": query.get("outlet_ip", [""])[0],
+                    "outlet_region": query.get("outlet_region", [""])[0],
+                    }
+                return node
+        except:
+            return None
+        return None
 
 # ---------------- Anytls parser ----------------
 def parse_anytls(line: str) -> dict | None:
