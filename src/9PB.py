@@ -234,42 +234,81 @@ def parse_trojan(line):
 
 # ---------------- Hysteria2 parser ----------------
 def parse_hysteria2(line):
+    """
+    Robust, backward-compatible hysteria2 parser.
+    - Primary parsing via a single regex similar to your original.
+    - Captures optional query string and fragment (name).
+    - Only adds optional fields if they exist (doesn't force defaults that could break import).
+    - Always returns keys minimal clients expect: name, type, server, port, password.
+    """
     try:
         if not line.startswith("hysteria2://"):
             return None
 
-        parsed = urllib.parse.urlparse(line)
-        name = urllib.parse.unquote(parsed.fragment) if parsed.fragment else ""
+        # regex: capture password, host, port, optional query, optional fragment(name)
+        m = re.match(r'hysteria2://([^@]+)@([^:\/?#]+):(\d+)(?:\?([^#]*))?(?:#(.*))?$', line)
+        password = host = port = query_str = frag = None
 
-        # Extract userinfo and host/port
-        password = urllib.parse.unquote(parsed.username) if parsed.username else ""
-        host = parsed.hostname
-        port = parsed.port or 443
+        if m:
+            password, host, port, query_str, frag = m.groups()
+        else:
+            # fallback: try urlparse if regex fails (covers some odd variants)
+            parsed = urllib.parse.urlparse(line)
+            # parsed.username may be encoded; use split on netloc if needed
+            password = urllib.parse.unquote(parsed.username or "")
+            host = parsed.hostname
+            port = parsed.port or None
+            query_str = parsed.query or ""
+            frag = urllib.parse.unquote(parsed.fragment or "")
 
-        # Query params
-        query = urllib.parse.parse_qs(parsed.query)
+        if not host or not port:
+            # couldn't get host/port -> invalid
+            return None
 
+        # Basic node structure (keep same keys your clients accept)
+        name = urllib.parse.unquote(frag or "") if frag else ""
         node = {
             "name": name,
             "type": "hysteria2",
             "server": host,
-            "port": port,
-            "password": password,
+            "port": int(port),
+            "password": urllib.parse.unquote(password or ""),
         }
 
-        # Optional fields
-        if "obfs" in query:
-            node["obfs"] = query["obfs"][0]
-        if "sni" in query:
-            node["sni"] = query["sni"][0]
-        if "alpn" in query:
-            node["alpn"] = query["alpn"][0].split(",")
-        if "udp" in query:
-            node["udp"] = query["udp"][0].lower() == "true"
+        # Parse query string into dict of lists
+        qdict = {}
+        if query_str:
+            qdict = urllib.parse.parse_qs(query_str)
+
+        # OPTIONAL: include extra fields ONLY if present in the query
+        # (these won't be added if absent, keeping backward compatibility)
+        if "insecure" in qdict or "sni" in qdict:
+            tls_obj = {"enabled": True}
+            if "insecure" in qdict:
+                v = qdict.get("insecure", ["true"])[0]
+                tls_obj["insecure"] = str(v).lower() in ("1", "true", "yes")
+            if "sni" in qdict:
+                tls_obj["server_name"] = qdict.get("sni", [host])[0]
+            node["tls"] = tls_obj
+
+        if "udp" in qdict:
+            v = qdict.get("udp", [""])[0]
+            node["udp"] = str(v).lower() in ("1", "true", "yes")
+
+        # Keep the same field name your clients may expect for 'server_port' as well,
+        # but only add it if you want; comment out next line if it causes problems.
+        # node["server_port"] = int(port)
+
+        # Additional optional metadata if present
+        for fld in ("groupid", "outlet_ip", "outlet_region", "latency", "domain_resolver"):
+            if fld in qdict:
+                node[fld] = qdict.get(fld, [""])[0]
 
         return node
+
     except Exception as e:
-        print(f"[warn] hysteria2 parse error: {e}")
+        # keep the error log brief and include line prefix so you can trace problematic ones
+        print(f"[warn] hysteria2 parse error: {e} -> {line[:120]}")
         return None
         
 # ---------------- Anytls parser ----------------
