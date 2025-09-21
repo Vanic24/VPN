@@ -482,12 +482,12 @@ def correct_node(p, country_counter, CN_TO_CC):
     original_name = str(p.get("name", "") or "").strip()
     host = p.get("server") or p.get("add") or ""
 
-    # Skip locked or empty names
-    if not original_name or "🔒" in original_name:
-        return None
+    # Define forbidden emojis (any emoji you want to filter out)
+    FORBIDDEN_EMOJIS = "🔒❌⚠️"
 
-    cc = None
-    flag = None
+    # Skip nodes with empty names or containing any forbidden emoji
+    if not original_name or any(e in original_name for e in FORBIDDEN_EMOJIS):
+        return None
 
     # Decode %xx escapes in case node name came from URL fragment
     name_for_match = unquote(original_name)
