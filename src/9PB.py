@@ -14,6 +14,7 @@ import re
 import pycountry
 import json
 import urllib.parse
+from urllib.parse import unquote
 
 # ---------------- Config ----------------
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
@@ -77,6 +78,14 @@ def flag_to_country_code(flag):
         return chr(ord(first) - 0x1F1E6 + 65) + chr(ord(second) - 0x1F1E6 + 65)
     except:
         return None
+
+def load_cn_to_cc():
+    secret_data = os.environ.get("CN_TO_CC", "{}")
+    try:
+        return json.loads(secret_data)
+    except Exception as e:
+        print(f"[error] failed to parse CN_TO_CC secret: {e}")
+        return {}
 
 # ---------------- Load sources ----------------
 def load_sources():
@@ -341,66 +350,74 @@ def parse_node_line(line):
             return node
     return None
     
-# ---------------- Correct node ----------------
 def correct_node(p, country_counter, CN_TO_CC):
-    host = str(p.get("server"))
-    raw_port = str(p.get("port", ""))
+    import re
+    from urllib.parse import unquote
 
+    original_name = str(p.get("name", "") or "").strip()
+    host = p.get("server") or p.get("add") or ""
+    raw_port = str(p.get("port", ""))
     try:
         port = int(raw_port)
-    except ValueError:
+    except Exception:
         port = 443
-
-    ip = resolve_ip(host) or host
-    cc_lower, cc_upper = geo_ip(ip)
-
     p["port"] = port
-    original_name = str(p.get("name", ""))
 
-    # Skip nodes containing 🔒
-    if "🔒" in original_name:
+    # Skip locked or empty names
+    if not original_name or "🔒" in original_name:
         return None
 
     cc = None
     flag = None
 
-    # -------- 1️⃣ Flag emoji --------
-    flag_match = re.search(r'[\U0001F1E6-\U0001F1FF]{2}', original_name)
+    # Decode %xx escapes in case node name came from URL fragment
+    name_for_match = unquote(original_name)
+
+    # 1️⃣ Chinese mapping (substring match)
+    for cn_name, code in CN_TO_CC.items():
+        if cn_name and cn_name in name_for_match:
+            cc = code.upper()
+            flag = country_to_flag(cc)
+            country_counter[cc] += 1
+            index = country_counter[cc]
+            p["name"] = f"{flag}|{cc}{index}-StarLink"
+            return p
+
+    # 2️⃣ Emoji flag in name
+    flag_match = re.search(r'[\U0001F1E6-\U0001F1FF]{2}', name_for_match)
     if flag_match:
         flag = flag_match.group(0)
         cc = flag_to_country_code(flag)
+        if cc:
+            cc = cc.upper()
+            country_counter[cc] += 1
+            index = country_counter[cc]
+            p["name"] = f"{flag}|{cc}{index}-StarLink"
+            return p
 
-    # -------- 2️⃣ Two-letter code in name --------
-    if not cc:
-        match = re.search(r'\b([A-Z]{2})\b', original_name)
-        if match:
-            cc = match.group(1)
-
-    # -------- 3️⃣ Chinese country name --------
-    if not cc:
-        cleaned = re.sub(r'[\d\s\-—–].*', '', original_name)  # remove digits/suffix
-        for cn_name, code in CN_TO_CC.items():
-            if cn_name in cleaned:
-                cc = code
-                break
-
-    # -------- 4️⃣ fallback to geo_ip --------
-    if not cc:
-        cc = cc_upper
-        if not cc:
-            return None  # skip if no country code
-
-    # Assign flag if not already detected
-    if not flag:
+    # 3️⃣ Two-letter ISO code
+    iso_match = re.search(r'\b([A-Z]{2})\b', original_name)
+    if iso_match:
+        cc = iso_match.group(1).upper()
         flag = country_to_flag(cc)
+        country_counter[cc] += 1
+        index = country_counter[cc]
+        p["name"] = f"{flag}|{cc}{index}-StarLink"
+        return p
 
-    # Increment per-country index
-    country_counter[cc] += 1
-    index = country_counter[cc]
+    # 4️⃣ GeoIP fallback
+    ip = resolve_ip(host) or host
+    cc_lower, cc_upper = geo_ip(ip)
+    if cc_upper and cc_upper != "UN":
+        cc = cc_upper
+        flag = country_to_flag(cc)
+        country_counter[cc] += 1
+        index = country_counter[cc]
+        p["name"] = f"{flag}|{cc}{index}-StarLink"
+        return p
 
-    # Format: 🇭🇰|HK1-StarLink
-    p["name"] = f"{flag}{cc}-{index}|-9PB"
-    return p
+    # 5️⃣ Give up if nothing matched
+    return None
     
 # ---------------- Load and parse proxies ----------------
 def load_proxies(url):
@@ -505,11 +522,16 @@ def main():
         filtered_nodes = all_nodes
         country_counter = defaultdict(int)
 
-    # ---------------- Correct nodes ----------------
+       # ---------------- Correct nodes ----------------
+    country_counter = defaultdict(int)
     corrected_nodes = []
+
+    # load CN_TO_CC mapping from secrets repo (JSON file)
+    cn_to_cc = load_cn_to_cc()  
+
     for n in filtered_nodes:
-        res = correct_node(n, country_counter, CN_TO_CC)
-        if res:  # skip nodes returning None
+        res = correct_node(n, country_counter, cn_to_cc)
+        if res:
             corrected_nodes.append(res)
 
     # ---------------- Load template ----------------
@@ -523,7 +545,7 @@ def main():
 
     # ---------------- Convert to YAML ----------------
     proxies_yaml_block = yaml.dump(corrected_nodes, allow_unicode=True, default_flow_style=False)
-    proxy_names_block = "\n".join([f"      - {p['name']}" for p in corrected_nodes])
+    proxy_names_block = "\n".join([f"      - {unquote(p['name'])}" for p in corrected_nodes])
 
     # ---------------- Replace placeholders ----------------
     output_text = template_text.replace("{{PROXIES}}", proxies_yaml_block)
