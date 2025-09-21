@@ -380,21 +380,23 @@ def correct_node(p, country_counter, CN_TO_CC):
 
     cc = None
     flag = None
+    assigned_name = None
 
     # Decode %xx escapes in case node name came from URL fragment
     name_for_match = unquote(original_name)
 
-    # 1️⃣ Chinese mapping (substring match)
+    # 1️⃣ Chinese mapping
     for cn_name, code in CN_TO_CC.items():
         if cn_name and cn_name in name_for_match:
             cc = code.upper()
             flag = country_to_flag(cc)
             country_counter[cc] += 1
             index = country_counter[cc]
-            assigned_name = f"{flag} {cc}-{index}|9PB"
+            assigned_name = f"{flag}|{cc}{index}-StarLink"
             break
-    else:
-        # 2️⃣ Emoji flag in name
+
+    if not assigned_name:
+        # 2️⃣ Emoji flag
         flag_match = re.search(r'[\U0001F1E6-\U0001F1FF]{2}', name_for_match)
         if flag_match:
             flag = flag_match.group(0)
@@ -403,31 +405,33 @@ def correct_node(p, country_counter, CN_TO_CC):
                 cc = cc.upper()
                 country_counter[cc] += 1
                 index = country_counter[cc]
-                assigned_name = f"{flag} {cc}-{index}|9PB"
-        else:
-            # 3️⃣ Two-letter ISO code
-            iso_match = re.search(r'\b([A-Z]{2})\b', original_name)
-            if iso_match:
-                cc = iso_match.group(1).upper()
-                flag = country_to_flag(cc)
-                country_counter[cc] += 1
-                index = country_counter[cc]
-                assigned_name = f"{flag} {cc}-{index}|9PB"
-            else:
-                # 4️⃣ GeoIP fallback
-                ip = resolve_ip(host) or host
-                cc_lower, cc_upper = geo_ip(ip)
-                if cc_upper and cc_upper != "UN":
-                    cc = cc_upper
-                    flag = country_to_flag(cc)
-                    country_counter[cc] += 1
-                    index = country_counter[cc]
-                    assigned_name = f"{flag} {cc}-{index}|9PB"
-                else:
-                    # Could not assign a valid name
-                    return None
+                assigned_name = f"{flag}|{cc}{index}-StarLink"
 
-    # Preserve all other fields exactly, only change name
+    if not assigned_name:
+        # 3️⃣ Two-letter ISO
+        iso_match = re.search(r'\b([A-Z]{2})\b', original_name)
+        if iso_match:
+            cc = iso_match.group(1).upper()
+            flag = country_to_flag(cc)
+            country_counter[cc] += 1
+            index = country_counter[cc]
+            assigned_name = f"{flag}|{cc}{index}-StarLink"
+
+    if not assigned_name:
+        # 4️⃣ GeoIP fallback
+        ip = resolve_ip(host) or host
+        cc_lower, cc_upper = geo_ip(ip)
+        if cc_upper and cc_upper != "UN":
+            cc = cc_upper
+            flag = country_to_flag(cc)
+            country_counter[cc] += 1
+            index = country_counter[cc]
+            assigned_name = f"{flag}|{cc}{index}-StarLink"
+
+    if not assigned_name:
+        return None
+
+    # ✅ Only change name; preserve all other fields
     new_node = p.copy()
     new_node["name"] = assigned_name
     return new_node
