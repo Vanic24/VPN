@@ -235,21 +235,42 @@ def parse_trojan(line):
 # ---------------- Hysteria2 parser ----------------
 def parse_hysteria2(line):
     try:
-        if line.startswith("hysteria2://"):
-            m = re.match(r"hysteria2://([^@]+)@([^:]+):(\d+)#?(.*)", line)
-            if m:
-                password, host, port, name = m.groups()
-                node = {
-                    "name": name or "",
-                    "type": "hysteria2",
-                    "server": host,
-                    "port": int(port),
-                    "password": password,
-                }
-                return node
-    except:
+        if not line.startswith("hysteria2://"):
+            return None
+
+        parsed = urllib.parse.urlparse(line)
+        name = urllib.parse.unquote(parsed.fragment) if parsed.fragment else ""
+
+        # Extract userinfo and host/port
+        password = urllib.parse.unquote(parsed.username) if parsed.username else ""
+        host = parsed.hostname
+        port = parsed.port or 443
+
+        # Query params
+        query = urllib.parse.parse_qs(parsed.query)
+
+        node = {
+            "name": name,
+            "type": "hysteria2",
+            "server": host,
+            "port": port,
+            "password": password,
+        }
+
+        # Optional fields
+        if "obfs" in query:
+            node["obfs"] = query["obfs"][0]
+        if "sni" in query:
+            node["sni"] = query["sni"][0]
+        if "alpn" in query:
+            node["alpn"] = query["alpn"][0].split(",")
+        if "udp" in query:
+            node["udp"] = query["udp"][0].lower() == "true"
+
+        return node
+    except Exception as e:
+        print(f"[warn] hysteria2 parse error: {e}")
         return None
-    return None
 
 # ---------------- Anytls parser ----------------
 def parse_anytls(line):
