@@ -240,14 +240,25 @@ def parse_trojan(line: str) -> dict | None:
 # ---------------- Hysteria2 parser ----------------
 def parse_hysteria2(line):
     try:
-        if line.startswith("hysteria2://"):
-            m = re.match(r"hysteria2://([^@]+)@([^:]+):(\d+)#?(.*)", line)
-            if m:
-                password, host, port, name = m.groups()
-                node = {
+        if not line.startswith("hysteria2://"):
+            return None
+
+        parsed = urllib.parse.urlparse(line)
+        query = urllib.parse.parse_qs(parsed.query)
+
+        # Extract fields
+        password = urllib.parse.unquote(parsed.username) if parsed.username else ""
+        host = parsed.hostname
+        port = parsed.port or 443
+        name = urllib.parse.unquote(parsed.fragment) if parsed.fragment else ""
+
+        if not host:
+            return None
+
+        node = {
             "tag": name or "",
             "server": host,
-            "server_port": port,
+            "server_port": int(port),
             "password": password,
             "type": "hysteria2",
             "attach": "",
@@ -259,12 +270,14 @@ def parse_hysteria2(line):
                 "enabled": True,
                 "insecure": query.get("insecure", ["true"])[0].lower() == "true",
                 "server_name": query.get("sni", [""])[0] or host,
-            }
+            },
+            "domain_resolver": query.get("domain_resolver", ["local"])[0],
+        }
 
-        }        
-                return node
-        except:
-            return None
+        return node
+
+    except Exception as e:
+        print(f"[warn] hysteria2 parse error: {e} -> {line[:80]}")
         return None
 
 # ---------------- Anytls parser ----------------
