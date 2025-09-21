@@ -441,7 +441,7 @@ def load_proxies(url):
 
         nodes = []
 
-        # Base64 decode if single line
+        # Base64 decode if single line and looks like Base64
         if len(text.splitlines()) == 1 and re.match(r'^[A-Za-z0-9+/=]+$', text):
             try:
                 decoded = base64.b64decode(text + "=" * (-len(text) % 4)).decode("utf-8")
@@ -461,6 +461,7 @@ def load_proxies(url):
             except Exception as e:
                 print(f"[warn] failed YAML parse {url}: {e}")
         else:
+            # Parse as individual subscription lines
             for line in text.splitlines():
                 line = line.strip()
                 if not line:
@@ -469,13 +470,14 @@ def load_proxies(url):
                 if node:
                     print(f"[parsed] {json.dumps(node, ensure_ascii=False)}")
                     nodes.append(node)
-                 else:
+                else:
                     print(f"[skip] invalid or unsupported line -> {line[:60]}...")
 
-                return nodes
-            except Exception as e:
-                print(f"[warn] failed fetch {url} -> {e}")
-                return []
+        return nodes
+
+    except Exception as e:
+        print(f"[warn] failed fetch {url} -> {e}")
+        return []
 
 # ---------------- Upload to TextDB ----------------
 def upload_to_textdb(output_text):
