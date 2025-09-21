@@ -710,10 +710,10 @@ def main():
                     print(f"[warn] Failed to delete old record: {delete_resp.status_code}")
                     print(f"[warn] Response: {delete_resp.text}")
         
-                # Wait for 3 seconds to ensure successful deletion.
+                # Wait for 3 seconds to ensure successful deletion
                 time.sleep(3)
         
-                # Step 3: Upload to TextDB using POST (to avoid URL size limits)
+                # Step 3: Upload to TextDB using POST
                 upload_resp = requests.post(TEXTDB_API, data={"value": output_text})
                 if upload_resp.status_code == 200:
                     print("[info] Successfully uploaded on textdb")
@@ -723,13 +723,15 @@ def main():
         
             except Exception as e:
                 print(f"[error] Unexpected error: {e}")
+        
+        
+        # ---------------- Entry ----------------
+        if __name__ == "__main__":
+            try:
+                main()
+            except Exception as e:
+                print("[FATAL ERROR]", str(e))
+                upload_to_textdb()
+                traceback.print_exc()
+                sys.exit(1)
 
-# ---------------- Entry ----------------
-if __name__ == "__main__":
-    try:
-        main()
-    except Exception as e:
-        print("[FATAL ERROR]", str(e))
-        upload_to_textdb()
-        traceback.print_exc()
-        sys.exit(1)
