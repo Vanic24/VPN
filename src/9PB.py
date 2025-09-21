@@ -443,25 +443,22 @@ def load_proxies(url):
         r.raise_for_status()
         text = r.text.strip()
 
-        # Log first few lines of fetched content
-        print(f"[fetch] {url} -> first 5 lines of fetched data:")
+        print(f"[fetch] {url} -> {len(text.splitlines())} lines fetched")
         for line in text.splitlines()[:5]:
-            print("       ", line)
+            print("       ", line[:80])
 
         nodes = []
 
-        # ---------------- Base64 decode if single line ----------------
+        # Base64 decode if single line
         if len(text.splitlines()) == 1 and re.match(r'^[A-Za-z0-9+/=]+$', text):
             try:
                 decoded = base64.b64decode(text + "=" * (-len(text) % 4)).decode("utf-8")
                 text = decoded
-                print(f"[decode] Base64 decoded -> first 5 lines:")
-                for line in text.splitlines()[:5]:
-                    print("       ", line)
+                print(f"[decode] Base64 decoded -> {len(text.splitlines())} lines")
             except Exception:
-                print(f"[warn] failed to decode Base64 from {url}")
+                print(f"[warn] failed Base64 decode for {url}")
 
-        # ---------------- YAML parser ----------------
+        # Parse as YAML
         if text.startswith("proxies:") or "proxies:" in text:
             try:
                 data = yaml.safe_load(text)
@@ -470,11 +467,9 @@ def load_proxies(url):
                         nodes.append(p)
                         print(f"[parse] YAML node: {p.get('name','')}")
             except Exception as e:
-                print(f"[warn] failed to parse YAML {url} -> {e}")
+                print(f"[warn] failed YAML parse {url}: {e}")
         else:
-            # ---------------- Line-by-line parser ----------------
-            lines = text.splitlines()
-            for line in lines:
+            for line in text.splitlines():
                 line = line.strip()
                 if not line:
                     continue
@@ -483,12 +478,12 @@ def load_proxies(url):
                     nodes.append(node)
                     print(f"[parse] Node: {node.get('name','')} [{node.get('type')}]")
                 else:
-                    print(f"[skip] invalid or unsupported line -> {line[:60]}...")
+                    print(f"[skip] invalid line -> {line[:60]}...")
 
         return nodes
     except Exception as e:
-        print(f"[warn] failed to fetch {url} -> {e}")
-    return []
+        print(f"[warn] failed fetch {url} -> {e}")
+        return []
 
 # ---------------- Upload to TextDB ----------------
 def upload_to_textdb(output_text):
