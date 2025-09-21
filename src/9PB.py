@@ -218,82 +218,87 @@ def decode_b64(data: str) -> str | None:
     except Exception:
         return None
 
-def parse_ss(ss_url: str) -> dict | None:
+import base64, re, urllib.parse
+
+def parse_ss(ss_url):
+    if not ss_url.startswith("ss://"):
+        return None
+    # Remove 'ss://'
+    ss_url = ss_url[5:]
+    # Check if it contains '#', to extract name
+    name = ""
+    if "#" in ss_url:
+        ss_url, name = ss_url.split("#", 1)
+        name = urllib.parse.unquote(name)
+    # Base64 decode userinfo:host:port
     try:
-        ss_url = ss_url.strip()
-        if not ss_url.startswith("ss://"):
+        # Some use 'ss://<base64>#name'
+        b64_str = ss_url
+        # If contains '@', treat as user:pass@host:port (new format)
+        if "@" in ss_url:
+            user_host = ss_url
+        else:
+            padded = ss_url + "=" * (-len(ss_url) % 4)
+            user_host = base64.b64decode(padded).decode("utf-8")
+        # Split user:pass@host:port
+        m = re.match(r"(?P<method>[^:]+):(?P<password>[^@]+)@(?P<host>[^:]+):(?P<port>\d+)", user_host)
+        if m:
+            node = {
+                "name": name or m.group("host"),
+                "type": "ss",
+                "server": m.group("host"),
+                "port": int(m.group("port")),
+                "cipher": m.group("method"),
+                "password": m.group("password"),
+            }
+            return node
+    except Exception as e:
+        return None
+    return None
+
+def parse_ssr(line):
+    try:
+        if not line.startswith("ssr://"):
             return None
+        b64 = line[6:].strip()
+        padded = b64 + "=" * (-len(b64) % 4)
+        decoded = base64.urlsafe_b64decode(padded).decode("utf-8")
 
-        ss_url = ss_url[5:]
-
-        # Extract name/comment if exists
-        name_fragment = ""
-        if "#" in ss_url:
-            ss_url, name_fragment = ss_url.split("#", 1)
-            name_fragment = urllib.parse.unquote(name_fragment)
-
-        # Extract plugin query if exists
-        plugin = None
-        plugin_opts = None
-        if "/?" in ss_url:
-            ss_core, query = ss_url.split("/?", 1)
-            query_params = urllib.parse.parse_qs(query)
-            if "plugin" in query_params:
-                plugin_full = query_params["plugin"][0]
-                if ";" in plugin_full:
-                    plugin_parts = plugin_full.split(";")
-                    plugin = plugin_parts[0]
-                    plugin_opts = {}
-                    for part in plugin_parts[1:]:
-                        if "=" in part:
-                            k, v = part.split("=", 1)
-                            plugin_opts[k] = v
-                else:
-                    plugin = plugin_full
+        parts = decoded.split("/")
+        main_part = parts[0]
+        if "?" in main_part:
+            main_part, query_string = main_part.split("?", 1)
         else:
-            ss_core = ss_url
+            query_string = ""
 
-        if "@" in ss_core:
-            b64_part, server_port = ss_core.split("@", 1)
-            decoded = decode_b64(b64_part)
-            if decoded and ":" in decoded:
-                cipher, password = decoded.split(":", 1)
-            else:
-                cipher = "aes-256-cfb"
-                password = decoded or ""
-            if ":" not in server_port:
-                return None
-            server, port = server_port.rsplit(":", 1)
-        else:
-            decoded = decode_b64(ss_core)
-            if not decoded or "@" not in decoded:
-                return None
-            userinfo, server_port = decoded.split("@", 1)
-            if ":" not in userinfo or ":" not in server_port:
-                return None
-            cipher, password = userinfo.split(":", 1)
-            server, port = server_port.rsplit(":", 1)
+        items = main_part.split(":")
+        if len(items) < 6:
+            return None
+        server, port, protocol, method, obfs, password_b64 = items[:6]
+        password = base64.urlsafe_b64decode(password_b64 + "=" * (-len(password_b64) % 4)).decode()
 
         node = {
-            "name": name_fragment or "SS Node",
-            "type": "ss",
-            "server": server.strip(),
-            "port": int(port.strip()),
-            "cipher": cipher,
+            "name": "",
+            "type": "ssr",
+            "server": server,
+            "port": int(port),
+            "protocol": protocol,
+            "cipher": method,
+            "obfs": obfs,
             "password": password
         }
-        if plugin:
-            node["plugin"] = plugin
-        if plugin_opts:
-            node["plugin-opts"] = plugin_opts
 
+        if query_string:
+            qs = urllib.parse.parse_qs(query_string)
+            if "remarks" in qs:
+                node["name"] = urllib.parse.unquote(qs["remarks"][0])
+            if "obfsparam" in qs:
+                node["obfs_param"] = base64.urlsafe_b64decode(qs["obfsparam"][0] + "=" * (-len(qs["obfsparam"][0]) % 4)).decode()
+            if "protoparam" in qs:
+                node["protocol_param"] = base64.urlsafe_b64decode(qs["protoparam"][0] + "=" * (-len(qs["protoparam"][0]) % 4)).decode()
         return node
     except Exception:
         return None
-
-def parse_ssr(line):
-    # full parsing logic here (same as your original, omitted for brevity)
-    return {}
 
 def parse_node_line(line):
     parsers = [parse_vmess, parse_vless, parse_trojan, parse_hysteria2, parse_anytls, parse_ss, parse_ssr]
