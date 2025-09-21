@@ -244,16 +244,15 @@ def parse_hysteria2(line):
             return None
 
         parsed = urllib.parse.urlparse(line)
-        query = urllib.parse.parse_qs(parsed.query)
-
-        # Extract base fields
         name = urllib.parse.unquote(parsed.fragment) if parsed.fragment else ""
+
+        # Extract userinfo and host/port
         password = urllib.parse.unquote(parsed.username) if parsed.username else ""
         host = parsed.hostname
         port = parsed.port or 443
 
-        if not host:
-            return None
+        # Query params
+        query = urllib.parse.parse_qs(parsed.query)
 
         node = {
             "tag": name or "",
@@ -268,17 +267,17 @@ def parse_hysteria2(line):
             "outlet_region": query.get("outlet_region", [""])[0],
             "tls": {
                 "enabled": True,
-                "insecure": query.get("insecure", ["true"])[0].lower() == "true",  # default true
+                "insecure": query.get("insecure", ["true"])[0].lower() == "true",
                 "server_name": query.get("sni", [""])[0] or host,
             },
-            # Preserve original resolver if provided, fallback to local
-            "domain_resolver": query.get("domain_resolver", ["local"])[0],
         }
 
-        return node
+        # Optional: domain_resolver (defaults to local if not provided)
+        node["domain_resolver"] = query.get("domain_resolver", ["local"])[0]
 
+        return node
     except Exception as e:
-        print(f"[warn] hysteria2 parse error: {e} -> {line[:80]}")
+        print(f"[warn] hysteria2 parse error: {e}")
         return None
 
 # ---------------- Anytls parser ----------------
