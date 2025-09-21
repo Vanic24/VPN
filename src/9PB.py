@@ -235,21 +235,34 @@ def parse_trojan(line):
 # ---------------- Hysteria2 parser ----------------
 def parse_hysteria2(line):
     try:
-        if line.startswith("hysteria2://"):
-            m = re.match(r"hysteria2://([^@]+)@([^:]+):(\d+)#?(.*)", line)
-            if m:
-                password, host, port, name = m.groups()
-                node = {
-                    "name": name or "",
-                    "type": "hysteria2",
-                    "server": host,
-                    "port": int(port),
-                    "password": password,
-                }
-                return node
-    except:
+        if not line.startswith("hysteria2://"):
+            return None
+
+        m = re.match(r"hysteria2://([^@]+)@([^:]+):(\d+)#?(.*)", line)
+        if not m:
+            return None
+
+        password, host, port, name = m.groups()
+
+        node = {
+            "name": urllib.parse.unquote(name) if name else "",
+            "type": "hysteria2",
+            "server": host.strip(),
+            "server_port": int(port),
+            "password": password.strip(),
+            "udp": True,   # HY2 generally requires UDP
+            "tls": {
+                "enabled": True,
+                "insecure": True,   # allow self-signed certs (avoid TLS verify fail)
+                "server_name": host.strip(),  # fallback SNI
+            }
+        }
+
+        return node
+
+    except Exception as e:
+        print(f"[warn] hysteria2 parse failed: {e} -> {line[:80]}")
         return None
-    return None
 
 # ---------------- Anytls parser ----------------
 def parse_anytls(line):
