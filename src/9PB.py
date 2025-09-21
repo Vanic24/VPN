@@ -690,9 +690,9 @@ def upload_to_textdb():
         # Step 2: Delete old record
         delete_resp = requests.post(TEXTDB_API, data={"value": ""})
         if delete_resp.status_code == 200:
-            print("[info] Old record deleted on textdb")
+            print("[info] 🗑️Old record deleted on textdb")
         else:
-            print(f"[warn] Failed to delete old record: {delete_resp.status_code}")
+            print(f"[warn] ❌Failed to delete old record: {delete_resp.status_code}")
             print(f"[warn] Response: {delete_resp.text}")
 
         # Wait 3 seconds
@@ -701,9 +701,9 @@ def upload_to_textdb():
         # Step 3: Upload new record
         upload_resp = requests.post(TEXTDB_API, data={"value": output_text})
         if upload_resp.status_code == 200:
-            print("[info] Successfully uploaded new data on textdb")
+            print("[info] ✅Successfully uploaded new data on textdb")
         else:
-            print(f"[warn] Failed to upload on textdb: {upload_resp.status_code}")
+            print(f"[warn] ❌Failed to upload on textdb: {upload_resp.status_code}")
             print(f"[warn] Response: {upload_resp.text}")
 
     except Exception as e:
