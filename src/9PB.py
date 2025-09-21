@@ -271,7 +271,6 @@ def parse_hysteria2(line):
                 "insecure": query.get("insecure", ["true"])[0].lower() == "true",
                 "server_name": query.get("sni", [""])[0] or host,
             },
-            "domain_resolver": query.get("domain_resolver", ["local"])[0],
         }
 
         return node
