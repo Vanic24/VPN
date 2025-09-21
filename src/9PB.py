@@ -80,12 +80,10 @@ def flag_to_country_code(flag):
         return None
 
 def load_cn_to_cc():
-    secret_data = os.environ.get("CN_TO_CC", "{}")
-    try:
-        return json.loads(secret_data)
-    except Exception as e:
-        print(f"[error] failed to parse CN_TO_CC secret: {e}")
-        return {}
+    import os
+    path = os.environ.get("CN_TO_CC", "{}")
+    with open(path, "r", encoding="utf-8") as f:
+        return json.load(f)
 
 # ---------------- Load sources ----------------
 def load_sources():
@@ -362,8 +360,8 @@ def correct_node(p, country_counter, CN_TO_CC):
     Only updates the 'tag' / 'name', preserves all other node fields for VLESS connectivity.
     """
     # 1️⃣ Get the original node name
-    original_name = str(p.get("name", "") or p.get("tag", "") or "").strip()
-    original_name = unquote(original_name)
+    original_name = str(p.get("name", "") or "").strip()
+    name_for_match = unquote(original_name)
 
     # Skip empty or locked nodes
     if not original_name or "🔒" in original_name:
