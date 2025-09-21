@@ -99,24 +99,33 @@ def load_sources():
     return sources
 
 # ---------------- Vmess parsers ----------------
-def parse_vmess(line: str) -> dict | None:
+def parse_vmess(line):
     try:
-        if not line.startswith("vmess://"):
-            return None
-        b64 = line[len("vmess://"):]
-        raw = decode_b64(b64)
-        if not raw:
-            return None
-        data = json.loads(raw)
-
-        # Preserve all fields
-        node = {k: v for k, v in data.items()}
-        if "ps" in node:
-            node["name"] = node.pop("ps")
-        node["type"] = "vmess"
-        return node
+        if line.startswith("vmess://"):
+            b64 = line[8:].strip()
+            padded = b64 + "=" * (-len(b64) % 4)
+            json_str = base64.b64decode(padded).decode('utf-8')
+            data = json.loads(json_str)
+            node = {
+                "name": data.get("ps") or "",
+                "type": "vmess",
+                "server": data["add"],
+                "port": int(data["port"]),
+                "uuid": data["id"],
+                "alterId": int(data.get("aid", 0)),
+                "cipher": data.get("scy", "auto"),
+                "tls": data.get("tls", "").lower() == "tls",
+                "network": data.get("net", "tcp"),
+            }
+            if node["network"] == "ws":
+                node["ws-opts"] = {
+                    "path": data.get("path", "/"),
+                    "headers": {"Host": data.get("host", "")}
+                }
+            return node
     except:
         return None
+    return None
 
 # ---------------- Vless parser ----------------
 def parse_vless(line: str) -> dict | None:
@@ -205,38 +214,24 @@ def parse_vless(line: str) -> dict | None:
         return None
 
 # ---------------- Trojan parser ----------------
-def parse_trojan(line: str) -> dict | None:
+def parse_trojan(line):
     try:
-        if not line.startswith("trojan://"):
-            return None
-        name_fragment = ""
-        if "#" in line:
-            line, name_fragment = line.split("#", 1)
-            name_fragment = urllib.parse.unquote(name_fragment)
-        line = line[len("trojan://"):]
-        password, rest = line.split("@", 1)
-        if "?" in rest:
-            server_port, query_str = rest.split("?", 1)
-            query = dict(urllib.parse.parse_qsl(query_str))
-        else:
-            server_port, query = rest, {}
-        server, port = server_port.split(":", 1)
-
-        node = {
-            "name": name_fragment or "Trojan Node",
-            "type": "trojan",
-            "server": server,
-            "port": int(port),
-            "password": password
-        }
-        if "sni" in query:
-            node["sni"] = query["sni"]
-        if "allowInsecure" in query:
-            node["skip-cert-verify"] = query["allowInsecure"] == "1"
-        return node
+        if line.startswith("trojan://"):
+            m = re.match(r"trojan://([^@]+)@([^:]+):(\d+)#?(.*)", line)
+            if m:
+                password, host, port, name = m.groups()
+                node = {
+                    "name": name or "",
+                    "type": "trojan",
+                    "server": host,
+                    "port": int(port),
+                    "password": password,
+                }
+                return node
     except:
         return None
-        
+    return None
+
 # ---------------- Hysteria2 parser ----------------
 def parse_hysteria2(line):
     try:
@@ -257,60 +252,59 @@ def parse_hysteria2(line):
     return None
 
 # ---------------- Anytls parser ----------------
-def parse_anytls(line: str) -> dict | None:
+def parse_anytls(line):
     try:
-        if not line.startswith("anytls://"):
-            return None
-        return {"name": "AnyTLS Node", "type": "anytls", "raw": line}
+        if line.startswith("anytls://"):
+            m = re.match(r"anytls://([^@]+)@([^:]+):(\d+)#?(.*)", line)
+            if m:
+                password, host, port, name = m.groups()
+                node = {
+                    "name": name or "",
+                    "type": "anytls",
+                    "server": host,
+                    "port": int(port),
+                    "password": password,
+                }
+                return node
     except:
         return None
-
-# ---------------- TUIC parser----------------
-def parse_tuic(line: str) -> dict | None:
-    try:
-        if not line.startswith("tuic://"):
-            return None
-        name_fragment = ""
-        if "#" in line:
-            line, name_fragment = line.split("#", 1)
-            name_fragment = urllib.parse.unquote(name_fragment)
-        line = line[len("tuic://"):]
-        if "@" not in line:
-            return None
-        password, rest = line.split("@", 1)
-        server, port = rest.split(":", 1)
-        node = {
-            "name": name_fragment or "TUIC Node",
-            "type": "tuic",
-            "server": server,
-            "port": int(port),
-            "password": password
-        }
-        return node
-    except:
-        return None
+    return None
 
 # ---------------- Base64 parser ----------------
 def decode_b64(data: str) -> str | None:
     try:
-        padded = data + "=" * (-len(data) % 4)
-        return base64.b64decode(padded).decode("utf-8")
+        data = data.replace("-", "+").replace("_", "/")
+        padding = "=" * (-len(data) % 4)
+        return base64.b64decode(data + padding).decode("utf-8")
     except Exception:
         return None
 
+import base64, re, urllib.parse
+
 # ---------------- Shadowsocks (SS) parser ----------------
+def decode_b64(data: str) -> str | None:
+    try:
+        data = data.replace("-", "+").replace("_", "/")
+        padding = "=" * (-len(data) % 4)
+        return base64.b64decode(data + padding).decode("utf-8")
+    except Exception:
+        return None
+
 def parse_ss(ss_url: str) -> dict | None:
     try:
         ss_url = ss_url.strip()
         if not ss_url.startswith("ss://"):
             return None
+
         ss_url = ss_url[5:]
 
+        # Extract name/comment if exists
         name_fragment = ""
         if "#" in ss_url:
             ss_url, name_fragment = ss_url.split("#", 1)
             name_fragment = urllib.parse.unquote(name_fragment)
 
+        # Extract plugin query if exists
         plugin = None
         plugin_opts = None
         if "/?" in ss_url:
@@ -339,12 +333,16 @@ def parse_ss(ss_url: str) -> dict | None:
             else:
                 cipher = "aes-256-cfb"
                 password = decoded or ""
+            if ":" not in server_port:
+                return None
             server, port = server_port.rsplit(":", 1)
         else:
             decoded = decode_b64(ss_core)
             if not decoded or "@" not in decoded:
                 return None
             userinfo, server_port = decoded.split("@", 1)
+            if ":" not in userinfo or ":" not in server_port:
+                return None
             cipher, password = userinfo.split(":", 1)
             server, port = server_port.rsplit(":", 1)
 
@@ -360,48 +358,64 @@ def parse_ss(ss_url: str) -> dict | None:
             node["plugin"] = plugin
         if plugin_opts:
             node["plugin-opts"] = plugin_opts
+
         return node
-    except:
+    except Exception:
         return None
-        
+
 # ---------------- ShadowsocksR (SSR) parser ----------------
-def parse_ssr(line: str) -> dict | None:
+def parse_ssr(line):
     try:
         if not line.startswith("ssr://"):
             return None
-        raw = decode_b64(line[6:])
-        if not raw:
-            return None
-        parts = raw.split(":")
-        if len(parts) < 6:
-            return None
-        server, port, proto, cipher, obfs, rest = parts[:6]
-        pwd_b64, *params = rest.split("/?")
-        password = decode_b64(pwd_b64) or ""
+        b64 = line[6:].strip()
+        padded = b64 + "=" * (-len(b64) % 4)
+        decoded = base64.urlsafe_b64decode(padded).decode("utf-8")
 
-        query = dict(urllib.parse.parse_qsl(params[0])) if params else {}
+        parts = decoded.split("/")
+        main_part = parts[0]
+        if "?" in main_part:
+            main_part, query_string = main_part.split("?", 1)
+        else:
+            query_string = ""
+
+        items = main_part.split(":")
+        if len(items) < 6:
+            return None
+        server, port, protocol, method, obfs, password_b64 = items[:6]
+        password = base64.urlsafe_b64decode(password_b64 + "=" * (-len(password_b64) % 4)).decode()
+
         node = {
-            "name": urllib.parse.unquote(query.get("remarks", "SSR Node")),
+            "name": "",
             "type": "ssr",
             "server": server,
             "port": int(port),
-            "protocol": proto,
-            "cipher": cipher,
+            "protocol": protocol,
+            "cipher": method,
             "obfs": obfs,
             "password": password
         }
+
+        if query_string:
+            qs = urllib.parse.parse_qs(query_string)
+            if "remarks" in qs:
+                node["name"] = urllib.parse.unquote(qs["remarks"][0])
+            if "obfsparam" in qs:
+                node["obfs_param"] = base64.urlsafe_b64decode(qs["obfsparam"][0] + "=" * (-len(qs["obfsparam"][0]) % 4)).decode()
+            if "protoparam" in qs:
+                node["protocol_param"] = base64.urlsafe_b64decode(qs["protoparam"][0] + "=" * (-len(qs["protoparam"][0]) % 4)).decode()
         return node
-    except:
+    except Exception:
         return None
 
-# ---------------- Dispatcher ----------------
-def parse_node_line(line: str) -> dict | None:
-    for parser in [parse_vless, parse_vmess, parse_trojan, parse_ss, parse_ssr, parse_hysteria2, parse_anytls, parse_tuic]:
+def parse_node_line(line):
+    parsers = [parse_vmess, parse_vless, parse_trojan, parse_hysteria2, parse_anytls, parse_ss, parse_ssr]
+    for parser in parsers:
         node = parser(line)
         if node:
             return node
     return None
-        
+
 # ---------------- Correct node ----------------
 def correct_node(p, country_counter, CN_TO_CC):
     """
@@ -431,7 +445,7 @@ def correct_node(p, country_counter, CN_TO_CC):
             country_counter[cc] += 1
             index = country_counter[cc]
             # Only update the name field
-            p["name"] = f"{flag} {cc}-{index} | SN"
+            p["name"] = f"{flag}|{cc}{index}-StarLink"
             return p
 
     # 2️⃣ Emoji flag in name
@@ -443,7 +457,7 @@ def correct_node(p, country_counter, CN_TO_CC):
             cc = cc.upper()
             country_counter[cc] += 1
             index = country_counter[cc]
-            p["name"] = f"{flag} {cc}-{index} | SN"
+            p["name"] = f"{flag}|{cc}{index}-StarLink"
             return p
 
     # 3️⃣ Two-letter ISO code
@@ -453,7 +467,7 @@ def correct_node(p, country_counter, CN_TO_CC):
         flag = country_to_flag(cc)
         country_counter[cc] += 1
         index = country_counter[cc]
-        p["name"] = f"{flag} {cc}-{index} | SN"
+        p["name"] = f"{flag}|{cc}{index}-StarLink"
         return p
 
     # 4️⃣ GeoIP fallback
@@ -464,7 +478,7 @@ def correct_node(p, country_counter, CN_TO_CC):
         flag = country_to_flag(cc)
         country_counter[cc] += 1
         index = country_counter[cc]
-        p["name"] = f"{flag} {cc}-{index} | SN"
+        p["name"] = f"{flag}|{cc}{index}-StarLink"
         return p
 
     # 5️⃣ Give up if nothing matched (return original node unchanged)
