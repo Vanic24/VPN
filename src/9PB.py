@@ -240,42 +240,30 @@ def parse_trojan(line: str) -> dict | None:
 # ---------------- Hysteria2 parser ----------------
 def parse_hysteria2(line):
     try:
-        if not line.startswith("hysteria2://"):
-            return None
-
-        parsed = urllib.parse.urlparse(line)
-        name = urllib.parse.unquote(parsed.fragment) if parsed.fragment else ""
-
-        # Extract userinfo and host/port
-        password = urllib.parse.unquote(parsed.username) if parsed.username else ""
-        host = parsed.hostname
-        port = parsed.port or 443
-
-        # Query params
-        query = urllib.parse.parse_qs(parsed.query)
-
-        node = {
-            "tag": name or "",
-            "server": host,
-            "server_port": port,
-            "password": password,
-            "type": "hysteria2",
-            "attach": "",
-            "groupid": query.get("groupid", [""])[0],
-            "latency": query.get("latency", [""])[0],
-            "outlet_ip": query.get("outlet_ip", [""])[0],
-            "outlet_region": query.get("outlet_region", [""])[0],
-            "tls": {
-                "enabled": True,
-                "insecure": query.get("insecure", ["true"])[0].lower() == "true",
-                "server_name": query.get("sni", [""])[0] or host,
-            },
-        }
-
-        return node
-    except Exception as e:
-        print(f"[warn] hysteria2 parse error: {e}")
-        return None
+        if line.startswith("hysteria2://"):
+            m = re.match(r"hysteria2://([^@]+)@([^:]+):(\d+)#?(.*)", line)
+            if m:
+                password, host, port, name = m.groups()
+                node = {
+                    "name": name or "",
+                    "type": "hysteria2",
+                    "server": host,
+                    "port": int(port),
+                    "password": password,
+            		"attach": "",
+                      	 "groupid": query.get("groupid", [""])[0],
+                        	"latency": query.get("latency", [""])[0],
+                        	"outlet_ip": query.get("outlet_ip", [""])[0],
+                        	"outlet_region": query.get("outlet_region", [""])[0],
+                        	"tls": {
+                            		"enabled": True,
+                            		"insecure": query.get("insecure", ["true"])[0].lower() == "true",
+                            		"server_name": query.get("sni", [""])[0] or host,
+                            }
+                            return node
+                except:
+                    return None
+                return None
 
 # ---------------- Anytls parser ----------------
 def parse_anytls(line: str) -> dict | None:
