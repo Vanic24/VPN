@@ -696,42 +696,41 @@ def main():
         print(f"[done] wrote {OUTPUT_FILE}")
 
         # ---------------- Upload to TextDB ----------------
-        def upload_to_textdb():
-            try:
-                # Step 1: Read freshly generated Filter file (local, not GitHub raw)
-                with open("9PB", "r", encoding="utf-8") as f:
-                    output_text = f.read()
-        
-                # Step 2: Delete old record
-                delete_resp = requests.post(TEXTDB_API, data={"value": ""})
-                if delete_resp.status_code == 200:
-                    print("[info] Old record deleted on textdb")
-                else:
-                    print(f"[warn] Failed to delete old record: {delete_resp.status_code}")
-                    print(f"[warn] Response: {delete_resp.text}")
-        
-                # Wait for 3 seconds to ensure successful deletion
-                time.sleep(3)
-        
-                # Step 3: Upload to TextDB using POST
-                upload_resp = requests.post(TEXTDB_API, data={"value": output_text})
-                if upload_resp.status_code == 200:
-                    print("[info] Successfully uploaded on textdb")
-                else:
-                    print(f"[warn] Failed to upload on textdb: {upload_resp.status_code}")
-                    print(f"[warn] Response: {upload_resp.text}")
-        
-            except Exception as e:
-                print(f"[error] Unexpected error: {e}")
-        
-        
-        # ---------------- Entry ----------------
-        if __name__ == "__main__":
-            try:
-                main()
-            except Exception as e:
-                print("[FATAL ERROR]", str(e))
-                upload_to_textdb()
-                traceback.print_exc()
-                sys.exit(1)
+def upload_to_textdb():
+    try:
+        # Step 1: Read freshly generated Filter file (local, not GitHub raw)
+        with open("9PB", "r", encoding="utf-8") as f:
+            output_text = f.read()
 
+        # Step 2: Delete old record
+        delete_resp = requests.post(TEXTDB_API, data={"value": ""})
+        if delete_resp.status_code == 200:
+            print("[info] Old record deleted on textdb")
+        else:
+            print(f"[warn] Failed to delete old record: {delete_resp.status_code}")
+            print(f"[warn] Response: {delete_resp.text}")
+
+        # Wait for 3 seconds to ensure successful deletion
+        time.sleep(3)
+
+        # Step 3: Upload to TextDB using POST
+        upload_resp = requests.post(TEXTDB_API, data={"value": output_text})
+        if upload_resp.status_code == 200:
+            print("[info] Successfully uploaded on textdb")
+        else:
+            print(f"[warn] Failed to upload on textdb: {upload_resp.status_code}")
+            print(f"[warn] Response: {upload_resp.text}")
+
+    except Exception as e:
+        print(f"[error] Unexpected error: {e}")
+
+
+# ---------------- Entry ----------------
+if __name__ == "__main__":
+    try:
+        main()
+    except Exception as e:
+        print("[FATAL ERROR]", str(e))
+        upload_to_textdb()
+        traceback.print_exc()
+        sys.exit(1)
