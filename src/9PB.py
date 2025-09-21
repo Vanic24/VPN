@@ -78,6 +78,14 @@ def flag_to_country_code(flag):
     except:
         return None
 
+def load_cn_to_cc():
+    secret_data = os.environ.get("CN_TO_CC", "{}")
+    try:
+        return json.loads(secret_data)
+    except Exception as e:
+        print(f"[error] failed to parse CN_TO_CC secret: {e}")
+        return {}
+
 # ---------------- Load sources ----------------
 def load_sources():
     if not os.path.exists(SOURCES_FILE):
