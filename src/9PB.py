@@ -223,8 +223,71 @@ def parse_ss(ss_url: str) -> dict | None:
         ss_url = ss_url.strip()
         if not ss_url.startswith("ss://"):
             return None
-        # full parsing logic here (same as your original, omitted for brevity)
-        return {}  # placeholder
+
+        ss_url = ss_url[5:]
+
+        # Extract name/comment if exists
+        name_fragment = ""
+        if "#" in ss_url:
+            ss_url, name_fragment = ss_url.split("#", 1)
+            name_fragment = urllib.parse.unquote(name_fragment)
+
+        # Extract plugin query if exists
+        plugin = None
+        plugin_opts = None
+        if "/?" in ss_url:
+            ss_core, query = ss_url.split("/?", 1)
+            query_params = urllib.parse.parse_qs(query)
+            if "plugin" in query_params:
+                plugin_full = query_params["plugin"][0]
+                if ";" in plugin_full:
+                    plugin_parts = plugin_full.split(";")
+                    plugin = plugin_parts[0]
+                    plugin_opts = {}
+                    for part in plugin_parts[1:]:
+                        if "=" in part:
+                            k, v = part.split("=", 1)
+                            plugin_opts[k] = v
+                else:
+                    plugin = plugin_full
+        else:
+            ss_core = ss_url
+
+        if "@" in ss_core:
+            b64_part, server_port = ss_core.split("@", 1)
+            decoded = decode_b64(b64_part)
+            if decoded and ":" in decoded:
+                cipher, password = decoded.split(":", 1)
+            else:
+                cipher = "aes-256-cfb"
+                password = decoded or ""
+            if ":" not in server_port:
+                return None
+            server, port = server_port.rsplit(":", 1)
+        else:
+            decoded = decode_b64(ss_core)
+            if not decoded or "@" not in decoded:
+                return None
+            userinfo, server_port = decoded.split("@", 1)
+            if ":" not in userinfo or ":" not in server_port:
+                return None
+            cipher, password = userinfo.split(":", 1)
+            server, port = server_port.rsplit(":", 1)
+
+        node = {
+            "name": name_fragment or "SS Node",
+            "type": "ss",
+            "server": server.strip(),
+            "port": int(port.strip()),
+            "cipher": cipher,
+            "password": password
+        }
+        if plugin:
+            node["plugin"] = plugin
+        if plugin_opts:
+            node["plugin-opts"] = plugin_opts
+
+        return node
     except Exception:
         return None
 
@@ -271,7 +334,7 @@ def correct_node(p, country_counter, CN_TO_CC):
             flag = country_to_flag(cc)
             country_counter[cc] += 1
             index = country_counter[cc]
-            assigned_name = f"{flag}|{cc}{index}-StarLink"
+            assigned_name = f"{flag} {cc}-{index}|9PB"
             break
     else:
         # 2️⃣ Emoji flag in name
@@ -283,7 +346,7 @@ def correct_node(p, country_counter, CN_TO_CC):
                 cc = cc.upper()
                 country_counter[cc] += 1
                 index = country_counter[cc]
-                assigned_name = f"{flag}|{cc}{index}-StarLink"
+                assigned_name = f"{flag} {cc}-{index}|9PB"
         else:
             # 3️⃣ Two-letter ISO code
             iso_match = re.search(r'\b([A-Z]{2})\b', original_name)
@@ -292,7 +355,7 @@ def correct_node(p, country_counter, CN_TO_CC):
                 flag = country_to_flag(cc)
                 country_counter[cc] += 1
                 index = country_counter[cc]
-                assigned_name = f"{flag}|{cc}{index}-StarLink"
+                assigned_name = f"{flag} {cc}-{index}|9PB"
             else:
                 # 4️⃣ GeoIP fallback
                 ip = resolve_ip(host) or host
