@@ -271,44 +271,46 @@ def correct_node(p, country_counter, CN_TO_CC):
             flag = country_to_flag(cc)
             country_counter[cc] += 1
             index = country_counter[cc]
-            p["name"] = f"{flag}|{cc}{index}-StarLink"
-            return p
+            assigned_name = f"{flag}|{cc}{index}-StarLink"
+            break
+    else:
+        # 2️⃣ Emoji flag in name
+        flag_match = re.search(r'[\U0001F1E6-\U0001F1FF]{2}', name_for_match)
+        if flag_match:
+            flag = flag_match.group(0)
+            cc = flag_to_country_code(flag)
+            if cc:
+                cc = cc.upper()
+                country_counter[cc] += 1
+                index = country_counter[cc]
+                assigned_name = f"{flag}|{cc}{index}-StarLink"
+        else:
+            # 3️⃣ Two-letter ISO code
+            iso_match = re.search(r'\b([A-Z]{2})\b', original_name)
+            if iso_match:
+                cc = iso_match.group(1).upper()
+                flag = country_to_flag(cc)
+                country_counter[cc] += 1
+                index = country_counter[cc]
+                assigned_name = f"{flag}|{cc}{index}-StarLink"
+            else:
+                # 4️⃣ GeoIP fallback
+                ip = resolve_ip(host) or host
+                cc_lower, cc_upper = geo_ip(ip)
+                if cc_upper and cc_upper != "UN":
+                    cc = cc_upper
+                    flag = country_to_flag(cc)
+                    country_counter[cc] += 1
+                    index = country_counter[cc]
+                    assigned_name = f"{flag} {cc}-{index}|9PB"
+                else:
+                    # Could not assign a valid name
+                    return None
 
-    # 2️⃣ Emoji flag in name
-    flag_match = re.search(r'[\U0001F1E6-\U0001F1FF]{2}', name_for_match)
-    if flag_match:
-        flag = flag_match.group(0)
-        cc = flag_to_country_code(flag)
-        if cc:
-            cc = cc.upper()
-            country_counter[cc] += 1
-            index = country_counter[cc]
-            p["name"] = f"{flag}|{cc}{index}-StarLink"
-            return p
-
-    # 3️⃣ Two-letter ISO code
-    iso_match = re.search(r'\b([A-Z]{2})\b', original_name)
-    if iso_match:
-        cc = iso_match.group(1).upper()
-        flag = country_to_flag(cc)
-        country_counter[cc] += 1
-        index = country_counter[cc]
-        p["name"] = f"{flag}|{cc}{index}-StarLink"
-        return p
-
-    # 4️⃣ GeoIP fallback
-    ip = resolve_ip(host) or host
-    cc_lower, cc_upper = geo_ip(ip)
-    if cc_upper and cc_upper != "UN":
-        cc = cc_upper
-        flag = country_to_flag(cc)
-        country_counter[cc] += 1
-        index = country_counter[cc]
-        p["name"] = f"{flag}|{cc}{index}-StarLink"
-        return p
-
-    # 5️⃣ Give up if nothing matched
-    return None
+    # Preserve all other fields exactly, only change name
+    new_node = p.copy()
+    new_node["name"] = assigned_name
+    return new_node
 
 # ---------------- Load proxies ----------------
 def load_proxies(url):
@@ -316,15 +318,24 @@ def load_proxies(url):
         r = requests.get(url, timeout=15)
         r.raise_for_status()
         text = r.text.strip()
+
+        # Log first few lines of fetched content
+        print(f"[fetch] {url} -> first 5 lines of fetched data:")
+        for line in text.splitlines()[:5]:
+            print("       ", line)
+
         nodes = []
 
-        # ---------------- Base64 decode if applicable ----------------
+        # ---------------- Base64 decode if single line ----------------
         if len(text.splitlines()) == 1 and re.match(r'^[A-Za-z0-9+/=]+$', text):
             try:
                 decoded = base64.b64decode(text + "=" * (-len(text) % 4)).decode("utf-8")
                 text = decoded
+                print(f"[decode] Base64 decoded -> first 5 lines:")
+                for line in text.splitlines()[:5]:
+                    print("       ", line)
             except Exception:
-                pass
+                print(f"[warn] failed to decode Base64 from {url}")
 
         # ---------------- YAML parser ----------------
         if text.startswith("proxies:") or "proxies:" in text:
@@ -333,9 +344,11 @@ def load_proxies(url):
                 if "proxies" in data:
                     for p in data["proxies"]:
                         nodes.append(p)
-            except Exception:
-                pass
+                        print(f"[parse] YAML node: {p.get('name','')}")
+            except Exception as e:
+                print(f"[warn] failed to parse YAML {url} -> {e}")
         else:
+            # ---------------- Line-by-line parser ----------------
             lines = text.splitlines()
             for line in lines:
                 line = line.strip()
@@ -344,12 +357,14 @@ def load_proxies(url):
                 node = parse_node_line(line)
                 if node:
                     nodes.append(node)
+                    print(f"[parse] Node: {node.get('name','')} [{node.get('type')}]")
                 else:
                     print(f"[skip] invalid or unsupported line -> {line[:60]}...")
+
         return nodes
     except Exception as e:
         print(f"[warn] failed to fetch {url} -> {e}")
-        return []
+    return []
 
 # ---------------- Upload to TextDB ----------------
 def upload_to_textdb(output_text):
