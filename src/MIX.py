@@ -69,7 +69,7 @@ def country_to_flag(cc):
 # ---------------- Load sources ----------------
 def load_sources():
     if not os.path.exists(SOURCES_FILE):
-        print(f"[FATAL] Filter_Sources not found at {SOURCES_FILE}")
+        print(f"[FATAL] MIX_SOURCES not found at {SOURCES_FILE}")
         sys.exit(1)
     with open(SOURCES_FILE, "r", encoding="utf-8") as f:
         sources = [line.strip() for line in f if line.strip() and not line.startswith("#")]
@@ -348,7 +348,7 @@ def correct_node(p, country_counter):
     country_counter[cc_upper] += 1
     index = country_counter[cc_upper]
 
-    p["name"] = f"{flag}|{cc_upper}{index}|@SHFX"
+    p["name"] = f"{flag} {cc_upper}-{index} | MIX"
     return p
 
 # ---------------- Load and parse proxies ----------------
@@ -428,7 +428,7 @@ def load_proxies(url):
 # ---------------- Main ----------------
 def main():
     sources = load_sources()
-    print(f"[start] loaded {len(sources)} sources from Filter_Sources")
+    print(f"[start] loaded {len(sources)} sources from MIX_SOURCES")
 
     all_nodes = []
     for url in sources:
