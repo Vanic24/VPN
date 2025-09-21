@@ -128,34 +128,92 @@ def parse_vmess(line):
     return None
 
 # ---------------- Vless parser ----------------
-def parse_vless(line):
+import urllib.parse
+
+def parse_vless(line: str) -> dict | None:
     try:
-        if line.startswith("vless://"):
-            m = re.match(r"vless://([0-9a-fA-F-]+)@([^:]+):(\d+)(?:\?([^#]*))?(?:#(.*))?", line)
-            if m:
-                uuid, host, port, query, name = m.groups()
-                node = {
-                    "name": name or "",
-                    "type": "vless",
-                    "server": host,
-                    "port": int(port),
-                    "uuid": uuid,
-                    "tls": False,
-                    "network": "tcp"
-                }
-                if query:
-                    params = dict([p.split("=", 1) for p in query.split("&") if "=" in p])
-                    node["tls"] = params.get("security", "").lower() == "tls"
-                    node["network"] = params.get("type", "tcp")
-                    if node["network"] == "ws":
-                        node["ws-opts"] = {
-                            "path": params.get("path", "/"),
-                            "headers": {"Host": params.get("host", "")}
-                        }
-                return node
-    except:
+        if not line.startswith("vless://"):
+            return None
+
+        # Split off name/comment
+        name_fragment = ""
+        if "#" in line:
+            line, name_fragment = line.split("#", 1)
+            name_fragment = urllib.parse.unquote(name_fragment)
+
+        # Remove scheme
+        line = line[len("vless://"):]
+
+        # Split UUID and rest
+        if "@" not in line:
+            return None
+        uuid, rest = line.split("@", 1)
+
+        # Split host:port and query
+        if "?" in rest:
+            server_port, query_str = rest.split("?", 1)
+            query = dict(urllib.parse.parse_qsl(query_str))
+        else:
+            server_port = rest
+            query = {}
+
+        if ":" not in server_port:
+            return None
+        server, port = server_port.split(":", 1)
+
+        # --- Build node dict ---
+        node = {
+            "name": name_fragment or "VLESS Node",
+            "type": "vless",
+            "server": server.strip(),
+            "port": int(port.strip()),
+            "uuid": uuid.strip(),
+        }
+
+        # Encryption (default none)
+        if "encryption" in query:
+            node["encryption"] = query.get("encryption", "none")
+        else:
+            node["encryption"] = "none"
+
+        # TLS
+        if query.get("security") == "tls":
+            node["tls"] = True
+            node["servername"] = query.get("sni", "")
+            # keep skip-cert-verify default False
+            node["skip-cert-verify"] = query.get("allowInsecure", "0") == "1"
+            if "fp" in query:
+                node["client-fingerprint"] = query["fp"]
+        else:
+            node["tls"] = False
+
+        # Flow (for reality / xtls-rprx-vision etc.)
+        if "flow" in query:
+            node["flow"] = query["flow"]
+
+        # Network
+        if "type" in query:
+            node["network"] = query["type"]
+
+        # WS options
+        if node.get("network") == "ws":
+            ws_opts = {}
+            if "path" in query:
+                # Preserve exact path without double-encoding
+                ws_opts["path"] = urllib.parse.unquote(query["path"])
+            headers = {}
+            if "host" in query:
+                headers["Host"] = query["host"]
+            if headers:
+                ws_opts["headers"] = headers
+            if ws_opts:
+                node["ws-opts"] = ws_opts
+
+        return node
+
+    except Exception as e:
+        print(f"[warn] VLESS parse error -> {e}")
         return None
-    return None
 
 # ---------------- Trojan parser ----------------
 def parse_trojan(line):
