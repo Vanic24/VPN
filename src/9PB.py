@@ -362,17 +362,14 @@ def parse_node_line(line):
 
 # ---------------- Correct node ----------------
 def correct_node(p, country_counter, CN_TO_CC):
-    import re
-    from urllib.parse import unquote
+    """
+    Assign a standardized name to the node without changing any other fields.
+    Preserves all original fields to maintain connectivity.
+    """
 
+    # Original name
     original_name = str(p.get("name", "") or "").strip()
     host = p.get("server") or p.get("add") or ""
-    raw_port = str(p.get("port", ""))
-    try:
-        port = int(raw_port)
-    except Exception:
-        port = 443
-    p["port"] = port
 
     # Skip locked or empty names
     if not original_name or "🔒" in original_name:
@@ -380,61 +377,56 @@ def correct_node(p, country_counter, CN_TO_CC):
 
     cc = None
     flag = None
-    assigned_name = None
 
     # Decode %xx escapes in case node name came from URL fragment
     name_for_match = unquote(original_name)
 
-    # 1️⃣ Chinese mapping
+    # 1️⃣ Chinese mapping (substring match)
     for cn_name, code in CN_TO_CC.items():
         if cn_name and cn_name in name_for_match:
             cc = code.upper()
             flag = country_to_flag(cc)
             country_counter[cc] += 1
             index = country_counter[cc]
-            assigned_name = f"{flag} {cc}-{index} | 9PB"
-            break
+            # Only update the name field
+            p["name"] = f"{flag}|{cc}{index}-StarLink"
+            return p
 
-    if not assigned_name:
-        # 2️⃣ Emoji flag
-        flag_match = re.search(r'[\U0001F1E6-\U0001F1FF]{2}', name_for_match)
-        if flag_match:
-            flag = flag_match.group(0)
-            cc = flag_to_country_code(flag)
-            if cc:
-                cc = cc.upper()
-                country_counter[cc] += 1
-                index = country_counter[cc]
-                assigned_name = f"{flag} {cc}-{index} | 9PB"
-
-    if not assigned_name:
-        # 3️⃣ Two-letter ISO
-        iso_match = re.search(r'\b([A-Z]{2})\b', original_name)
-        if iso_match:
-            cc = iso_match.group(1).upper()
-            flag = country_to_flag(cc)
+    # 2️⃣ Emoji flag in name
+    flag_match = re.search(r'[\U0001F1E6-\U0001F1FF]{2}', name_for_match)
+    if flag_match:
+        flag = flag_match.group(0)
+        cc = flag_to_country_code(flag)
+        if cc:
+            cc = cc.upper()
             country_counter[cc] += 1
             index = country_counter[cc]
-            assigned_name = f"{flag} {cc}-{index} | 9PB"
+            p["name"] = f"{flag}|{cc}{index}-StarLink"
+            return p
 
-    if not assigned_name:
-        # 4️⃣ GeoIP fallback
-        ip = resolve_ip(host) or host
-        cc_lower, cc_upper = geo_ip(ip)
-        if cc_upper and cc_upper != "UN":
-            cc = cc_upper
-            flag = country_to_flag(cc)
-            country_counter[cc] += 1
-            index = country_counter[cc]
-            assigned_name = f"{flag} {cc}-{index} | 9PB"
+    # 3️⃣ Two-letter ISO code
+    iso_match = re.search(r'\b([A-Z]{2})\b', original_name)
+    if iso_match:
+        cc = iso_match.group(1).upper()
+        flag = country_to_flag(cc)
+        country_counter[cc] += 1
+        index = country_counter[cc]
+        p["name"] = f"{flag}|{cc}{index}-StarLink"
+        return p
 
-    if not assigned_name:
-        return None
+    # 4️⃣ GeoIP fallback
+    ip = resolve_ip(host) or host
+    cc_lower, cc_upper = geo_ip(ip)
+    if cc_upper and cc_upper != "UN":
+        cc = cc_upper
+        flag = country_to_flag(cc)
+        country_counter[cc] += 1
+        index = country_counter[cc]
+        p["name"] = f"{flag}|{cc}{index}-StarLink"
+        return p
 
-    # ✅ Only change name; preserve all other fields
-    new_node = p.copy()
-    new_node["name"] = assigned_name
-    return new_node
+    # 5️⃣ Give up if nothing matched (return original node unchanged)
+    return p
 
 # ---------------- Load proxies ----------------
 def load_proxies(url):
