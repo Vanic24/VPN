@@ -341,7 +341,8 @@ def parse_ssr(line):
         return node
     except Exception:
         return None
-
+        
+# ---------------- Correct node ----------------
 def parse_node_line(line):
     parsers = [parse_vmess, parse_vless, parse_trojan, parse_hysteria2, parse_anytls, parse_ss, parse_ssr]
     for parser in parsers:
@@ -349,29 +350,30 @@ def parse_node_line(line):
         if node:
             return node
     return None
-    
+
 def correct_node(p, country_counter, CN_TO_CC):
-    import re
-    from urllib.parse import unquote
+    """
+    Correct the 'tag' of the node while keeping all other fields intact.
+    Handles:
+    1️⃣ Chinese country names via CN_TO_CC
+    2️⃣ Emoji flags in name
+    3️⃣ ISO 2-letter codes
+    4️⃣ GeoIP fallback
+    Only updates the 'tag' / 'name', preserves all other node fields for VLESS connectivity.
+    """
+    # 1️⃣ Get the original node name
+    original_name = str(p.get("name", "") or p.get("tag", "") or "").strip()
+    original_name = unquote(original_name)
 
-    original_name = str(p.get("name", "") or "").strip()
-    host = p.get("server") or p.get("add") or ""
-    raw_port = str(p.get("port", ""))
-    try:
-        port = int(raw_port)
-    except Exception:
-        port = 443
-    p["port"] = port
-
-    # Skip locked or empty names
+    # Skip empty or locked nodes
     if not original_name or "🔒" in original_name:
         return None
 
     cc = None
     flag = None
 
-    # Decode %xx escapes in case node name came from URL fragment
-    name_for_match = unquote(original_name)
+    # Cleaned name for matching (strip numbers, extra words)
+    name_for_match = re.sub(r'[\d\-–—].*$', '', original_name)
 
     # 1️⃣ Chinese mapping (substring match)
     for cn_name, code in CN_TO_CC.items():
@@ -380,11 +382,11 @@ def correct_node(p, country_counter, CN_TO_CC):
             flag = country_to_flag(cc)
             country_counter[cc] += 1
             index = country_counter[cc]
-            p["name"] = f"{flag}|{cc}{index}-StarLink"
+            p["tag"] = f"{flag}|{cc}{index}-StarLink"
             return p
 
     # 2️⃣ Emoji flag in name
-    flag_match = re.search(r'[\U0001F1E6-\U0001F1FF]{2}', name_for_match)
+    flag_match = re.search(r'[\U0001F1E6-\U0001F1FF]{2}', original_name)
     if flag_match:
         flag = flag_match.group(0)
         cc = flag_to_country_code(flag)
@@ -392,7 +394,7 @@ def correct_node(p, country_counter, CN_TO_CC):
             cc = cc.upper()
             country_counter[cc] += 1
             index = country_counter[cc]
-            p["name"] = f"{flag}|{cc}{index}-StarLink"
+            p["tag"] = f"{flag}|{cc}{index}-StarLink"
             return p
 
     # 3️⃣ Two-letter ISO code
@@ -402,10 +404,11 @@ def correct_node(p, country_counter, CN_TO_CC):
         flag = country_to_flag(cc)
         country_counter[cc] += 1
         index = country_counter[cc]
-        p["name"] = f"{flag}|{cc}{index}-StarLink"
+        p["tag"] = f"{flag}|{cc}{index}-StarLink"
         return p
 
     # 4️⃣ GeoIP fallback
+    host = p.get("server") or p.get("add") or ""
     ip = resolve_ip(host) or host
     cc_lower, cc_upper = geo_ip(ip)
     if cc_upper and cc_upper != "UN":
@@ -413,11 +416,12 @@ def correct_node(p, country_counter, CN_TO_CC):
         flag = country_to_flag(cc)
         country_counter[cc] += 1
         index = country_counter[cc]
-        p["name"] = f"{flag}|{cc}{index}-StarLink"
+        p["tag"] = f"{flag}|{cc}{index}-StarLink"
         return p
 
     # 5️⃣ Give up if nothing matched
-    return None
+    p["tag"] = original_name  # keep original
+    return p
     
 # ---------------- Load and parse proxies ----------------
 def load_proxies(url):
@@ -523,16 +527,16 @@ def main():
         country_counter = defaultdict(int)
 
        # ---------------- Correct nodes ----------------
-    country_counter = defaultdict(int)
-    corrected_nodes = []
+country_counter = defaultdict(int)
+corrected_nodes = []
 
-    # load CN_TO_CC mapping from secrets repo (JSON file)
-    cn_to_cc = load_cn_to_cc()  
+# load CN_TO_CC mapping from secrets repo (JSON file)
+cn_to_cc = load_cn_to_cc()  
 
-    for n in filtered_nodes:
-        res = correct_node(n, country_counter, cn_to_cc)
-        if res:
-            corrected_nodes.append(res)
+for n in filtered_nodes:
+    res = correct_node(n, country_counter, cn_to_cc)
+    if res:
+        corrected_nodes.append(res)
 
     # ---------------- Load template ----------------
     try:
