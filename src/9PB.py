@@ -15,6 +15,7 @@ import pycountry
 import json
 import urllib.parse
 from urllib.parse import unquote
+from urllib.parse import urlparse, parse_qs
 
 # ---------------- Config ----------------
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
@@ -638,18 +639,29 @@ def main():
                     latency = f.result()
                     if latency <= LATENCY_THRESHOLD:
                         filtered_nodes.append(n)
-            print(f"[latency] {len(filtered_nodes)} nodes after latency filtering")
+
+            num_filtered = len(all_nodes) - len(filtered_nodes)
+            print(f"[latency] filtered {num_filtered} nodes due to latency")
+            print(f"[latency] {len(filtered_nodes)} nodes remain after latency filtering")
         else:
             filtered_nodes = all_nodes
             country_counter = defaultdict(int)
+            print(f"[latency] latency filter disabled, {len(filtered_nodes)} nodes remain")
 
         # ---------------- Correct nodes ----------------
         corrected_nodes = []
         cn_to_cc = load_cn_to_cc()
+        skipped_nodes = 0
         for n in filtered_nodes:
             res = correct_node(n, country_counter, cn_to_cc)
             if res:
                 corrected_nodes.append(res)
+            else:
+                skipped_nodes += 1
+
+        if skipped_nodes > 0:
+            print(f"[correct] skipped {skipped_nodes} nodes that could not be assigned a name")
+        print(f"[correct] {len(corrected_nodes)} nodes remain after name correction")
 
         if not corrected_nodes:
             print("[FATAL] No valid nodes after processing. Abort upload.")
@@ -683,14 +695,34 @@ def main():
             f.write(f"# Last update: {timestamp}\n" + output_text)
         print(f"[done] wrote {OUTPUT_FILE}")
 
-        # ---------------- Upload ----------------
-        success = upload_to_textdb(output_text)
-        if not success:
-            print("[warn] Upload failed. Check TextDB API.")
-    except Exception as e:
-        print("[FATAL ERROR]", str(e))
-        traceback.print_exc()
-        sys.exit(1)
+        # ---------------- Upload to TextDB ----------------
+        def upload_to_textdb():
+            try:
+                # Step 1: Read freshly generated Filter file (local, not GitHub raw)
+                with open("9PB", "r", encoding="utf-8") as f:
+                    output_text = f.read()
+        
+                # Step 2: Delete old record
+                delete_resp = requests.post(TEXTDB_API, data={"value": ""})
+                if delete_resp.status_code == 200:
+                    print("[info] Old record deleted on textdb")
+                else:
+                    print(f"[warn] Failed to delete old record: {delete_resp.status_code}")
+                    print(f"[warn] Response: {delete_resp.text}")
+        
+                # Wait for 3 seconds to ensure successful deletion.
+                time.sleep(3)
+        
+                # Step 3: Upload to TextDB using POST (to avoid URL size limits)
+                upload_resp = requests.post(TEXTDB_API, data={"value": output_text})
+                if upload_resp.status_code == 200:
+                    print("[info] Successfully uploaded on textdb")
+                else:
+                    print(f"[warn] Failed to upload on textdb: {upload_resp.status_code}")
+                    print(f"[warn] Response: {upload_resp.text}")
+        
+            except Exception as e:
+                print(f"[error] Unexpected error: {e}")
 
 # ---------------- Entry ----------------
 if __name__ == "__main__":
