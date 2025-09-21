@@ -243,21 +243,14 @@ def parse_hysteria2(line):
         if not line.startswith("hysteria2://"):
             return None
 
-        # ---- Try standard URL parser ----
         parsed = urllib.parse.urlparse(line)
+        query = urllib.parse.parse_qs(parsed.query)
 
+        # Extract base fields
         name = urllib.parse.unquote(parsed.fragment) if parsed.fragment else ""
         password = urllib.parse.unquote(parsed.username) if parsed.username else ""
         host = parsed.hostname
         port = parsed.port or 443
-        query = urllib.parse.parse_qs(parsed.query)
-
-        # If URL parser fails to extract host/port, fallback to regex
-        if not host or not port:
-            m = re.match(r"hysteria2://([^@]+)@([^:]+):(\d+)#?(.*)", line)
-            if m:
-                password, host, port, name = m.groups()
-                port = int(port)
 
         if not host:
             return None
@@ -275,9 +268,10 @@ def parse_hysteria2(line):
             "outlet_region": query.get("outlet_region", [""])[0],
             "tls": {
                 "enabled": True,
-                "insecure": query.get("insecure", ["true"])[0].lower() == "true",
+                "insecure": query.get("insecure", ["true"])[0].lower() == "true",  # default true
                 "server_name": query.get("sni", [""])[0] or host,
             },
+            # Preserve original resolver if provided, fallback to local
             "domain_resolver": query.get("domain_resolver", ["local"])[0],
         }
 
