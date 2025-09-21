@@ -726,4 +726,10 @@ def main():
 
 # ---------------- Entry ----------------
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        print("[FATAL ERROR]", str(e))
+        upload_to_textdb()
+        traceback.print_exc()
+        sys.exit(1)
