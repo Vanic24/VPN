@@ -695,15 +695,41 @@ def main():
             f.write(f"# Last update: {timestamp}\n" + output_text)
         print(f"[done] wrote {OUTPUT_FILE}")
 
-        # ---------------- Upload ----------------
-        success = upload_to_textdb(output_text)
-        if not success:
-            print("[warn] Upload failed. Check TextDB API.")
+       # ---------------- Upload to TextDB ----------------
+def upload_to_textdb():
+    try:
+        # Step 1: Read freshly generated Filter file (local, not GitHub raw)
+        with open("8EB", "r", encoding="utf-8") as f:
+            output_text = f.read()
+
+        # Step 2: Delete old record
+        delete_resp = requests.post(TEXTDB_API, data={"value": ""})
+        if delete_resp.status_code == 200:
+            print("[info] Old record deleted on textdb")
+        else:
+            print(f"[warn] Failed to delete old record: {delete_resp.status_code}")
+            print(f"[warn] Response: {delete_resp.text}")
+
+        # Wait 3 seconds
+        time.sleep(3)
+
+        # Step 3: Upload new record
+        upload_resp = requests.post(TEXTDB_API, data={"value": output_text})
+        if upload_resp.status_code == 200:
+            print("[info] Successfully uploaded new data on textdb")
+        else:
+            print(f"[warn] Failed to upload on textdb: {upload_resp.status_code}")
+            print(f"[warn] Response: {upload_resp.text}")
+
     except Exception as e:
-        print("[FATAL ERROR]", str(e))
-        traceback.print_exc()
-        sys.exit(1)
+        print(f"[error] Unexpected error: {e}")
 
 # ---------------- Entry ----------------
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        print("[FATAL ERROR]", str(e))
+        upload_to_textdb()
+        traceback.print_exc()
+        sys.exit(1)
