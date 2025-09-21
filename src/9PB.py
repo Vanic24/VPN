@@ -255,22 +255,25 @@ def parse_hysteria2(line):
         query = urllib.parse.parse_qs(parsed.query)
 
         node = {
-            "name": name,
-            "type": "hysteria2",
+            "tag": name or "",
             "server": host,
-            "port": port,
+            "server_port": port,
             "password": password,
+            "type": "hysteria2",
+            "attach": "",
+            "groupid": query.get("groupid", [""])[0],
+            "latency": query.get("latency", [""])[0],
+            "outlet_ip": query.get("outlet_ip", [""])[0],
+            "outlet_region": query.get("outlet_region", [""])[0],
+            "tls": {
+                "enabled": True,
+                "insecure": query.get("insecure", ["true"])[0].lower() == "true",
+                "server_name": query.get("sni", [""])[0] or host,
+            },
         }
 
-        # Optional fields
-        if "obfs" in query:
-            node["obfs"] = query["obfs"][0]
-        if "sni" in query:
-            node["sni"] = query["sni"][0]
-        if "alpn" in query:
-            node["alpn"] = query["alpn"][0].split(",")
-        if "udp" in query:
-            node["udp"] = query["udp"][0].lower() == "true"
+        # Optional: domain_resolver (defaults to local if not provided)
+        node["domain_resolver"] = query.get("domain_resolver", ["local"])[0]
 
         return node
     except Exception as e:
