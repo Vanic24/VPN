@@ -392,7 +392,7 @@ def correct_node(p, country_counter, CN_TO_CC):
             flag = country_to_flag(cc)
             country_counter[cc] += 1
             index = country_counter[cc]
-            assigned_name = f"{flag}|{cc}{index}-StarLink"
+            assigned_name = f"{flag} {cc}-{index} | 9PB"
             break
 
     if not assigned_name:
@@ -405,7 +405,7 @@ def correct_node(p, country_counter, CN_TO_CC):
                 cc = cc.upper()
                 country_counter[cc] += 1
                 index = country_counter[cc]
-                assigned_name = f"{flag}|{cc}{index}-StarLink"
+                assigned_name = f"{flag} {cc}-{index} | 9PB"
 
     if not assigned_name:
         # 3️⃣ Two-letter ISO
@@ -415,7 +415,7 @@ def correct_node(p, country_counter, CN_TO_CC):
             flag = country_to_flag(cc)
             country_counter[cc] += 1
             index = country_counter[cc]
-            assigned_name = f"{flag}|{cc}{index}-StarLink"
+            assigned_name = f"{flag} {cc}-{index} | 9PB"
 
     if not assigned_name:
         # 4️⃣ GeoIP fallback
@@ -426,7 +426,7 @@ def correct_node(p, country_counter, CN_TO_CC):
             flag = country_to_flag(cc)
             country_counter[cc] += 1
             index = country_counter[cc]
-            assigned_name = f"{flag}|{cc}{index}-StarLink"
+            assigned_name = f"{flag} {cc}-{index} | 9PB"
 
     if not assigned_name:
         return None
