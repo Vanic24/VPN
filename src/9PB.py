@@ -695,7 +695,16 @@ def main():
             f.write(f"# Last update: {timestamp}\n" + output_text)
         print(f"[done] wrote {OUTPUT_FILE}")
 
-       # ---------------- Upload to TextDB ----------------
+        # Always upload after processing
+        upload_to_textdb()
+
+    except Exception as e:
+        print("[FATAL ERROR in main]", str(e))
+        upload_to_textdb()
+        traceback.print_exc()
+        sys.exit(1)
+
+# ---------------- Upload to TextDB ----------------
 def upload_to_textdb():
     try:
         # Step 1: Read freshly generated Filter file (local, not GitHub raw)
@@ -726,10 +735,4 @@ def upload_to_textdb():
 
 # ---------------- Entry ----------------
 if __name__ == "__main__":
-    try:
-        main()
-    except Exception as e:
-        print("[FATAL ERROR]", str(e))
-        upload_to_textdb()
-        traceback.print_exc()
-        sys.exit(1)
+    main()
