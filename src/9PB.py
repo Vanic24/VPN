@@ -272,9 +272,6 @@ def parse_hysteria2(line):
             },
         }
 
-        # Optional: domain_resolver (defaults to local if not provided)
-        node["domain_resolver"] = query.get("domain_resolver", ["local"])[0]
-
         return node
     except Exception as e:
         print(f"[warn] hysteria2 parse error: {e}")
