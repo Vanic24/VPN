@@ -489,6 +489,9 @@ def correct_node(p, country_counter, CN_TO_CC):
     if not original_name or any(e in original_name for e in FORBIDDEN_EMOJIS):
         return None
 
+    cc = None
+    flag = None
+
     # Decode %xx escapes in case node name came from URL fragment
     name_for_match = unquote(original_name)
 
