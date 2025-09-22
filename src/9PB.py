@@ -247,73 +247,45 @@ def parse_hysteria2(line):
         if not line.startswith("hysteria2://"):
             return None
 
-        # regex: capture password, host, port, optional query, optional fragment(name)
-        m = re.match(r'hysteria2://([^@]+)@([^:\/?#]+):(\d+)(?:\?([^#]*))?(?:#(.*))?$', line)
-        password = host = port = query_str = frag = None
-
-        if m:
-            password, host, port, query_str, frag = m.groups()
-        else:
-            parsed = urllib.parse.urlparse(line)
-            password = urllib.parse.unquote(parsed.username or "")
-            host = parsed.hostname
-            port = parsed.port or None
-            query_str = parsed.query or ""
-            frag = urllib.parse.unquote(parsed.fragment or "")
+        parsed = urllib.parse.urlparse(line)
+        username = urllib.parse.unquote(parsed.username or "")
+        host = parsed.hostname
+        port = parsed.port
+        frag = urllib.parse.unquote_plus(parsed.fragment or "")
+        query = urllib.parse.parse_qs(parsed.query or "")
 
         if not host or not port:
             return None
 
-        name = urllib.parse.unquote(frag or "") if frag else ""
         node = {
-            "name": name,
+            "name": frag or "",
             "type": "hysteria2",
             "server": host,
             "port": int(port),
-            "password": urllib.parse.unquote(password or ""),
-            # force skip verification as requested
+            "password": username,
             "skip-cert-verify": True
         }
 
-        qdict = {}
-        if query_str:
-            qdict = urllib.parse.parse_qs(query_str)
+        # Normalize query keys to lowercase
+        query_lower = {k.lower(): v for k, v in query.items()}
 
-        # optional fields only if present
-        if "sni" in qdict:
-            node.setdefault("tls", {"enabled": True})
-            node["tls"]["server_name"] = qdict.get("sni", [host])[0]
-            node["tls"]["insecure"] = qdict.get("insecure", ["true"])[0].lower() in ("1","true","yes")
+        if "sni" in query_lower or "insecure" in query_lower:
+            node["tls"] = {"enabled": True}
+            node["tls"]["server_name"] = query_lower.get("sni", [host])[0]
+            node["tls"]["insecure"] = query_lower.get("insecure", ["true"])[0].lower() in ("1", "true", "yes")
 
-        if "udp" in qdict:
-            node["udp"] = qdict.get("udp", [""])[0].lower() in ("1","true","yes")
+        if "udp" in query_lower:
+            node["udp"] = query_lower.get("udp", [""])[0].lower() in ("1", "true", "yes")
 
-        for fld in ("groupid", "outlet_ip", "outlet_region", "latency", "domain_resolver"):
-            if fld in qdict:
-                node[fld] = qdict.get(fld, [""])[0]
+        # Capture optional metadata
+        for fld in ("groupid", "outlet_ip", "outlet_region", "latency", "domain_resolver", "auth", "obfs"):
+            if fld in query_lower:
+                node[fld] = query_lower.get(fld, [""])[0]
 
         return node
 
     except Exception as e:
         print(f"[warn] hysteria2 parse error: {e} -> {line[:120]}")
-        return None
-        
-# ---------------- Anytls parser ----------------
-def parse_anytls(line):
-    try:
-        if line.startswith("anytls://"):
-            m = re.match(r"anytls://([^@]+)@([^:]+):(\d+)(?:\?([^#]*))?#?(.*)?$", line)
-            if m:
-                password, host, port, name = m.groups()
-                node = {
-                    "name": name or "",
-                    "type": "anytls",
-                    "server": host,
-                    "port": int(port),
-                    "password": password,
-                }
-                return node
-    except:
         return None
 
 # ---------------- TUIC parser ----------------
