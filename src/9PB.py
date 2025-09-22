@@ -6,13 +6,16 @@ import requests
 import socket
 import concurrent.futures
 import traceback
+from babel import Locale
 from collections import defaultdict
 from datetime import datetime, timedelta, timezone
 import base64
 import re
+import pycountry
 import json
 import urllib.parse
-from urllib.parse import unquote, urlparse, parse_qs
+from urllib.parse import unquote
+from urllib.parse import urlparse, parse_qs
 
 # ---------------- Config ----------------
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
@@ -22,7 +25,6 @@ TEMPLATE_URL = "https://raw.githubusercontent.com/Vanic24/VPN/refs/heads/main/Cl
 TEXTDB_API = "https://textdb.online/update/?key=9PB_SHFX&value={}"
 URL_9PB = "https://raw.githubusercontent.com/Vanic24/VPN/refs/heads/main/9PB"
 CN_TO_CC = json.loads(os.getenv("CN_TO_CC", "{}"))
-USE_ONLY_GEOIP = os.getenv("USE_ONLY_GEOIP", "false").lower() == "true"
 
 # ---------------- Inputs ----------------
 use_latency_env = os.environ.get("LATENCY_FILTER", "false").lower()
@@ -97,15 +99,6 @@ def load_sources():
         sys.exit(1)
     return sources
 
-# ---------------- Base64 helper ----------------
-def decode_b64(data: str) -> str | None:
-    try:
-        data = data.replace("-", "+").replace("_", "/")
-        padding = "=" * (-len(data) % 4)
-        return base64.b64decode(data + padding).decode("utf-8")
-    except Exception:
-        return None
-
 # ---------------- Vmess parsers ----------------
 def parse_vmess(line):
     try:
@@ -131,8 +124,7 @@ def parse_vmess(line):
                     "headers": {"Host": data.get("host", "")}
                 }
             return node
-    except Exception as e:
-        print(f"[warn] vmess parse error: {e}")
+    except:
         return None
     return None
 
@@ -226,18 +218,18 @@ def parse_vless(line: str) -> dict | None:
 def parse_trojan(line):
     try:
         if line.startswith("trojan://"):
-            m = re.match(r"trojan://([^@]+)@([^:]+):(\d+)(?:\?(.*))?#?(.*)?$", line)
+            m = re.match(r"trojan://([^@]+)@([^:]+):(\d+)#?(.*)", line)
             if m:
                 password, host, port, name = m.groups()
                 node = {
-                    "name": urllib.parse.unquote(name or "") if name else "",
+                    "name": name or "",
                     "type": "trojan",
                     "server": host,
                     "port": int(port),
                     "password": password,
                 }
                 return node
-    except Exception:
+    except:
         return None
     return None
 
@@ -247,47 +239,73 @@ def parse_hysteria2(line):
         if not line.startswith("hysteria2://"):
             return None
 
-        parsed = urllib.parse.urlparse(line)
-        username = urllib.parse.unquote(parsed.username or "")
-        host = parsed.hostname
-        port = parsed.port
-        frag = urllib.parse.unquote_plus(parsed.fragment or "")
-        query = urllib.parse.parse_qs(parsed.query or "")
+        # regex: capture password, host, port, optional query, optional fragment(name)
+        m = re.match(r'hysteria2://([^@]+)@([^:\/?#]+):(\d+)(?:\?([^#]*))?(?:#(.*))?$', line)
+        password = host = port = query_str = frag = None
+
+        if m:
+            password, host, port, query_str, frag = m.groups()
+        else:
+            # fallback: try urlparse if regex fails (covers some odd variants)
+            parsed = urllib.parse.urlparse(line)
+            # parsed.username may be encoded; use split on netloc if needed
+            password = urllib.parse.unquote(parsed.username or "")
+            host = parsed.hostname
+            port = parsed.port or None
+            query_str = parsed.query or ""
+            frag = urllib.parse.unquote(parsed.fragment or "")
 
         if not host or not port:
+            # couldn't get host/port -> invalid
             return None
 
+        # Basic node structure (keep same keys your clients accept)
+        name = urllib.parse.unquote(frag or "") if frag else ""
         node = {
-            "name": frag or "",
+            "name": name,
             "type": "hysteria2",
             "server": host,
             "port": int(port),
-            "password": username,
+            "password": urllib.parse.unquote(password or ""),
             "skip-cert-verify": True
         }
 
-        # Normalize query keys to lowercase
-        query_lower = {k.lower(): v for k, v in query.items()}
+        # Parse query string into dict of lists
+        qdict = {}
+        if query_str:
+            qdict = urllib.parse.parse_qs(query_str)
 
-        if "sni" in query_lower or "insecure" in query_lower:
-            node["tls"] = {"enabled": True}
-            node["tls"]["server_name"] = query_lower.get("sni", [host])[0]
-            node["tls"]["insecure"] = query_lower.get("insecure", ["true"])[0].lower() in ("1", "true", "yes")
+        # OPTIONAL: include extra fields ONLY if present in the query
+        # (these won't be added if absent, keeping backward compatibility)
+        if "insecure" in qdict or "sni" in qdict:
+            tls_obj = {"enabled": True}
+            if "insecure" in qdict:
+                v = qdict.get("insecure", ["true"])[0]
+                tls_obj["insecure"] = str(v).lower() in ("1", "true", "yes")
+            if "sni" in qdict:
+                tls_obj["server_name"] = qdict.get("sni", [host])[0]
+            node["tls"] = tls_obj
 
-        if "udp" in query_lower:
-            node["udp"] = query_lower.get("udp", [""])[0].lower() in ("1", "true", "yes")
+        if "udp" in qdict:
+            v = qdict.get("udp", [""])[0]
+            node["udp"] = str(v).lower() in ("1", "true", "yes")
 
-        # Capture optional metadata
-        for fld in ("groupid", "outlet_ip", "outlet_region", "latency", "domain_resolver", "auth", "obfs"):
-            if fld in query_lower:
-                node[fld] = query_lower.get(fld, [""])[0]
+        # Keep the same field name your clients may expect for 'server_port' as well,
+        # but only add it if you want; comment out next line if it causes problems.
+        # node["server_port"] = int(port)
+
+        # Additional optional metadata if present
+        for fld in ("groupid", "outlet_ip", "outlet_region", "latency", "domain_resolver"):
+            if fld in qdict:
+                node[fld] = qdict.get(fld, [""])[0]
 
         return node
 
     except Exception as e:
+        # keep the error log brief and include line prefix so you can trace problematic ones
         print(f"[warn] hysteria2 parse error: {e} -> {line[:120]}")
         return None
-
+        
 # ---------------- Anytls parser ----------------
 def parse_anytls(line):
     try:
@@ -307,29 +325,26 @@ def parse_anytls(line):
         return None
     return None
 
-# ---------------- TUIC parser ----------------
-def parse_tuic(line: str) -> dict | None:
+# ---------------- Base64 parser ----------------
+def decode_b64(data: str) -> str | None:
     try:
-        if not line.startswith("tuic://"):
-            return None
-        # basic parse: tuic://password@host:port#name
-        m = re.match(r"tuic://([^@]+)@([^:]+):(\d+)(?:\?([^#]*))?(?:#(.*))?$", line)
-        if not m:
-            return None
-        password, host, port, q, frag = m.groups()
-        name = urllib.parse.unquote(frag or "") if frag else ""
-        node = {
-            "name": name,
-            "type": "tuic",
-            "server": host,
-            "port": int(port),
-            "password": urllib.parse.unquote(password or "")
-        }
-        return node
+        data = data.replace("-", "+").replace("_", "/")
+        padding = "=" * (-len(data) % 4)
+        return base64.b64decode(data + padding).decode("utf-8")
     except Exception:
         return None
 
+import base64, re, urllib.parse
+
 # ---------------- Shadowsocks (SS) parser ----------------
+def decode_b64(data: str) -> str | None:
+    try:
+        data = data.replace("-", "+").replace("_", "/")
+        padding = "=" * (-len(data) % 4)
+        return base64.b64decode(data + padding).decode("utf-8")
+    except Exception:
+        return None
+
 def parse_ss(ss_url: str) -> dict | None:
     try:
         ss_url = ss_url.strip()
@@ -448,9 +463,8 @@ def parse_ssr(line):
     except Exception:
         return None
 
-# ---------------- Dispatcher ----------------    
 def parse_node_line(line):
-    parsers = [parse_vmess, parse_vless, parse_trojan, parse_hysteria2, parse_anytls, parse_ss, parse_ssr, parse_tuic]
+    parsers = [parse_vmess, parse_vless, parse_trojan, parse_hysteria2, parse_anytls, parse_ss, parse_ssr]
     for parser in parsers:
         node = parser(line)
         if node:
@@ -461,8 +475,6 @@ def parse_node_line(line):
 def correct_node(p, country_counter, CN_TO_CC):
     """
     Assign a standardized name to the node without changing any other fields.
-    Skip nodes with forbidden emojis or empty names.
-    If USE_ONLY_GEOIP is True, assign name by GeoIP only.
     Preserves all original fields to maintain connectivity.
     """
 
@@ -477,24 +489,11 @@ def correct_node(p, country_counter, CN_TO_CC):
     if not original_name or any(e in original_name for e in FORBIDDEN_EMOJIS):
         return None
 
-    # Decode %xx escapes in case node name came from URL fragment
-    name_for_match = unquote(original_name)
-
     cc = None
     flag = None
 
-    # 🚨 If option is set, only do GeoIP
-    if USE_ONLY_GEOIP:
-        ip = resolve_ip(host) or host
-        cc_lower, cc_upper = geo_ip(ip)
-        if cc_upper and cc_upper != "UN":
-            cc = cc_upper
-            flag = country_to_flag(cc)
-            country_counter[cc] += 1
-            index = country_counter[cc]
-            p["name"] = f"{flag} {cc}-{index} | 9PB"
-            return p
-        return None
+    # Decode %xx escapes in case node name came from URL fragment
+    name_for_match = unquote(original_name)
 
     # 1️⃣ Chinese mapping (substring match)
     for cn_name, code in CN_TO_CC.items():
@@ -519,7 +518,7 @@ def correct_node(p, country_counter, CN_TO_CC):
             p["name"] = f"{flag} {cc}-{index} | 9PB"
             return p
 
-    # 3️⃣ Two-letter ISO code (UPPER CASE)
+    # 3️⃣ Two-letter ISO code
     iso_match = re.search(r'\b([A-Z]{2})\b', original_name)
     if iso_match:
         cc = iso_match.group(1).upper()
@@ -565,7 +564,7 @@ def load_proxies(url):
             except Exception:
                 print(f"[warn] failed Base64 decode for {url}")
 
-        # Parse as YAML (Clash)
+        # Parse as YAML
         if text.startswith("proxies:") or "proxies:" in text:
             try:
                 data = yaml.safe_load(text)
@@ -574,7 +573,7 @@ def load_proxies(url):
                         nodes.append(p)
                         print(f"[parse] YAML node: {p.get('name','')}")
             except Exception as e:
-                print(f"[warn] Failed YAML parse {url}: {e}")
+                print(f"[warn] failed YAML parse {url}: {e}")
         else:
             # Parse as individual subscription lines
             for line in text.splitlines():
@@ -586,12 +585,12 @@ def load_proxies(url):
                     print(f"[parsed] {json.dumps(node, ensure_ascii=False)}")
                     nodes.append(node)
                 else:
-                    print(f"[skip] Invalid or unsupported line -> {line[:60]}...")
+                    print(f"[skip] invalid or unsupported line -> {line[:60]}...")
 
         return nodes
 
     except Exception as e:
-        print(f"[warn] Failed to fetch {url} -> {e}")
+        print(f"[warn] failed fetch {url} -> {e}")
         return []
 
 # ---------------- Main ----------------
@@ -640,7 +639,7 @@ def main():
                 skipped_nodes += 1
 
         if skipped_nodes > 0:
-            print(f"[correct] Skipped {skipped_nodes} nodes that could not be assigned a name or include forbidden emoji")
+            print(f"[correct] skipped {skipped_nodes} nodes that could not be assigned a name")
         print(f"[correct] {len(corrected_nodes)} nodes remain after name correction")
 
         if not corrected_nodes:
@@ -653,7 +652,7 @@ def main():
             r.raise_for_status()
             template_text = r.text
         except Exception as e:
-            print(f"[FATAL] Failed to fetch template -> {e}")
+            print(f"[FATAL] failed to fetch template -> {e}")
             sys.exit(1)
 
         # ---------------- Convert to YAML ----------------
@@ -675,11 +674,12 @@ def main():
             f.write(f"# Last update: {timestamp}\n" + output_text)
         print(f"[done] wrote {OUTPUT_FILE}")
 
-        # ✅ Upload only after successful processing
+        # Always upload after processing
         upload_to_textdb()
 
     except Exception as e:
         print("[FATAL ERROR in main]", str(e))
+        upload_to_textdb()
         traceback.print_exc()
         sys.exit(1)
 
