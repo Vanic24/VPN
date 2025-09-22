@@ -93,7 +93,7 @@ def load_sources():
     with open(SOURCES_FILE, "r", encoding="utf-8") as f:
         sources = [line.strip() for line in f if line.strip() and not line.startswith("#")]
     if not sources:
-        print(f"[FATAL] 🤷‍♂️ Source is empty. Please check the secret or file content.")
+        print(f"[FATAL] 🕵️ Source is empty. Please check the secret or file content.")
         sys.exit(1)
     return sources
 
@@ -575,7 +575,7 @@ def load_proxies(url):
         r.raise_for_status()
         text = r.text.strip()
 
-        print(f"[fetch] {url} -> {len(text.splitlines())} lines fetched")
+        print(f"[fetch] 📥 {len(text.splitlines())} lines fetched from subscription links")
         for line in text.splitlines()[:5]:
             print("       ", line[:80])
 
@@ -586,7 +586,7 @@ def load_proxies(url):
             try:
                 decoded = base64.b64decode(text + "=" * (-len(text) % 4)).decode("utf-8")
                 text = decoded
-                print(f"[decode] Base64 decoded -> {len(text.splitlines())} lines")
+                print(f"[decode] 🔓 Base64 decoded -> {len(text.splitlines())} lines")
             except Exception:
                 print(f"[warn] 😭 Base64 decode failed. {url}")
 
@@ -597,7 +597,7 @@ def load_proxies(url):
                 if "proxies" in data:
                     for p in data["proxies"]:
                         nodes.append(p)
-                        print(f"[parse] YAML node: {p.get('name','')}")
+                        print(f"[parse] 🔎 YAML node: {p.get('name','')}")
             except Exception as e:
                 print(f"[warn] 😭 YAML parsing failed. {url}: {e}")
         else:
@@ -608,7 +608,7 @@ def load_proxies(url):
                     continue
                 node = parse_node_line(line)
                 if node:
-                    print(f"[parsed] {json.dumps(node, ensure_ascii=False)}")
+                    print(f"[parsed] 🔎 {json.dumps(node, ensure_ascii=False)}")
                     nodes.append(node)
                 else:
                     print(f"[skip] ⛔ Invalid or unsupported line -> {line[:60]}...")
@@ -628,7 +628,7 @@ def main():
         all_nodes = []
         for url in sources:
             nodes = load_proxies(url)
-            print(f"[source] {url} -> {len(nodes)} valid nodes")
+            print(f"[source] ✅ {len(nodes)} valid nodes")
             all_nodes.extend(nodes)
 
         print(f"[collect] 📋 Total {len(all_nodes)} nodes before filtering")
@@ -721,7 +721,7 @@ def upload_to_textdb():
             print("[info] 🗑️ Old record deleted on textdb")
         else:
             print(f"[warn] ❌ Failed to delete old record: {delete_resp.status_code}")
-            print(f"[warn] Response: {delete_resp.text}")
+            print(f"[warn] ❗Response: {delete_resp.text}")
 
         # Wait 3 seconds
         time.sleep(3)
