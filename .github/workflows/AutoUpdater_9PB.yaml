@@ -13,12 +13,12 @@ on:
         default: "false"
       latency_threshold:
         description: "Latency threshold in ms (only used if filter is true)"
-        required: false
+        required: true
         default: "100"
       use_only_geoip:
         description: "Use only GeoIP for naming? (true/false)"
         required: false
-        default: "true"
+        default: "false"
 jobs:
   update:
     runs-on: ubuntu-latest
@@ -55,7 +55,7 @@ jobs:
           echo "LATENCY_THRESHOLD=${{ github.event.inputs.latency_threshold || '100' }}" >> $GITHUB_ENV
           
           # GeoIP-only filter (default true if scheduled)
-          echo "USE_ONLY_GEOIP=${{ github.event.inputs.use_only_geoip || 'true' }}" >> $GITHUB_ENV
+          echo "USE_ONLY_GEOIP=${{ github.event.inputs.use_only_geoip || 'false' }}" >> $GITHUB_ENV
           
       - name: Run Python script
         run: python src/9PB.py
