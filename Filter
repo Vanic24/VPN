@@ -1,4 +1,4 @@
-# Last update: 22.09.2025 06:06:02
+# Last update: 22.09.2025 07:47:46
 mixed-port: 7890
 allow-lan: true
 log-level: info
@@ -78,42 +78,35 @@ dns:
       - 240.0.0.0/4
       - 0.0.0.0/32
 proxies:
-- name: 🇺🇸|US1|@SHFX
+- alterId: 0
+  name: 🇺🇸|US1|@SHFX
   password: 0C3YaEDx46ODTFTcaF8lXlZ3zeqSlF33wZagexzRjIyODa8RDwp8XSCO93ygCSYcSYABA
   port: 18332
   server: blength.appagent.net
-  skip-cert-verify: false
+  skip-cert-verify: true
+  tls: true
   type: trojan
   udp: true
 - name: 🇺🇸|US2|@SHFX
-  password: eYaw9xlNDu4695IF3CyY2leZOTnY8ZSOD3Xa3DClz0xqZy7Z3eaBFaTKOSwCSAOyEap4D
-  port: 28333
-  server: connect.appagent.net
-  skip-cert-verify: false
-  type: trojan
-  udp: true
-- name: 🇺🇸|US3|@SHFX
   password: B3AO9XlcTxaIATp08S29pS6luwZ8C4qDFzaCFYEDDSA5YDeKZAy3e2ZXRe73zIpxwByN7
   port: 18333
   server: kasheet.appagent.net
   skip-cert-verify: false
   type: trojan
   udp: true
-- alterId: 0
-  name: 🇺🇸|US4|@SHFX
+- name: 🇺🇸|US3|@SHFX
+  password: eYaw9xlNDu4695IF3CyY2leZOTnY8ZSOD3Xa3DClz0xqZy7Z3eaBFaTKOSwCSAOyEap4D
+  port: 28333
+  server: connect.appagent.net
+  skip-cert-verify: false
+  type: trojan
+  udp: true
+- name: 🇺🇸|US4|@SHFX
   password: RzFSy3laClaxnYCcO3jBEpYgDyZx2CO78IC3X46ATFD73RSSZZTx8yCOKYDOqeD8pSeRa
   port: 28334
   server: sirens.isquirrel.net
-  skip-cert-verify: true
-  tls: true
+  skip-cert-verify: false
   type: trojan
-  udp: true
-- cipher: aes-256-cfb
-  name: 🇳🇴|NO1|@SHFX
-  password: f8f7aCzcPKbsF8p3
-  port: 989
-  server: 185.213.23.226
-  type: ss
 - client-fingerprint: chrome
   name: 🇩🇪|DE1|@SHFX
   port: 6666
@@ -127,6 +120,12 @@ proxies:
   type: vless
   udp: true
   uuid: 0abf9050-c7be-464d-80af-24094c2b97de
+- cipher: aes-256-cfb
+  name: 🇳🇴|NO1|@SHFX
+  password: f8f7aCzcPKbsF8p3
+  port: 989
+  server: 185.213.23.226
+  type: ss
 - http-opts:
     headers:
       Host:
@@ -144,26 +143,6 @@ proxies:
   type: vless
   udp: true
   uuid: 39c8e0d3-c932-4ff7-b3e3-83002647907b
-- cipher: aes-256-cfb
-  name: 🇺🇸|US5|@SHFX
-  password: f8f7aCzcPKbsF8p3
-  port: 989
-  server: 104.192.226.106
-  type: ss
-- client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: 🇵🇱|PL1|@SHFX
-  port: 443
-  reality-opts:
-    public-key: oNYCpjXjcYAV9qSWBt95N9dDUPhc_QnauJZ3kSJVeSQ
-    short-id: 2a22
-  server: poland20.clearorbitllc.com
-  servername: poland20.clearorbitllc.com
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: e3847ec6-b2fc-4eb2-b919-174d986f882c
 - alterId: 0
   cipher: auto
   client-fingerprint: chrome
@@ -179,35 +158,39 @@ proxies:
     headers:
       host: c004e6fe-t1i9s0-tm53cm-1ol97.hkt.tcpbbr.net
     path: /
-- alterId: 2
-  cipher: auto
-  name: 🇭🇰|HK2|@SHFX
-  network: ws
-  port: 80
-  server: 1e426046-t0fds0-t12cnj-1ol97.hk.p5pv.com
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: 🇵🇱|PL1|@SHFX
+  port: 443
+  reality-opts:
+    public-key: oNYCpjXjcYAV9qSWBt95N9dDUPhc_QnauJZ3kSJVeSQ
+    short-id: 2a22
+  server: poland20.clearorbitllc.com
+  servername: poland20.clearorbitllc.com
   skip-cert-verify: false
-  tls: false
-  type: vmess
-  uuid: 93fb69fc-77cf-11ee-85ee-f23c91369f2d
-  ws-opts:
-    headers:
-      Host: broadcastlv.chat.bilibili.com
-    path: /
-- alterId: 2
-  cipher: auto
-  client-fingerprint: chrome
-  name: 🇭🇰|HK3|@SHFX
-  network: ws
-  port: 80
-  server: hkt.gotochinatown.net
-  skip-cert-verify: true
-  tls: false
-  type: vmess
-  uuid: 93fb69fc-77cf-11ee-85ee-f23c91369f2d
-  ws-opts:
-    headers:
-      host: hkt.gotochinatown.net
-    path: /
+  tls: true
+  type: vless
+  udp: true
+  uuid: e3847ec6-b2fc-4eb2-b919-174d986f882c
+- cipher: aes-256-cfb
+  name: 🇺🇸|US5|@SHFX
+  password: f8f7aCzcPKbsF8p3
+  port: 989
+  server: 104.192.226.106
+  type: ss
+- cipher: aes-256-cfb
+  name: 🇰🇷|KR1|@SHFX
+  password: f8f7aCzcPKbsF8p3
+  port: 989
+  server: 154.90.63.177
+  type: ss
+- cipher: aes-256-cfb
+  name: 🇩🇪|DE2|@SHFX
+  password: amazonskr05
+  port: 443
+  server: 18.159.61.225
+  tfo: false
+  type: ss
 - name: 🇵🇱|PL2|@SHFX
   obfs: salamander
   obfs-password: Nk2MaX3yFveF
@@ -436,14 +419,14 @@ proxy-groups:
       - 🇺🇸|US2|@SHFX
       - 🇺🇸|US3|@SHFX
       - 🇺🇸|US4|@SHFX
-      - 🇳🇴|NO1|@SHFX
       - 🇩🇪|DE1|@SHFX
+      - 🇳🇴|NO1|@SHFX
       - 🇬🇧|GB1|@SHFX
-      - 🇺🇸|US5|@SHFX
-      - 🇵🇱|PL1|@SHFX
       - 🇭🇰|HK1|@SHFX
-      - 🇭🇰|HK2|@SHFX
-      - 🇭🇰|HK3|@SHFX
+      - 🇵🇱|PL1|@SHFX
+      - 🇺🇸|US5|@SHFX
+      - 🇰🇷|KR1|@SHFX
+      - 🇩🇪|DE2|@SHFX
       - 🇵🇱|PL2|@SHFX
       - 🇵🇱|PL3|@SHFX
       - 🇵🇱|PL4|@SHFX
@@ -477,14 +460,14 @@ proxy-groups:
       - 🇺🇸|US2|@SHFX
       - 🇺🇸|US3|@SHFX
       - 🇺🇸|US4|@SHFX
-      - 🇳🇴|NO1|@SHFX
       - 🇩🇪|DE1|@SHFX
+      - 🇳🇴|NO1|@SHFX
       - 🇬🇧|GB1|@SHFX
-      - 🇺🇸|US5|@SHFX
-      - 🇵🇱|PL1|@SHFX
       - 🇭🇰|HK1|@SHFX
-      - 🇭🇰|HK2|@SHFX
-      - 🇭🇰|HK3|@SHFX
+      - 🇵🇱|PL1|@SHFX
+      - 🇺🇸|US5|@SHFX
+      - 🇰🇷|KR1|@SHFX
+      - 🇩🇪|DE2|@SHFX
       - 🇵🇱|PL2|@SHFX
       - 🇵🇱|PL3|@SHFX
       - 🇵🇱|PL4|@SHFX
@@ -519,14 +502,14 @@ proxy-groups:
       - 🇺🇸|US2|@SHFX
       - 🇺🇸|US3|@SHFX
       - 🇺🇸|US4|@SHFX
-      - 🇳🇴|NO1|@SHFX
       - 🇩🇪|DE1|@SHFX
+      - 🇳🇴|NO1|@SHFX
       - 🇬🇧|GB1|@SHFX
-      - 🇺🇸|US5|@SHFX
-      - 🇵🇱|PL1|@SHFX
       - 🇭🇰|HK1|@SHFX
-      - 🇭🇰|HK2|@SHFX
-      - 🇭🇰|HK3|@SHFX
+      - 🇵🇱|PL1|@SHFX
+      - 🇺🇸|US5|@SHFX
+      - 🇰🇷|KR1|@SHFX
+      - 🇩🇪|DE2|@SHFX
       - 🇵🇱|PL2|@SHFX
       - 🇵🇱|PL3|@SHFX
       - 🇵🇱|PL4|@SHFX
@@ -560,14 +543,14 @@ proxy-groups:
       - 🇺🇸|US2|@SHFX
       - 🇺🇸|US3|@SHFX
       - 🇺🇸|US4|@SHFX
-      - 🇳🇴|NO1|@SHFX
       - 🇩🇪|DE1|@SHFX
+      - 🇳🇴|NO1|@SHFX
       - 🇬🇧|GB1|@SHFX
-      - 🇺🇸|US5|@SHFX
-      - 🇵🇱|PL1|@SHFX
       - 🇭🇰|HK1|@SHFX
-      - 🇭🇰|HK2|@SHFX
-      - 🇭🇰|HK3|@SHFX
+      - 🇵🇱|PL1|@SHFX
+      - 🇺🇸|US5|@SHFX
+      - 🇰🇷|KR1|@SHFX
+      - 🇩🇪|DE2|@SHFX
       - 🇵🇱|PL2|@SHFX
       - 🇵🇱|PL3|@SHFX
       - 🇵🇱|PL4|@SHFX
@@ -601,14 +584,14 @@ proxy-groups:
       - 🇺🇸|US2|@SHFX
       - 🇺🇸|US3|@SHFX
       - 🇺🇸|US4|@SHFX
-      - 🇳🇴|NO1|@SHFX
       - 🇩🇪|DE1|@SHFX
+      - 🇳🇴|NO1|@SHFX
       - 🇬🇧|GB1|@SHFX
-      - 🇺🇸|US5|@SHFX
-      - 🇵🇱|PL1|@SHFX
       - 🇭🇰|HK1|@SHFX
-      - 🇭🇰|HK2|@SHFX
-      - 🇭🇰|HK3|@SHFX
+      - 🇵🇱|PL1|@SHFX
+      - 🇺🇸|US5|@SHFX
+      - 🇰🇷|KR1|@SHFX
+      - 🇩🇪|DE2|@SHFX
       - 🇵🇱|PL2|@SHFX
       - 🇵🇱|PL3|@SHFX
       - 🇵🇱|PL4|@SHFX
@@ -642,14 +625,14 @@ proxy-groups:
       - 🇺🇸|US2|@SHFX
       - 🇺🇸|US3|@SHFX
       - 🇺🇸|US4|@SHFX
-      - 🇳🇴|NO1|@SHFX
       - 🇩🇪|DE1|@SHFX
+      - 🇳🇴|NO1|@SHFX
       - 🇬🇧|GB1|@SHFX
-      - 🇺🇸|US5|@SHFX
-      - 🇵🇱|PL1|@SHFX
       - 🇭🇰|HK1|@SHFX
-      - 🇭🇰|HK2|@SHFX
-      - 🇭🇰|HK3|@SHFX
+      - 🇵🇱|PL1|@SHFX
+      - 🇺🇸|US5|@SHFX
+      - 🇰🇷|KR1|@SHFX
+      - 🇩🇪|DE2|@SHFX
       - 🇵🇱|PL2|@SHFX
       - 🇵🇱|PL3|@SHFX
       - 🇵🇱|PL4|@SHFX
@@ -700,14 +683,14 @@ proxy-groups:
       - 🇺🇸|US2|@SHFX
       - 🇺🇸|US3|@SHFX
       - 🇺🇸|US4|@SHFX
-      - 🇳🇴|NO1|@SHFX
       - 🇩🇪|DE1|@SHFX
+      - 🇳🇴|NO1|@SHFX
       - 🇬🇧|GB1|@SHFX
-      - 🇺🇸|US5|@SHFX
-      - 🇵🇱|PL1|@SHFX
       - 🇭🇰|HK1|@SHFX
-      - 🇭🇰|HK2|@SHFX
-      - 🇭🇰|HK3|@SHFX
+      - 🇵🇱|PL1|@SHFX
+      - 🇺🇸|US5|@SHFX
+      - 🇰🇷|KR1|@SHFX
+      - 🇩🇪|DE2|@SHFX
       - 🇵🇱|PL2|@SHFX
       - 🇵🇱|PL3|@SHFX
       - 🇵🇱|PL4|@SHFX
