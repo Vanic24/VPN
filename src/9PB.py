@@ -82,18 +82,18 @@ def load_cn_to_cc():
     try:
         return json.loads(secret_data)
     except Exception as e:
-        print(f"[error] failed to parse CN_TO_CC secret: {e}")
+        print(f"[error] 😭 Failed to parse CN_TO_CC secret: {e}")
         return {}
 
 # ---------------- Load sources ----------------
 def load_sources():
     if not os.path.exists(SOURCES_FILE):
-        print(f"[FATAL] SUB_9PB not found at {SOURCES_FILE}")
+        print(f"[FATAL] ⚠️ Source not found at {SOURCES_FILE}")
         sys.exit(1)
     with open(SOURCES_FILE, "r", encoding="utf-8") as f:
         sources = [line.strip() for line in f if line.strip() and not line.startswith("#")]
     if not sources:
-        print(f"[FATAL] SUB_9PB is empty. Please check the secret or file content.")
+        print(f"[FATAL] 🤷‍♂️ Source is empty. Please check the secret or file content.")
         sys.exit(1)
     return sources
 
@@ -132,7 +132,7 @@ def parse_vmess(line):
                 }
             return node
     except Exception as e:
-        print(f"[warn] vmess parse error: {e}")
+        print(f"[warn] ❗Vmess parse error: {e}")
         return None
     return None
 
@@ -219,7 +219,7 @@ def parse_vless(line: str) -> dict | None:
         return node
 
     except Exception as e:
-        print(f"[warn] VLESS parse error -> {e}")
+        print(f"[warn] ❗VLESS parse error -> {e}")
         return None
 
 # ---------------- Trojan parser ----------------
@@ -238,7 +238,7 @@ def parse_trojan(line):
                 }
                 return node
     except Exception:
-        return None
+        print(f"[warn] ❗Trojan parse error -> {e}")
     return None
 
 # ---------------- Hysteria2 parser ----------------
@@ -307,7 +307,7 @@ def parse_hysteria2(line):
     
     except Exception as e:
             # keep the error log brief and include line prefix so can trace problematic ones
-        print(f"[warn] hysteria2 parse error: {e} -> {line[:120]}")
+        print(f"[warn] ❗Hysteria2 parse error: {e} -> {line[:120]}")
         return None
 
 # ---------------- Anytls parser ----------------
@@ -326,7 +326,7 @@ def parse_anytls(line):
                 }
                 return node
     except:
-        return None
+        print(f"[warn] ❗Anytls parse error -> {e}")
     return None
 
 # ---------------- TUIC parser ----------------
@@ -349,6 +349,7 @@ def parse_tuic(line: str) -> dict | None:
         }
         return node
     except Exception:
+        print(f"[warn] ❗TUIC parse error -> {e}")
         return None
 
 # ---------------- Shadowsocks (SS) parser ----------------
@@ -423,6 +424,7 @@ def parse_ss(ss_url: str) -> dict | None:
 
         return node
     except Exception:
+        print(f"[warn] ❗SS parse error -> {e}")
         return None
 
 # ---------------- ShadowsocksR (SSR) parser ----------------
@@ -468,6 +470,7 @@ def parse_ssr(line):
                 node["protocol_param"] = base64.urlsafe_b64decode(qs["protoparam"][0] + "=" * (-len(qs["protoparam"][0]) % 4)).decode()
         return node
     except Exception:
+        print(f"[warn] ❗SSR parse error -> {e}")
         return None
 
 # ---------------- Dispatcher ----------------    
@@ -585,7 +588,7 @@ def load_proxies(url):
                 text = decoded
                 print(f"[decode] Base64 decoded -> {len(text.splitlines())} lines")
             except Exception:
-                print(f"[warn] failed Base64 decode for {url}")
+                print(f"[warn] 😭 Base64 decode failed. {url}")
 
         # Parse as YAML (Clash)
         if text.startswith("proxies:") or "proxies:" in text:
@@ -596,7 +599,7 @@ def load_proxies(url):
                         nodes.append(p)
                         print(f"[parse] YAML node: {p.get('name','')}")
             except Exception as e:
-                print(f"[warn] Failed YAML parse {url}: {e}")
+                print(f"[warn] 😭 YAML parsing failed. {url}: {e}")
         else:
             # Parse as individual subscription lines
             for line in text.splitlines():
@@ -608,19 +611,19 @@ def load_proxies(url):
                     print(f"[parsed] {json.dumps(node, ensure_ascii=False)}")
                     nodes.append(node)
                 else:
-                    print(f"[skip] Invalid or unsupported line -> {line[:60]}...")
+                    print(f"[skip] ⛔ Invalid or unsupported line -> {line[:60]}...")
 
         return nodes
 
     except Exception as e:
-        print(f"[warn] Failed to fetch {url} -> {e}")
+        print(f"[warn] 😭 Failed to fetch {url} -> {e}")
         return []
 
 # ---------------- Main ----------------
 def main():
     try:
         sources = load_sources()
-        print(f"[start] loaded {len(sources)} sources from Filter_Sources")
+        print(f"[start] 🖥️ Loaded {len(sources)} subscription links from source")
 
         all_nodes = []
         for url in sources:
@@ -628,11 +631,11 @@ def main():
             print(f"[source] {url} -> {len(nodes)} valid nodes")
             all_nodes.extend(nodes)
 
-        print(f"[collect] total {len(all_nodes)} nodes before filtering")
+        print(f"[collect] 📋 Total {len(all_nodes)} nodes before filtering")
 
         # ---------------- Latency filter ----------------
         if USE_LATENCY:
-            print(f"[latency] filtering nodes > {LATENCY_THRESHOLD} ms")
+            print(f"[latency] 🚫 Filtering nodes > {LATENCY_THRESHOLD} ms")
             country_counter = defaultdict(int)
             filtered_nodes = []
             with concurrent.futures.ThreadPoolExecutor(max_workers=50) as ex:
@@ -643,12 +646,12 @@ def main():
                         filtered_nodes.append(n)
 
             num_filtered = len(all_nodes) - len(filtered_nodes)
-            print(f"[latency] filtered {num_filtered} nodes due to latency")
-            print(f"[latency] {len(filtered_nodes)} nodes remain after latency filtering")
+            print(f"[latency] ❗Filtered {num_filtered} nodes due to latency")
+            print(f"[latency]  🖨️ {len(filtered_nodes)} nodes remain after latency filtering")
         else:
             filtered_nodes = all_nodes
             country_counter = defaultdict(int)
-            print(f"[latency] latency filter disabled, {len(filtered_nodes)} nodes remain")
+            print(f"[latency] 🚀 Latency filter disabled, {len(filtered_nodes)} nodes remain")
 
         # ---------------- Correct nodes ----------------
         corrected_nodes = []
@@ -662,11 +665,11 @@ def main():
                 skipped_nodes += 1
 
         if skipped_nodes > 0:
-            print(f"[correct] Skipped {skipped_nodes} nodes that could not be assigned a name or include forbidden emoji")
-        print(f"[correct] {len(corrected_nodes)} nodes remain after name correction")
+            print(f"[correct] ⚠️ Skipped {skipped_nodes} nodes that could not be assigned a name or include forbidden emoji")
+        print(f"[correct] 🖨️ {len(corrected_nodes)} nodes remain after name correction")
 
         if not corrected_nodes:
-            print("[FATAL] No valid nodes after processing. Abort upload.")
+            print("[FATAL] 🅾️ valid nodes after processing. Abort upload.")
             sys.exit(1)
 
         # ---------------- Load template ----------------
@@ -675,7 +678,7 @@ def main():
             r.raise_for_status()
             template_text = r.text
         except Exception as e:
-            print(f"[FATAL] Failed to fetch template -> {e}")
+            print(f"[FATAL] ⚠️ Failed to fetch ClashTemplate -> {e}")
             sys.exit(1)
 
         # ---------------- Convert to YAML ----------------
@@ -695,13 +698,13 @@ def main():
         # ---------------- Write output ----------------
         with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
             f.write(f"# Last update: {timestamp}\n" + output_text)
-        print(f"[done] wrote {OUTPUT_FILE}")
+        print(f"[done] 💾 Wrote {OUTPUT_FILE}")
 
-        # ✅ Upload only after successful processing
+        # Upload to textdb only after all upper processes successful processing
         upload_to_textdb()
 
     except Exception as e:
-        print("[FATAL ERROR in main]", str(e))
+        print("[⚠️FATAL ERROR in main]", str(e))
         traceback.print_exc()
         sys.exit(1)
 
@@ -715,9 +718,9 @@ def upload_to_textdb():
         # Step 2: Delete old record
         delete_resp = requests.post(TEXTDB_API, data={"value": ""})
         if delete_resp.status_code == 200:
-            print("[info] 🗑️Old record deleted on textdb")
+            print("[info] 🗑️ Old record deleted on textdb")
         else:
-            print(f"[warn] ❌Failed to delete old record: {delete_resp.status_code}")
+            print(f"[warn] ❌ Failed to delete old record: {delete_resp.status_code}")
             print(f"[warn] Response: {delete_resp.text}")
 
         # Wait 3 seconds
@@ -726,13 +729,13 @@ def upload_to_textdb():
         # Step 3: Upload new record
         upload_resp = requests.post(TEXTDB_API, data={"value": output_text})
         if upload_resp.status_code == 200:
-            print("[info] ✅Successfully uploaded new data on textdb")
+            print("[info] 📤 Successfully uploaded new data on textdb")
         else:
             print(f"[warn] ❌Failed to upload on textdb: {upload_resp.status_code}")
-            print(f"[warn] Response: {upload_resp.text}")
+            print(f"[warn] ❗Response: {upload_resp.text}")
 
     except Exception as e:
-        print(f"[error] Unexpected error: {e}")
+        print(f"[error] ⛔ Unexpected error: {e}")
 
 # ---------------- Entry ----------------
 if __name__ == "__main__":
