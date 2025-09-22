@@ -95,12 +95,15 @@ jobs:
             git push --force-with-lease origin main
           fi
 
+      - name: Copy 9PB with .yaml extension
+        run: cp 9PB 9PB.yaml
+
       - name: Upload 9PB artifact
         id: upload_artifact
         uses: actions/upload-artifact@v4
         with:
           name: 9PB
-          path: 9PB
+          path: 9PB.yaml
           retention-days: 30
       
       - name: Cleanup old artifacts (keep latest 30)
