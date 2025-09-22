@@ -305,10 +305,10 @@ def parse_hysteria2(line):
 
             return node
     
-        except Exception as e:
+    except Exception as e:
             # keep the error log brief and include line prefix so can trace problematic ones
-            print(f"[warn] hysteria2 parse error: {e} -> {line[:120]}")
-            return None
+        print(f"[warn] hysteria2 parse error: {e} -> {line[:120]}")
+        return None
         
 # ---------------- Anytls parser ----------------
 def parse_anytls(line):
