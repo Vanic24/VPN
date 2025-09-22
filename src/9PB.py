@@ -482,8 +482,8 @@ def parse_node_line(line):
             return node
     return None
 
-# ---------------- Correct node ----------------
-def correct_node(p, country_counter, CN_TO_CC):
+# ---------------- Rename node ----------------
+def rename_node(p, country_counter, CN_TO_CC):
     """
     Assign a standardized name to the node without changing any other fields.
     Skip nodes with forbidden emojis or empty names.
@@ -628,7 +628,7 @@ def main():
         all_nodes = []
         for url in sources:
             nodes = load_proxies(url)
-            print(f"[source] ✅ {len(nodes)} valid nodes")
+            print(f"[source] ✅ Total {len(nodes)} valid nodes after parsing")
             all_nodes.extend(nodes)
 
         print(f"[collect] 📋 Total {len(all_nodes)} nodes before filtering")
@@ -647,28 +647,28 @@ def main():
 
             num_filtered = len(all_nodes) - len(filtered_nodes)
             print(f"[latency] ❗Filtered {num_filtered} nodes due to latency")
-            print(f"[latency]  🖨️ {len(filtered_nodes)} nodes remain after latency filtering")
+            print(f"[latency]  🖨️ Total {len(filtered_nodes)} nodes remain after latency filtering")
         else:
             filtered_nodes = all_nodes
             country_counter = defaultdict(int)
-            print(f"[latency] 🚀 Latency filter disabled, {len(filtered_nodes)} nodes remain")
+            print(f"[latency] 🚀 Latency filtering 🚫, {len(filtered_nodes)} nodes remain")
 
-        # ---------------- Correct nodes ----------------
-        corrected_nodes = []
+        # ---------------- Renamed nodes ----------------
+        renamed_nodes = []
         cn_to_cc = load_cn_to_cc()
         skipped_nodes = 0
         for n in filtered_nodes:
-            res = correct_node(n, country_counter, cn_to_cc)
+            res = rename_node(n, country_counter, cn_to_cc)
             if res:
-                corrected_nodes.append(res)
+                renamed_nodes.append(res)
             else:
                 skipped_nodes += 1
 
         if skipped_nodes > 0:
-            print(f"[correct] ⚠️ Skipped {skipped_nodes} nodes that could not be assigned a name or include forbidden emoji")
-        print(f"[correct] 🖨️ {len(corrected_nodes)} nodes remain after name correction")
+            print(f"[rename] ⚠️ Skipped {skipped_nodes} nodes that could not be assigned a name or include forbidden emoji")
+        print(f"[rename] 🖨️ Final {len(renamed_nodes)} nodes remain after name correction")
 
-        if not corrected_nodes:
+        if not renamed_nodes:
             print("[FATAL] 🅾️ valid nodes after processing. Abort upload.")
             sys.exit(1)
 
@@ -682,8 +682,8 @@ def main():
             sys.exit(1)
 
         # ---------------- Convert to YAML ----------------
-        proxies_yaml_block = yaml.dump(corrected_nodes, allow_unicode=True, default_flow_style=False)
-        proxy_names_block = "\n".join([f"      - {unquote(p['name'])}" for p in corrected_nodes])
+        proxies_yaml_block = yaml.dump(renamed_nodes, allow_unicode=True, default_flow_style=False)
+        proxy_names_block = "\n".join([f"      - {unquote(p['name'])}" for p in renamed_nodes])
 
         # ---------------- Replace placeholders ----------------
         output_text = template_text.replace("{{PROXIES}}", proxies_yaml_block)
@@ -715,23 +715,23 @@ def upload_to_textdb():
         with open("9PB", "r", encoding="utf-8") as f:
             output_text = f.read()
 
-        # Step 2: Delete old record
+        # Step 2: Delete old data
         delete_resp = requests.post(TEXTDB_API, data={"value": ""})
         if delete_resp.status_code == 200:
-            print("[info] 🗑️ Old record deleted on textdb")
+            print("[info] 🗑️ Successfully deleteded old data on textdb")
         else:
-            print(f"[warn] ❌ Failed to delete old record: {delete_resp.status_code}")
+            print(f"[warn] ❌ Failed to delete old data on textdb: {delete_resp.status_code}")
             print(f"[warn] ❗Response: {delete_resp.text}")
 
         # Wait 3 seconds
         time.sleep(3)
 
-        # Step 3: Upload new record
+        # Step 3: Upload new data
         upload_resp = requests.post(TEXTDB_API, data={"value": output_text})
         if upload_resp.status_code == 200:
             print("[info] 📤 Successfully uploaded new data on textdb")
         else:
-            print(f"[warn] ❌Failed to upload on textdb: {upload_resp.status_code}")
+            print(f"[warn] ❌Failed to upload new data on textdb: {upload_resp.status_code}")
             print(f"[warn] ❗Response: {upload_resp.text}")
 
     except Exception as e:
