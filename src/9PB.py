@@ -254,9 +254,7 @@ def parse_hysteria2(line):
         if m:
             password, host, port, query_str, frag = m.groups()
         else:
-            # fallback: try urlparse if regex fails (covers some odd variants)
             parsed = urllib.parse.urlparse(line)
-            # parsed.username may be encoded; use split on netloc if needed
             password = urllib.parse.unquote(parsed.username or "")
             host = parsed.hostname
             port = parsed.port or None
@@ -264,10 +262,8 @@ def parse_hysteria2(line):
             frag = urllib.parse.unquote(parsed.fragment or "")
 
         if not host or not port:
-            # couldn't get host/port -> invalid
             return None
 
-        # Basic node structure (keep same keys your clients accept)
         name = urllib.parse.unquote(frag or "") if frag else ""
         node = {
             "name": name,
@@ -275,38 +271,30 @@ def parse_hysteria2(line):
             "server": host,
             "port": int(port),
             "password": urllib.parse.unquote(password or ""),
+            # force skip verification as requested
             "skip-cert-verify": True
         }
 
-        # Parse query string into dict of lists
         qdict = {}
         if query_str:
             qdict = urllib.parse.parse_qs(query_str)
 
-        # OPTIONAL: include extra fields ONLY if present in the query
-        # (these won't be added if absent, keeping backward compatibility)
-        if "insecure" in qdict or "sni" in qdict:
-            tls_obj = {"enabled": True}
-            if "insecure" in qdict:
-                v = qdict.get("insecure", ["true"])[0]
-                tls_obj["insecure"] = str(v).lower() in ("1", "true", "yes")
-            if "sni" in qdict:
-                tls_obj["server_name"] = qdict.get("sni", [host])[0]
-            node["tls"] = tls_obj
+        # optional fields only if present
+        if "sni" in qdict:
+            node.setdefault("tls", {"enabled": True})
+            node["tls"]["server_name"] = qdict.get("sni", [host])[0]
+            node["tls"]["insecure"] = qdict.get("insecure", ["true"])[0].lower() in ("1","true","yes")
 
-            if "udp" in qdict:
-                v = qdict.get("udp", [""])[0]
-                node["udp"] = str(v).lower() in ("1", "true", "yes")
+        if "udp" in qdict:
+            node["udp"] = qdict.get("udp", [""])[0].lower() in ("1","true","yes")
 
-            # Additional optional metadata if present
-            for fld in ("groupid", "outlet_ip", "outlet_region", "latency", "domain_resolver"):
-                if fld in qdict:
-                    node[fld] = qdict.get(fld, [""])[0]
+        for fld in ("groupid", "outlet_ip", "outlet_region", "latency", "domain_resolver"):
+            if fld in qdict:
+                node[fld] = qdict.get(fld, [""])[0]
 
-            return node
-    
+        return node
+
     except Exception as e:
-            # keep the error log brief and include line prefix so can trace problematic ones
         print(f"[warn] hysteria2 parse error: {e} -> {line[:120]}")
         return None
         
