@@ -348,7 +348,7 @@ def correct_node(p, country_counter):
     country_counter[cc_upper] += 1
     index = country_counter[cc_upper]
 
-    p["name"] = f"{flag}|{cc_upper}{index}|@SHFX"
+    p["name"] = f"{flag} {cc_upper}-{index} | @SHFX"
     return p
 
 # ---------------- Load and parse proxies ----------------
