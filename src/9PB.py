@@ -22,7 +22,7 @@ TEMPLATE_URL = "https://raw.githubusercontent.com/Vanic24/VPN/refs/heads/main/Cl
 TEXTDB_API = "https://textdb.online/update/?key=9PB_SHFX&value={}"
 URL_9PB = "https://raw.githubusercontent.com/Vanic24/VPN/refs/heads/main/9PB"
 CN_TO_CC = json.loads(os.getenv("CN_TO_CC", "{}"))
-USE_ONLY_GEOIP = os.getenv("USE_ONLY_GEOIP", "true").lower() == "true"
+USE_ONLY_GEOIP = os.getenv("USE_ONLY_GEOIP", "false").lower() == "true"
 
 # ---------------- Inputs ----------------
 use_latency_env = os.environ.get("LATENCY_FILTER", "false").lower()
@@ -327,7 +327,6 @@ def parse_anytls(line):
                 return node
     except:
         return None
-    return None
 
 # ---------------- TUIC parser ----------------
 def parse_tuic(line: str) -> dict | None:
