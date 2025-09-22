@@ -288,6 +288,25 @@ def parse_hysteria2(line):
         print(f"[warn] hysteria2 parse error: {e} -> {line[:120]}")
         return None
 
+# ---------------- Anytls parser ----------------
+def parse_anytls(line):
+    try:
+        if line.startswith("anytls://"):
+            m = re.match(r"anytls://([^@]+)@([^:]+):(\d+)#?(.*)", line)
+            if m:
+                password, host, port, name = m.groups()
+                node = {
+                    "name": name or "",
+                    "type": "anytls",
+                    "server": host,
+                    "port": int(port),
+                    "password": password,
+                }
+                return node
+    except:
+        return None
+    return None
+
 # ---------------- TUIC parser ----------------
 def parse_tuic(line: str) -> dict | None:
     try:
