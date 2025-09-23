@@ -1,4 +1,4 @@
-# Last update: 23.09.2025 09:58:32
+# Last update: 23.09.2025 10:17:35
 mixed-port: 7890
 allow-lan: true
 log-level: info
@@ -78,21 +78,22 @@ dns:
       - 240.0.0.0/4
       - 0.0.0.0/32
 proxies:
+- alterId: 0
+  cipher: auto
+  name: 🇺🇸 US-1 | @SHFX
+  port: 15491
+  server: 154.64.228.236
+  skip-cert-verify: false
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 389b52ba-d936-4800-87a6-1e9765e35079
 - cipher: aes-256-cfb
   name: 🇳🇴 NO-1 | @SHFX
   password: f8f7aCzcPKbsF8p3
   port: 989
   server: 185.213.23.226
   type: ss
-- name: 🇰🇷 KR-1 | @SHFX
-  password: test.+
-  port: 30446
-  server: testkr3.ssv.vc
-  skip-cert-verify: true
-  tls: true
-  type: http
-  udp: true
-  username: test
 - http-opts:
     headers:
       Host:
@@ -100,7 +101,7 @@ proxies:
     method: GET
     path:
     - /
-  name: 🇺🇸 US-1 | @SHFX
+  name: 🇺🇸 US-2 | @SHFX
   network: http
   port: 33801
   server: m24a.vip784.com
@@ -112,27 +113,46 @@ proxies:
   uuid: d36f457f-17a9-4891-a113-322ec6792917
 - alterId: 0
   cipher: chacha20-ietf-poly1305
-  name: 🇺🇸 US-2 | @SHFX
+  name: 🇺🇸 US-3 | @SHFX
   password: gqkUCvmeOTghYJXF1YIuk5
   port: 443
   server: 71.19.148.74
   skip-cert-verify: true
   tls: true
   type: ss
+- client-fingerprint: edge
+  flow: xtls-rprx-vision
+  name: 🇺🇸 US-4 | @SHFX
+  port: 1443
+  reality-opts:
+    public-key: qkKpvWh6cAcduzQ8bRlIl6_CvOieLwoM11WnuOSug1w
+    short-id: a18a9fd1
+  server: 137.175.6.234
+  servername: swdist.apple.com
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 7a169e43-ff85-4572-9843-ba7207d07319
+- cipher: chacha20-ietf-poly1305
+  name: 🇺🇸 US-5 | @SHFX
+  password: p78naCf2EfOlRSLTX0wFVx
+  port: 443
+  server: pupas-shirting-unsung.freesocks.work
+  type: ss
 - alterId: 2
   cipher: auto
-  client-fingerprint: chrome
   name: 🇭🇰 HK-1 | @SHFX
   network: ws
   port: 80
   server: 1e426046-t0fds0-t12cnj-1ol97.hk.p5pv.com
-  skip-cert-verify: true
+  skip-cert-verify: false
   tls: false
   type: vmess
   uuid: 93fb69fc-77cf-11ee-85ee-f23c91369f2d
   ws-opts:
     headers:
-      host: 1e426046-t0fds0-t12cnj-1ol97.hk.p5pv.com
+      Host: broadcastlv.chat.bilibili.com
     path: /
 - name: 🇫🇮 FI-1 | @SHFX
   network: ws
@@ -148,35 +168,35 @@ proxies:
     headers:
       Host: kejiland.freewarp.eu.org
     path: /snippets/ip=proxyip.fxxk.dedyn.io:443?ed=2560
+- name: 🇺🇸 US-6 | @SHFX
+  network: ws
+  port: 2052
+  server: dl5-us4-cdn.fastfilecdn.org
+  servername: dl5-us4-cdn.fastfilecdn.org
+  skip-cert-verify: false
+  tls: false
+  type: vless
+  udp: true
+  uuid: 8ef1b0db-5954-447c-85e5-4f62b107ed61
+  ws-opts:
+    headers:
+      Host: dl5-us4-cdn.fastfilecdn.org
+    path: /
 - cipher: aes-256-cfb
-  name: 🇳🇱 NL-1 | @SHFX
-  password: f8f7aCzcPKbsF8p3
-  port: 989
-  server: 51.15.17.169
-  type: ss
-- cipher: aes-256-cfb
-  name: 🇰🇷 KR-2 | @SHFX
+  name: 🇰🇷 KR-1 | @SHFX
   password: f8f7aCzcPKbsF8p3
   port: 989
   server: 154.90.63.177
   type: ss
-- client-fingerprint: qq
-  flow: xtls-rprx-vision
-  name: 🇺🇸 US-3 | @SHFX
-  port: 34074
-  reality-opts:
-    public-key: zimSAAs4SyUKAR-MTMaw08PuI7skyi1U5Peb6VGJwjY
-    short-id: 061cca24
-  server: 500770.xyz
-  servername: www.ucla.edu
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 9d0a75d2-f747-4afa-b43f-d208af9e8f9a
+- cipher: chacha20-ietf-poly1305
+  name: 🇻🇳 VN-1 | @SHFX
+  password: Nk9asglDzHzjktVzTkvhaA
+  port: 443
+  server: arxfw2b78fi2q9hzylhn.freesocks.work
+  type: ss
 - client-fingerprint: randomized
   fingerprint: ''
-  name: 🇺🇸 US-4 | @SHFX
+  name: 🇺🇸 US-7 | @SHFX
   network: ws
   port: 443
   server: openai.com
@@ -190,32 +210,40 @@ proxies:
       host: nkAnG2rEpLACE.airlineSHoma.Com
     path: /?ed=2560
 - cipher: aes-256-cfb
-  name: 🇰🇷 KR-3 | @SHFX
+  name: 🇰🇷 KR-2 | @SHFX
   password: f8f7aCzcPKbsF8p3
   port: 989
   server: 154.90.62.168
   type: ss
-- cipher: chacha20-ietf-poly1305
-  name: 🇺🇸 US-5 | @SHFX
-  password: p78naCf2EfOlRSLTX0wFVx
-  port: 443
-  server: pupas-shirting-unsung.freesocks.work
-  type: ss
+- client-fingerprint: qq
+  flow: xtls-rprx-vision
+  name: 🇺🇸 US-8 | @SHFX
+  port: 34074
+  reality-opts:
+    public-key: zimSAAs4SyUKAR-MTMaw08PuI7skyi1U5Peb6VGJwjY
+    short-id: 061cca24
+  server: 500770.xyz
+  servername: www.ucla.edu
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 9d0a75d2-f747-4afa-b43f-d208af9e8f9a
 - cipher: aes-256-cfb
-  name: 🇲🇩 MD-1 | @SHFX
-  password: f8f7aCzcPKbsF8p3
-  port: 989
-  server: 185.153.197.5
+  name: 🇻🇳 VN-2 | @SHFX
+  password: Xn8jKdmDM00IeO%#$#fJAMtsEAEUOpH/YWYtYqDFnT0SV
+  port: 38388
+  server: 103.186.155.28
   type: ss
-- alterId: 0
-  cipher: chacha20-ietf-poly1305
-  name: 🇻🇳 VN-1 | @SHFX
-  password: Nk9asglDzHzjktVzTkvhaA
-  port: 443
-  server: arxfw2b78fi2q9hzylhn.freesocks.work
+- name: 🇰🇷 KR-3 | @SHFX
+  password: test.+
+  port: 30446
+  server: testkr3.ssv.vc
   skip-cert-verify: true
   tls: true
-  type: ss
+  type: http
+  udp: true
+  username: test
 - name: 🇵🇱 PL-1 | @SHFX
   obfs: salamander
   obfs-password: jdmroza46qvy
@@ -440,20 +468,22 @@ proxy-groups:
     interval: 300
     tolerance: 50
     proxies:
-      - 🇳🇴 NO-1 | @SHFX
-      - 🇰🇷 KR-1 | @SHFX
       - 🇺🇸 US-1 | @SHFX
+      - 🇳🇴 NO-1 | @SHFX
       - 🇺🇸 US-2 | @SHFX
-      - 🇭🇰 HK-1 | @SHFX
-      - 🇫🇮 FI-1 | @SHFX
-      - 🇳🇱 NL-1 | @SHFX
-      - 🇰🇷 KR-2 | @SHFX
       - 🇺🇸 US-3 | @SHFX
       - 🇺🇸 US-4 | @SHFX
-      - 🇰🇷 KR-3 | @SHFX
       - 🇺🇸 US-5 | @SHFX
-      - 🇲🇩 MD-1 | @SHFX
+      - 🇭🇰 HK-1 | @SHFX
+      - 🇫🇮 FI-1 | @SHFX
+      - 🇺🇸 US-6 | @SHFX
+      - 🇰🇷 KR-1 | @SHFX
       - 🇻🇳 VN-1 | @SHFX
+      - 🇺🇸 US-7 | @SHFX
+      - 🇰🇷 KR-2 | @SHFX
+      - 🇺🇸 US-8 | @SHFX
+      - 🇻🇳 VN-2 | @SHFX
+      - 🇰🇷 KR-3 | @SHFX
       - 🇵🇱 PL-1 | @SHFX
       - 🇵🇱 PL-2 | @SHFX
       - 🇵🇱 PL-3 | @SHFX
@@ -483,20 +513,22 @@ proxy-groups:
     proxies:
       - ♻️ 自动选择
       - DIRECT
-      - 🇳🇴 NO-1 | @SHFX
-      - 🇰🇷 KR-1 | @SHFX
       - 🇺🇸 US-1 | @SHFX
+      - 🇳🇴 NO-1 | @SHFX
       - 🇺🇸 US-2 | @SHFX
-      - 🇭🇰 HK-1 | @SHFX
-      - 🇫🇮 FI-1 | @SHFX
-      - 🇳🇱 NL-1 | @SHFX
-      - 🇰🇷 KR-2 | @SHFX
       - 🇺🇸 US-3 | @SHFX
       - 🇺🇸 US-4 | @SHFX
-      - 🇰🇷 KR-3 | @SHFX
       - 🇺🇸 US-5 | @SHFX
-      - 🇲🇩 MD-1 | @SHFX
+      - 🇭🇰 HK-1 | @SHFX
+      - 🇫🇮 FI-1 | @SHFX
+      - 🇺🇸 US-6 | @SHFX
+      - 🇰🇷 KR-1 | @SHFX
       - 🇻🇳 VN-1 | @SHFX
+      - 🇺🇸 US-7 | @SHFX
+      - 🇰🇷 KR-2 | @SHFX
+      - 🇺🇸 US-8 | @SHFX
+      - 🇻🇳 VN-2 | @SHFX
+      - 🇰🇷 KR-3 | @SHFX
       - 🇵🇱 PL-1 | @SHFX
       - 🇵🇱 PL-2 | @SHFX
       - 🇵🇱 PL-3 | @SHFX
@@ -527,20 +559,22 @@ proxy-groups:
       - 🚀 节点选择
       - ♻️ 自动选择
       - 🎯 全球直连
-      - 🇳🇴 NO-1 | @SHFX
-      - 🇰🇷 KR-1 | @SHFX
       - 🇺🇸 US-1 | @SHFX
+      - 🇳🇴 NO-1 | @SHFX
       - 🇺🇸 US-2 | @SHFX
-      - 🇭🇰 HK-1 | @SHFX
-      - 🇫🇮 FI-1 | @SHFX
-      - 🇳🇱 NL-1 | @SHFX
-      - 🇰🇷 KR-2 | @SHFX
       - 🇺🇸 US-3 | @SHFX
       - 🇺🇸 US-4 | @SHFX
-      - 🇰🇷 KR-3 | @SHFX
       - 🇺🇸 US-5 | @SHFX
-      - 🇲🇩 MD-1 | @SHFX
+      - 🇭🇰 HK-1 | @SHFX
+      - 🇫🇮 FI-1 | @SHFX
+      - 🇺🇸 US-6 | @SHFX
+      - 🇰🇷 KR-1 | @SHFX
       - 🇻🇳 VN-1 | @SHFX
+      - 🇺🇸 US-7 | @SHFX
+      - 🇰🇷 KR-2 | @SHFX
+      - 🇺🇸 US-8 | @SHFX
+      - 🇻🇳 VN-2 | @SHFX
+      - 🇰🇷 KR-3 | @SHFX
       - 🇵🇱 PL-1 | @SHFX
       - 🇵🇱 PL-2 | @SHFX
       - 🇵🇱 PL-3 | @SHFX
@@ -570,20 +604,22 @@ proxy-groups:
     proxies:
       - 🚀 节点选择
       - 🎯 全球直连
-      - 🇳🇴 NO-1 | @SHFX
-      - 🇰🇷 KR-1 | @SHFX
       - 🇺🇸 US-1 | @SHFX
+      - 🇳🇴 NO-1 | @SHFX
       - 🇺🇸 US-2 | @SHFX
-      - 🇭🇰 HK-1 | @SHFX
-      - 🇫🇮 FI-1 | @SHFX
-      - 🇳🇱 NL-1 | @SHFX
-      - 🇰🇷 KR-2 | @SHFX
       - 🇺🇸 US-3 | @SHFX
       - 🇺🇸 US-4 | @SHFX
-      - 🇰🇷 KR-3 | @SHFX
       - 🇺🇸 US-5 | @SHFX
-      - 🇲🇩 MD-1 | @SHFX
+      - 🇭🇰 HK-1 | @SHFX
+      - 🇫🇮 FI-1 | @SHFX
+      - 🇺🇸 US-6 | @SHFX
+      - 🇰🇷 KR-1 | @SHFX
       - 🇻🇳 VN-1 | @SHFX
+      - 🇺🇸 US-7 | @SHFX
+      - 🇰🇷 KR-2 | @SHFX
+      - 🇺🇸 US-8 | @SHFX
+      - 🇻🇳 VN-2 | @SHFX
+      - 🇰🇷 KR-3 | @SHFX
       - 🇵🇱 PL-1 | @SHFX
       - 🇵🇱 PL-2 | @SHFX
       - 🇵🇱 PL-3 | @SHFX
@@ -613,20 +649,22 @@ proxy-groups:
     proxies:
       - 🎯 全球直连
       - 🚀 节点选择
-      - 🇳🇴 NO-1 | @SHFX
-      - 🇰🇷 KR-1 | @SHFX
       - 🇺🇸 US-1 | @SHFX
+      - 🇳🇴 NO-1 | @SHFX
       - 🇺🇸 US-2 | @SHFX
-      - 🇭🇰 HK-1 | @SHFX
-      - 🇫🇮 FI-1 | @SHFX
-      - 🇳🇱 NL-1 | @SHFX
-      - 🇰🇷 KR-2 | @SHFX
       - 🇺🇸 US-3 | @SHFX
       - 🇺🇸 US-4 | @SHFX
-      - 🇰🇷 KR-3 | @SHFX
       - 🇺🇸 US-5 | @SHFX
-      - 🇲🇩 MD-1 | @SHFX
+      - 🇭🇰 HK-1 | @SHFX
+      - 🇫🇮 FI-1 | @SHFX
+      - 🇺🇸 US-6 | @SHFX
+      - 🇰🇷 KR-1 | @SHFX
       - 🇻🇳 VN-1 | @SHFX
+      - 🇺🇸 US-7 | @SHFX
+      - 🇰🇷 KR-2 | @SHFX
+      - 🇺🇸 US-8 | @SHFX
+      - 🇻🇳 VN-2 | @SHFX
+      - 🇰🇷 KR-3 | @SHFX
       - 🇵🇱 PL-1 | @SHFX
       - 🇵🇱 PL-2 | @SHFX
       - 🇵🇱 PL-3 | @SHFX
@@ -656,20 +694,22 @@ proxy-groups:
     proxies:
       - 🚀 节点选择
       - 🎯 全球直连
-      - 🇳🇴 NO-1 | @SHFX
-      - 🇰🇷 KR-1 | @SHFX
       - 🇺🇸 US-1 | @SHFX
+      - 🇳🇴 NO-1 | @SHFX
       - 🇺🇸 US-2 | @SHFX
-      - 🇭🇰 HK-1 | @SHFX
-      - 🇫🇮 FI-1 | @SHFX
-      - 🇳🇱 NL-1 | @SHFX
-      - 🇰🇷 KR-2 | @SHFX
       - 🇺🇸 US-3 | @SHFX
       - 🇺🇸 US-4 | @SHFX
-      - 🇰🇷 KR-3 | @SHFX
       - 🇺🇸 US-5 | @SHFX
-      - 🇲🇩 MD-1 | @SHFX
+      - 🇭🇰 HK-1 | @SHFX
+      - 🇫🇮 FI-1 | @SHFX
+      - 🇺🇸 US-6 | @SHFX
+      - 🇰🇷 KR-1 | @SHFX
       - 🇻🇳 VN-1 | @SHFX
+      - 🇺🇸 US-7 | @SHFX
+      - 🇰🇷 KR-2 | @SHFX
+      - 🇺🇸 US-8 | @SHFX
+      - 🇻🇳 VN-2 | @SHFX
+      - 🇰🇷 KR-3 | @SHFX
       - 🇵🇱 PL-1 | @SHFX
       - 🇵🇱 PL-2 | @SHFX
       - 🇵🇱 PL-3 | @SHFX
@@ -716,20 +756,22 @@ proxy-groups:
       - 🚀 节点选择
       - 🎯 全球直连
       - ♻️ 自动选择
-      - 🇳🇴 NO-1 | @SHFX
-      - 🇰🇷 KR-1 | @SHFX
       - 🇺🇸 US-1 | @SHFX
+      - 🇳🇴 NO-1 | @SHFX
       - 🇺🇸 US-2 | @SHFX
-      - 🇭🇰 HK-1 | @SHFX
-      - 🇫🇮 FI-1 | @SHFX
-      - 🇳🇱 NL-1 | @SHFX
-      - 🇰🇷 KR-2 | @SHFX
       - 🇺🇸 US-3 | @SHFX
       - 🇺🇸 US-4 | @SHFX
-      - 🇰🇷 KR-3 | @SHFX
       - 🇺🇸 US-5 | @SHFX
-      - 🇲🇩 MD-1 | @SHFX
+      - 🇭🇰 HK-1 | @SHFX
+      - 🇫🇮 FI-1 | @SHFX
+      - 🇺🇸 US-6 | @SHFX
+      - 🇰🇷 KR-1 | @SHFX
       - 🇻🇳 VN-1 | @SHFX
+      - 🇺🇸 US-7 | @SHFX
+      - 🇰🇷 KR-2 | @SHFX
+      - 🇺🇸 US-8 | @SHFX
+      - 🇻🇳 VN-2 | @SHFX
+      - 🇰🇷 KR-3 | @SHFX
       - 🇵🇱 PL-1 | @SHFX
       - 🇵🇱 PL-2 | @SHFX
       - 🇵🇱 PL-3 | @SHFX
