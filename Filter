@@ -1,4 +1,4 @@
-# Last update: 24.09.2025 02:06:14
+# Last update: 24.09.2025 02:47:31
 mixed-port: 7890
 allow-lan: true
 log-level: info
@@ -95,25 +95,37 @@ proxies:
   type: http
   udp: true
   username: test
-- cipher: chacha20-ietf-poly1305
+- http-opts:
+    headers:
+      Host:
+      - varzesh3.ir
+    method: GET
+    path:
+    - /
   name: 🇺🇸 US-1 | @SHFX
-  password: p78naCf2EfOlRSLTX0wFVx
-  port: 443
-  server: pupas-shirting-unsung.freesocks.work
-  type: ss
+  network: http
+  port: 33801
+  server: m24a.vip784.com
+  servername: varzesh3.ir
+  skip-cert-verify: false
+  tls: false
+  type: vless
+  udp: true
+  uuid: d36f457f-17a9-4891-a113-322ec6792917
 - alterId: 2
   cipher: auto
+  client-fingerprint: chrome
   name: 🇭🇰 HK-1 | @SHFX
   network: ws
   port: 80
   server: hkt.gotochinatown.net
-  skip-cert-verify: false
+  skip-cert-verify: true
   tls: false
   type: vmess
   uuid: 93fb69fc-77cf-11ee-85ee-f23c91369f2d
   ws-opts:
     headers:
-      Host: hkt.gotochinatown.net
+      host: hkt.gotochinatown.net
     path: /
 - name: 🇫🇮 FI-1 | @SHFX
   network: ws
@@ -129,11 +141,35 @@ proxies:
     headers:
       Host: kejiland.freewarp.eu.org
     path: /snippets/ip=proxyip.fxxk.dedyn.io:443?ed=2560
+- cipher: chacha20-ietf-poly1305
+  name: 🇺🇸 US-2 | @SHFX
+  password: p78naCf2EfOlRSLTX0wFVx
+  port: 443
+  server: pupas-shirting-unsung.freesocks.work
+  type: ss
 - cipher: aes-256-cfb
   name: 🇰🇷 KR-2 | @SHFX
   password: f8f7aCzcPKbsF8p3
   port: 989
   server: 154.90.62.168
+  type: ss
+- cipher: aes-256-cfb
+  name: 🇨🇴 CO-1 | @SHFX
+  password: f8f7aCzcPKbsF8p3
+  port: 989
+  server: 154.223.16.212
+  type: ss
+- cipher: aes-256-cfb
+  name: 🇻🇳 VN-1 | @SHFX
+  password: Xn8jKdmDM00IeO%#$#fJAMtsEAEUOpH/YWYtYqDFnT0SV
+  port: 38388
+  server: 103.186.154.152
+  type: ss
+- cipher: aes-256-cfb
+  name: 🇳🇱 NL-1 | @SHFX
+  password: f8f7aCzcPKbsF8p3
+  port: 989
+  server: 51.15.17.169
   type: ss
 - alterId: 0
   name: 🇸🇬 SG-1 | @SHFX
@@ -144,55 +180,11 @@ proxies:
   tls: true
   type: trojan
   udp: true
-- client-fingerprint: qq
-  flow: xtls-rprx-vision
-  name: 🇺🇸 US-2 | @SHFX
-  port: 34074
-  reality-opts:
-    public-key: zimSAAs4SyUKAR-MTMaw08PuI7skyi1U5Peb6VGJwjY
-    short-id: 061cca24
-  server: 500770.xyz
-  servername: www.ucla.edu
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 9d0a75d2-f747-4afa-b43f-d208af9e8f9a
 - cipher: aes-256-cfb
-  name: 🇨🇴 CO-1 | @SHFX
+  name: 🇸🇰 SK-1 | @SHFX
   password: f8f7aCzcPKbsF8p3
   port: 989
-  server: 154.223.16.212
-  type: ss
-- cipher: aes-256-cfb
-  name: 🇳🇱 NL-1 | @SHFX
-  password: f8f7aCzcPKbsF8p3
-  port: 989
-  server: 51.15.17.169
-  type: ss
-- cipher: aes-256-cfb
-  name: 🇻🇳 VN-1 | @SHFX
-  password: Xn8jKdmDM00IeO%#$#fJAMtsEAEUOpH/YWYtYqDFnT0SV
-  port: 38388
-  server: 103.186.154.152
-  type: ss
-- cipher: aes-256-cfb
-  name: 🇰🇷 KR-3 | @SHFX
-  password: f8f7aCzcPKbsF8p3
-  port: 989
-  server: 154.90.63.177
-  type: ss
-- cipher: aes-256-cfb
-  name: 🇰🇷 KR-4 | @SHFX
-  password: qwerREWQ@@
-  port: 4652
-  server: p141.panda001.net
-  type: ss
-- cipher: chacha20-ietf-poly1305
-  name: 🇳🇱 NL-2 | @SHFX
-  password: SjdGCHwafjktt1rzpGxTKYTvVBWb8Xa6E5DTr6MzbdHQSwvpLiDczj3n6MBjy2uyFSzgqgvCWsDQmpM4VQzfPzyGYF58wdyD
-  port: 42029
-  server: 208.67.105.196
+  server: 156.146.40.194
   type: ss
 - name: 🇵🇱 PL-1 | @SHFX
   obfs: salamander
@@ -423,15 +415,13 @@ proxy-groups:
       - 🇺🇸 US-1 | @SHFX
       - 🇭🇰 HK-1 | @SHFX
       - 🇫🇮 FI-1 | @SHFX
-      - 🇰🇷 KR-2 | @SHFX
-      - 🇸🇬 SG-1 | @SHFX
       - 🇺🇸 US-2 | @SHFX
+      - 🇰🇷 KR-2 | @SHFX
       - 🇨🇴 CO-1 | @SHFX
-      - 🇳🇱 NL-1 | @SHFX
       - 🇻🇳 VN-1 | @SHFX
-      - 🇰🇷 KR-3 | @SHFX
-      - 🇰🇷 KR-4 | @SHFX
-      - 🇳🇱 NL-2 | @SHFX
+      - 🇳🇱 NL-1 | @SHFX
+      - 🇸🇬 SG-1 | @SHFX
+      - 🇸🇰 SK-1 | @SHFX
       - 🇵🇱 PL-1 | @SHFX
       - 🇵🇱 PL-2 | @SHFX
       - 🇵🇱 PL-3 | @SHFX
@@ -466,15 +456,13 @@ proxy-groups:
       - 🇺🇸 US-1 | @SHFX
       - 🇭🇰 HK-1 | @SHFX
       - 🇫🇮 FI-1 | @SHFX
-      - 🇰🇷 KR-2 | @SHFX
-      - 🇸🇬 SG-1 | @SHFX
       - 🇺🇸 US-2 | @SHFX
+      - 🇰🇷 KR-2 | @SHFX
       - 🇨🇴 CO-1 | @SHFX
-      - 🇳🇱 NL-1 | @SHFX
       - 🇻🇳 VN-1 | @SHFX
-      - 🇰🇷 KR-3 | @SHFX
-      - 🇰🇷 KR-4 | @SHFX
-      - 🇳🇱 NL-2 | @SHFX
+      - 🇳🇱 NL-1 | @SHFX
+      - 🇸🇬 SG-1 | @SHFX
+      - 🇸🇰 SK-1 | @SHFX
       - 🇵🇱 PL-1 | @SHFX
       - 🇵🇱 PL-2 | @SHFX
       - 🇵🇱 PL-3 | @SHFX
@@ -510,15 +498,13 @@ proxy-groups:
       - 🇺🇸 US-1 | @SHFX
       - 🇭🇰 HK-1 | @SHFX
       - 🇫🇮 FI-1 | @SHFX
-      - 🇰🇷 KR-2 | @SHFX
-      - 🇸🇬 SG-1 | @SHFX
       - 🇺🇸 US-2 | @SHFX
+      - 🇰🇷 KR-2 | @SHFX
       - 🇨🇴 CO-1 | @SHFX
-      - 🇳🇱 NL-1 | @SHFX
       - 🇻🇳 VN-1 | @SHFX
-      - 🇰🇷 KR-3 | @SHFX
-      - 🇰🇷 KR-4 | @SHFX
-      - 🇳🇱 NL-2 | @SHFX
+      - 🇳🇱 NL-1 | @SHFX
+      - 🇸🇬 SG-1 | @SHFX
+      - 🇸🇰 SK-1 | @SHFX
       - 🇵🇱 PL-1 | @SHFX
       - 🇵🇱 PL-2 | @SHFX
       - 🇵🇱 PL-3 | @SHFX
@@ -553,15 +539,13 @@ proxy-groups:
       - 🇺🇸 US-1 | @SHFX
       - 🇭🇰 HK-1 | @SHFX
       - 🇫🇮 FI-1 | @SHFX
-      - 🇰🇷 KR-2 | @SHFX
-      - 🇸🇬 SG-1 | @SHFX
       - 🇺🇸 US-2 | @SHFX
+      - 🇰🇷 KR-2 | @SHFX
       - 🇨🇴 CO-1 | @SHFX
-      - 🇳🇱 NL-1 | @SHFX
       - 🇻🇳 VN-1 | @SHFX
-      - 🇰🇷 KR-3 | @SHFX
-      - 🇰🇷 KR-4 | @SHFX
-      - 🇳🇱 NL-2 | @SHFX
+      - 🇳🇱 NL-1 | @SHFX
+      - 🇸🇬 SG-1 | @SHFX
+      - 🇸🇰 SK-1 | @SHFX
       - 🇵🇱 PL-1 | @SHFX
       - 🇵🇱 PL-2 | @SHFX
       - 🇵🇱 PL-3 | @SHFX
@@ -596,15 +580,13 @@ proxy-groups:
       - 🇺🇸 US-1 | @SHFX
       - 🇭🇰 HK-1 | @SHFX
       - 🇫🇮 FI-1 | @SHFX
-      - 🇰🇷 KR-2 | @SHFX
-      - 🇸🇬 SG-1 | @SHFX
       - 🇺🇸 US-2 | @SHFX
+      - 🇰🇷 KR-2 | @SHFX
       - 🇨🇴 CO-1 | @SHFX
-      - 🇳🇱 NL-1 | @SHFX
       - 🇻🇳 VN-1 | @SHFX
-      - 🇰🇷 KR-3 | @SHFX
-      - 🇰🇷 KR-4 | @SHFX
-      - 🇳🇱 NL-2 | @SHFX
+      - 🇳🇱 NL-1 | @SHFX
+      - 🇸🇬 SG-1 | @SHFX
+      - 🇸🇰 SK-1 | @SHFX
       - 🇵🇱 PL-1 | @SHFX
       - 🇵🇱 PL-2 | @SHFX
       - 🇵🇱 PL-3 | @SHFX
@@ -639,15 +621,13 @@ proxy-groups:
       - 🇺🇸 US-1 | @SHFX
       - 🇭🇰 HK-1 | @SHFX
       - 🇫🇮 FI-1 | @SHFX
-      - 🇰🇷 KR-2 | @SHFX
-      - 🇸🇬 SG-1 | @SHFX
       - 🇺🇸 US-2 | @SHFX
+      - 🇰🇷 KR-2 | @SHFX
       - 🇨🇴 CO-1 | @SHFX
-      - 🇳🇱 NL-1 | @SHFX
       - 🇻🇳 VN-1 | @SHFX
-      - 🇰🇷 KR-3 | @SHFX
-      - 🇰🇷 KR-4 | @SHFX
-      - 🇳🇱 NL-2 | @SHFX
+      - 🇳🇱 NL-1 | @SHFX
+      - 🇸🇬 SG-1 | @SHFX
+      - 🇸🇰 SK-1 | @SHFX
       - 🇵🇱 PL-1 | @SHFX
       - 🇵🇱 PL-2 | @SHFX
       - 🇵🇱 PL-3 | @SHFX
@@ -699,15 +679,13 @@ proxy-groups:
       - 🇺🇸 US-1 | @SHFX
       - 🇭🇰 HK-1 | @SHFX
       - 🇫🇮 FI-1 | @SHFX
-      - 🇰🇷 KR-2 | @SHFX
-      - 🇸🇬 SG-1 | @SHFX
       - 🇺🇸 US-2 | @SHFX
+      - 🇰🇷 KR-2 | @SHFX
       - 🇨🇴 CO-1 | @SHFX
-      - 🇳🇱 NL-1 | @SHFX
       - 🇻🇳 VN-1 | @SHFX
-      - 🇰🇷 KR-3 | @SHFX
-      - 🇰🇷 KR-4 | @SHFX
-      - 🇳🇱 NL-2 | @SHFX
+      - 🇳🇱 NL-1 | @SHFX
+      - 🇸🇬 SG-1 | @SHFX
+      - 🇸🇰 SK-1 | @SHFX
       - 🇵🇱 PL-1 | @SHFX
       - 🇵🇱 PL-2 | @SHFX
       - 🇵🇱 PL-3 | @SHFX
