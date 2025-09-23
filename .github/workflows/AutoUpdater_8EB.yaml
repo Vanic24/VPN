@@ -41,16 +41,16 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests pyyaml babel pycountry
 
-      - name: Fail if SUB_8EB is missing
+      - name: Fail if SOURCES_8EB is missing
         run: |
-          if [ -z "${{ secrets.SUB_8EB }}" ]; then
-            echo "❌ ERROR: SUB_8EB secret is not set in repository secrets."
+          if [ -z "${{ secrets.SOURCES_8EB }}" ]; then
+            echo "❌ ERROR: SOURCES_8EB secret is not set in repository secrets."
             exit 1
           fi
 
-      - name: Restore SUB_8EB from secret
+      - name: Restore SOURCES_8EB from secret
         run: |
-          echo "${{ secrets.SUB_8EB }}" > SUB_8EB
+          echo "${{ secrets.SOURCES_8EB }}" > SOURCES_8EB
 
       - name: Set latency filter environment for scheduled/manual runs
         run: |
