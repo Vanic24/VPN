@@ -2,7 +2,7 @@ name: Update VPN Subscription (SUB_9PB)
 
 on:
   schedule:
-    - cron: '0 */4 * * *' # every 4 hours
+    - cron: '0 */2 * * *' # every 2 hours
     
   # Manual trigger with inputs
   workflow_dispatch:
@@ -106,7 +106,7 @@ jobs:
           path: 9PB.yaml
           retention-days: 30
       
-      - name: Cleanup old artifacts (keep latest 30)
+      - name: Cleanup old artifacts (keep latest 60)
         if: success() && steps.upload_artifact.outcome == 'success'
         uses: actions/github-script@v7
         with:
