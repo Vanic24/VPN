@@ -1,4 +1,4 @@
-# Last update: 25.09.2025 18:56:53
+# Last update: 25.09.2025 20:43:44
 mixed-port: 7890
 allow-lan: true
 log-level: info
@@ -78,27 +78,34 @@ dns:
       - 240.0.0.0/4
       - 0.0.0.0/32
 proxies:
-- name: 🇬🇧 GB-1 | 9PB
-  password: 8d80603a-d7d7-4bcd-ad88-aaf1cf70b8c6
-  port: 3000
-  server: dv-sg.9966661.xyz
-  skip-cert-verify: true
-  tls:
-    enabled: true
-    insecure: false
-    server_name: dv-sg.9966661.xyz
-  type: hysteria2
+- encryption: none
+  flow: xtls-rprx-vision
+  name: 🇬🇧 GB-1 | 9PB
+  network: tcp
+  port: 51233
+  server: us-reality.9966662.xyz
+  tls: false
+  type: vless
+  uuid: 8d80603a-d7d7-4bcd-ad88-aaf1cf70b8c6
+- encryption: none
+  flow: xtls-rprx-vision
+  name: 🇺🇸 US-1 | 9PB
+  network: tcp
+  port: 51233
+  server: us-reality.9966662.xyz
+  tls: false
+  type: vless
+  uuid: 8d80603a-d7d7-4bcd-ad88-aaf1cf70b8c6
+- encryption: none
+  flow: xtls-rprx-vision
+  name: 🇺🇸 US-2 | 9PB
+  network: tcp
+  port: 51233
+  server: us-reality.9966662.xyz
+  tls: false
+  type: vless
+  uuid: 8d80603a-d7d7-4bcd-ad88-aaf1cf70b8c6
 - name: 🇸🇬 SG-1 | 9PB
-  password: 8d80603a-d7d7-4bcd-ad88-aaf1cf70b8c6
-  port: 3000
-  server: dv-sg.9966661.xyz
-  skip-cert-verify: true
-  tls:
-    enabled: true
-    insecure: false
-    server_name: dv-sg.9966661.xyz
-  type: hysteria2
-- name: 🇸🇬 SG-2 | 9PB
   password: 8d80603a-d7d7-4bcd-ad88-aaf1cf70b8c6
   port: 3000
   server: dv-sg.9966661.xyz
@@ -118,7 +125,7 @@ proxies:
     insecure: false
     server_name: dv-jp.9966661.xyz
   type: hysteria2
-- name: 🇺🇸 US-1 | 9PB
+- name: 🇺🇸 US-3 | 9PB
   password: 8d80603a-d7d7-4bcd-ad88-aaf1cf70b8c6
   port: 13000
   server: 1e3fb9-330-co.9966661.xyz
@@ -128,7 +135,7 @@ proxies:
     insecure: false
     server_name: 1e3fb9-330-co.9966661.xyz
   type: hysteria2
-- name: 🇺🇸 US-2 | 9PB
+- name: 🇺🇸 US-4 | 9PB
   password: 8d80603a-d7d7-4bcd-ad88-aaf1cf70b8c6
   port: 3000
   server: 03e37e-330-co.9966661.xyz
@@ -219,11 +226,12 @@ proxy-groups:
     tolerance: 50
     proxies:
       - 🇬🇧 GB-1 | 9PB
-      - 🇸🇬 SG-1 | 9PB
-      - 🇸🇬 SG-2 | 9PB
-      - 🇯🇵 JP-1 | 9PB
       - 🇺🇸 US-1 | 9PB
       - 🇺🇸 US-2 | 9PB
+      - 🇸🇬 SG-1 | 9PB
+      - 🇯🇵 JP-1 | 9PB
+      - 🇺🇸 US-3 | 9PB
+      - 🇺🇸 US-4 | 9PB
       - 🇭🇰 HK-1 | 9PB
       - 🇻🇳 VN-1 | 9PB
       - 🇻🇳 VN-2 | 9PB
@@ -238,11 +246,12 @@ proxy-groups:
       - ♻️ 自动选择
       - DIRECT
       - 🇬🇧 GB-1 | 9PB
-      - 🇸🇬 SG-1 | 9PB
-      - 🇸🇬 SG-2 | 9PB
-      - 🇯🇵 JP-1 | 9PB
       - 🇺🇸 US-1 | 9PB
       - 🇺🇸 US-2 | 9PB
+      - 🇸🇬 SG-1 | 9PB
+      - 🇯🇵 JP-1 | 9PB
+      - 🇺🇸 US-3 | 9PB
+      - 🇺🇸 US-4 | 9PB
       - 🇭🇰 HK-1 | 9PB
       - 🇻🇳 VN-1 | 9PB
       - 🇻🇳 VN-2 | 9PB
@@ -258,11 +267,12 @@ proxy-groups:
       - ♻️ 自动选择
       - 🎯 全球直连
       - 🇬🇧 GB-1 | 9PB
-      - 🇸🇬 SG-1 | 9PB
-      - 🇸🇬 SG-2 | 9PB
-      - 🇯🇵 JP-1 | 9PB
       - 🇺🇸 US-1 | 9PB
       - 🇺🇸 US-2 | 9PB
+      - 🇸🇬 SG-1 | 9PB
+      - 🇯🇵 JP-1 | 9PB
+      - 🇺🇸 US-3 | 9PB
+      - 🇺🇸 US-4 | 9PB
       - 🇭🇰 HK-1 | 9PB
       - 🇻🇳 VN-1 | 9PB
       - 🇻🇳 VN-2 | 9PB
@@ -277,11 +287,12 @@ proxy-groups:
       - 🚀 节点选择
       - 🎯 全球直连
       - 🇬🇧 GB-1 | 9PB
-      - 🇸🇬 SG-1 | 9PB
-      - 🇸🇬 SG-2 | 9PB
-      - 🇯🇵 JP-1 | 9PB
       - 🇺🇸 US-1 | 9PB
       - 🇺🇸 US-2 | 9PB
+      - 🇸🇬 SG-1 | 9PB
+      - 🇯🇵 JP-1 | 9PB
+      - 🇺🇸 US-3 | 9PB
+      - 🇺🇸 US-4 | 9PB
       - 🇭🇰 HK-1 | 9PB
       - 🇻🇳 VN-1 | 9PB
       - 🇻🇳 VN-2 | 9PB
@@ -296,11 +307,12 @@ proxy-groups:
       - 🎯 全球直连
       - 🚀 节点选择
       - 🇬🇧 GB-1 | 9PB
-      - 🇸🇬 SG-1 | 9PB
-      - 🇸🇬 SG-2 | 9PB
-      - 🇯🇵 JP-1 | 9PB
       - 🇺🇸 US-1 | 9PB
       - 🇺🇸 US-2 | 9PB
+      - 🇸🇬 SG-1 | 9PB
+      - 🇯🇵 JP-1 | 9PB
+      - 🇺🇸 US-3 | 9PB
+      - 🇺🇸 US-4 | 9PB
       - 🇭🇰 HK-1 | 9PB
       - 🇻🇳 VN-1 | 9PB
       - 🇻🇳 VN-2 | 9PB
@@ -315,11 +327,12 @@ proxy-groups:
       - 🚀 节点选择
       - 🎯 全球直连
       - 🇬🇧 GB-1 | 9PB
-      - 🇸🇬 SG-1 | 9PB
-      - 🇸🇬 SG-2 | 9PB
-      - 🇯🇵 JP-1 | 9PB
       - 🇺🇸 US-1 | 9PB
       - 🇺🇸 US-2 | 9PB
+      - 🇸🇬 SG-1 | 9PB
+      - 🇯🇵 JP-1 | 9PB
+      - 🇺🇸 US-3 | 9PB
+      - 🇺🇸 US-4 | 9PB
       - 🇭🇰 HK-1 | 9PB
       - 🇻🇳 VN-1 | 9PB
       - 🇻🇳 VN-2 | 9PB
@@ -351,11 +364,12 @@ proxy-groups:
       - 🎯 全球直连
       - ♻️ 自动选择
       - 🇬🇧 GB-1 | 9PB
-      - 🇸🇬 SG-1 | 9PB
-      - 🇸🇬 SG-2 | 9PB
-      - 🇯🇵 JP-1 | 9PB
       - 🇺🇸 US-1 | 9PB
       - 🇺🇸 US-2 | 9PB
+      - 🇸🇬 SG-1 | 9PB
+      - 🇯🇵 JP-1 | 9PB
+      - 🇺🇸 US-3 | 9PB
+      - 🇺🇸 US-4 | 9PB
       - 🇭🇰 HK-1 | 9PB
       - 🇻🇳 VN-1 | 9PB
       - 🇻🇳 VN-2 | 9PB
