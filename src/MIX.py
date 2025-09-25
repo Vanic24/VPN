@@ -496,7 +496,7 @@ def rename_node(p, country_counter, CN_TO_CC):
     host = p.get("server") or p.get("add") or ""
 
     # Define forbidden emojis (any emoji you want to filter out)
-    FORBIDDEN_EMOJIS = "🔒❌⚠️"
+    FORBIDDEN_EMOJIS = "🔒❌"
 
     # Skip nodes with empty names or containing any forbidden emoji
     if not original_name or any(e in original_name for e in FORBIDDEN_EMOJIS):
