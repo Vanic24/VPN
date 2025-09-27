@@ -32,7 +32,7 @@ jobs:
           SUB_SUB3: ${{ secrets.SUB_SUB3 }}
           DRY_RUN: ${{ github.event.inputs.dry_run }}
         run: |
-                    node <<'JS'
+          node <<'JS'
           const fs = require('fs');
           const path = require('path');
           const axios = require('axios');
@@ -210,7 +210,7 @@ jobs:
 
           // --- End advanced parsers ---
 
-          const generate9PB = async () => {
+          const generateSub3 = async () => {
             const rawData = await fetchSub();
             // preserve original behavior: remove first three info lines
             const lines = rawData.split('\n').slice(3);
