@@ -2,7 +2,7 @@ name: Update VPN Subscription (SUB_Sub3)
 
 on:
   schedule:
-    - cron: '0 */4 * * *' # every 4 hours
+    - cron: '0 */1 * * *' # every 1 hours
   workflow_dispatch:
     inputs:
       dry_run:
@@ -47,8 +47,8 @@ jobs:
           const dry_run = process.env.DRY_RUN === 'true';
           const subUrl = process.env.SUB_SUB3;
 
-          const fetchSub = async (url) => {
-            const res = await axios.get(url);
+          const fetchSub = async () => {
+            const res = await axios.get(subUrl);
             return Buffer.from(res.data, 'base64').toString();
           };
 
@@ -62,6 +62,7 @@ jobs:
             return decodeURIComponent(line.split('#')[1] || '');
           };
 
+          // --- Universal Clash-compatible parser ---
           const parseNode = (line) => {
             try {
               let name = decodeName(line);
@@ -192,34 +193,27 @@ jobs:
 
               return null;
             } catch (err) {
+              console.error('❌ Failed to parse line:', line, err.message);
               return null;
             }
           };
 
           const generateSub3 = async () => {
-            console.log(`🔗 Fetching subscription from secret repo: ${subUrl}`);
-            const rawData = await fetchSub(subUrl);
-            const lines = rawData.split('\n').slice(3); // remove first 3 lines
-            console.log(`📥 Total source nodes fetched: ${lines.length}`);
-
+            const rawData = await fetchSub();
+            const lines = rawData.split('\n').slice(3);
             const proxies = [];
-            const failedNodes = [];
-            let parsedCount=0, failedCount=0;
+            let totalLines=0, parsedCount=0, failedCount=0;
 
             for (let line of lines) {
               line = line.trim();
               if(!line) continue;
+              totalLines++;
               const p = parseNode(line);
-              if(p){ proxies.push(p); parsedCount++; }
-              else { failedCount++; failedNodes.push(line); }
+              if(p) { proxies.push(p); parsedCount++; }
+              else failedCount++;
             }
 
-            console.log(`📊 Parsing Summary:`);
-            console.log(` • Total nodes fetched: ${lines.length}`);
-            console.log(` • Successfully parsed: ${parsedCount}`);
-            console.log(` • Failed to parse: ${failedCount}`);
-            if(failedNodes.length) console.log(` • Failed nodes:\n${failedNodes.join('\n')}`);
-            console.log(` • Total available nodes: ${proxies.length}`);
+            console.log(`📊 Summary: total=${totalLines}, parsed=${parsedCount}, failed=${failedCount}`);
 
             const templatePath = path.join(__dirname,'ClashTemplate.ini');
             if(!fs.existsSync(templatePath)){ console.error('❌ ClashTemplate.ini not found'); process.exit(1); }
@@ -237,15 +231,12 @@ jobs:
 
             if(!dry_run){
               const ghUrl = `https://api.github.com/repos/${process.env.GITHUB_REPOSITORY}/contents/Sub3`;
-              const ghRes = await axios.get(ghUrl,{headers:{Authorization:`token ${process.env.GITHUB_TOKEN}`}});
+              const ghRes = await axios.get(ghUrl,{headers:{Authorization:`token ${process.env.GITHUB_TOKEN}`}}); 
               const sha = ghRes.data.sha;
-              await axios.put(ghUrl,{
-                message:`🎉Sub3 Auto update successful🎉 - ${timestamp}`,
-                content:Buffer.from(outputContent).toString('base64'),
-                sha
-              },{headers:{Authorization:`token ${process.env.GITHUB_TOKEN}`}});
-              console.log('✅ GitHub updated successfully');
+              await axios.put(ghUrl,{message:`🎉Sub3 Auto update successfully🎉 - ${timestamp}`,content:Buffer.from(outputContent).toString('base64'),sha},{headers:{Authorization:`token ${process.env.GITHUB_TOKEN}`}});
             }
+
+            console.log('✅ Sub3 files generated successfully');
           };
 
           generateSub3().catch(err=>{ console.error(err); process.exit(1); });
