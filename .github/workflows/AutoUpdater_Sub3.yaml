@@ -208,59 +208,51 @@ jobs:
             }
           }
 
-          def parse_tuic(url):
-            try:
-                parsed = urllib.parse.urlparse(url)
-                userinfo, host, port = parsed.netloc.split("@")[0], parsed.hostname, parsed.port
-                uuid, pwd = userinfo.split(":")
-                params = urllib.parse.parse_qs(parsed.query)
-        
-                return {
-                    "type": "tuic",
-                    "server": host,
-                    "port": int(port),
-                    "uuid": uuid,
-                    "password": pwd,
-                    "params": {k: v[0] for k, v in params.items()}
-                }
-            except Exception as e:
-                return {"type": "tuic", "error": str(e)}
+          function parseTuic(line) {
+            try {
+              const u = new URL(line);
+              const name = decodeURIComponent(u.hash ? u.hash.slice(1) : '') || 'tuic';
+          
+              const proxy = {
+                name,
+                type: 'tuic',
+                server: u.hostname || '',
+                port: safeNumber(u.port || 0, 0),
+                password: decodeURIComponent(u.username || '') || '',
+                alpn: u.searchParams.get('alpn') || '',
+                sni: u.searchParams.get('sni') || '',
+                network: u.searchParams.get('network') || '',
+              };
+          
+              return proxy;
+            } catch (err) {
+              console.error('❌ Failed to parse Tuic node:', line, err.message);
+              return null;
+            }
+          }
 
           function parseSS(line) {
             try {
-              // ss://method:password@server:port#name
-              const raw = line.slice(5); // remove "ss://"
+              const raw = line.slice(5); // remove 'ss://'
               const [before, after] = raw.split('#');
-              const decoded = b64decode(before.includes('@') ? before.split('@')[0] : before);
-              
-              let method = '';
-              let password = '';
-              let server = '';
-              let port = 0;
+              let decodedPart = before;
           
-              if (before.includes('@')) {
-                // format: method:password@server:port
-                const [userpass, hostport] = before.split('@');
-                [method, password] = b64decode(userpass).split(':');
-                const [host, p] = hostport.split(':');
-                server = host;
-                port = safeNumber(p, 0);
-              } else {
-                // format already decoded
-                const [methodPass, hostport] = decoded.split('@');
-                [method, password] = methodPass.split(':');
-                const [host, p] = hostport.split(':');
-                server = host;
-                port = safeNumber(p, 0);
+              // decode if base64-encoded (common in ss://)
+              if (!before.includes('@')) {
+                decodedPart = Buffer.from(before, 'base64').toString('utf8');
               }
+          
+              const [methodPass, hostport] = decodedPart.split('@');
+              const [method, password] = methodPass.split(':');
+              const [server, portStr] = hostport.split(':');
           
               const proxy = {
                 name: decodeURIComponent(after || '') || 'shadowsocks',
                 type: 'ss',
-                server,
-                port,
-                cipher: method,
-                password
+                server: server || '',
+                port: safeNumber(portStr, 0),
+                cipher: method || '',
+                password: password || ''
               };
           
               return proxy;
@@ -270,36 +262,31 @@ jobs:
             }
           }
 
-          def parse_ssr(url):
-            try:
-                raw = url[len("ssr://"):]
-                decoded = base64.urlsafe_b64decode(raw + "=" * (-len(raw) % 4)).decode()
-                parts = decoded.split("/?")
-                main = parts[0].split(":")
-                host, port, protocol, method, obfs, pwd_enc = main[:6]
-                password = base64.urlsafe_b64decode(pwd_enc + "=" * (-len(pwd_enc) % 4)).decode()
-        
-                params = {}
-                if len(parts) > 1:
-                    query = urllib.parse.parse_qs(parts[1])
-                    for k, v in query.items():
-                        try:
-                            params[k] = base64.urlsafe_b64decode(v[0] + "=" * (-len(v[0]) % 4)).decode()
-                        except:
-                            params[k] = v[0]
-        
-                return {
-                    "type": "ssr",
-                    "server": host,
-                    "port": int(port),
-                    "protocol": protocol,
-                    "method": method,
-                    "obfs": obfs,
-                    "password": password,
-                    "params": params
-                }
-            except Exception as e:
-                return {"type": "ssr", "error": str(e)}
+          function parseSSR(line) {
+            try {
+              const raw = line.slice(6); // remove 'ssr://'
+              const decoded = Buffer.from(raw, 'base64').toString('utf8');
+              const [mainPart, paramPart] = decoded.split('/?');
+              const [server, portStr, protocol, method, obfs, passwordB64] = mainPart.split(':');
+              const password = Buffer.from(passwordB64 || '', 'base64').toString('utf8');
+          
+              const proxy = {
+                name: decodeURIComponent((paramPart && new URLSearchParams(paramPart).get('remarks')) || 'ssr') || 'ssr',
+                type: 'ssr',
+                server: server || '',
+                port: safeNumber(portStr, 0),
+                cipher: method || '',
+                protocol: protocol || '',
+                obfs: obfs || '',
+                password: password || ''
+              };
+          
+              return proxy;
+            } catch (err) {
+              console.error('❌ Failed to parse SSR node:', line, err.message);
+              return null;
+            }
+          }
     
           // --- End advanced parsers ---
           const generateSub3 = async () => {
