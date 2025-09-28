@@ -199,39 +199,61 @@ jobs:
           };
 
           const generateSub3 = async () => {
-          console.log(`📝 Total sources found in secret repo: ${subUrls.length}`);
-            const rawData = await fetchSub();
-            const lines = rawData.split('\n').slice(3);
-            const proxies = [];
-            let totalLines=0, parsedCount=0, failedCount=0;
+            console.log(`📝 Total sources found in secret repo: ${subUrls.length}`);
+          
+            let allLines = [];
+            for (const url of subUrls) {
+              const rawData = await fetchSub(url);
+              const lines = rawData.split('\n').slice(3).filter(l => l.trim());
+              console.log(`📥 Nodes fetched from source ${url}: ${lines.length}`);
+              allLines.push(...lines);
+            }
+          
             console.log(`📥 Total nodes fetched from all sources: ${allLines.length}`);
-
-            for (let line of lines) {
+          
+            const proxies = [];
+            const failedNodes = [];
+            let totalLines = 0;
+            let parsedCount = 0;
+            let failedCount = 0;
+          
+            for (let line of allLines) {
               line = line.trim();
-              if(!line) continue;
+              if (!line) continue;
               totalLines++;
               const p = parseNode(line);
-              if(p) { proxies.push(p); parsedCount++; }
-              else failedCount++;
+              if (p) {
+                proxies.push(p);
+                parsedCount++;
+              } else {
+                failedCount++;
+                failedNodes.push(line);
+              }
             }
-
-            console.log(`✅ Successfully parsed nodes: ${proxies.length}`);
-            console.log(`⚠️ Failed to parse nodes: ${failedNodes.length}`);
-
-            const templatePath = path.join(__dirname,'ClashTemplate.ini');
-            if(!fs.existsSync(templatePath)){ console.error('❌ ClashTemplate.ini not found'); process.exit(1); }
-            const template = fs.readFileSync(templatePath,'utf-8');
-
-            const proxies_yaml_block = yaml.dump(proxies, {lineWidth:-1}).trimEnd();
-            const proxy_names_block = proxies.map(p=>`      - ${p.name}`).join("\n");
-
+          
+            console.log(`✅ Successfully parsed nodes: ${parsedCount}`);
+            console.log(`⚠️ Failed to parse nodes: ${failedCount}`);
+            if (failedNodes.length > 0) console.log('❌ Failed nodes:', failedNodes);
+          
+            const templatePath = path.join(__dirname, 'ClashTemplate.ini');
+            if (!fs.existsSync(templatePath)) {
+              console.error('❌ ClashTemplate.ini not found');
+              process.exit(1);
+            }
+          
+            const template = fs.readFileSync(templatePath, 'utf-8');
+            const proxies_yaml_block = yaml.dump(proxies, { lineWidth: -1 }).trimEnd();
+            const proxy_names_block = proxies.map(p => `      - ${p.name}`).join("\n");
+          
             let outputContent = template.replace(/{{PROXIES}}/g, proxies_yaml_block);
             outputContent = outputContent.replace(/{{PROXY_NAMES}}/g, proxy_names_block);
-
+          
             const yamlData = `# Last update: ${timestamp}\n${outputContent}`;
-            fs.writeFileSync('Sub3', outputContent,'utf8');
-            fs.writeFileSync('Sub3.yml', outputContent,'utf8');
+            fs.writeFileSync('Sub3', outputContent, 'utf8');
+            fs.writeFileSync('Sub3.yml', outputContent, 'utf8');
+          
             console.log(`📦 Total available nodes in final YAML: ${proxies.length}`);
+          };
 
             if(!dry_run){
               const ghUrl = `https://api.github.com/repos/${process.env.GITHUB_REPOSITORY}/contents/Sub3`;
