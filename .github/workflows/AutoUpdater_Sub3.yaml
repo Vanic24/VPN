@@ -226,65 +226,41 @@ jobs:
             outputContent = outputContent.replace(/{{PROXY_NAMES}}/g, proxy_names_block);
 
             const yamlData = `# Last update: ${timestamp}\n${outputContent}`;
-            fs.writeFileSync('Sub3', outputContent,'utf8');
-            fs.writeFileSync('Sub3.yml', outputContent,'utf8');
+            fs.writeFileSync('9PB', outputContent,'utf8');
+            fs.writeFileSync('9PB.yml', outputContent,'utf8');
 
             if(!dry_run){
-              const ghUrl = `https://api.github.com/repos/${process.env.GITHUB_REPOSITORY}/contents/Sub3`;
-              const ghRes = await axios.get(ghUrl,{headers:{Authorization:`token ${process.env.GITHUB_TOKEN}`}}); 
-              const sha = ghRes.data.sha;
-              await axios.put(ghUrl,{message:`🎉9PB Auto update successfully🎉 - ${timestamp}`,content:Buffer.from(outputContent).toString('base64'),sha},{headers:{Authorization:`token ${process.env.GITHUB_TOKEN}`}});
-            }
+              // --- GitHub update ---
+              const ghUrl=`https://api.github.com/repos/${process.env.GITHUB_REPOSITORY}/contents/9PB`;
+              const ghRes=await axios.get(ghUrl,{headers:{Authorization:`token ${process.env.GITHUB_TOKEN}`}});
+              const sha=ghRes.data.sha;
+              await axios.put(ghUrl,{message:`🎉9PB Auto update successful🎉 - ${timestamp}`,content:Buffer.from(outputContent).toString('base64'),sha},{headers:{Authorization:`token ${process.env.GITHUB_TOKEN}`}});
+              console.log('✅ GitHub updated successfully');
 
-            console.log('✅ 9PB files generated successfully');
-          };
+              // --- Delete old TextDB record ---
+              const deleteUrl='https://textdb.online/update/?key=9PB_SHFX&value={}';
+              const delRes=await axios.post(deleteUrl,{value:''},{headers:{'Content-Type':'application/x-www-form-urlencoded'}});
+              if(delRes.data.status===1) console.log('🗑️ Old Textdb record deleted successfully');
+              else console.error('⚠️ Failed to delete old Textdb record:',delRes.data);
 
-          // Delete old record from TextDB first
-              const deleteUrl = 'https://textdb.online/update/?key=Sub3_SHFX&value={}';
- 
-              const delRes = await axios.post(
-                deleteUrl,
-                { value: '' },
-                { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
-              );
- 
-              if (delRes.data.status === 1) {
-                console.log('🗑️ Old Textdb record deleted successfully');
-              } else {
-                console.error('⚠️ Failed to delete old Textdb record:', delRes.data);
-              }
- 
-              // Simple sleep function
-              const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
- 
-              // Wait 3 seconds before uploading new data
-              await sleep(3000);
- 
-              // Update Textdb using POST
-              const textdbUrl = 'https://textdb.online/update/?key=9PB_SHFX&value={}';
- 
-              const res = await axios.post(
-                textdbUrl,
-                { value: yamlData },
-                { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
-              );
- 
-              if (res.data.status === 1) {
-                console.log('✅ Textdb uploaded successfully: ' + res.data.data.url);
-              } else {
-                console.error('❌ Textdb upload failed:', res.data);
-              }
+              // --- Sleep 3 seconds ---
+              await new Promise(r=>setTimeout(r,3000));
+
+              // --- Upload new TextDB record ---
+              const res=await axios.post(deleteUrl,{value:yamlData},{headers:{'Content-Type':'application/x-www-form-urlencoded'}});
+              if(res.data.status===1) console.log('✅ Textdb uploaded successfully: '+res.data.data.url);
+              else console.error('❌ Textdb upload failed:',res.data);
             }
           };
 
-          generateSub3().catch(err=>{ console.error(err); process.exit(1); });
+          generate9PB().catch(err=>{ console.error(err); process.exit(1); });
           JS
 
       - name: Upload Sub3 artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Sub3
-          path: Sub3.yml
+          name: 9PB
+          path: 9PB.yml
 
       - name: Cleanup old artifacts
         uses: actions/github-script@v6
@@ -294,6 +270,6 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo
             });
-            for (const artifact of artifacts.data.artifacts.filter(a=>a.name==='Sub3').slice(2)){
+            for (const artifact of artifacts.data.artifacts.filter(a=>a.name==='Sub3').slice(10)){
               await github.rest.actions.deleteArtifact({owner:context.repo.owner,repo:context.repo.repo,artifact_id:artifact.id});
             }
