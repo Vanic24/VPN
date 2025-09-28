@@ -198,19 +198,22 @@ jobs:
             }
           };
 
-          const generate9PB = async () => {
-            const rawData = await fetchSub();
-            const lines = rawData.split('\n').slice(3);
+          const generateSub3 = async () => {
+            console.log(`🔗 Fetching subscription from secret repo: ${subUrl}`);
+            const rawData = await fetchSub(subUrl);
+            const lines = rawData.split('\n').slice(3); // remove first 3 lines
+            console.log(`📥 Total source nodes fetched: ${lines.length}`);
+
             const proxies = [];
-            let totalLines=0, parsedCount=0, failedCount=0;
+            const failedNodes = [];
+            let parsedCount=0, failedCount=0;
 
             for (let line of lines) {
               line = line.trim();
               if(!line) continue;
-              totalLines++;
               const p = parseNode(line);
-              if(p) { proxies.push(p); parsedCount++; }
-              else failedCount++;
+              if(p){ proxies.push(p); parsedCount++; }
+              else { failedCount++; failedNodes.push(line); }
             }
 
             console.log(`📊 Parsing Summary:`);
