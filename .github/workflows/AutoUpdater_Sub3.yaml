@@ -233,10 +233,48 @@ jobs:
               const ghUrl = `https://api.github.com/repos/${process.env.GITHUB_REPOSITORY}/contents/Sub3`;
               const ghRes = await axios.get(ghUrl,{headers:{Authorization:`token ${process.env.GITHUB_TOKEN}`}}); 
               const sha = ghRes.data.sha;
-              await axios.put(ghUrl,{message:`🎉Sub3 Auto update successfully🎉 - ${timestamp}`,content:Buffer.from(outputContent).toString('base64'),sha},{headers:{Authorization:`token ${process.env.GITHUB_TOKEN}`}});
+              await axios.put(ghUrl,{message:`🎉9PB Auto update successfully🎉 - ${timestamp}`,content:Buffer.from(outputContent).toString('base64'),sha},{headers:{Authorization:`token ${process.env.GITHUB_TOKEN}`}});
             }
 
-            console.log('✅ Sub3 files generated successfully');
+            console.log('✅ 9PB files generated successfully');
+          };
+
+          // Delete old record from TextDB first
+              const deleteUrl = 'https://textdb.online/update/?key=Sub3_SHFX&value={}';
+ 
+              const delRes = await axios.post(
+                deleteUrl,
+                { value: '' },
+                { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+              );
+ 
+              if (delRes.data.status === 1) {
+                console.log('🗑️ Old Textdb record deleted successfully');
+              } else {
+                console.error('⚠️ Failed to delete old Textdb record:', delRes.data);
+              }
+ 
+              // Simple sleep function
+              const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+ 
+              // Wait 3 seconds before uploading new data
+              await sleep(3000);
+ 
+              // Update Textdb using POST
+              const textdbUrl = 'https://textdb.online/update/?key=9PB_SHFX&value={}';
+ 
+              const res = await axios.post(
+                textdbUrl,
+                { value: yamlData },
+                { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+              );
+ 
+              if (res.data.status === 1) {
+                console.log('✅ Textdb uploaded successfully: ' + res.data.data.url);
+              } else {
+                console.error('❌ Textdb upload failed:', res.data);
+              }
+            }
           };
 
           generateSub3().catch(err=>{ console.error(err); process.exit(1); });
