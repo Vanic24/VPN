@@ -213,12 +213,13 @@ jobs:
               else failedCount++;
             }
 
-            console.log(`📊 Parsing Summary:`); 
-            console.log(` • Total lines processed: ${lines.length}`);
-            console.log(` • Successfully parsed: ${proxies.length}`);
-            console.log(` • Failed to parse: ${failedLines.length}`);
-            if(failedLines.length) console.log(' • Failed nodes:\n', failedLines.join('\n'));
-
+            console.log(`📊 Parsing Summary:`);
+            console.log(` • Total nodes fetched: ${lines.length}`);
+            console.log(` • Successfully parsed: ${parsedCount}`);
+            console.log(` • Failed to parse: ${failedCount}`);
+            if(failedNodes.length) console.log(` • Failed nodes:\n${failedNodes.join('\n')}`);
+            console.log(` • Total available nodes: ${proxies.length}`);
+            
             const templatePath = path.join(__dirname,'ClashTemplate.ini');
             if(!fs.existsSync(templatePath)){ console.error('❌ ClashTemplate.ini not found'); process.exit(1); }
             const template = fs.readFileSync(templatePath,'utf-8');
