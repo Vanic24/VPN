@@ -496,7 +496,7 @@ def rename_node(p, country_counter, CN_TO_CC):
     host = p.get("server") or p.get("add") or ""
 
     # Define forbidden emojis (any emoji you want to filter out)
-    FORBIDDEN_EMOJIS = {"🔒", "❌", "⚠️", "🐲"}
+    FORBIDDEN_EMOJIS = {"🔒", "❌", "⚠️"}
 
     # Extract grapheme clusters (so multi-codepoint emojis like ⚠️ are kept together)
     graphemes = list(original_name)
