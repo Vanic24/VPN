@@ -208,8 +208,100 @@ jobs:
             }
           }
 
-          // --- End advanced parsers ---
+          def parse_tuic(url):
+            try:
+                parsed = urllib.parse.urlparse(url)
+                userinfo, host, port = parsed.netloc.split("@")[0], parsed.hostname, parsed.port
+                uuid, pwd = userinfo.split(":")
+                params = urllib.parse.parse_qs(parsed.query)
+        
+                return {
+                    "type": "tuic",
+                    "server": host,
+                    "port": int(port),
+                    "uuid": uuid,
+                    "password": pwd,
+                    "params": {k: v[0] for k, v in params.items()}
+                }
+            except Exception as e:
+                return {"type": "tuic", "error": str(e)}
 
+          function parseSS(line) {
+            try {
+              // ss://method:password@server:port#name
+              const raw = line.slice(5); // remove "ss://"
+              const [before, after] = raw.split('#');
+              const decoded = b64decode(before.includes('@') ? before.split('@')[0] : before);
+              
+              let method = '';
+              let password = '';
+              let server = '';
+              let port = 0;
+          
+              if (before.includes('@')) {
+                // format: method:password@server:port
+                const [userpass, hostport] = before.split('@');
+                [method, password] = b64decode(userpass).split(':');
+                const [host, p] = hostport.split(':');
+                server = host;
+                port = safeNumber(p, 0);
+              } else {
+                // format already decoded
+                const [methodPass, hostport] = decoded.split('@');
+                [method, password] = methodPass.split(':');
+                const [host, p] = hostport.split(':');
+                server = host;
+                port = safeNumber(p, 0);
+              }
+          
+              const proxy = {
+                name: decodeURIComponent(after || '') || 'shadowsocks',
+                type: 'ss',
+                server,
+                port,
+                cipher: method,
+                password
+              };
+          
+              return proxy;
+            } catch (err) {
+              console.error('❌ Failed to parse SS node:', line, err.message);
+              return null;
+            }
+          }
+
+          def parse_ssr(url):
+            try:
+                raw = url[len("ssr://"):]
+                decoded = base64.urlsafe_b64decode(raw + "=" * (-len(raw) % 4)).decode()
+                parts = decoded.split("/?")
+                main = parts[0].split(":")
+                host, port, protocol, method, obfs, pwd_enc = main[:6]
+                password = base64.urlsafe_b64decode(pwd_enc + "=" * (-len(pwd_enc) % 4)).decode()
+        
+                params = {}
+                if len(parts) > 1:
+                    query = urllib.parse.parse_qs(parts[1])
+                    for k, v in query.items():
+                        try:
+                            params[k] = base64.urlsafe_b64decode(v[0] + "=" * (-len(v[0]) % 4)).decode()
+                        except:
+                            params[k] = v[0]
+        
+                return {
+                    "type": "ssr",
+                    "server": host,
+                    "port": int(port),
+                    "protocol": protocol,
+                    "method": method,
+                    "obfs": obfs,
+                    "password": password,
+                    "params": params
+                }
+            except Exception as e:
+                return {"type": "ssr", "error": str(e)}
+    
+          // --- End advanced parsers ---
           const generateSub3 = async () => {
             const rawData = await fetchSub();
             // preserve original behavior: remove first three info lines
@@ -245,6 +337,18 @@ jobs:
                 }
                 else if (line.startsWith('anytls://')) {
                   const p = parseAnytls(line);
+                  if (p) proxies.push(p);
+                }
+                else if (line.startsWith('tuic://')) {
+                  const p = parseTuic(line);
+                  if (p) proxies.push(p);
+                }
+                else if (line.startsWith('ss://')) {
+                  const p = parsess(line);
+                  if (p) proxies.push(p);
+                }
+                else if (line.startsWith('ssr://')) {
+                  const p = parsessr(line);
                   if (p) proxies.push(p);
                 }
                 // keep silent on unsupported lines (like plain YAML blocks or other schemes)
