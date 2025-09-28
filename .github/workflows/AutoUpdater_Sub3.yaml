@@ -104,36 +104,40 @@ jobs:
 
           function parseVless(line) {
             try {
-              const [before, after] = line.slice(7).split('#');
-              const url = new URL(before);
-              const q = Object.fromEntries(url.searchParams.entries());
-              const net = (q.type || q.transport || 'tcp').toLowerCase();
-              const tls = (q.security || '').toLowerCase() === 'tls';
+              // split by # to get name
+              const [urlPart, namePart] = line.slice(7).split('#');
+              const name = decodeURIComponent(namePart || '') || 'vless';
+          
+              // split by ? to get query params
+              const [base, queryStr] = urlPart.split('?');
+              const [uuidHost, port] = base.split('@')[1].split(':');
+              const uuid = base.split('@')[0];
+          
+              const query = {};
+              if (queryStr) {
+                for (const pair of queryStr.split('&')) {
+                  const [k, v] = pair.split('=');
+                  query[k] = decodeURIComponent(v || '');
+                }
+              }
           
               const proxy = {
-                name: decodeURIComponent(after || '') || 'vless',
+                name,
                 type: 'vless',
-                server: url.hostname || '',
-                port: safeNumber(url.port || q.port || 0, 0),
-                uuid: decodeURIComponent(url.username || '') || '',
-                network: net,
-                wsPath: q.path || '',
-                tls: tls,
-                sni: q.sni || '',
-                security: q.security || '',
-                flow: q.flow || '',
-                pbk: q.pbk || '',
-                sid: q.sid || ''
+                server: uuidHost || '',
+                port: safeNumber(port, 0),
+                uuid: uuid || '',
+                network: query.type || 'tcp',
+                tls: (query.security || '').toLowerCase() === 'tls',
+                sni: query.sni || '',
+                security: query.security || '',
+                flow: query.flow || '',
+                pbk: query.pbk || '',
+                sid: query.sid || '',
+                path: query.path || '',
+                host: query.host || '',
+                quicSecurity: query.quicSecurity || ''
               };
-          
-              if (net === 'ws') {
-                proxy.wsPath = q.path || '';
-                if (q.host) proxy.host = q.host;
-              }
-          
-              if (net === 'grpc') {
-                proxy.grpcServiceName = q.serviceName || q['service-name'] || q.service || '';
-              }
           
               return proxy;
             } catch (err) {
@@ -177,17 +181,30 @@ jobs:
 
           function parseHysteria2(line) {
             try {
-              const u = new URL(line);
-              const name = decodeURIComponent(u.hash ? u.hash.slice(1) : '') || 'hysteria2';
+              const [urlPart, namePart] = line.slice(11).split('#');
+              const name = decodeURIComponent(namePart || '') || 'hysteria2';
+              const [userHostPort, queryStr] = urlPart.split('/?');
+              const [password, serverPort] = userHostPort.split('@');
+              const [server, port] = serverPort.split(':');
+          
+              const query = {};
+              if (queryStr) {
+                for (const pair of queryStr.split('&')) {
+                  const [k, v] = pair.split('=');
+                  query[k] = v;
+                }
+              }
+          
               return {
                 name,
                 type: 'hysteria2',
-                server: u.hostname || '',
-                port: safeNumber(u.port || 0, 0),
-                password: decodeURIComponent(u.username || '') || '',
-                udp: u.searchParams.get('udp') === 'true',
-                sni: u.searchParams.get('sni') || '',
-                "skip-cert-verify": u.searchParams.get('skip-cert-verify') === 'true'
+                server: server || '',
+                port: safeNumber(port, 0),
+                password: decodeURIComponent(password || ''),
+                udp: query.udp === 'true',
+                insecure: query.insecure === '1',
+                sni: query.sni || '',
+                "skip-cert-verify": query['skip-cert-verify'] === 'true'
               };
             } catch (err) {
               console.error('❌ Failed to parse Hysteria2 node:', line, err.message);
@@ -195,73 +212,35 @@ jobs:
             }
           }
 
-          function parseAnytls(line) {
-            try {
-              const u = new URL(line);
-              const name = decodeURIComponent(u.hash ? u.hash.slice(1) : '') || 'anytls';
-              return {
-                name,
-                type: 'anytls',
-                server: u.hostname || '',
-                port: safeNumber(u.port || 0, 0),
-                password: decodeURIComponent(u.username || '') || '',
-                udp: u.searchParams.get('udp') === 'true',
-                sni: u.searchParams.get('sni') || '',
-                "skip-cert-verify": u.searchParams.get('skip-cert-verify') === 'true'
-              };
-            } catch (err) {
-              return null;
-            }
-          }
-
-          function parseTuic(line) {
-            try {
-              const u = new URL(line);
-              const name = decodeURIComponent(u.hash ? u.hash.slice(1) : '') || 'tuic';
-          
-              const proxy = {
-                name,
-                type: 'tuic',
-                server: u.hostname || '',
-                port: safeNumber(u.port || 0, 0),
-                password: decodeURIComponent(u.username || '') || '',
-                alpn: u.searchParams.get('alpn') || '',
-                sni: u.searchParams.get('sni') || '',
-                network: u.searchParams.get('network') || '',
-              };
-          
-              return proxy;
-            } catch (err) {
-              console.error('❌ Failed to parse Tuic node:', line, err.message);
-              return null;
-            }
-          }
-
           function parseSS(line) {
             try {
-              const raw = line.slice(5); // remove 'ss://'
-              const [before, after] = raw.split('#');
-              let decodedPart = before;
+              const raw = line.slice(5); // remove ss://
+              const [data, namePart] = raw.split('#');
+              const name = decodeURIComponent(namePart || '') || 'ss';
           
-              // decode if base64-encoded (common in ss://)
-              if (!before.includes('@')) {
-                decodedPart = Buffer.from(before, 'base64').toString('utf8');
+              let method, password, server, port;
+          
+              if (data.includes('@')) {
+                // format: method:password@host:port
+                const [methodPass, hostPort] = data.split('@');
+                [method, password] = methodPass.includes(':') ? methodPass.split(':') : [methodPass, ''];
+                [server, port] = hostPort.split(':');
+              } else {
+                // full base64 format
+                const decoded = Buffer.from(data, 'base64').toString('utf8');
+                const [methodPass, hostPort] = decoded.split('@');
+                [method, password] = methodPass.split(':');
+                [server, port] = hostPort.split(':');
               }
           
-              const [methodPass, hostport] = decodedPart.split('@');
-              const [method, password] = methodPass.split(':');
-              const [server, portStr] = hostport.split(':');
-          
-              const proxy = {
-                name: decodeURIComponent(after || '') || 'shadowsocks',
+              return {
+                name,
                 type: 'ss',
                 server: server || '',
-                port: safeNumber(portStr, 0),
+                port: safeNumber(port, 0),
                 cipher: method || '',
                 password: password || ''
               };
-          
-              return proxy;
             } catch (err) {
               console.error('❌ Failed to parse SS node:', line, err.message);
               return null;
