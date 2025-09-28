@@ -37,249 +37,58 @@ jobs:
           const path = require('path');
           const axios = require('axios');
           const yaml = require('js-yaml');
+
           const now = new Date();
-          const offsetMinutes = 6.5 * 60; // +6:30 hours in minutes
+          const offsetMinutes = 6.5 * 60; // +6:30 hours
           const localTime = new Date(now.getTime() + offsetMinutes * 60 * 1000);
-          const pad = (n) => n.toString().padStart(2, '0');
-          const timestamp = `${pad(localTime.getDate())}.${pad(localTime.getMonth() + 1)}.${localTime.getFullYear()} ${pad(localTime.getHours())}:${pad(localTime.getMinutes())}:${pad(localTime.getSeconds())}`;
+          const pad = n => n.toString().padStart(2, '0');
+          const timestamp = `${pad(localTime.getDate())}.${pad(localTime.getMonth()+1)}.${localTime.getFullYear()} ${pad(localTime.getHours())}:${pad(localTime.getMinutes())}:${pad(localTime.getSeconds())}`;
+
           const dry_run = process.env.DRY_RUN === 'true';
           const subUrl = process.env.SUB_SUB3;
+
           const fetchSub = async () => {
-          const res = await axios.get(subUrl);
+            const res = await axios.get(subUrl);
             return Buffer.from(res.data, 'base64').toString();
           };
 
-          // --- Advanced parsing functions ---
-          function safeNumber(v, fallback = 0) {
-            const n = Number(v);
-            return Number.isFinite(n) ? n : fallback;
-          }
-
-          function b64decode(s) {
-            if (!s) return '';
-            if (s.length % 4) s += '='.repeat(4 - (s.length % 4));
-            return Buffer.from(s, 'base64').toString('utf8');
-          }
-
-          function parseVmess(line) {
+          // --- Simple raw node parser ---
+          function parseRawNode(line) {
             try {
-              const raw = line.slice(8);
-              const confJson = b64decode(raw);
-              const conf = JSON.parse(confJson);
-              const net = (conf.net || 'tcp').toLowerCase();
-              const tls = (conf.tls || '').toLowerCase() === 'tls';
+              line = line.trim();
+              if (!line) return null;
 
-              const proxy = {
-                name: conf.ps || 'vmess',
-                type: 'vmess',
-                server: conf.add || '',
-                port: safeNumber(conf.port, 0),
-                uuid: conf.id || '',
-                alterId: safeNumber(conf.aid || conf.alterId || 0, 0),
-                cipher: conf.type || 'auto',
-                network: net,
-                wsPath: conf.path || '',
-                tls: tls,
-                sni: conf.sni || (conf.servername || '') || ''
-              };
+              let type = '';
+              if (line.startsWith('vmess://')) type = 'vmess';
+              else if (line.startsWith('vless://')) type = 'vless';
+              else if (line.startsWith('ss://')) type = 'ss';
+              else if (line.startsWith('trojan://')) type = 'trojan';
+              else if (line.startsWith('hysteria2://')) type = 'hysteria2';
+              else if (line.startsWith('anytls://')) type = 'anytls';
+              else if (line.startsWith('tuic://')) type = 'tuic';
+              else type = 'unknown';
 
-              // ---ws-specific extra fields ---
-              if (net === 'ws') {
-                proxy.wsPath = conf.path || '';
-                
-                // keep simple header host field if provided
-                if (conf.host) proxy.host = conf.host;
+              let rawPart = line;
+              let name = type;
+              if (line.includes('#')) {
+                const parts = line.split('#');
+                rawPart = parts[0];
+                name = decodeURIComponent(parts.slice(1).join('#')) || type;
               }
 
-              // grpc hint
-              if (net === 'grpc') {
-                proxy.grpcServiceName = conf.path || '';
-              }
-
-              return proxy;
+              return { name, type, raw: rawPart };
             } catch (err) {
+              console.error('❌ Failed to parse raw node:', line, err.message);
               return null;
             }
           }
 
-          function parseVless(line) {
-            try {
-              // split by # to get name
-              const [urlPart, namePart] = line.slice(7).split('#');
-              const name = decodeURIComponent(namePart || '') || 'vless';
-          
-              // split by ? to get query params
-              const [base, queryStr] = urlPart.split('?');
-              const [uuidHost, port] = base.split('@')[1].split(':');
-              const uuid = base.split('@')[0];
-          
-              const query = {};
-              if (queryStr) {
-                for (const pair of queryStr.split('&')) {
-                  const [k, v] = pair.split('=');
-                  query[k] = decodeURIComponent(v || '');
-                }
-              }
-          
-              const proxy = {
-                name,
-                type: 'vless',
-                server: uuidHost || '',
-                port: safeNumber(port, 0),
-                uuid: uuid || '',
-                network: query.type || 'tcp',
-                tls: (query.security || '').toLowerCase() === 'tls',
-                sni: query.sni || '',
-                security: query.security || '',
-                flow: query.flow || '',
-                pbk: query.pbk || '',
-                sid: query.sid || '',
-                path: query.path || '',
-                host: query.host || '',
-                quicSecurity: query.quicSecurity || ''
-              };
-          
-              return proxy;
-            } catch (err) {
-              console.error('❌ Failed to parse VLESS node:', line, err.message);
-              return null;
-            }
-          }
-
-          function parseTrojan(line) {
-            try {
-              const [before, after] = line.slice(9).split('#');
-              const url = new URL(`trojan://${before}`);
-              const q = Object.fromEntries(url.searchParams.entries());
-              const net = (q.type || q.transport || 'tcp').toLowerCase();
-              const tls = (q.security || '').toLowerCase() === 'tls';
-
-              const proxy = {
-                name: decodeURIComponent(after || '') || 'trojan',
-                type: 'trojan',
-                server: url.hostname || '',
-                port: safeNumber(url.port || q.port || 0, 0),
-                password: url.username || '',
-                sni: q.sni || '',
-                tls: tls,
-                network: net
-              };
-
-              if (net === 'ws') {
-                proxy.wsPath = q.path || '';
-                if (q.host) proxy.host = q.host;
-              }
-              if (net === 'grpc') {
-                proxy.grpcServiceName = q.serviceName || q['service-name'] || '';
-              }
-
-              return proxy;
-            } catch (err) {
-              return null;
-            }
-          }
-
-          function parseHysteria2(line) {
-            try {
-              const [urlPart, namePart] = line.slice(11).split('#');
-              const name = decodeURIComponent(namePart || '') || 'hysteria2';
-              const [userHostPort, queryStr] = urlPart.split('/?');
-              const [password, serverPort] = userHostPort.split('@');
-              const [server, port] = serverPort.split(':');
-          
-              const query = {};
-              if (queryStr) {
-                for (const pair of queryStr.split('&')) {
-                  const [k, v] = pair.split('=');
-                  query[k] = v;
-                }
-              }
-          
-              return {
-                name,
-                type: 'hysteria2',
-                server: server || '',
-                port: safeNumber(port, 0),
-                password: decodeURIComponent(password || ''),
-                udp: query.udp === 'true',
-                insecure: query.insecure === '1',
-                sni: query.sni || '',
-                "skip-cert-verify": query['skip-cert-verify'] === 'true'
-              };
-            } catch (err) {
-              console.error('❌ Failed to parse Hysteria2 node:', line, err.message);
-              return null;
-            }
-          }
-
-          function parseSS(line) {
-            try {
-              const raw = line.slice(5); // remove ss://
-              const [data, namePart] = raw.split('#');
-              const name = decodeURIComponent(namePart || '') || 'ss';
-          
-              let method, password, server, port;
-          
-              if (data.includes('@')) {
-                // format: method:password@host:port
-                const [methodPass, hostPort] = data.split('@');
-                [method, password] = methodPass.includes(':') ? methodPass.split(':') : [methodPass, ''];
-                [server, port] = hostPort.split(':');
-              } else {
-                // full base64 format
-                const decoded = Buffer.from(data, 'base64').toString('utf8');
-                const [methodPass, hostPort] = decoded.split('@');
-                [method, password] = methodPass.split(':');
-                [server, port] = hostPort.split(':');
-              }
-          
-              return {
-                name,
-                type: 'ss',
-                server: server || '',
-                port: safeNumber(port, 0),
-                cipher: method || '',
-                password: password || ''
-              };
-            } catch (err) {
-              console.error('❌ Failed to parse SS node:', line, err.message);
-              return null;
-            }
-          }
-
-          function parseSSR(line) {
-            try {
-              const raw = line.slice(6); // remove 'ssr://'
-              const decoded = Buffer.from(raw, 'base64').toString('utf8');
-              const [mainPart, paramPart] = decoded.split('/?');
-              const [server, portStr, protocol, method, obfs, passwordB64] = mainPart.split(':');
-              const password = Buffer.from(passwordB64 || '', 'base64').toString('utf8');
-          
-              const proxy = {
-                name: decodeURIComponent((paramPart && new URLSearchParams(paramPart).get('remarks')) || 'ssr') || 'ssr',
-                type: 'ssr',
-                server: server || '',
-                port: safeNumber(portStr, 0),
-                cipher: method || '',
-                protocol: protocol || '',
-                obfs: obfs || '',
-                password: password || ''
-              };
-          
-              return proxy;
-            } catch (err) {
-              console.error('❌ Failed to parse SSR node:', line, err.message);
-              return null;
-            }
-          }
-    
-          // --- End advanced parsers ---
           const generateSub3 = async () => {
             const rawData = await fetchSub();
-            // preserve original behavior: remove first three info lines
-            const lines = rawData.split('\n').slice(3);
+            const lines = rawData.split('\n').slice(3); // remove first 3 lines if header
             const proxies = [];
             let totalLines = 0, parsedCount = 0, failedCount = 0;
+
             console.log(`🔗 Subscription source URL: ${subUrl}`);
             console.log(`📥 Raw subscription decoded successfully`);
             console.log(`📄 Total lines after header removed: ${lines.length}`);
@@ -288,45 +97,8 @@ jobs:
               line = line.trim();
               if (!line) continue;
               totalLines++;
-              let p = null;
 
-              try {
-                if (line.startsWith('vmess://')) {
-                  const p = parseVmess(line);
-                  if (p) proxies.push(p);
-                }
-                else if (line.startsWith('vless://')) {
-                  const p = parseVless(line);
-                  if (p) proxies.push(p);
-                }
-                else if (line.startsWith('trojan://')) {
-                  const p = parseTrojan(line);
-                  if (p) proxies.push(p);
-                }
-                else if (line.startsWith('hysteria2://')) {
-                  const p = parseHysteria2(line);
-                  if (p) proxies.push(p);
-                }
-                else if (line.startsWith('anytls://')) {
-                  const p = parseAnytls(line);
-                  if (p) proxies.push(p);
-                }
-                else if (line.startsWith('tuic://')) {
-                  const p = parseTuic(line);
-                  if (p) proxies.push(p);
-                }
-                else if (line.startsWith('ss://')) {
-                  const p = parseSS(line);
-                  if (p) proxies.push(p);
-                }
-                else if (line.startsWith('ssr://')) {
-                  const p = parsessr(line);
-                  if (p) proxies.push(p);
-                }
-                // keep silent on unsupported lines (like plain YAML blocks or other schemes)
-              } catch (err) {
-                console.error('Failed to parse line:', line, err);
-              }
+              const p = parseRawNode(line);
               if (p) {
                 proxies.push(p);
                 parsedCount++;
@@ -336,12 +108,13 @@ jobs:
               }
             }
 
-            console.log(`📊 Parsing Summary:`); console.log(` • Total lines processed: ${totalLines}`);
+            console.log(`📊 Parsing Summary:`);
+            console.log(` • Total lines processed: ${totalLines}`);
             console.log(` • Successfully parsed: ${parsedCount}`);
             console.log(` • Failed to parse: ${failedCount}`);
             console.log(` • Final nodes count: ${proxies.length}`);
 
-            // Load template
+            // Load Clash template
             const templatePath = path.join(__dirname, 'ClashTemplate.ini');
             if (!fs.existsSync(templatePath)) {
               console.error('❌ ClashTemplate.ini not found at', templatePath);
@@ -351,81 +124,46 @@ jobs:
 
             // Build YAML blocks
             const proxies_yaml_block = yaml.dump(proxies, { lineWidth: -1 }).trimEnd();
-            // Build proxy names block (list)
             const proxy_names_block = proxies.map(p => `      - ${p.name}`).join("\n");
 
-            // Replace placeholders (all occurrences)
+            // Replace placeholders
             let outputContent = template.replace(/{{PROXIES}}/g, proxies_yaml_block);
             outputContent = outputContent.replace(/{{PROXY_NAMES}}/g, proxy_names_block);
 
-            // Prepare YAML output with timestamp
             const yamlData = `# Last update: ${timestamp}\n` + outputContent;
 
-            // Write output files
             fs.writeFileSync('Sub3', outputContent, 'utf8');
             fs.writeFileSync('Sub3.yml', outputContent, 'utf8');
-
-            console.log('✅ Local files written: Sub, Sub.yml');
+            console.log('✅ Local files written: Sub3, Sub3.yml');
 
             if (!dry_run) {
               // Update GitHub
               const ghUrl = `https://api.github.com/repos/${process.env.GITHUB_REPOSITORY}/contents/Sub3`;
-              const ghRes = await axios.get(ghUrl, {
-                headers: { Authorization: `token ${process.env.GITHUB_TOKEN}` }
-              });
+              const ghRes = await axios.get(ghUrl, { headers: { Authorization: `token ${process.env.GITHUB_TOKEN}` } });
               const sha = ghRes.data.sha;
 
               await axios.put(ghUrl, {
                 message: `🎉Sub3 Auto update successful🎉 - ${timestamp}`,
                 content: Buffer.from(outputContent).toString('base64'),
                 sha
-              }, {
-                headers: { Authorization: `token ${process.env.GITHUB_TOKEN}` }
-              });
+              }, { headers: { Authorization: `token ${process.env.GITHUB_TOKEN}` } });
               console.log('✅ GitHub updated successfully');
 
-              // Delete old record from TextDB first
+              // TextDB update
               const deleteUrl = 'https://textdb.online/update/?key=Sub3_SHFX&value={}';
+              await axios.post(deleteUrl, { value: '' }, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+              console.log('🗑️ Old Textdb record deleted successfully');
 
-              const delRes = await axios.post(
-                deleteUrl,
-                { value: '' },
-                { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
-              );
+              await new Promise(r => setTimeout(r, 3000)); // wait 3s
 
-              if (delRes.data.status === 1) {
-                console.log('🗑️ Old Textdb record deleted successfully');
-              } else {
-                console.error('⚠️ Failed to delete old Textdb record:', delRes.data);
-              }
-
-              // Simple sleep function
-              const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
-
-              // Wait 3 seconds before uploading new data
-              await sleep(3000);
-
-              // Update Textdb using POST
               const textdbUrl = 'https://textdb.online/update/?key=Sub3_SHFX&value={}';
-
-              const res = await axios.post(
-                textdbUrl,
-                { value: yamlData },
-                { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
-              );
-
-              if (res.data.status === 1) {
-                console.log('✅ Textdb uploaded successfully: ' + res.data.data.url);
-              } else {
-                console.error('❌ Textdb upload failed:', res.data);
-              }
+              const res = await axios.post(textdbUrl, { value: yamlData }, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+              if (res.data.status === 1) console.log('✅ Textdb uploaded successfully: ' + res.data.data.url);
+              else console.error('❌ Textdb upload failed:', res.data);
             }
           };
 
-          generateSub3().catch(err => {
-            console.error(err);
-            process.exit(1);
-          });
+          generateSub3().catch(err => { console.error(err); process.exit(1); });
           JS
 
       - name: Upload Sub3 artifact
