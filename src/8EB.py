@@ -499,7 +499,7 @@ def rename_node(p, country_counter, CN_TO_CC):
     FORBIDDEN_EMOJIS = {"🔒", "❌", "⚠️"}
 
     # Extract grapheme clusters (so multi-codepoint emojis like ⚠️ are kept together)
-    graphemes = regex.findall(r"\X", original_name)
+    graphemes = re.findall(r"\X", original_name)
 
     # Skip nodes with empty names or containing any forbidden emoji
     if not original_name or any(g in FORBIDDEN_EMOJIS for g in graphemes):
