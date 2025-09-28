@@ -109,7 +109,7 @@ jobs:
               const q = Object.fromEntries(url.searchParams.entries());
               const net = (q.type || q.transport || 'tcp').toLowerCase();
               const tls = (q.security || '').toLowerCase() === 'tls';
-
+          
               const proxy = {
                 name: decodeURIComponent(after || '') || 'vless',
                 type: 'vless',
@@ -119,20 +119,25 @@ jobs:
                 network: net,
                 wsPath: q.path || '',
                 tls: tls,
-                sni: q.sni || ''
+                sni: q.sni || '',
+                security: q.security || '',
+                flow: q.flow || '',
+                pbk: q.pbk || '',
+                sid: q.sid || ''
               };
-
-              // ws extras
+          
               if (net === 'ws') {
                 proxy.wsPath = q.path || '';
                 if (q.host) proxy.host = q.host;
               }
+          
               if (net === 'grpc') {
                 proxy.grpcServiceName = q.serviceName || q['service-name'] || q.service || '';
               }
-
+          
               return proxy;
             } catch (err) {
+              console.error('❌ Failed to parse VLESS node:', line, err.message);
               return null;
             }
           }
@@ -185,6 +190,7 @@ jobs:
                 "skip-cert-verify": u.searchParams.get('skip-cert-verify') === 'true'
               };
             } catch (err) {
+              console.error('❌ Failed to parse Hysteria2 node:', line, err.message);
               return null;
             }
           }
@@ -331,7 +337,7 @@ jobs:
                   if (p) proxies.push(p);
                 }
                 else if (line.startsWith('ss://')) {
-                  const p = parsess(line);
+                  const p = parseSS(line);
                   if (p) proxies.push(p);
                 }
                 else if (line.startsWith('ssr://')) {
