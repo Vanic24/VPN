@@ -193,36 +193,37 @@ jobs:
               }
 
               if (raw.startsWith('ss://')) {
-                const [data] = raw.slice(5).split('#');
-                let method='', password='', server='', port='';
-
-                try {
-                  const decoded = Buffer.from(data,'base64').toString('utf8');
-                  if(decoded.includes('@')){
-                    const [mp, hp] = decoded.split('@');
-                    [method, password] = mp.split(':');
-                    [server, port] = hp.split(':');
-                  } else {
-                    throw new Error('Not Base64 format');
-                  }
-                } catch(e){
-                  // fallback for plain ss://METHOD:PASSWORD@SERVER:PORT
-                  if(data.includes('@')){
-                    const [mp, hp] = data.split('@');
-                    [method, password] = mp.split(':');
-                    [server, port] = hp.split(':');
-                  }
+              const [data] = raw.slice(5).split('#');
+              let method='', password='', server='', port='';
+            
+              if (data.includes('@')) {
+                // Format: ss://method:password@host:port
+                const [mp, hp] = data.split('@');
+                if(mp.includes(':')){
+                  [method, password] = mp.split(':');
+                } else {
+                  // method might be base64
+                  const buf = Buffer.from(mp,'base64').toString('utf8');
+                  [method, password] = buf.split(':');
                 }
-
-                return {
-                  name: name || 'ss',
-                  type: 'ss',
-                  server: server||'',
-                  port: safeNumber(port),
-                  cipher: method||'',
-                  password: password||''
-                };
+                [server, port] = hp.split(':');
+              } else {
+                // Format: ss://base64(method:password@host:port)
+                const decoded = Buffer.from(data,'base64').toString('utf8');
+                const [mp, hp] = decoded.split('@');
+                [method, password] = mp.split(':');
+                [server, port] = hp.split(':');
               }
+            
+              return {
+                name: name || 'ss',
+                type: 'ss',
+                server: server||'',
+                port: safeNumber(port),
+                cipher: decodeURIComponent(method||''),
+                password: decodeURIComponent(password||'')
+              };
+            }
 
               if (raw.startsWith('ssr://')) {
                 const decoded = Buffer.from(raw.slice(6),'base64').toString('utf8');
