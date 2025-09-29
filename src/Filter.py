@@ -7,20 +7,22 @@ import socket
 import concurrent.futures
 import traceback
 from collections import defaultdict
-from datetime import datetime, timedelta
 from datetime import datetime, timedelta, timezone
 import base64
 import re
 import json
 import urllib.parse
+from urllib.parse import unquote, urlparse, parse_qs
 
 # ---------------- Config ----------------
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 OUTPUT_FILE = os.path.join(REPO_ROOT, "Filter")
-SOURCES_FILE = os.path.join(REPO_ROOT, "Filter_Sources")
+SOURCES_FILE = os.path.join(REPO_ROOT, "FILTER_SOURCES")
 TEMPLATE_URL = "https://raw.githubusercontent.com/Vanic24/VPN/refs/heads/main/ClashTemplate.ini"
 TEXTDB_API = "https://textdb.online/update/?key=Filter_SHFX&value={}"
-FILTER_URL = "https://raw.githubusercontent.com/Vanic24/VPN/refs/heads/main/Filter"
+URL_Filter = "https://raw.githubusercontent.com/Vanic24/VPN/refs/heads/main/Filter"
+CN_TO_CC = json.loads(os.getenv("CN_TO_CC", "{}"))
+USE_ONLY_GEOIP = os.getenv("USE_ONLY_GEOIP", "false").lower() == "true"
 
 # ---------------- Inputs ----------------
 use_latency_env = os.environ.get("LATENCY_FILTER", "false").lower()
@@ -31,7 +33,7 @@ try:
 except ValueError:
     LATENCY_THRESHOLD = 100
 
-# ---------------- Helpers ----------------
+# ---------------- Helper ----------------
 def resolve_ip(host):
     try:
         return socket.gethostbyname(host)
@@ -40,7 +42,6 @@ def resolve_ip(host):
 
 def tcp_latency_ms(host, port, timeout=2.0):
     try:
-        import time
         start = time.time()
         sock = socket.create_connection((host, port), timeout=timeout)
         sock.close()
@@ -59,26 +60,53 @@ def geo_ip(ip):
     except:
         pass
     return "unknown", "UN"
-
+    
 def country_to_flag(cc):
+    """Convert ISO 3166 two-letter code to emoji flag"""
     if not cc or len(cc) != 2:
         return "🏳️"
-    return chr(0x1F1E6 + (ord(cc[0].upper()) - 65)) + \
-           chr(0x1F1E6 + (ord(cc[1].upper()) - 65))
+    return chr(0x1F1E6 + (ord(cc[0].upper()) - 65)) + chr(0x1F1E6 + (ord(cc[1].upper()) - 65))
+
+def flag_to_country_code(flag):
+    """Convert emoji flag to ISO 3166 code"""
+    if not flag or len(flag) < 2:
+        return None
+    try:
+        first, second = flag[0], flag[1]
+        return chr(ord(first) - 0x1F1E6 + 65) + chr(ord(second) - 0x1F1E6 + 65)
+    except:
+        return None
+
+def load_cn_to_cc():
+    secret_data = os.environ.get("CN_TO_CC", "{}")
+    try:
+        return json.loads(secret_data)
+    except Exception as e:
+        print(f"[error] 😭 Failed to parse CN_TO_CC secret: {e}")
+        return {}
 
 # ---------------- Load sources ----------------
 def load_sources():
     if not os.path.exists(SOURCES_FILE):
-        print(f"[FATAL] Filter_Sources not found at {SOURCES_FILE}")
+        print(f"[FATAL] ⚠️ Source not found at {SOURCES_FILE}")
         sys.exit(1)
     with open(SOURCES_FILE, "r", encoding="utf-8") as f:
         sources = [line.strip() for line in f if line.strip() and not line.startswith("#")]
     if not sources:
-        print(f"[FATAL] Filter_Sources is empty. Please check the secret or file content.")
+        print(f"[FATAL] 🕵️ Source is empty. Please check the secret or file content.")
         sys.exit(1)
     return sources
 
-# ---------------- Vmess parser ----------------
+# ---------------- Base64 helper ----------------
+def decode_b64(data: str) -> str | None:
+    try:
+        data = data.replace("-", "+").replace("_", "/")
+        padding = "=" * (-len(data) % 4)
+        return base64.b64decode(data + padding).decode("utf-8")
+    except Exception:
+        return None
+
+# ---------------- Vmess parsers ----------------
 def parse_vmess(line):
     try:
         if line.startswith("vmess://"):
@@ -103,77 +131,184 @@ def parse_vmess(line):
                     "headers": {"Host": data.get("host", "")}
                 }
             return node
-    except:
+    except Exception as e:
+        print(f"[warn] ❗Vmess parse error: {e}")
         return None
     return None
 
 # ---------------- Vless parser ----------------
-def parse_vless(line):
+def parse_vless(line: str) -> dict | None:
     try:
-        if line.startswith("vless://"):
-            m = re.match(r"vless://([0-9a-fA-F-]+)@([^:]+):(\d+)(?:\?([^#]*))?(?:#(.*))?", line)
-            if m:
-                uuid, host, port, query, name = m.groups()
-                node = {
-                    "name": name or "",
-                    "type": "vless",
-                    "server": host,
-                    "port": int(port),
-                    "uuid": uuid,
-                    "tls": False,
-                    "network": "tcp"
-                }
-                if query:
-                    params = dict([p.split("=", 1) for p in query.split("&") if "=" in p])
-                    node["tls"] = params.get("security", "").lower() == "tls"
-                    node["network"] = params.get("type", "tcp")
-                    if node["network"] == "ws":
-                        node["ws-opts"] = {
-                            "path": params.get("path", "/"),
-                            "headers": {"Host": params.get("host", "")}
-                        }
-                return node
-    except:
+        if not line.startswith("vless://"):
+            return None
+
+        # Split off name/comment
+        name_fragment = ""
+        if "#" in line:
+            line, name_fragment = line.split("#", 1)
+            name_fragment = urllib.parse.unquote(name_fragment)
+
+        # Remove scheme
+        line = line[len("vless://"):]
+
+        # Split UUID and rest
+        if "@" not in line:
+            return None
+        uuid, rest = line.split("@", 1)
+
+        # Split host:port and query
+        if "?" in rest:
+            server_port, query_str = rest.split("?", 1)
+            query = dict(urllib.parse.parse_qsl(query_str))
+        else:
+            server_port = rest
+            query = {}
+
+        if ":" not in server_port:
+            return None
+        server, port = server_port.split(":", 1)
+
+        # --- Build node dict ---
+        node = {
+            "name": name_fragment or "VLESS Node",
+            "type": "vless",
+            "server": server.strip(),
+            "port": int(port.strip()),
+            "uuid": uuid.strip(),
+        }
+
+        # Encryption (default none)
+        if "encryption" in query:
+            node["encryption"] = query.get("encryption", "none")
+        else:
+            node["encryption"] = "none"
+
+        # TLS
+        if query.get("security") == "tls":
+            node["tls"] = True
+            node["servername"] = query.get("sni", "")
+            # keep skip-cert-verify default False
+            node["skip-cert-verify"] = query.get("allowInsecure", "0") == "1"
+            if "fp" in query:
+                node["client-fingerprint"] = query["fp"]
+        else:
+            node["tls"] = False
+
+        # Flow (for reality / xtls-rprx-vision etc.)
+        if "flow" in query:
+            node["flow"] = query["flow"]
+
+        # Network
+        if "type" in query:
+            node["network"] = query["type"]
+
+        # WS options
+        if node.get("network") == "ws":
+            ws_opts = {}
+            if "path" in query:
+                # Preserve exact path without double-encoding
+                ws_opts["path"] = urllib.parse.unquote(query["path"])
+            headers = {}
+            if "host" in query:
+                headers["Host"] = query["host"]
+            if headers:
+                ws_opts["headers"] = headers
+            if ws_opts:
+                node["ws-opts"] = ws_opts
+
+        return node
+
+    except Exception as e:
+        print(f"[warn] ❗VLESS parse error -> {e}")
         return None
-    return None
 
 # ---------------- Trojan parser ----------------
 def parse_trojan(line):
     try:
         if line.startswith("trojan://"):
-            m = re.match(r"trojan://([^@]+)@([^:]+):(\d+)#?(.*)", line)
+            m = re.match(r"trojan://([^@]+)@([^:]+):(\d+)(?:\?(.*))?#?(.*)?$", line)
             if m:
                 password, host, port, name = m.groups()
                 node = {
-                    "name": name or "",
+                    "name": urllib.parse.unquote(name or "") if name else "",
                     "type": "trojan",
                     "server": host,
                     "port": int(port),
                     "password": password,
                 }
                 return node
-    except:
-        return None
+    except Exception:
+        print(f"[warn] ❗Trojan parse error -> {e}")
     return None
 
 # ---------------- Hysteria2 parser ----------------
 def parse_hysteria2(line):
     try:
-        if line.startswith("hysteria2://"):
-            m = re.match(r"hysteria2://([^@]+)@([^:]+):(\d+)#?(.*)", line)
-            if m:
-                password, host, port, name = m.groups()
-                node = {
-                    "name": name or "",
-                    "type": "hysteria2",
-                    "server": host,
-                    "port": int(port),
-                    "password": password,
-                }
-                return node
-    except:
+        if not line.startswith("hysteria2://"):
+            return None
+
+        # regex: capture password, host, port, optional query, optional fragment(name)
+        m = re.match(r'hysteria2://([^@]+)@([^:\/?#]+):(\d+)(?:\?([^#]*))?(?:#(.*))?$', line)
+        password = host = port = query_str = frag = None
+
+        if m:
+            password, host, port, query_str, frag = m.groups()
+        else:
+            # fallback: try urlparse if regex fails (covers some odd variants)
+            parsed = urllib.parse.urlparse(line)
+            # parsed.username may be encoded; use split on netloc if needed
+            password = urllib.parse.unquote(parsed.username or "")
+            host = parsed.hostname
+            port = parsed.port or None
+            query_str = parsed.query or ""
+            frag = urllib.parse.unquote(parsed.fragment or "")
+
+        if not host or not port:
+            # couldn't get host/port -> invalid
+            return None
+
+        # Basic node structure (keep same keys your clients accept)
+        name = urllib.parse.unquote(frag or "") if frag else ""
+        node = {
+            "name": name,
+            "type": "hysteria2",
+            "server": host,
+            "port": int(port),
+            "password": urllib.parse.unquote(password or ""),
+            "skip-cert-verify": True
+        }
+
+        # Parse query string into dict of lists
+        qdict = {}
+        if query_str:
+            qdict = urllib.parse.parse_qs(query_str)
+
+        # OPTIONAL: include extra fields ONLY if present in the query
+        # (these won't be added if absent, keeping backward compatibility)
+        if "insecure" in qdict or "sni" in qdict:
+            tls_obj = {"enabled": True}
+            if "insecure" in qdict:
+                v = qdict.get("insecure", ["true"])[0]
+                tls_obj["insecure"] = str(v).lower() in ("1", "true", "yes")
+            if "sni" in qdict:
+                tls_obj["server_name"] = qdict.get("sni", [host])[0]
+            node["tls"] = tls_obj
+
+            if "udp" in qdict:
+                v = qdict.get("udp", [""])[0]
+                node["udp"] = str(v).lower() in ("1", "true", "yes")
+
+            # Additional optional metadata if present
+            for fld in ("groupid", "outlet_ip", "outlet_region", "latency", "domain_resolver"):
+                if fld in qdict:
+                    node[fld] = qdict.get(fld, [""])[0]
+
+            return node
+    
+    except Exception as e:
+            # keep the error log brief and include line prefix so can trace problematic ones
+        print(f"[warn] ❗Hysteria2 parse error: {e} -> {line[:120]}")
         return None
-    return None
 
 # ---------------- Anytls parser ----------------
 def parse_anytls(line):
@@ -191,18 +326,33 @@ def parse_anytls(line):
                 }
                 return node
     except:
-        return None
+        print(f"[warn] ❗Anytls parse error -> {e}")
     return None
 
-# ---------------- Shadowsocks (SS) parser ----------------
-def decode_b64(data: str) -> str | None:
+# ---------------- TUIC parser ----------------
+def parse_tuic(line: str) -> dict | None:
     try:
-        data = data.replace("-", "+").replace("_", "/")
-        padding = "=" * (-len(data) % 4)
-        return base64.b64decode(data + padding).decode("utf-8")
+        if not line.startswith("tuic://"):
+            return None
+        # basic parse: tuic://password@host:port#name
+        m = re.match(r"tuic://([^@]+)@([^:]+):(\d+)(?:\?([^#]*))?(?:#(.*))?$", line)
+        if not m:
+            return None
+        password, host, port, q, frag = m.groups()
+        name = urllib.parse.unquote(frag or "") if frag else ""
+        node = {
+            "name": name,
+            "type": "tuic",
+            "server": host,
+            "port": int(port),
+            "password": urllib.parse.unquote(password or "")
+        }
+        return node
     except Exception:
+        print(f"[warn] ❗TUIC parse error -> {e}")
         return None
 
+# ---------------- Shadowsocks (SS) parser ----------------
 def parse_ss(ss_url: str) -> dict | None:
     try:
         ss_url = ss_url.strip()
@@ -274,6 +424,7 @@ def parse_ss(ss_url: str) -> dict | None:
 
         return node
     except Exception:
+        print(f"[warn] ❗SS parse error -> {e}")
         return None
 
 # ---------------- ShadowsocksR (SSR) parser ----------------
@@ -319,179 +470,247 @@ def parse_ssr(line):
                 node["protocol_param"] = base64.urlsafe_b64decode(qs["protoparam"][0] + "=" * (-len(qs["protoparam"][0]) % 4)).decode()
         return node
     except Exception:
+        print(f"[warn] ❗SSR parse error -> {e}")
         return None
 
+# ---------------- Dispatcher ----------------    
 def parse_node_line(line):
-    parsers = [parse_vmess, parse_vless, parse_trojan, parse_hysteria2, parse_anytls, parse_ss, parse_ssr]
+    parsers = [parse_vmess, parse_vless, parse_trojan, parse_hysteria2, parse_anytls, parse_ss, parse_ssr, parse_tuic]
     for parser in parsers:
         node = parser(line)
         if node:
             return node
     return None
 
-# ---------------- Correct node ----------------
-def correct_node(p, country_counter):
-    host = str(p.get("server"))
-    raw_port = str(p.get("port", ""))
+# ---------------- Rename node ----------------
+def rename_node(p, country_counter, CN_TO_CC):
+    """
+    Assign a standardized name to the node without changing any other fields.
+    Skip nodes with forbidden emojis or empty names.
+    If USE_ONLY_GEOIP is True, assign name by GeoIP only.
+    Preserves all original fields to maintain connectivity.
+    """
 
-    try:
-        port = int(raw_port)
-    except ValueError:
-        port = 443
+    # Original name
+    original_name = str(p.get("name", "") or "").strip()
+    host = p.get("server") or p.get("add") or ""
 
+    # Define forbidden emojis (any emoji you want to filter out)
+    FORBIDDEN_EMOJIS = {"🔒", "❌", "⚠️"}
+
+    # Extract grapheme clusters (so multi-codepoint emojis like ⚠️ are kept together)
+    graphemes = list(original_name)
+
+    # Skip nodes with empty names or containing any forbidden emoji
+    if not original_name or any(g in FORBIDDEN_EMOJIS for g in graphemes):
+        return None
+
+    # Decode %xx escapes in case node name came from URL fragment
+    name_for_match = unquote(original_name)
+
+    cc = None
+    flag = None
+
+    # 🚨 If option is set, only do GeoIP
+    if USE_ONLY_GEOIP:
+        ip = resolve_ip(host) or host
+        cc_lower, cc_upper = geo_ip(ip)
+        if cc_upper and cc_upper != "UN":
+            cc = cc_upper
+            flag = country_to_flag(cc)
+            country_counter[cc] += 1
+            index = country_counter[cc]
+            p["name"] = f"{flag} {cc}-{index} | SHFX"
+            return p
+        return None
+
+    # 1️⃣ Chinese mapping (substring match)
+    for cn_name, code in CN_TO_CC.items():
+        if cn_name and cn_name in name_for_match:
+            cc = code.upper()
+            flag = country_to_flag(cc)
+            country_counter[cc] += 1
+            index = country_counter[cc]
+            # Only update the name field
+            p["name"] = f"{flag} {cc}-{index} | SHFX"
+            return p
+
+    # 2️⃣ Emoji flag in name
+    flag_match = re.search(r'[\U0001F1E6-\U0001F1FF]{2}', name_for_match)
+    if flag_match:
+        flag = flag_match.group(0)
+        cc = flag_to_country_code(flag)
+        if cc:
+            cc = cc.upper()
+            country_counter[cc] += 1
+            index = country_counter[cc]
+            p["name"] = f"{flag} {cc}-{index} | SHFX"
+            return p
+
+    # 3️⃣ Two-letter ISO code (UPPER CASE)
+    iso_match = re.search(r'\b([A-Z]{2})\b', original_name)
+    if iso_match:
+        cc = iso_match.group(1).upper()
+        flag = country_to_flag(cc)
+        country_counter[cc] += 1
+        index = country_counter[cc]
+        p["name"] = f"{flag} {cc}-{index} | SHFX"
+        return p
+
+    # 4️⃣ GeoIP fallback
     ip = resolve_ip(host) or host
     cc_lower, cc_upper = geo_ip(ip)
-    flag = country_to_flag(cc_upper)
+    if cc_upper and cc_upper != "UN":
+        cc = cc_upper
+        flag = country_to_flag(cc)
+        country_counter[cc] += 1
+        index = country_counter[cc]
+        p["name"] = f"{flag} {cc}-{index} | SHFX"
+        return p
 
-    p["port"] = port
+    # 5️⃣ Skip node entirely if no assignment possible
+    return None
 
-    country_counter[cc_upper] += 1
-    index = country_counter[cc_upper]
-
-    p["name"] = f"{flag} {cc_upper}-{index} | @SHFX"
-    return p
-
-# ---------------- Load and parse proxies ----------------
+# ---------------- Load proxies ----------------
 def load_proxies(url):
     try:
         r = requests.get(url, timeout=15)
         r.raise_for_status()
         text = r.text.strip()
+
+        print(f"[fetch] 📥 {len(text.splitlines())} lines fetched from subscription links")
+        for line in text.splitlines()[:5]:
+            print("       ", line[:80])
+
         nodes = []
 
-        # ---------------- Clash YAML parser ----------------
-        if text.startswith("proxies:") or "proxies:" in text:
-            try:
-                data = yaml.safe_load(text)
-                if "proxies" in data:
-                    for p in data["proxies"]:
-                        nodes.append(p)
-            except Exception:
-                pass
-        else:
-            lines = text.splitlines()
-            for line in lines:
-                line = line.strip()
-                if not line:
-                    continue
-                node = parse_node_line(line)
-                if node:
-                    nodes.append(node)
-                else:
-                    print(f"[skip] invalid or unsupported line -> {line[:60]}...")
-        return nodes
-    except Exception as e:
-        print(f"[warn] failed to fetch {url} -> {e}")
-    return []
-
-# ---------------- Base64 parser ----------------
-def load_proxies(url):
-    try:
-        r = requests.get(url, timeout=15)
-        r.raise_for_status()
-        text = r.text.strip()
-        nodes = []
-
-        # Try Base64 decode first if it's a single line and looks like Base64
+        # Base64 decode if single line and looks like Base64
         if len(text.splitlines()) == 1 and re.match(r'^[A-Za-z0-9+/=]+$', text):
             try:
                 decoded = base64.b64decode(text + "=" * (-len(text) % 4)).decode("utf-8")
                 text = decoded
+                print(f"[decode] 🔓 Base64 decoded -> {len(text.splitlines())} lines")
             except Exception:
-                pass
+                print(f"[warn] 😭 Base64 decode failed. {url}")
 
-        # Try parsing as YAML first
+        # Parse as YAML (Clash)
         if text.startswith("proxies:") or "proxies:" in text:
             try:
                 data = yaml.safe_load(text)
                 if "proxies" in data:
                     for p in data["proxies"]:
                         nodes.append(p)
-            except Exception:
-                pass
+                        print(f"[parse] 🔎 YAML node: {p.get('name','')}")
+            except Exception as e:
+                print(f"[warn] 😭 YAML parsing failed. {url}: {e}")
         else:
-            lines = text.splitlines()
-            for line in lines:
+            # Parse as individual subscription lines
+            for line in text.splitlines():
                 line = line.strip()
                 if not line:
                     continue
                 node = parse_node_line(line)
                 if node:
+                    print(f"[parsed] 🔎 {json.dumps(node, ensure_ascii=False)}")
                     nodes.append(node)
                 else:
-                    print(f"[skip] invalid or unsupported line -> {line[:60]}...")
+                    print(f"[skip] ⛔ Invalid or unsupported line -> {line[:60]}...")
+
         return nodes
+
     except Exception as e:
-        print(f"[warn] failed to fetch {url} -> {e}")
-    return []
+        print(f"[warn] 😭 Failed to fetch {url} -> {e}")
+        return []
 
 # ---------------- Main ----------------
 def main():
-    sources = load_sources()
-    print(f"[start] loaded {len(sources)} sources from Filter_Sources")
-
-    all_nodes = []
-    for url in sources:
-        nodes = load_proxies(url)
-        print(f"[source] {url} -> {len(nodes)} valid nodes")
-        all_nodes.extend(nodes)
-
-    print(f"[collect] total {len(all_nodes)} nodes before filtering")
-
-    # ---------------- Latency filter ----------------
-    if USE_LATENCY:
-        print(f"[latency] filtering nodes > {LATENCY_THRESHOLD} ms")
-        country_counter = defaultdict(int)
-        filtered_nodes = []
-        with concurrent.futures.ThreadPoolExecutor(max_workers=50) as ex:
-            futures = [ex.submit(tcp_latency_ms, n.get("server"), n.get("port")) for n in all_nodes]
-            for n, f in zip(all_nodes, futures):
-                latency = f.result()
-                if latency <= LATENCY_THRESHOLD:
-                    filtered_nodes.append(n)
-        print(f"[latency] {len(filtered_nodes)} nodes after latency filtering")
-    else:
-        filtered_nodes = all_nodes
-        country_counter = defaultdict(int)
-
-    # ---------------- Correct nodes ----------------
-    corrected_nodes = []
-    for n in filtered_nodes:
-        corrected_nodes.append(correct_node(n, country_counter))
-
-    print(f"[done] final {len(corrected_nodes)} nodes ready")
-
-    # ---------------- Load template ----------------
     try:
-        r = requests.get(TEMPLATE_URL, timeout=15)
-        r.raise_for_status()
-        template_text = r.text
+        sources = load_sources()
+        print(f"[start] 🖥️ Loaded {len(sources)} subscription links from source")
+
+        all_nodes = []
+        for url in sources:
+            nodes = load_proxies(url)
+            print(f"[source] ✅ Total {len(nodes)} valid nodes after parsing")
+            all_nodes.extend(nodes)
+
+        print(f"[collect] 📋 Total {len(all_nodes)} nodes before filtering")
+
+        # ---------------- Latency filter ----------------
+        if USE_LATENCY:
+            print(f"[latency] 🚫 Filtering nodes > {LATENCY_THRESHOLD} ms")
+            country_counter = defaultdict(int)
+            filtered_nodes = []
+            with concurrent.futures.ThreadPoolExecutor(max_workers=50) as ex:
+                futures = [ex.submit(tcp_latency_ms, n.get("server"), n.get("port")) for n in all_nodes]
+                for n, f in zip(all_nodes, futures):
+                    latency = f.result()
+                    if latency <= LATENCY_THRESHOLD:
+                        filtered_nodes.append(n)
+
+            num_filtered = len(all_nodes) - len(filtered_nodes)
+            print(f"[latency] ❗Filtered {num_filtered} nodes due to latency")
+            print(f"[latency]  🖨️ Total {len(filtered_nodes)} nodes remain after latency filtering")
+        else:
+            filtered_nodes = all_nodes
+            country_counter = defaultdict(int)
+            print(f"[latency] 🚀 Latency filtering 🚫, {len(filtered_nodes)} nodes remain")
+
+        # ---------------- Renamed nodes ----------------
+        renamed_nodes = []
+        cn_to_cc = load_cn_to_cc()
+        skipped_nodes = 0
+        for n in filtered_nodes:
+            res = rename_node(n, country_counter, cn_to_cc)
+            if res:
+                renamed_nodes.append(res)
+            else:
+                skipped_nodes += 1
+
+        if skipped_nodes > 0:
+            print(f"[rename] ⚠️ Skipped {skipped_nodes} nodes that could not be assigned a name or include forbidden emoji")
+        print(f"[rename] 🖨️ Final {len(renamed_nodes)} nodes remain after name correction")
+
+        if not renamed_nodes:
+            print("[FATAL] 🅾️ valid nodes after processing. Abort upload.")
+            sys.exit(1)
+
+        # ---------------- Load template ----------------
+        try:
+            r = requests.get(TEMPLATE_URL, timeout=15)
+            r.raise_for_status()
+            template_text = r.text
+        except Exception as e:
+            print(f"[FATAL] ⚠️ Failed to fetch ClashTemplate -> {e}")
+            sys.exit(1)
+
+        # ---------------- Convert to YAML ----------------
+        proxies_yaml_block = yaml.dump(renamed_nodes, allow_unicode=True, default_flow_style=False)
+        proxy_names_block = "\n".join([f"      - {unquote(p['name'])}" for p in renamed_nodes])
+
+        # ---------------- Replace placeholders ----------------
+        output_text = template_text.replace("{{PROXIES}}", proxies_yaml_block)
+        output_text = output_text.replace("{{PROXY_NAMES}}", proxy_names_block)
+
+        # ---------------- Prepare timestamp ----------------
+        offset = timedelta(hours=6, minutes=30)
+        utc_now = datetime.now(timezone.utc)
+        local_time = utc_now + offset
+        timestamp = local_time.strftime("%d.%m.%Y %H:%M:%S")
+
+        # ---------------- Write output ----------------
+        with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
+            f.write(f"# Last update: {timestamp}\n" + output_text)
+        print(f"[done] 💾 Wrote {OUTPUT_FILE}")
+
+        # Upload to textdb only after all upper processes successful processing
+        upload_to_textdb()
+
     except Exception as e:
-        print(f"[FATAL] failed to fetch template -> {e}")
+        print("[⚠️FATAL ERROR in main]", str(e))
+        traceback.print_exc()
         sys.exit(1)
 
-    # ---------------- Convert to YAML ----------------
-    proxies_yaml_block = yaml.dump(corrected_nodes, allow_unicode=True, default_flow_style=False)
-    proxy_names_block = "\n".join([f"      - {p['name']}" for p in corrected_nodes])
-
-    # ---------------- Replace placeholders ----------------
-    output_text = template_text.replace("{{PROXIES}}", proxies_yaml_block)
-    output_text = output_text.replace("{{PROXY_NAMES}}", proxy_names_block)
-
-    # ---------------- Prepare GMT+6:30 timestamp ----------------
-    offset = timedelta(hours=6, minutes=30)  # +6:30 hours
-    utc_now = datetime.now(timezone.utc)      # timezone-aware UTC
-    local_time = utc_now + offset
-    timestamp = local_time.strftime("%d.%m.%Y %H:%M:%S")
-
-    # ---------------- Write output ----------------
-    with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
-        f.write(f"# Last update: {timestamp}\n" + output_text)
-    print(f"[done] wrote {OUTPUT_FILE}")
-
-    # Always upload after processing
-    upload_to_textdb()
-    
 # ---------------- Upload to TextDB ----------------
 def upload_to_textdb():
     try:
@@ -499,34 +718,28 @@ def upload_to_textdb():
         with open("Filter", "r", encoding="utf-8") as f:
             output_text = f.read()
 
-        # Step 2: Delete old record
+        # Step 2: Delete old data
         delete_resp = requests.post(TEXTDB_API, data={"value": ""})
         if delete_resp.status_code == 200:
-            print("[info] Old record deleted on textdb")
+            print("[info] 🗑️ Successfully deleteded old data on textdb")
         else:
-            print(f"[warn] Failed to delete old record: {delete_resp.status_code}")
-            print(f"[warn] Response: {delete_resp.text}")
+            print(f"[warn] ❌ Failed to delete old data on textdb: {delete_resp.status_code}")
+            print(f"[warn] ❗Response: {delete_resp.text}")
 
-        # Wait for 3 seconds to ensure successful deletion.
+        # Wait 3 seconds
         time.sleep(3)
 
-        # Step 3: Upload to TextDB using POST (to avoid URL size limits)
+        # Step 3: Upload new data
         upload_resp = requests.post(TEXTDB_API, data={"value": output_text})
         if upload_resp.status_code == 200:
-            print("[info] Successfully uploaded on textdb")
+            print("[info] 📤 Successfully uploaded new data on textdb")
         else:
-            print(f"[warn] Failed to upload on textdb: {upload_resp.status_code}")
-            print(f"[warn] Response: {upload_resp.text}")
+            print(f"[warn] ❌Failed to upload new data on textdb: {upload_resp.status_code}")
+            print(f"[warn] ❗Response: {upload_resp.text}")
 
     except Exception as e:
-        print(f"[error] Unexpected error: {e}")
+        print(f"[error] ⛔ Unexpected error: {e}")
 
 # ---------------- Entry ----------------
 if __name__ == "__main__":
-    try:
-        main()
-    except Exception as e:
-        print("[FATAL ERROR]", str(e))
-        upload_to_textdb()
-        traceback.print_exc()
-        sys.exit(1)
+    main()
