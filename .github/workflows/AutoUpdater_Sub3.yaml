@@ -252,8 +252,15 @@ jobs:
           const generate9PB = async () => {
             console.log(`🔗 Fetching subscription from secret repo: ${subUrl}`);
             const rawData = await fetchSub(subUrl);
-            const lines = rawData.split('\n').slice(2); // remove first 2 lines
-            console.log(`📥 Total source nodes fetched: ${lines.length}`);
+            // Define forbidden emojis
+            const FORBIDDEN_EMOJIS = ["🔒", "❌", "⚠️"]; // add more if needed
+            
+            // Split lines, remove first 2 and last 2 lines, and filter forbidden emojis
+            let lines = rawData
+              .split('\n')
+              .slice(2, -2) // remove first 2 and last 2 lines
+              .filter(line => !FORBIDDEN_EMOJIS.some(emoji => line.includes(emoji))); // remove lines containing forbidden emojis
+            console.log(`📥 Total nodes after filtering: ${lines.length}`);
 
             const proxies = [];
             const failedNodes = [];
