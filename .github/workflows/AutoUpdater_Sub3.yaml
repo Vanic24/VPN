@@ -234,8 +234,8 @@ jobs:
             outputContent = outputContent.replace(/{{PROXY_NAMES}}/g, proxy_names_block);
 
             const yamlData = `# Last update: ${timestamp}\n${outputContent}`;
-            fs.writeFileSync('9PB', outputContent,'utf8');
-            fs.writeFileSync('9PB.yml', outputContent,'utf8');
+            fs.writeFileSync('9PB', yamlData,'utf8');
+            fs.writeFileSync('9PB.yml', yamlData,'utf8');
 
             if(!dry_run){
               // --- GitHub update ---
