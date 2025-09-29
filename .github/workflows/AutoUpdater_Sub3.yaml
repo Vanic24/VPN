@@ -245,21 +245,38 @@ jobs:
               await axios.put(ghUrl,{message:`🎉9PB Auto update successful🎉 - ${timestamp}`,content:Buffer.from(outputContent).toString('base64'),sha},{headers:{Authorization:`token ${process.env.GITHUB_TOKEN}`}});
               console.log('✅ GitHub updated successfully');
 
-              // --- Delete old TextDB record ---
-              const deleteUrl='https://textdb.online/update/?key=9PB_SHFX&value={}';
-              const delRes=await axios.post(deleteUrl,{value:''},{headers:{'Content-Type':'application/x-www-form-urlencoded'}});
-              if(delRes.data.status===1) console.log('🗑️ Old Textdb record deleted successfully');
-              else console.error('⚠️ Failed to delete old Textdb record:',delRes.data);
-
-              // --- Sleep 3 seconds ---
-              await new Promise(r=>setTimeout(r,3000));
-
-              // --- Upload new TextDB record ---
-              const res=await axios.post(deleteUrl,{value:yamlData},{headers:{'Content-Type':'application/x-www-form-urlencoded'}});
-              if(res.data.status===1) console.log('✅ Textdb uploaded successfully: '+res.data.data.url);
-              else console.error('❌ Textdb upload failed:',res.data);
+              // --- Delete old record from TextDB first ---
+              const deleteUrl = 'https://textdb.online/update/?key=Sub3_SHFX';
+              const delRes = await axios.post(
+                deleteUrl,
+                `value={}`,
+                { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+              );
+            
+              if (delRes.data.status === 1) {
+                console.log('🗑️ Old Textdb record deleted successfully');
+              } else {
+                console.error('⚠️ Failed to delete old Textdb record:', delRes.data);
+              }
+            
+              // --- Sleep before re-upload ---
+              const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+              await sleep(3000);
+            
+              // --- Upload new record ---
+              const textdbUrl = 'https://textdb.online/update/?key=Sub3_SHFX';
+              const res = await axios.post(
+                textdbUrl,
+                `value=${encodeURIComponent(yamlData)}`,
+                { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+              );
+            
+              if (res.data.status === 1) {
+                console.log('✅ Textdb uploaded successfully: ' + res.data.data.url);
+              } else {
+                console.error('❌ Textdb upload failed:', res.data);
+              }
             }
-          };
 
           generate9PB().catch(err=>{ console.error(err); process.exit(1); });
           JS
@@ -278,6 +295,6 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo
             });
-            for (const artifact of artifacts.data.artifacts.filter(a=>a.name==='Sub3').slice(10)){
+            for (const artifact of artifacts.data.artifacts.filter(a=>a.name==='9PB').slice(10)){
               await github.rest.actions.deleteArtifact({owner:context.repo.owner,repo:context.repo.repo,artifact_id:artifact.id});
             }
