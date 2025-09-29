@@ -237,47 +237,57 @@ jobs:
             fs.writeFileSync('9PB', outputContent,'utf8');
             fs.writeFileSync('9PB.yml', outputContent,'utf8');
 
-            if(!dry_run){
-              // --- GitHub update ---
-              const ghUrl=`https://api.github.com/repos/${process.env.GITHUB_REPOSITORY}/contents/9PB`;
-              const ghRes=await axios.get(ghUrl,{headers:{Authorization:`token ${process.env.GITHUB_TOKEN}`}});
-              const sha=ghRes.data.sha;
-              await axios.put(ghUrl,{message:`🎉9PB Auto update successful🎉 - ${timestamp}`,content:Buffer.from(outputContent).toString('base64'),sha},{headers:{Authorization:`token ${process.env.GITHUB_TOKEN}`}});
-              console.log('✅ GitHub updated successfully');
-
-              // --- Delete old record from TextDB first ---
-              const deleteUrl = 'https://textdb.online/update/?key=Sub3_SHFX';
-              const delRes = await axios.post(
-                deleteUrl,
-                `value={}`,
-                { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
-              );
-            
-              if (delRes.data.status === 1) {
-                console.log('🗑️ Old Textdb record deleted successfully');
-              } else {
-                console.error('⚠️ Failed to delete old Textdb record:', delRes.data);
-              }
-            
-              // --- Sleep before re-upload ---
-              const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
-              await sleep(3000);
-            
-              // --- Upload new record ---
-              const textdbUrl = 'https://textdb.online/update/?key=Sub3_SHFX';
-              const res = await axios.post(
-                textdbUrl,
-                `value=${encodeURIComponent(yamlData)}`,
-                { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
-              );
-            
-              if (res.data.status === 1) {
-                console.log('✅ Textdb uploaded successfully: ' + res.data.data.url);
-              } else {
-                console.error('❌ Textdb upload failed:', res.data);
-              }
+            if (!dry_run) {
+            // --- GitHub update ---
+            const ghUrl = `https://api.github.com/repos/${process.env.GITHUB_REPOSITORY}/contents/9PB`;
+            const ghRes = await axios.get(ghUrl, {
+              headers: { Authorization: `token ${process.env.GITHUB_TOKEN}` }
+            });
+            const sha = ghRes.data.sha;
+          
+            await axios.put(
+              ghUrl,
+              {
+                message: `🎉9PB Auto update successful🎉 - ${timestamp}`,
+                content: Buffer.from(outputContent).toString('base64'),
+                sha
+              },
+              { headers: { Authorization: `token ${process.env.GITHUB_TOKEN}` } }
+            );
+            console.log('✅ GitHub updated successfully');
+          
+            // --- Delete old record from TextDB first ---
+            const deleteUrl = 'https://textdb.online/update/?key=9PB_SHFX';
+            const delRes = await axios.post(
+              deleteUrl,
+              `value={}`,
+              { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+            );
+          
+            if (delRes.data.status === 1) {
+              console.log('🗑️ Old Textdb record deleted successfully');
+            } else {
+              console.error('⚠️ Failed to delete old Textdb record:', delRes.data);
             }
-
+          
+            // --- Sleep before re-upload ---
+            const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+            await sleep(3000);
+          
+            // --- Upload new record ---
+            const textdbUrl = 'https://textdb.online/update/?key=9PB_SHFX';
+            const res = await axios.post(
+              textdbUrl,
+              `value=${encodeURIComponent(yamlData)}`,
+              { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+            );
+          
+            if (res.data.status === 1) {
+              console.log('✅ Textdb uploaded successfully: ' + res.data.data.url);
+            } else {
+              console.error('❌ Textdb upload failed:', res.data);
+            }
+          }
           generate9PB().catch(err=>{ console.error(err); process.exit(1); });
           JS
 
