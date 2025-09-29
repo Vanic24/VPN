@@ -244,8 +244,12 @@ def parse_trojan(line):
 # ---------------- Hysteria2 parser ----------------
 def parse_hysteria2(line):
     try:
-        if not line.startswith("hysteria2://"):
+        if not (line.startswith("hysteria2://") or line.startswith("hy2://")):
             return None
+
+        # Normalize prefix (replace hy2:// → hysteria2:// for parsing)
+        if line.startswith("hy2://"):
+            line = "hysteria2://" + line[len("hy2://"):]
 
         # regex: capture password, host, port, optional query, optional fragment(name)
         m = re.match(r'hysteria2://([^@]+)@([^:\/?#]+):(\d+)(?:\?([^#]*))?(?:#(.*))?$', line)
