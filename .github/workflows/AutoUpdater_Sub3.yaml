@@ -256,39 +256,43 @@ jobs:
               );
               console.log('✅ GitHub updated successfully');
             
-              // --- Delete old record from TextDB first ---
-              const deleteUrl = 'https://textdb.online/update/?key=Sub3_SHFX&value={}';
+              // Delete old record from TextDB first
+              const deleteUrl = 'https://textdb.online/update/?key=9PB_SHFX&value={}';
+ 
               const delRes = await axios.post(
                 deleteUrl,
-                `value={}`,
+                { value: '' },
                 { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
               );
-            
+ 
               if (delRes.data.status === 1) {
                 console.log('🗑️ Old Textdb record deleted successfully');
               } else {
                 console.error('⚠️ Failed to delete old Textdb record:', delRes.data);
               }
-            
-              // --- Sleep before re-upload ---
+ 
+              // Simple sleep function
               const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+ 
+              // Wait 3 seconds before uploading new data
               await sleep(3000);
-            
-              // --- Upload new record ---
-              const textdbUrl = 'https://textdb.online/update/?key=Sub3_SHFX&value={}';
+ 
+              // Update Textdb using POST
+              const textdbUrl = 'https://textdb.online/update/?key=9PB_SHFX&value={}';
+ 
               const res = await axios.post(
                 textdbUrl,
-                `value=${encodeURIComponent(yamlData)}`,
+                { value: yamlData },
                 { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
               );
-            
+ 
               if (res.data.status === 1) {
                 console.log('✅ Textdb uploaded successfully: ' + res.data.data.url);
               } else {
                 console.error('❌ Textdb upload failed:', res.data);
               }
             }
-          }
+          };
     
           generate9PB().catch(err => {
             console.error(err);
