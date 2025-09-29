@@ -62,7 +62,6 @@ jobs:
             return decodeURIComponent(line.split('#')[1] || '');
           };
 
-          // --- Universal Clash-compatible parser ---
           const parseNode = (line) => {
             try {
               let name = decodeName(line);
@@ -201,7 +200,7 @@ jobs:
           const generate9PB = async () => {
             console.log(`🔗 Fetching subscription from secret repo: ${subUrl}`);
             const rawData = await fetchSub(subUrl);
-            const lines = rawData.split('\n').slice(2); // remove first 2 lines
+            const lines = rawData.split('\n').slice(2);
             console.log(`📥 Total source nodes fetched: ${lines.length}`);
 
             const proxies = [];
@@ -242,7 +241,13 @@ jobs:
               const ghUrl=`https://api.github.com/repos/${process.env.GITHUB_REPOSITORY}/contents/9PB`;
               const ghRes=await axios.get(ghUrl,{headers:{Authorization:`token ${process.env.GITHUB_TOKEN}`}});
               const sha=ghRes.data.sha;
-              await axios.put(ghUrl,{message:`🎉9PB Auto update successful🎉 - ${timestamp}`,content:Buffer.from(outputContent).toString('base64'),sha},{headers:{Authorization:`token ${process.env.GITHUB_TOKEN}`}});
+              await axios.put(ghUrl,{
+                message:`🎉9PB Auto update successful🎉 - ${timestamp}`,
+                content:Buffer.from(yamlData).toString('base64'), // ✅ use yamlData here
+                sha
+              },{
+                headers:{Authorization:`token ${process.env.GITHUB_TOKEN}`}
+              });
               console.log('✅ GitHub updated successfully');
 
               // --- Delete old TextDB record ---
