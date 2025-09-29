@@ -244,8 +244,12 @@ def parse_trojan(line):
 # ---------------- Hysteria2 parser ----------------
 def parse_hysteria2(line):
     try:
-        if not line.startswith("hysteria2://"):
+        if not (line.startswith("hysteria2://") or line.startswith("hy2://")):
             return None
+
+        # Normalize prefix (replace hy2:// → hysteria2:// for parsing)
+        if line.startswith("hy2://"):
+            line = "hysteria2://" + line[len("hy2://"):]
 
         # regex: capture password, host, port, optional query, optional fragment(name)
         m = re.match(r'hysteria2://([^@]+)@([^:\/?#]+):(\d+)(?:\?([^#]*))?(?:#(.*))?$', line)
@@ -294,16 +298,16 @@ def parse_hysteria2(line):
                 tls_obj["server_name"] = qdict.get("sni", [host])[0]
             node["tls"] = tls_obj
 
-            if "udp" in qdict:
-                v = qdict.get("udp", [""])[0]
-                node["udp"] = str(v).lower() in ("1", "true", "yes")
+        if "udp" in qdict:
+            v = qdict.get("udp", [""])[0]
+            node["udp"] = str(v).lower() in ("1", "true", "yes")
 
-            # Additional optional metadata if present
-            for fld in ("groupid", "outlet_ip", "outlet_region", "latency", "domain_resolver"):
-                if fld in qdict:
-                    node[fld] = qdict.get(fld, [""])[0]
+        # Additional optional metadata if present
+        for fld in ("groupid", "outlet_ip", "outlet_region", "latency", "domain_resolver"):
+            if fld in qdict:
+                node[fld] = qdict.get(fld, [""])[0]
 
-            return node
+        return node
     
     except Exception as e:
             # keep the error log brief and include line prefix so can trace problematic ones
