@@ -3,22 +3,29 @@ name: Update VPN Subscription (SUB_Filter)
 on:
   # Run every 30 minutes
   schedule:
-    - cron: "*/30 * * * *"
+    - cron: "*/30 * * * *"  
   # Manual trigger with inputs
   workflow_dispatch:
     inputs:
       use_latency_filter:
         description: "Enable latency filter? (true/false)"
-        required: false
-        default: "true"
+        required: true
+        default: "false"
       latency_threshold:
         description: "Latency threshold in ms (only used if filter is true)"
-        required: false
+        required: true
         default: "100"
-
+      use_only_geoip:
+        description: "Use only GeoIP for naming? (true/false)"
+        required: false
+        default: "false"
 jobs:
   update:
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: write   # needed for commit & push
+      actions: write    # needed for deleting artifacts
 
     steps:
       - name: Checkout repo
@@ -31,7 +38,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install requests pyyaml
+          python -m pip install --upgrade pip
+          pip install requests pyyaml babel pycountry
 
       - name: Fail if FILTER_SOURCES is missing
         run: |
@@ -40,18 +48,26 @@ jobs:
             exit 1
           fi
 
-      - name: Restore filter_sources from secret
+      - name: Restore FILTER_SOURCES from secret
         run: |
-          echo "${{ secrets.FILTER_SOURCES }}" > Filter_Sources
+          echo "${{ secrets.FILTER_SOURCES }}" > FILTER_SOURCES
 
       - name: Set latency filter environment for scheduled/manual runs
         run: |
           # If manual run, use workflow inputs; if scheduled, default to false
           echo "LATENCY_FILTER=${{ github.event.inputs.use_latency_filter || 'false' }}" >> $GITHUB_ENV
           echo "LATENCY_THRESHOLD=${{ github.event.inputs.latency_threshold || '100' }}" >> $GITHUB_ENV
-
-      - name: Run Filter.py
+          
+          # GeoIP-only filter (default true if scheduled)
+          echo "USE_ONLY_GEOIP=${{ github.event.inputs.use_only_geoip || 'false' }}" >> $GITHUB_ENV
+          
+      - name: Run Python script
         run: python src/Filter.py
+        env:
+          CN_TO_CC: ${{ secrets.CN_TO_CC }}
+          LATENCY_FILTER: ${{ env.LATENCY_FILTER }}
+          LATENCY_THRESHOLD: ${{ env.LATENCY_THRESHOLD }}
+          USE_ONLY_GEOIP: ${{ env.USE_ONLY_GEOIP }}
 
       - name: Generate GMT+6:30 timestamp
         id: timestamp
@@ -78,3 +94,40 @@ jobs:
             git commit -m "🎉Filter Auto update successful🎉 - $TIMESTAMP"
             git push --force-with-lease origin main
           fi
+
+      - name: Copy Filter with .yaml extension
+        run: cp Filter Filter.yaml
+
+      - name: Upload Filter artifact
+        id: upload_artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Filter
+          path: Filter.yaml
+          retention-days: 30
+      
+      - name: Cleanup old artifacts (keep latest 60)
+        if: success() && steps.upload_artifact.outcome == 'success'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const artifacts = await github.rest.actions.listArtifactsForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              per_page: 100
+            });
+            
+            const sorted = artifacts.data.artifacts
+              .filter(a => a.name.startsWith("9PB-"))
+              .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+            
+            const toDelete = sorted.slice(10);
+            
+            for (const artifact of toDelete) {
+              console.log(`Deleting artifact: ${artifact.name} (${artifact.id})`);
+              await github.rest.actions.deleteArtifact({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                artifact_id: artifact.id
+              });
+            }
