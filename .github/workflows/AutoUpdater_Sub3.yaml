@@ -288,8 +288,10 @@ jobs:
               console.error('❌ Textdb upload failed:', res.data);
             }
           }
-          generate9PB().catch(err=>{ console.error(err); process.exit(1); });
-          JS
+          generate9PB().catch(err => {
+            console.error(err);
+            process.exit(1);
+          });
 
       - name: Upload 9PB artifact
         uses: actions/upload-artifact@v4
