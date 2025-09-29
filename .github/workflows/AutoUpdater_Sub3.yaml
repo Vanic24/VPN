@@ -62,6 +62,7 @@ jobs:
             return decodeURIComponent(line.split('#')[1] || '');
           };
 
+          // --- Universal Clash-compatible parser ---
           const parseNode = (line) => {
             try {
               let name = decodeName(line);
@@ -150,19 +151,76 @@ jobs:
                 };
               }
 
+              if (raw.startsWith('anytls://')) {
+                const [urlPart] = raw.slice(9).split('#');
+                const [userHostPort, queryStr] = urlPart.split('?');
+                const [password, hostPort] = userHostPort.split('@');
+                const [server, port] = hostPort.split(':');
+                const query = {};
+                if(queryStr) queryStr.split('&').forEach(p=>{const [k,v]=p.split('='); query[k]=decodeURIComponent(v||'');});
+                return {
+                  name: name || 'anytls',
+                  type: 'anytls',
+                  server: server||'',
+                  port: safeNumber(port),
+                  password: decodeURIComponent(password||''),
+                  network: query.type||'tcp',
+                  tls: query.security==='tls',
+                  sni: query.sni||'',
+                  flow: query.flow||'',
+                };
+              }
+          
+              if (raw.startsWith('tuic://')) {
+                const [urlPart] = raw.slice(7).split('#');
+                const [userHostPort, queryStr] = urlPart.split('?');
+                const [password, hostPort] = userHostPort.split('@');
+                const [server, port] = hostPort.split(':');
+                const query = {};
+                if(queryStr) queryStr.split('&').forEach(p=>{const [k,v]=p.split('='); query[k]=decodeURIComponent(v||'');});
+                return {
+                  name: name || 'tuic',
+                  type: 'tuic',
+                  server: server||'',
+                  port: safeNumber(port),
+                  password: decodeURIComponent(password||''),
+                  network: query.type||'tcp',
+                  tls: query.security==='tls',
+                  sni: query.sni||'',
+                  flow: query.flow||'',
+                  alpn: query.alpn||''
+                };
+              }
+          
+              return null;
+            } catch (err) {
+              console.error('❌ Failed to parse line:', line, err.message);
+              return null;
+            }
+          };
+
               if (raw.startsWith('ss://')) {
                 const [data] = raw.slice(5).split('#');
-                let method, password, server, port;
-                if (data.includes('@')) {
-                  const [mp, hp] = data.split('@');
-                  [method, password] = mp.includes(':')? mp.split(':'):[mp,''];
-                  [server, port] = hp.split(':');
-                } else {
+                let method='', password='', server='', port='';
+
+                try {
                   const decoded = Buffer.from(data,'base64').toString('utf8');
-                  const [mp, hp] = decoded.split('@');
-                  [method, password] = mp.split(':');
-                  [server, port] = hp.split(':');
+                  if(decoded.includes('@')){
+                    const [mp, hp] = decoded.split('@');
+                    [method, password] = mp.split(':');
+                    [server, port] = hp.split(':');
+                  } else {
+                    throw new Error('Not Base64 format');
+                  }
+                } catch(e){
+                  // fallback for plain ss://METHOD:PASSWORD@SERVER:PORT
+                  if(data.includes('@')){
+                    const [mp, hp] = data.split('@');
+                    [method, password] = mp.split(':');
+                    [server, port] = hp.split(':');
+                  }
                 }
+
                 return {
                   name: name || 'ss',
                   type: 'ss',
@@ -200,7 +258,7 @@ jobs:
           const generate9PB = async () => {
             console.log(`🔗 Fetching subscription from secret repo: ${subUrl}`);
             const rawData = await fetchSub(subUrl);
-            const lines = rawData.split('\n').slice(2);
+            const lines = rawData.split('\n').slice(2); // remove first 2 lines
             console.log(`📥 Total source nodes fetched: ${lines.length}`);
 
             const proxies = [];
@@ -241,13 +299,7 @@ jobs:
               const ghUrl=`https://api.github.com/repos/${process.env.GITHUB_REPOSITORY}/contents/9PB`;
               const ghRes=await axios.get(ghUrl,{headers:{Authorization:`token ${process.env.GITHUB_TOKEN}`}});
               const sha=ghRes.data.sha;
-              await axios.put(ghUrl,{
-                message:`🎉9PB Auto update successful🎉 - ${timestamp}`,
-                content:Buffer.from(yamlData).toString('base64'), // ✅ use yamlData here
-                sha
-              },{
-                headers:{Authorization:`token ${process.env.GITHUB_TOKEN}`}
-              });
+              await axios.put(ghUrl,{message:`🎉9PB Auto update successful🎉 - ${timestamp}`,content:Buffer.from(outputContent).toString('base64'),sha},{headers:{Authorization:`token ${process.env.GITHUB_TOKEN}`}});
               console.log('✅ GitHub updated successfully');
 
               // --- Delete old TextDB record ---
