@@ -258,7 +258,7 @@ jobs:
             // Split lines, remove first 2 and last 2 lines, and filter forbidden emojis
             let lines = rawData
               .split('\n')
-              .slice(-3) // remove first 2 and last 2 lines slice(2, -3)
+              .slice(2, -3) // remove first 2 and last 2 lines
               .filter(line => !FORBIDDEN_EMOJIS.some(emoji => line.includes(emoji))); // remove lines containing forbidden emojis
             console.log(`📥 Total nodes after filtering: ${lines.length}`);
 
