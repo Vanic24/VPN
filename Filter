@@ -1,4 +1,4 @@
-# Last update: 02.10.2025 21:10:37
+# Last update: 02.10.2025 21:46:17
 mixed-port: 7897
 allow-lan: false
 mode: rule
@@ -162,26 +162,6 @@ proxies:
     headers:
       Host: us.nbee.pp.ua
     path: /aa
-- cipher: chacha20-ietf-poly1305
-  name: 🇺🇸 US-3 | SHFX
-  password: oGOnNFGhv1SAL5rKSYCdVv
-  port: 8443
-  server: 95.81.85.102
-  type: ss
-  udp: true
-- client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: 🇺🇸 US-4 | SHFX
-  port: 30227
-  reality-opts:
-    public-key: y0QO-mD8hrDE3rV7C8BX-gQiCANoasGKQlq2ReIVXkI
-  server: 216.133.149.235
-  servername: aws.amazon.com
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 9a54bad8-538d-4744-b7bc-640629840490
 - alterId: 2
   cipher: auto
   name: 🇭🇰 HK-1 | SHFX
@@ -196,6 +176,26 @@ proxies:
     headers:
       Host: eb362f92-svukg0-t12cnj-1ol97.hk.p5pv.com
     path: /
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: 🇺🇸 US-3 | SHFX
+  port: 30227
+  reality-opts:
+    public-key: y0QO-mD8hrDE3rV7C8BX-gQiCANoasGKQlq2ReIVXkI
+  server: 216.133.149.235
+  servername: aws.amazon.com
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 9a54bad8-538d-4744-b7bc-640629840490
+- cipher: chacha20-ietf-poly1305
+  name: 🇺🇸 US-4 | SHFX
+  password: oGOnNFGhv1SAL5rKSYCdVv
+  port: 8443
+  server: 95.81.85.102
+  type: ss
+  udp: true
 - name: 🇺🇸 US-5 | SHFX
   network: ws
   port: 80
@@ -210,23 +210,9 @@ proxies:
     headers:
       Host: gm195.io
     path: /admin
-- client-fingerprint: chrome
-  name: 🇷🇺 RU-1 | SHFX
-  network: ws
-  port: 2096
-  server: 5.182.85.54
-  servername: sni.aizrf.com
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 12345678-1234-1234-1234-123456789123
-  ws-opts:
-    headers:
-      Host: sni.aizrf.com
-    path: /snippets
 - alterId: 2
   cipher: auto
+  client-fingerprint: chrome
   name: 🇭🇰 HK-2 | SHFX
   network: ws
   port: 80
@@ -240,12 +226,19 @@ proxies:
     headers:
       Host: broadcastlv.chat.bilibili.com
     path: /
-- cipher: aes-256-cfb
-  name: 🇲🇩 MD-1 | SHFX
-  password: f8f7aCzcPKbsF8p3
-  port: 989
-  server: 185.153.197.5
-  type: ss
+- name: 🇷🇺 RU-1 | SHFX
+  network: ws
+  port: 2096
+  server: 5.182.85.54
+  servername: sni.aizrf.com
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  uuid: 12345678-1234-1234-1234-123456789123
+  ws-opts:
+    headers:
+      Host: sni.aizrf.com
+    path: /snippetsfp=chrome
 - alterId: 2
   cipher: auto
   name: 🇭🇰 HK-3 | SHFX
@@ -1842,13 +1835,12 @@ proxy-groups:
       - 🇫🇮 FI-1 | SHFX
       - 🇺🇸 US-1 | SHFX
       - 🇺🇸 US-2 | SHFX
+      - 🇭🇰 HK-1 | SHFX
       - 🇺🇸 US-3 | SHFX
       - 🇺🇸 US-4 | SHFX
-      - 🇭🇰 HK-1 | SHFX
       - 🇺🇸 US-5 | SHFX
-      - 🇷🇺 RU-1 | SHFX
       - 🇭🇰 HK-2 | SHFX
-      - 🇲🇩 MD-1 | SHFX
+      - 🇷🇺 RU-1 | SHFX
       - 🇭🇰 HK-3 | SHFX
       - 🇺🇸 US-6 | SHFX
       - 🇭🇰 HK-4 | SHFX
@@ -2071,13 +2063,12 @@ proxy-groups:
       - 🇫🇮 FI-1 | SHFX
       - 🇺🇸 US-1 | SHFX
       - 🇺🇸 US-2 | SHFX
+      - 🇭🇰 HK-1 | SHFX
       - 🇺🇸 US-3 | SHFX
       - 🇺🇸 US-4 | SHFX
-      - 🇭🇰 HK-1 | SHFX
       - 🇺🇸 US-5 | SHFX
-      - 🇷🇺 RU-1 | SHFX
       - 🇭🇰 HK-2 | SHFX
-      - 🇲🇩 MD-1 | SHFX
+      - 🇷🇺 RU-1 | SHFX
       - 🇭🇰 HK-3 | SHFX
       - 🇺🇸 US-6 | SHFX
       - 🇭🇰 HK-4 | SHFX
