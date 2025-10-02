@@ -1,4 +1,4 @@
-# Last update: 03.10.2025 01:42:43
+# Last update: 03.10.2025 02:06:24
 mixed-port: 7897
 allow-lan: false
 mode: rule
@@ -163,26 +163,15 @@ proxies:
   network: ws
   port: 80
   server: c004e6fe-t1i9s0-tm53cm-1ol97.hkt.tcpbbr.net
-  skip-cert-verify: true
+  skip-cert-verify: false
+  tls: false
   type: vmess
+  udp: true
   uuid: 93fb69fc-77cf-11ee-85ee-f23c91369f2d
   ws-opts:
     headers:
       Host: c004e6fe-t1i9s0-tm53cm-1ol97.hkt.tcpbbr.net
     path: /
-- alterId: 0
-  cipher: auto
-  name: 🇺🇸 US-2 | SHFX
-  network: ws
-  port: 443
-  server: 154.17.227.158
-  tls: true
-  type: vmess
-  uuid: de94cc0a-0592-4969-b1fc-97ea8f0ea0b3
-  ws-opts:
-    headers:
-      Host: us.nbee.pp.ua
-    path: /aa
 - alterId: 2
   cipher: auto
   client-fingerprint: chrome
@@ -203,89 +192,6 @@ proxies:
   name: 🇭🇰 HK-4 | SHFX
   network: ws
   port: 80
-  server: hkt.gotochinatown.net
-  skip-cert-verify: false
-  tls: false
-  type: vmess
-  udp: true
-  uuid: 93fb69fc-77cf-11ee-85ee-f23c91369f2d
-  ws-opts:
-    headers:
-      Host: hkt.gotochinatown.net
-    path: /
-- cipher: aes-256-cfb
-  name: 🇳🇱 NL-1 | SHFX
-  password: f8f7aCzcPKbsF8p3
-  port: 989
-  server: 51.15.17.169
-  type: ss
-- cipher: chacha20-ietf-poly1305
-  name: 🇦🇿 AZ-1 | SHFX
-  password: 3pze4lyj8FFdDixOkf2K2oQ4rHX7Vq9xC9uKwBgvQYDNxLf8
-  port: 31348
-  server: 180.149.44.105
-  type: ss
-  udp: true
-- name: 🇺🇸 US-3 | SHFX
-  network: ws
-  port: 80
-  server: mstr.fastly80.hosting-ip.com
-  servername: gm195.io
-  skip-cert-verify: false
-  tls: false
-  type: vless
-  uuid: d46fbe10-7982-4229-b461-4afef5c690fa
-  ws-opts:
-    headers:
-      Host: gm195.io
-    path: /admin
-- alterId: 0
-  cipher: auto
-  name: 🇩🇪 DE-1 | SHFX
-  network: ws
-  port: 443
-  server: 57.129.24.131
-  skip-cert-verify: true
-  tls: true
-  type: vmess
-  uuid: 03fcc618-b93d-6796-6aed-8a38c975d581
-  ws-opts:
-    headers:
-      Host: kampong.org
-    path: linkvws
-- alterId: 0
-  cipher: auto
-  name: 🇩🇪 DE-2 | SHFX
-  network: ws
-  port: 443
-  server: kampong.org
-  skip-cert-verify: true
-  tls: true
-  type: vmess
-  uuid: 03fcc618-b93d-6796-6aed-8a38c975d581
-  ws-opts:
-    headers:
-      Host: kampong.org
-    path: linkvws
-- alterId: 0
-  cipher: auto
-  name: 🇩🇪 DE-3 | SHFX
-  network: ws
-  port: 443
-  server: 57.129.59.201
-  skip-cert-verify: true
-  tls: true
-  type: vmess
-  uuid: 03fcc618-b93d-6796-6aed-8a38c975d581
-  ws-opts:
-    headers:
-      Host: kampong.org
-    path: linkvws
-- alterId: 2
-  cipher: auto
-  name: 🇭🇰 HK-5 | SHFX
-  network: ws
-  port: 80
   server: eb362f92-svukg0-t12cnj-1ol97.hk.p5pv.com
   skip-cert-verify: true
   tls: false
@@ -295,6 +201,19 @@ proxies:
     headers:
       Host: eb362f92-svukg0-t12cnj-1ol97.hk.p5pv.com
     path: /
+- alterId: 0
+  cipher: auto
+  name: 🇺🇸 US-2 | SHFX
+  network: ws
+  port: 443
+  server: 154.17.227.158
+  tls: true
+  type: vmess
+  uuid: de94cc0a-0592-4969-b1fc-97ea8f0ea0b3
+  ws-opts:
+    headers:
+      Host: us.nbee.pp.ua
+    path: /aa
 - client-fingerprint: chrome
   flow: xtls-rprx-vision
   name: 🇮🇪 IE-1 | SHFX
@@ -309,6 +228,60 @@ proxies:
   type: vless
   udp: true
   uuid: bf9b316d-31ac-42ee-b8a5-8dc795118917
+- cipher: chacha20-ietf-poly1305
+  name: 🇦🇿 AZ-1 | SHFX
+  password: 3pze4lyj8FFdDixOkf2K2oQ4rHX7Vq9xC9uKwBgvQYDNxLf8
+  port: 31348
+  server: 180.149.44.105
+  type: ss
+  udp: true
+- cipher: aes-256-cfb
+  name: 🇳🇱 NL-1 | SHFX
+  password: f8f7aCzcPKbsF8p3
+  port: 989
+  server: 51.15.17.169
+  type: ss
+- alterId: 2
+  cipher: auto
+  name: 🇭🇰 HK-5 | SHFX
+  network: ws
+  port: 80
+  server: hkt.gotochinatown.net
+  skip-cert-verify: false
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 93fb69fc-77cf-11ee-85ee-f23c91369f2d
+  ws-opts:
+    headers:
+      Host: hkt.gotochinatown.net
+    path: /
+- name: 🇺🇸 US-3 | SHFX
+  network: ws
+  port: 80
+  server: mstr.fastly80.hosting-ip.com
+  servername: gm195.io
+  skip-cert-verify: false
+  tls: false
+  type: vless
+  uuid: d46fbe10-7982-4229-b461-4afef5c690fa
+  ws-opts:
+    headers:
+      Host: gm195.io
+    path: /admin
+- alterId: 2
+  cipher: auto
+  name: 🇨🇳 CN-1 | SHFX
+  network: ws
+  port: 30808
+  server: v8.heduian.link
+  skip-cert-verify: true
+  type: vmess
+  uuid: cbb3f877-d1fb-344c-87a9-d153bffd5484
+  ws-opts:
+    headers:
+      Host: v8.heduian.link
+    path: /oooo
 - name: 🇺🇸 US-4 | SHFX
   password: 571ec94e-613c-430a-93de-397d3d237475
   port: 22151
@@ -339,7 +312,7 @@ proxies:
     insecure: true
     server_name: hsxjp.huasuan666.top
   type: hysteria2
-- name: 🇩🇪 DE-4 | SHFX
+- name: 🇩🇪 DE-1 | SHFX
   password: 571ec94e-613c-430a-93de-397d3d237475
   port: 22155
   server: hsdg.huasuan666.top
@@ -539,7 +512,7 @@ proxies:
     insecure: true
     server_name: ca1.jueduibupao.top
   type: hysteria2
-- name: 🇩🇪 DE-5 | SHFX
+- name: 🇩🇪 DE-2 | SHFX
   password: 1a2da8ce-5e00-4d31-ad49-ed4a23420654
   port: 45641
   server: de1.jueduibupao.top
@@ -706,13 +679,13 @@ proxies:
   server: hzhz2.sssyun.xyz
   type: ss
 - cipher: aes-256-cfb
-  name: 🇩🇪 DE-6 | SHFX
+  name: 🇩🇪 DE-3 | SHFX
   password: ''
   port: 39987
   server: hzhz1.sssyun.xyz
   type: ss
 - cipher: aes-256-cfb
-  name: 🇩🇪 DE-7 | SHFX
+  name: 🇩🇪 DE-4 | SHFX
   password: ''
   port: 39981
   server: hzhz2.sssyun.xyz
@@ -1242,7 +1215,7 @@ proxies:
   port: 22024
   server: yue-zz.yuetoto.net
   type: ss
-- name: 🇩🇪 DE-8 | SHFX
+- name: 🇩🇪 DE-5 | SHFX
   password: cbbd4e92-d29d-496c-bc4c-4206a45f7f1e
   port: 21087
   server: yue-de.yuetoto.net
@@ -1251,7 +1224,7 @@ proxies:
     enabled: true
     server_name: 'null'
   type: hysteria2
-- name: 🇩🇪 DE-9 | SHFX
+- name: 🇩🇪 DE-6 | SHFX
   password: cbbd4e92-d29d-496c-bc4c-4206a45f7f1e
   port: 21072
   server: yue-de.yuetoto.net
@@ -1261,13 +1234,13 @@ proxies:
     server_name: 'null'
   type: hysteria2
 - cipher: aes-256-cfb
-  name: 🇩🇪 DE-10 | SHFX
+  name: 🇩🇪 DE-7 | SHFX
   password: ''
   port: 22025
   server: yue-zz.yuetoto.net
   type: ss
 - cipher: aes-256-cfb
-  name: 🇩🇪 DE-11 | SHFX
+  name: 🇩🇪 DE-8 | SHFX
   password: ''
   port: 22026
   server: yue-zz.yuetoto.net
@@ -1702,7 +1675,7 @@ proxies:
     insecure: true
     server_name: ca1.jueduibupao.top
   type: hysteria2
-- name: 🇩🇪 DE-12 | SHFX
+- name: 🇩🇪 DE-9 | SHFX
   password: 2b524171-bc7e-4579-a22e-239bdd50caca
   port: 49651
   server: de1.jueduibupao.top
@@ -1869,13 +1842,13 @@ proxies:
   server: hzhz2.sssyun.xyz
   type: ss
 - cipher: aes-256-cfb
-  name: 🇩🇪 DE-13 | SHFX
+  name: 🇩🇪 DE-10 | SHFX
   password: ''
   port: 39987
   server: hzhz1.sssyun.xyz
   type: ss
 - cipher: aes-256-cfb
-  name: 🇩🇪 DE-14 | SHFX
+  name: 🇩🇪 DE-11 | SHFX
   password: ''
   port: 39981
   server: hzhz2.sssyun.xyz
@@ -1890,21 +1863,19 @@ proxy-groups:
       - 🇫🇮 FI-1 | SHFX
       - 🇺🇸 US-1 | SHFX
       - 🇭🇰 HK-2 | SHFX
-      - 🇺🇸 US-2 | SHFX
       - 🇭🇰 HK-3 | SHFX
       - 🇭🇰 HK-4 | SHFX
-      - 🇳🇱 NL-1 | SHFX
-      - 🇦🇿 AZ-1 | SHFX
-      - 🇺🇸 US-3 | SHFX
-      - 🇩🇪 DE-1 | SHFX
-      - 🇩🇪 DE-2 | SHFX
-      - 🇩🇪 DE-3 | SHFX
-      - 🇭🇰 HK-5 | SHFX
+      - 🇺🇸 US-2 | SHFX
       - 🇮🇪 IE-1 | SHFX
+      - 🇦🇿 AZ-1 | SHFX
+      - 🇳🇱 NL-1 | SHFX
+      - 🇭🇰 HK-5 | SHFX
+      - 🇺🇸 US-3 | SHFX
+      - 🇨🇳 CN-1 | SHFX
       - 🇺🇸 US-4 | SHFX
       - 🇭🇰 HK-6 | SHFX
       - 🇸🇬 SG-1 | SHFX
-      - 🇩🇪 DE-4 | SHFX
+      - 🇩🇪 DE-1 | SHFX
       - 🇬🇧 GB-1 | SHFX
       - 🇳🇱 NL-2 | SHFX
       - 🇫🇷 FR-1 | SHFX
@@ -1924,7 +1895,7 @@ proxy-groups:
       - 🇺🇸 US-6 | SHFX
       - 🇺🇸 US-7 | SHFX
       - 🇨🇦 CA-1 | SHFX
-      - 🇩🇪 DE-5 | SHFX
+      - 🇩🇪 DE-2 | SHFX
       - 🇭🇰 HK-9 | SHFX
       - 🇭🇰 HK-10 | SHFX
       - 🇭🇰 HK-11 | SHFX
@@ -1951,8 +1922,8 @@ proxy-groups:
       - 🇺🇸 US-11 | SHFX
       - 🇺🇸 US-12 | SHFX
       - 🇺🇸 US-13 | SHFX
-      - 🇩🇪 DE-6 | SHFX
-      - 🇩🇪 DE-7 | SHFX
+      - 🇩🇪 DE-3 | SHFX
+      - 🇩🇪 DE-4 | SHFX
       - 🇭🇰 HK-15 | SHFX
       - 🇭🇰 HK-16 | SHFX
       - 🇹🇼 TW-4 | SHFX
@@ -2023,10 +1994,10 @@ proxy-groups:
       - 🇳🇱 NL-4 | SHFX
       - 🇳🇱 NL-5 | SHFX
       - 🇳🇱 NL-6 | SHFX
+      - 🇩🇪 DE-5 | SHFX
+      - 🇩🇪 DE-6 | SHFX
+      - 🇩🇪 DE-7 | SHFX
       - 🇩🇪 DE-8 | SHFX
-      - 🇩🇪 DE-9 | SHFX
-      - 🇩🇪 DE-10 | SHFX
-      - 🇩🇪 DE-11 | SHFX
       - 🇬🇧 GB-2 | SHFX
       - 🇬🇧 GB-3 | SHFX
       - 🇬🇧 GB-4 | SHFX
@@ -2086,7 +2057,7 @@ proxy-groups:
       - 🇺🇸 US-19 | SHFX
       - 🇺🇸 US-20 | SHFX
       - 🇨🇦 CA-8 | SHFX
-      - 🇩🇪 DE-12 | SHFX
+      - 🇩🇪 DE-9 | SHFX
       - 🇭🇰 HK-23 | SHFX
       - 🇭🇰 HK-24 | SHFX
       - 🇭🇰 HK-25 | SHFX
@@ -2113,8 +2084,8 @@ proxy-groups:
       - 🇺🇸 US-24 | SHFX
       - 🇺🇸 US-25 | SHFX
       - 🇺🇸 US-26 | SHFX
-      - 🇩🇪 DE-13 | SHFX
-      - 🇩🇪 DE-14 | SHFX
+      - 🇩🇪 DE-10 | SHFX
+      - 🇩🇪 DE-11 | SHFX
   - name: 自动选择⚡️
     type: url-test
     proxies:
@@ -2122,21 +2093,19 @@ proxy-groups:
       - 🇫🇮 FI-1 | SHFX
       - 🇺🇸 US-1 | SHFX
       - 🇭🇰 HK-2 | SHFX
-      - 🇺🇸 US-2 | SHFX
       - 🇭🇰 HK-3 | SHFX
       - 🇭🇰 HK-4 | SHFX
-      - 🇳🇱 NL-1 | SHFX
-      - 🇦🇿 AZ-1 | SHFX
-      - 🇺🇸 US-3 | SHFX
-      - 🇩🇪 DE-1 | SHFX
-      - 🇩🇪 DE-2 | SHFX
-      - 🇩🇪 DE-3 | SHFX
-      - 🇭🇰 HK-5 | SHFX
+      - 🇺🇸 US-2 | SHFX
       - 🇮🇪 IE-1 | SHFX
+      - 🇦🇿 AZ-1 | SHFX
+      - 🇳🇱 NL-1 | SHFX
+      - 🇭🇰 HK-5 | SHFX
+      - 🇺🇸 US-3 | SHFX
+      - 🇨🇳 CN-1 | SHFX
       - 🇺🇸 US-4 | SHFX
       - 🇭🇰 HK-6 | SHFX
       - 🇸🇬 SG-1 | SHFX
-      - 🇩🇪 DE-4 | SHFX
+      - 🇩🇪 DE-1 | SHFX
       - 🇬🇧 GB-1 | SHFX
       - 🇳🇱 NL-2 | SHFX
       - 🇫🇷 FR-1 | SHFX
@@ -2156,7 +2125,7 @@ proxy-groups:
       - 🇺🇸 US-6 | SHFX
       - 🇺🇸 US-7 | SHFX
       - 🇨🇦 CA-1 | SHFX
-      - 🇩🇪 DE-5 | SHFX
+      - 🇩🇪 DE-2 | SHFX
       - 🇭🇰 HK-9 | SHFX
       - 🇭🇰 HK-10 | SHFX
       - 🇭🇰 HK-11 | SHFX
@@ -2183,8 +2152,8 @@ proxy-groups:
       - 🇺🇸 US-11 | SHFX
       - 🇺🇸 US-12 | SHFX
       - 🇺🇸 US-13 | SHFX
-      - 🇩🇪 DE-6 | SHFX
-      - 🇩🇪 DE-7 | SHFX
+      - 🇩🇪 DE-3 | SHFX
+      - 🇩🇪 DE-4 | SHFX
       - 🇭🇰 HK-15 | SHFX
       - 🇭🇰 HK-16 | SHFX
       - 🇹🇼 TW-4 | SHFX
@@ -2255,10 +2224,10 @@ proxy-groups:
       - 🇳🇱 NL-4 | SHFX
       - 🇳🇱 NL-5 | SHFX
       - 🇳🇱 NL-6 | SHFX
+      - 🇩🇪 DE-5 | SHFX
+      - 🇩🇪 DE-6 | SHFX
+      - 🇩🇪 DE-7 | SHFX
       - 🇩🇪 DE-8 | SHFX
-      - 🇩🇪 DE-9 | SHFX
-      - 🇩🇪 DE-10 | SHFX
-      - 🇩🇪 DE-11 | SHFX
       - 🇬🇧 GB-2 | SHFX
       - 🇬🇧 GB-3 | SHFX
       - 🇬🇧 GB-4 | SHFX
@@ -2318,7 +2287,7 @@ proxy-groups:
       - 🇺🇸 US-19 | SHFX
       - 🇺🇸 US-20 | SHFX
       - 🇨🇦 CA-8 | SHFX
-      - 🇩🇪 DE-12 | SHFX
+      - 🇩🇪 DE-9 | SHFX
       - 🇭🇰 HK-23 | SHFX
       - 🇭🇰 HK-24 | SHFX
       - 🇭🇰 HK-25 | SHFX
@@ -2345,8 +2314,8 @@ proxy-groups:
       - 🇺🇸 US-24 | SHFX
       - 🇺🇸 US-25 | SHFX
       - 🇺🇸 US-26 | SHFX
-      - 🇩🇪 DE-13 | SHFX
-      - 🇩🇪 DE-14 | SHFX
+      - 🇩🇪 DE-10 | SHFX
+      - 🇩🇪 DE-11 | SHFX
     url: https://www.gstatic.com/generate_204
     interval: 300
 rules:
