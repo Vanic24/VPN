@@ -1,4 +1,4 @@
-# Last update: 03.10.2025 02:47:16
+# Last update: 03.10.2025 03:08:40
 mixed-port: 7897
 allow-lan: false
 mode: rule
@@ -121,65 +121,6 @@ dns:
       - +.googleapis.com
       - +.gvt1.com
 proxies:
-- cipher: chacha20-ietf-poly1305
-  name: 🇫🇮 FI-1 | SHFX
-  password: dAHM1pm8ag7KdlrUylQi6t
-  port: 443
-  server: promo18v.bystrivpn.ru
-  type: ss
-  udp: true
-- client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: 🇺🇸 US-1 | SHFX
-  port: 30227
-  reality-opts:
-    public-key: y0QO-mD8hrDE3rV7C8BX-gQiCANoasGKQlq2ReIVXkI
-  server: 216.133.149.235
-  servername: aws.amazon.com
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 9a54bad8-538d-4744-b7bc-640629840490
-- name: 🇺🇸 US-2 | SHFX
-  network: ws
-  port: 80
-  server: mstr.fastly80.hosting-ip.com
-  servername: gm195.io
-  skip-cert-verify: false
-  tls: false
-  type: vless
-  uuid: d46fbe10-7982-4229-b461-4afef5c690fa
-  ws-opts:
-    headers:
-      Host: gm195.io
-    path: /admin
-- alterId: 0
-  cipher: auto
-  name: 🇺🇸 US-3 | SHFX
-  network: ws
-  port: 443
-  server: 154.17.227.158
-  tls: true
-  type: vmess
-  uuid: de94cc0a-0592-4969-b1fc-97ea8f0ea0b3
-  ws-opts:
-    headers:
-      Host: us.nbee.pp.ua
-    path: /aa
-- cipher: chacha20-ietf-poly1305
-  name: 🇦🇿 AZ-1 | SHFX
-  password: 3pze4lyj8FFdDixOkf2K2oQ4rHX7Vq9xC9uKwBgvQYDNxLf8
-  port: 31348
-  server: 180.149.44.105
-  type: ss
-  udp: true
-- cipher: aes-256-cfb
-  name: 🇳🇱 NL-1 | SHFX
-  password: f8f7aCzcPKbsF8p3
-  port: 989
-  server: 51.15.17.169
-  type: ss
 - alterId: 2
   cipher: auto
   name: 🇭🇰 HK-1 | SHFX
@@ -195,21 +136,81 @@ proxies:
     headers:
       Host: hkt.gotochinatown.net
     path: /
+- alterId: 0
+  cipher: auto
+  name: 🇺🇸 US-1 | SHFX
+  network: ws
+  port: 443
+  server: 154.17.227.158
+  tls: true
+  type: vmess
+  uuid: de94cc0a-0592-4969-b1fc-97ea8f0ea0b3
+  ws-opts:
+    headers:
+      Host: us.nbee.pp.ua
+    path: /aa
+- cipher: aes-256-cfb
+  name: 🇳🇱 NL-1 | SHFX
+  password: f8f7aCzcPKbsF8p3
+  port: 989
+  server: 51.15.17.169
+  type: ss
+- name: 🇺🇸 US-2 | SHFX
+  network: ws
+  port: 80
+  server: mstr.fastly80.hosting-ip.com
+  servername: gm195.io
+  skip-cert-verify: false
+  tls: false
+  type: vless
+  udp: true
+  uuid: d46fbe10-7982-4229-b461-4afef5c690fa
+  ws-opts:
+    headers:
+      Host: gm195.io
+    path: /admin
+- cipher: chacha20-ietf-poly1305
+  name: 🇦🇿 AZ-1 | SHFX
+  password: 3pze4lyj8FFdDixOkf2K2oQ4rHX7Vq9xC9uKwBgvQYDNxLf8
+  port: 31348
+  server: 180.149.44.105
+  type: ss
+  udp: true
 - alterId: 2
   cipher: auto
+  client-fingerprint: chrome
   name: 🇭🇰 HK-2 | SHFX
   network: ws
   port: 80
   server: 1e426046-t0fds0-t12cnj-1ol97.hk.p5pv.com
-  skip-cert-verify: false
-  tfo: false
+  skip-cert-verify: true
   tls: false
   type: vmess
   uuid: 93fb69fc-77cf-11ee-85ee-f23c91369f2d
   ws-opts:
     headers:
-      Host: broadcastlv.chat.bilibili.com
+      host: 1e426046-t0fds0-t12cnj-1ol97.hk.p5pv.com
     path: /
+- cipher: chacha20-ietf-poly1305
+  name: 🇫🇮 FI-1 | SHFX
+  password: dAHM1pm8ag7KdlrUylQi6t
+  port: 443
+  server: promo18v.bystrivpn.ru
+  type: ss
+  udp: true
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: 🇺🇸 US-3 | SHFX
+  port: 30227
+  reality-opts:
+    public-key: y0QO-mD8hrDE3rV7C8BX-gQiCANoasGKQlq2ReIVXkI
+  server: 216.133.149.235
+  servername: aws.amazon.com
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 9a54bad8-538d-4744-b7bc-640629840490
 - alterId: 2
   cipher: auto
   name: 🇭🇰 HK-3 | SHFX
@@ -224,13 +225,6 @@ proxies:
     headers:
       Host: eb362f92-svukg0-t12cnj-1ol97.hk.p5pv.com
     path: /
-- cipher: aes-256-cfb
-  name: 🇻🇳 VN-1 | SHFX
-  password: Xn8jKdmDM00IeO%#$#fJAMtsEAEUOpH/YWYtYqDFnT0SV
-  port: 38388
-  server: 103.186.154.198
-  tfo: false
-  type: ss
 - client-fingerprint: chrome
   flow: xtls-rprx-vision
   name: 🇮🇪 IE-1 | SHFX
@@ -245,15 +239,13 @@ proxies:
   type: vless
   udp: true
   uuid: bf9b316d-31ac-42ee-b8a5-8dc795118917
-- alterId: 0
-  cipher: auto
-  name: 🇨🇳 CN-1 | SHFX
-  network: tcp
-  port: 50007
-  server: 112.132.215.34
-  skip-cert-verify: true
-  type: vmess
-  uuid: 418048af-a293-4b99-9b0c-98ca3580dd24
+- cipher: aes-256-cfb
+  name: 🇻🇳 VN-1 | SHFX
+  password: Xn8jKdmDM00IeO%#$#fJAMtsEAEUOpH/YWYtYqDFnT0SV
+  port: 38388
+  server: 103.186.154.198
+  tfo: false
+  type: ss
 - name: 🇺🇸 US-4 | SHFX
   password: 571ec94e-613c-430a-93de-397d3d237475
   port: 22151
@@ -1831,18 +1823,17 @@ proxy-groups:
     type: select
     proxies:
       - 自动选择⚡️
-      - 🇫🇮 FI-1 | SHFX
-      - 🇺🇸 US-1 | SHFX
-      - 🇺🇸 US-2 | SHFX
-      - 🇺🇸 US-3 | SHFX
-      - 🇦🇿 AZ-1 | SHFX
-      - 🇳🇱 NL-1 | SHFX
       - 🇭🇰 HK-1 | SHFX
+      - 🇺🇸 US-1 | SHFX
+      - 🇳🇱 NL-1 | SHFX
+      - 🇺🇸 US-2 | SHFX
+      - 🇦🇿 AZ-1 | SHFX
       - 🇭🇰 HK-2 | SHFX
+      - 🇫🇮 FI-1 | SHFX
+      - 🇺🇸 US-3 | SHFX
       - 🇭🇰 HK-3 | SHFX
-      - 🇻🇳 VN-1 | SHFX
       - 🇮🇪 IE-1 | SHFX
-      - 🇨🇳 CN-1 | SHFX
+      - 🇻🇳 VN-1 | SHFX
       - 🇺🇸 US-4 | SHFX
       - 🇭🇰 HK-4 | SHFX
       - 🇸🇬 SG-1 | SHFX
@@ -2060,18 +2051,17 @@ proxy-groups:
   - name: 自动选择⚡️
     type: url-test
     proxies:
-      - 🇫🇮 FI-1 | SHFX
-      - 🇺🇸 US-1 | SHFX
-      - 🇺🇸 US-2 | SHFX
-      - 🇺🇸 US-3 | SHFX
-      - 🇦🇿 AZ-1 | SHFX
-      - 🇳🇱 NL-1 | SHFX
       - 🇭🇰 HK-1 | SHFX
+      - 🇺🇸 US-1 | SHFX
+      - 🇳🇱 NL-1 | SHFX
+      - 🇺🇸 US-2 | SHFX
+      - 🇦🇿 AZ-1 | SHFX
       - 🇭🇰 HK-2 | SHFX
+      - 🇫🇮 FI-1 | SHFX
+      - 🇺🇸 US-3 | SHFX
       - 🇭🇰 HK-3 | SHFX
-      - 🇻🇳 VN-1 | SHFX
       - 🇮🇪 IE-1 | SHFX
-      - 🇨🇳 CN-1 | SHFX
+      - 🇻🇳 VN-1 | SHFX
       - 🇺🇸 US-4 | SHFX
       - 🇭🇰 HK-4 | SHFX
       - 🇸🇬 SG-1 | SHFX
