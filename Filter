@@ -1,4 +1,4 @@
-# Last update: 02.10.2025 18:06:30
+# Last update: 02.10.2025 19:01:40
 mixed-port: 7897
 allow-lan: false
 mode: rule
@@ -151,16 +151,6 @@ proxies:
     path: /?ed=2560
 - alterId: 0
   cipher: auto
-  name: 🇲🇾 MY-1 | SHFX
-  network: tcp
-  port: 2052
-  server: 38.54.98.110
-  skip-cert-verify: true
-  tls: true
-  type: vmess
-  uuid: 665d9b8f-153d-4907-adac-de12afd9c851
-- alterId: 0
-  cipher: auto
   name: 🇺🇸 US-2 | SHFX
   network: ws
   port: 443
@@ -172,6 +162,29 @@ proxies:
     headers:
       Host: us.nbee.pp.ua
     path: /aa
+- alterId: 0
+  cipher: auto
+  name: 🇲🇾 MY-1 | SHFX
+  network: tcp
+  port: 2052
+  server: 38.54.98.110
+  skip-cert-verify: true
+  tls: true
+  type: vmess
+  uuid: 665d9b8f-153d-4907-adac-de12afd9c851
+- alterId: 0
+  cipher: auto
+  name: 🇭🇰 HK-1 | SHFX
+  network: ws
+  port: 80
+  server: c004e6fe-t1i9s0-tm53cm-1ol97.hkt.tcpbbr.net
+  skip-cert-verify: true
+  type: vmess
+  uuid: 93fb69fc-77cf-11ee-85ee-f23c91369f2d
+  ws-opts:
+    headers:
+      Host: c004e6fe-t1i9s0-tm53cm-1ol97.hkt.tcpbbr.net
+    path: /
 - alpn:
   - h2
   - http/1.1
@@ -190,26 +203,20 @@ proxies:
     headers:
       Host: smits.feronix.org
     path: /
-- alterId: 0
-  cipher: auto
-  name: 🇭🇰 HK-1 | SHFX
-  network: ws
-  port: 80
-  server: c004e6fe-t1i9s0-tm53cm-1ol97.hkt.tcpbbr.net
-  skip-cert-verify: true
-  type: vmess
-  uuid: 93fb69fc-77cf-11ee-85ee-f23c91369f2d
-  ws-opts:
-    headers:
-      Host: c004e6fe-t1i9s0-tm53cm-1ol97.hkt.tcpbbr.net
-    path: /
-- cipher: chacha20-ietf-poly1305
-  name: 🇧🇷 BR-1 | SHFX
-  password: xdEo6hyA8x6cj79qVQmYAo
-  port: 8756
-  server: 170.80.109.204
-  type: ss
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: 🇮🇪 IE-1 | SHFX
+  port: 36678
+  reality-opts:
+    public-key: rrGm0NemTtGQ8Vrd2AzB7pSoW_kYtqYvhRxsx_MtwG0
+    short-id: 5d20
+  server: 192.210.183.136
+  servername: swdist.apple.com
+  skip-cert-verify: false
+  tls: true
+  type: vless
   udp: true
+  uuid: bf9b316d-31ac-42ee-b8a5-8dc795118917
 - name: 🇺🇸 US-4 | SHFX
   network: ws
   port: 80
@@ -224,6 +231,13 @@ proxies:
     headers:
       Host: gm195.io
     path: /admin
+- cipher: chacha20-ietf-poly1305
+  name: 🇧🇷 BR-1 | SHFX
+  password: xdEo6hyA8x6cj79qVQmYAo
+  port: 8756
+  server: 170.80.109.204
+  type: ss
+  udp: true
 - client-fingerprint: chrome
   flow: xtls-rprx-vision
   name: 🇮🇱 IL-1 | SHFX
@@ -238,19 +252,6 @@ proxies:
   type: vless
   udp: true
   uuid: 0e8a6896-ad90-4a3b-89a3-77d64aa409e2
-- alterId: 2
-  cipher: auto
-  name: 🇨🇳 CN-1 | SHFX
-  network: ws
-  port: 30808
-  server: v8.heduian.link
-  skip-cert-verify: true
-  type: vmess
-  uuid: cbb3f877-d1fb-344c-87a9-d153bffd5484
-  ws-opts:
-    headers:
-      Host: v8.heduian.link
-    path: /oooo
 - cipher: aes-256-cfb
   name: 🇻🇳 VN-1 | SHFX
   password: Xn8jKdmDM00IeO%#$#fJAMtsEAEUOpH/YWYtYqDFnT0SV
@@ -259,21 +260,139 @@ proxies:
   tfo: false
   type: ss
 - alterId: 0
-  cipher: auto
-  name: 🇰🇷 KR-1 | SHFX
-  network: ws
-  port: 50001
-  server: 220.92.146.161
+  name: 🇨🇳 CN-1 | SHFX
+  password: 2fd0d127-266d-4d0b-b453-f94659a132fc
+  port: 12000
+  server: 106.75.134.1
   skip-cert-verify: true
+  sni: aliyun.com
   tls: true
+  type: trojan
+  udp: true
+- alterId: 0
+  cipher: auto
+  name: 🇨🇳 CN-2 | SHFX
+  network: tcp
+  port: 50007
+  server: 112.132.215.34
+  skip-cert-verify: true
   type: vmess
-  uuid: ffde381b-4a30-41d4-90eb-151f228b06ea
-  ws-opts:
-    headers:
-      Host: aa.nbee.pp.ua
-    path: /qq
+  uuid: 418048af-a293-4b99-9b0c-98ca3580dd24
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: 🇺🇸 US-5 | SHFX
+  port: 30227
+  reality-opts:
+    public-key: y0QO-mD8hrDE3rV7C8BX-gQiCANoasGKQlq2ReIVXkI
+  server: 216.133.149.235
+  servername: aws.amazon.com
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 9a54bad8-538d-4744-b7bc-640629840490
+- name: 🇺🇸 US-6 | SHFX
+  password: 571ec94e-613c-430a-93de-397d3d237475
+  port: 22151
+  server: hsmg.huasuan666.top
+  skip-cert-verify: true
+  tls:
+    enabled: true
+    insecure: true
+    server_name: hsmg.huasuan666.top
+  type: hysteria2
 - name: 🇭🇰 HK-2 | SHFX
-  password: 296384a4-4b53-4389-bb97-895735277cff
+  password: 571ec94e-613c-430a-93de-397d3d237475
+  port: 22153
+  server: hsxg.huasuan666.top
+  skip-cert-verify: true
+  tls:
+    enabled: true
+    insecure: true
+    server_name: hsxg.huasuan666.top
+  type: hysteria2
+- name: 🇸🇬 SG-1 | SHFX
+  password: 571ec94e-613c-430a-93de-397d3d237475
+  port: 22154
+  server: hsxjp.huasuan666.top
+  skip-cert-verify: true
+  tls:
+    enabled: true
+    insecure: true
+    server_name: hsxjp.huasuan666.top
+  type: hysteria2
+- name: 🇩🇪 DE-1 | SHFX
+  password: 571ec94e-613c-430a-93de-397d3d237475
+  port: 22155
+  server: hsdg.huasuan666.top
+  skip-cert-verify: true
+  tls:
+    enabled: true
+    insecure: true
+    server_name: hsdg.huasuan666.top
+  type: hysteria2
+- name: 🇬🇧 GB-1 | SHFX
+  password: 571ec94e-613c-430a-93de-397d3d237475
+  port: 22156
+  server: hsyg.huasuan666.top
+  skip-cert-verify: true
+  tls:
+    enabled: true
+    insecure: true
+    server_name: hsyg.huasuan666.top
+  type: hysteria2
+- name: 🇳🇱 NL-2 | SHFX
+  password: 571ec94e-613c-430a-93de-397d3d237475
+  port: 22157
+  server: hshl.huasuan666.top
+  skip-cert-verify: true
+  tls:
+    enabled: true
+    insecure: true
+    server_name: hshl.huasuan666.top
+  type: hysteria2
+- name: 🇫🇷 FR-1 | SHFX
+  password: 571ec94e-613c-430a-93de-397d3d237475
+  port: 22158
+  server: hsfg.huasuan666.top
+  skip-cert-verify: true
+  tls:
+    enabled: true
+    insecure: true
+    server_name: hsfg.huasuan666.top
+  type: hysteria2
+- name: 🇦🇺 AU-1 | SHFX
+  password: 571ec94e-613c-430a-93de-397d3d237475
+  port: 22159
+  server: hsadly.huasuan666.top
+  skip-cert-verify: true
+  tls:
+    enabled: true
+    insecure: true
+    server_name: hsadly.huasuan666.top
+  type: hysteria2
+- name: 🇷🇺 RU-1 | SHFX
+  password: 571ec94e-613c-430a-93de-397d3d237475
+  port: 22160
+  server: hsels.huasuan666.top
+  skip-cert-verify: true
+  tls:
+    enabled: true
+    insecure: true
+    server_name: hsels.huasuan666.top
+  type: hysteria2
+- name: 🇯🇵 JP-1 | SHFX
+  password: 571ec94e-613c-430a-93de-397d3d237475
+  port: 22161
+  server: hsrb.huasuan666.top
+  skip-cert-verify: true
+  tls:
+    enabled: true
+    insecure: true
+    server_name: hsrb.huasuan666.top
+  type: hysteria2
+- name: 🇭🇰 HK-3 | SHFX
+  password: 1a2da8ce-5e00-4d31-ad49-ed4a23420654
   port: 50001
   server: hk1.jueduibupao.top
   skip-cert-verify: true
@@ -282,9 +401,9 @@ proxies:
     insecure: true
     server_name: hk1.jueduibupao.top
   type: hysteria2
-- name: 🇭🇰 HK-3 | SHFX
-  password: 296384a4-4b53-4389-bb97-895735277cff
-  port: 41733
+- name: 🇭🇰 HK-4 | SHFX
+  password: 1a2da8ce-5e00-4d31-ad49-ed4a23420654
+  port: 48819
   server: hk2.jueduibupao.top
   skip-cert-verify: true
   tls:
@@ -292,9 +411,9 @@ proxies:
     insecure: true
     server_name: hk2.jueduibupao.top
   type: hysteria2
-- name: 🇸🇬 SG-1 | SHFX
-  password: 296384a4-4b53-4389-bb97-895735277cff
-  port: 40595
+- name: 🇸🇬 SG-2 | SHFX
+  password: 1a2da8ce-5e00-4d31-ad49-ed4a23420654
+  port: 46321
   server: linsg1.jueduibupao.top
   skip-cert-verify: true
   tls:
@@ -303,7 +422,7 @@ proxies:
     server_name: linsg1.jueduibupao.top
   type: hysteria2
 - name: 🇹🇼 TW-1 | SHFX
-  password: 296384a4-4b53-4389-bb97-895735277cff
+  password: 1a2da8ce-5e00-4d31-ad49-ed4a23420654
   port: 30078
   server: tw2.jueduibupao.top
   skip-cert-verify: true
@@ -312,8 +431,8 @@ proxies:
     insecure: true
     server_name: tw2.jueduibupao.top
   type: hysteria2
-- name: 🇯🇵 JP-1 | SHFX
-  password: 296384a4-4b53-4389-bb97-895735277cff
+- name: 🇯🇵 JP-2 | SHFX
+  password: 1a2da8ce-5e00-4d31-ad49-ed4a23420654
   port: 30000
   server: linjp2.jueduibupao.top
   skip-cert-verify: true
@@ -322,9 +441,9 @@ proxies:
     insecure: true
     server_name: linjp2.jueduibupao.top
   type: hysteria2
-- name: 🇯🇵 JP-2 | SHFX
-  password: 296384a4-4b53-4389-bb97-895735277cff
-  port: 49680
+- name: 🇯🇵 JP-3 | SHFX
+  password: 1a2da8ce-5e00-4d31-ad49-ed4a23420654
+  port: 41897
   server: linjp1.jueduibupao.top
   skip-cert-verify: true
   tls:
@@ -332,8 +451,8 @@ proxies:
     insecure: true
     server_name: linjp1.jueduibupao.top
   type: hysteria2
-- name: 🇰🇷 KR-2 | SHFX
-  password: 296384a4-4b53-4389-bb97-895735277cff
+- name: 🇰🇷 KR-1 | SHFX
+  password: 1a2da8ce-5e00-4d31-ad49-ed4a23420654
   port: 10100
   server: 6bkr1.6bnw.top
   skip-cert-verify: true
@@ -342,8 +461,8 @@ proxies:
     insecure: true
     server_name: 6bkr1.6bnw.top
   type: hysteria2
-- name: 🇰🇷 KR-3 | SHFX
-  password: 296384a4-4b53-4389-bb97-895735277cff
+- name: 🇰🇷 KR-2 | SHFX
+  password: 1a2da8ce-5e00-4d31-ad49-ed4a23420654
   port: 30000
   server: kr2.jueduibupao.top
   skip-cert-verify: true
@@ -353,7 +472,7 @@ proxies:
     server_name: kr2.jueduibupao.top
   type: hysteria2
 - name: 🇹🇭 TH-1 | SHFX
-  password: 296384a4-4b53-4389-bb97-895735277cff
+  password: 1a2da8ce-5e00-4d31-ad49-ed4a23420654
   port: 30000
   server: th1.jueduibupao.top
   skip-cert-verify: true
@@ -362,8 +481,8 @@ proxies:
     insecure: true
     server_name: th1.jueduibupao.top
   type: hysteria2
-- name: 🇺🇸 US-5 | SHFX
-  password: 296384a4-4b53-4389-bb97-895735277cff
+- name: 🇺🇸 US-7 | SHFX
+  password: 1a2da8ce-5e00-4d31-ad49-ed4a23420654
   port: 50001
   server: lvs.jueduibupao.top
   skip-cert-verify: true
@@ -372,8 +491,8 @@ proxies:
     insecure: true
     server_name: lvs.jueduibupao.top
   type: hysteria2
-- name: 🇺🇸 US-6 | SHFX
-  password: 296384a4-4b53-4389-bb97-895735277cff
+- name: 🇺🇸 US-8 | SHFX
+  password: 1a2da8ce-5e00-4d31-ad49-ed4a23420654
   port: 50001
   server: ny.jueduibupao.top
   skip-cert-verify: true
@@ -382,8 +501,8 @@ proxies:
     insecure: true
     server_name: ny.jueduibupao.top
   type: hysteria2
-- name: 🇺🇸 US-7 | SHFX
-  password: 296384a4-4b53-4389-bb97-895735277cff
+- name: 🇺🇸 US-9 | SHFX
+  password: 1a2da8ce-5e00-4d31-ad49-ed4a23420654
   port: 20101
   server: azcus1.jueduibupao.top
   skip-cert-verify: true
@@ -393,8 +512,8 @@ proxies:
     server_name: azcus1.jueduibupao.top
   type: hysteria2
 - name: 🇨🇦 CA-1 | SHFX
-  password: 296384a4-4b53-4389-bb97-895735277cff
-  port: 41009
+  password: 1a2da8ce-5e00-4d31-ad49-ed4a23420654
+  port: 41126
   server: ca1.jueduibupao.top
   skip-cert-verify: true
   tls:
@@ -402,9 +521,9 @@ proxies:
     insecure: true
     server_name: ca1.jueduibupao.top
   type: hysteria2
-- name: 🇩🇪 DE-1 | SHFX
-  password: 296384a4-4b53-4389-bb97-895735277cff
-  port: 43148
+- name: 🇩🇪 DE-2 | SHFX
+  password: 1a2da8ce-5e00-4d31-ad49-ed4a23420654
+  port: 45641
   server: de1.jueduibupao.top
   skip-cert-verify: true
   tls:
@@ -413,73 +532,73 @@ proxies:
     server_name: de1.jueduibupao.top
   type: hysteria2
 - cipher: aes-256-cfb
-  name: 🇭🇰 HK-4 | SHFX
+  name: 🇭🇰 HK-5 | SHFX
   password: ''
   port: 29527
   server: hzhz1.sssyun.xyz
   type: ss
 - cipher: aes-256-cfb
-  name: 🇭🇰 HK-5 | SHFX
+  name: 🇭🇰 HK-6 | SHFX
   password: ''
   port: 40010
   server: hzhz2.sssyun.xyz
   type: ss
 - cipher: aes-256-cfb
-  name: 🇭🇰 HK-6 | SHFX
+  name: 🇭🇰 HK-7 | SHFX
   password: ''
   port: 19527
   server: hzhz1.sssyun.xyz
   type: ss
 - cipher: aes-256-cfb
-  name: 🇭🇰 HK-7 | SHFX
+  name: 🇭🇰 HK-8 | SHFX
   password: ''
   port: 40023
   server: hzhz2.sssyun.xyz
   type: ss
 - cipher: aes-256-cfb
-  name: 🇭🇰 HK-8 | SHFX
+  name: 🇭🇰 HK-9 | SHFX
   password: ''
   port: 39301
   server: hzhz1.sssyun.xyz
   type: ss
 - cipher: aes-256-cfb
-  name: 🇭🇰 HK-9 | SHFX
+  name: 🇭🇰 HK-10 | SHFX
   password: ''
   port: 40011
   server: hzhz2.sssyun.xyz
   type: ss
 - cipher: aes-256-cfb
-  name: 🇸🇬 SG-2 | SHFX
+  name: 🇸🇬 SG-3 | SHFX
   password: ''
   port: 39204
   server: hzhz1.sssyun.xyz
   type: ss
 - cipher: aes-256-cfb
-  name: 🇸🇬 SG-3 | SHFX
+  name: 🇸🇬 SG-4 | SHFX
   password: ''
   port: 40013
   server: hzhz2.sssyun.xyz
   type: ss
 - cipher: aes-256-cfb
-  name: 🇸🇬 SG-4 | SHFX
+  name: 🇸🇬 SG-5 | SHFX
   password: ''
   port: 39505
   server: hzhz1.sssyun.xyz
   type: ss
 - cipher: aes-256-cfb
-  name: 🇸🇬 SG-5 | SHFX
+  name: 🇸🇬 SG-6 | SHFX
   password: ''
   port: 44014
   server: hzhz2.sssyun.xyz
   type: ss
 - cipher: aes-256-cfb
-  name: 🇰🇷 KR-4 | SHFX
+  name: 🇰🇷 KR-3 | SHFX
   password: ''
   port: 39206
   server: hzhz1.sssyun.xyz
   type: ss
 - cipher: aes-256-cfb
-  name: 🇰🇷 KR-5 | SHFX
+  name: 🇰🇷 KR-4 | SHFX
   password: ''
   port: 20116
   server: hzhz2.sssyun.xyz
@@ -497,25 +616,25 @@ proxies:
   server: hzhz2.sssyun.xyz
   type: ss
 - cipher: aes-256-cfb
-  name: 🇯🇵 JP-3 | SHFX
+  name: 🇯🇵 JP-4 | SHFX
   password: ''
   port: 19529
   server: hzhz1.sssyun.xyz
   type: ss
 - cipher: aes-256-cfb
-  name: 🇯🇵 JP-4 | SHFX
+  name: 🇯🇵 JP-5 | SHFX
   password: ''
   port: 40019
   server: hzhz2.sssyun.xyz
   type: ss
 - cipher: aes-256-cfb
-  name: 🇯🇵 JP-5 | SHFX
+  name: 🇯🇵 JP-6 | SHFX
   password: ''
   port: 49207
   server: hzhz1.sssyun.xyz
   type: ss
 - cipher: aes-256-cfb
-  name: 🇯🇵 JP-6 | SHFX
+  name: 🇯🇵 JP-7 | SHFX
   password: ''
   port: 40020
   server: hzhz2.sssyun.xyz
@@ -533,66 +652,57 @@ proxies:
   server: hzhz2.sssyun.xyz
   type: ss
 - cipher: aes-256-cfb
-  name: 🇺🇸 US-8 | SHFX
+  name: 🇺🇸 US-10 | SHFX
   password: ''
   port: 12980
   server: hzhz1.sssyun.xyz
   type: ss
 - cipher: aes-256-cfb
-  name: 🇺🇸 US-9 | SHFX
+  name: 🇺🇸 US-11 | SHFX
   password: ''
   port: 12981
   server: hzhz2.sssyun.xyz
   type: ss
 - cipher: aes-256-cfb
-  name: 🇺🇸 US-10 | SHFX
+  name: 🇺🇸 US-12 | SHFX
   password: ''
   port: 12983
   server: hzhz1.sssyun.xyz
   type: ss
 - cipher: aes-256-cfb
-  name: 🇺🇸 US-11 | SHFX
+  name: 🇺🇸 US-13 | SHFX
   password: ''
   port: 12984
   server: hzhz2.sssyun.xyz
   type: ss
 - cipher: aes-256-cfb
-  name: 🇺🇸 US-12 | SHFX
+  name: 🇺🇸 US-14 | SHFX
   password: ''
   port: 39203
   server: hzhz1.sssyun.xyz
   type: ss
 - cipher: aes-256-cfb
-  name: 🇺🇸 US-13 | SHFX
+  name: 🇺🇸 US-15 | SHFX
   password: ''
   port: 40022
   server: hzhz2.sssyun.xyz
   type: ss
 - cipher: aes-256-cfb
-  name: 🇩🇪 DE-2 | SHFX
+  name: 🇩🇪 DE-3 | SHFX
   password: ''
   port: 39987
   server: hzhz1.sssyun.xyz
   type: ss
 - cipher: aes-256-cfb
-  name: 🇩🇪 DE-3 | SHFX
+  name: 🇩🇪 DE-4 | SHFX
   password: ''
   port: 39981
   server: hzhz2.sssyun.xyz
   type: ss
-- name: 🇭🇰 HK-10 | SHFX
-  password: 5f1319ce-7b84-4244-81a4-95ae888864c2
-  port: 21085
-  server: yue-hk.yuetoto.net
-  skip-cert-verify: true
-  tls:
-    enabled: true
-    server_name: 'null'
-  type: hysteria2
 - name: 🇭🇰 HK-11 | SHFX
-  password: 5f1319ce-7b84-4244-81a4-95ae888864c2
-  port: 21039
-  server: yue-hk.yuetoto.net
+  password: cbbd4e92-d29d-496c-bc4c-4206a45f7f1e
+  port: 21032
+  server: yue-hk-premium.yuetoto.net
   skip-cert-verify: true
   tls:
     enabled: true
@@ -601,58 +711,28 @@ proxies:
 - cipher: aes-256-cfb
   name: 🇭🇰 HK-12 | SHFX
   password: ''
-  port: 22001
-  server: yue-zz.yuetoto.net
-  type: ss
-- cipher: aes-256-cfb
-  name: 🇭🇰 HK-13 | SHFX
-  password: ''
-  port: 22002
-  server: yue-zz.yuetoto.net
+  port: 28001
+  server: yue-zz-premium.yuetoto.net
   type: ss
 - name: 🇹🇼 TW-4 | SHFX
-  password: 5f1319ce-7b84-4244-81a4-95ae888864c2
-  port: 21086
-  server: yue-tw.yuetoto.net
-  skip-cert-verify: true
-  tls:
-    enabled: true
-    server_name: 'null'
-  type: hysteria2
-- name: 🇹🇼 TW-5 | SHFX
-  password: 5f1319ce-7b84-4244-81a4-95ae888864c2
-  port: 21009
-  server: yue-tw.yuetoto.net
+  password: cbbd4e92-d29d-496c-bc4c-4206a45f7f1e
+  port: 21028
+  server: yue-tw-premium.yuetoto.net
   skip-cert-verify: true
   tls:
     enabled: true
     server_name: 'null'
   type: hysteria2
 - cipher: aes-256-cfb
-  name: 🇹🇼 TW-6 | SHFX
+  name: 🇹🇼 TW-5 | SHFX
   password: ''
-  port: 22003
-  server: yue-zz.yuetoto.net
+  port: 28002
+  server: yue-zz-premium.yuetoto.net
   type: ss
-- cipher: aes-256-cfb
-  name: 🇹🇼 TW-7 | SHFX
-  password: ''
-  port: 22004
-  server: yue-zz.yuetoto.net
-  type: ss
-- name: 🇯🇵 JP-7 | SHFX
-  password: 5f1319ce-7b84-4244-81a4-95ae888864c2
-  port: 21092
-  server: yue-jp.yuetoto.net
-  skip-cert-verify: true
-  tls:
-    enabled: true
-    server_name: 'null'
-  type: hysteria2
 - name: 🇯🇵 JP-8 | SHFX
-  password: 5f1319ce-7b84-4244-81a4-95ae888864c2
-  port: 21024
-  server: yue-jp.yuetoto.net
+  password: cbbd4e92-d29d-496c-bc4c-4206a45f7f1e
+  port: 21067
+  server: yue-jp-premium.yuetoto.net
   skip-cert-verify: true
   tls:
     enabled: true
@@ -661,58 +741,28 @@ proxies:
 - cipher: aes-256-cfb
   name: 🇯🇵 JP-9 | SHFX
   password: ''
-  port: 22005
-  server: yue-zz.yuetoto.net
+  port: 28003
+  server: yue-zz-premium.yuetoto.net
   type: ss
-- cipher: aes-256-cfb
-  name: 🇯🇵 JP-10 | SHFX
-  password: ''
-  port: 22006
-  server: yue-zz.yuetoto.net
-  type: ss
-- name: 🇰🇷 KR-6 | SHFX
-  password: 5f1319ce-7b84-4244-81a4-95ae888864c2
-  port: 21004
-  server: yue-kr.yuetoto.net
-  skip-cert-verify: true
-  tls:
-    enabled: true
-    server_name: 'null'
-  type: hysteria2
-- name: 🇰🇷 KR-7 | SHFX
-  password: 5f1319ce-7b84-4244-81a4-95ae888864c2
-  port: 21048
-  server: yue-kr.yuetoto.net
+- name: 🇰🇷 KR-5 | SHFX
+  password: cbbd4e92-d29d-496c-bc4c-4206a45f7f1e
+  port: 21058
+  server: yue-kr-premium.yuetoto.net
   skip-cert-verify: true
   tls:
     enabled: true
     server_name: 'null'
   type: hysteria2
 - cipher: aes-256-cfb
-  name: 🇰🇷 KR-8 | SHFX
+  name: 🇰🇷 KR-6 | SHFX
   password: ''
-  port: 22007
-  server: yue-zz.yuetoto.net
+  port: 28004
+  server: yue-zz-premium.yuetoto.net
   type: ss
-- cipher: aes-256-cfb
-  name: 🇰🇷 KR-9 | SHFX
-  password: ''
-  port: 22008
-  server: yue-zz.yuetoto.net
-  type: ss
-- name: 🇸🇬 SG-6 | SHFX
-  password: 5f1319ce-7b84-4244-81a4-95ae888864c2
-  port: 21049
-  server: yue-sg.yuetoto.net
-  skip-cert-verify: true
-  tls:
-    enabled: true
-    server_name: 'null'
-  type: hysteria2
 - name: 🇸🇬 SG-7 | SHFX
-  password: 5f1319ce-7b84-4244-81a4-95ae888864c2
-  port: 21051
-  server: yue-sg.yuetoto.net
+  password: cbbd4e92-d29d-496c-bc4c-4206a45f7f1e
+  port: 21038
+  server: yue-sg-premium.yuetoto.net
   skip-cert-verify: true
   tls:
     enabled: true
@@ -721,27 +771,171 @@ proxies:
 - cipher: aes-256-cfb
   name: 🇸🇬 SG-8 | SHFX
   password: ''
+  port: 28005
+  server: yue-zz-premium.yuetoto.net
+  type: ss
+- name: 🇭🇰 HK-13 | SHFX
+  password: cbbd4e92-d29d-496c-bc4c-4206a45f7f1e
+  port: 21071
+  server: yue-hk.yuetoto.net
+  skip-cert-verify: true
+  tls:
+    enabled: true
+    server_name: 'null'
+  type: hysteria2
+- name: 🇭🇰 HK-14 | SHFX
+  password: cbbd4e92-d29d-496c-bc4c-4206a45f7f1e
+  port: 21078
+  server: yue-hk.yuetoto.net
+  skip-cert-verify: true
+  tls:
+    enabled: true
+    server_name: 'null'
+  type: hysteria2
+- cipher: aes-256-cfb
+  name: 🇭🇰 HK-15 | SHFX
+  password: ''
+  port: 22001
+  server: yue-zz.yuetoto.net
+  type: ss
+- cipher: aes-256-cfb
+  name: 🇭🇰 HK-16 | SHFX
+  password: ''
+  port: 22002
+  server: yue-zz.yuetoto.net
+  type: ss
+- name: 🇹🇼 TW-6 | SHFX
+  password: cbbd4e92-d29d-496c-bc4c-4206a45f7f1e
+  port: 21033
+  server: yue-tw.yuetoto.net
+  skip-cert-verify: true
+  tls:
+    enabled: true
+    server_name: 'null'
+  type: hysteria2
+- name: 🇹🇼 TW-7 | SHFX
+  password: cbbd4e92-d29d-496c-bc4c-4206a45f7f1e
+  port: 21091
+  server: yue-tw.yuetoto.net
+  skip-cert-verify: true
+  tls:
+    enabled: true
+    server_name: 'null'
+  type: hysteria2
+- cipher: aes-256-cfb
+  name: 🇹🇼 TW-8 | SHFX
+  password: ''
+  port: 22003
+  server: yue-zz.yuetoto.net
+  type: ss
+- cipher: aes-256-cfb
+  name: 🇹🇼 TW-9 | SHFX
+  password: ''
+  port: 22004
+  server: yue-zz.yuetoto.net
+  type: ss
+- name: 🇯🇵 JP-10 | SHFX
+  password: cbbd4e92-d29d-496c-bc4c-4206a45f7f1e
+  port: 21013
+  server: yue-jp.yuetoto.net
+  skip-cert-verify: true
+  tls:
+    enabled: true
+    server_name: 'null'
+  type: hysteria2
+- name: 🇯🇵 JP-11 | SHFX
+  password: cbbd4e92-d29d-496c-bc4c-4206a45f7f1e
+  port: 21076
+  server: yue-jp.yuetoto.net
+  skip-cert-verify: true
+  tls:
+    enabled: true
+    server_name: 'null'
+  type: hysteria2
+- cipher: aes-256-cfb
+  name: 🇯🇵 JP-12 | SHFX
+  password: ''
+  port: 22005
+  server: yue-zz.yuetoto.net
+  type: ss
+- cipher: aes-256-cfb
+  name: 🇯🇵 JP-13 | SHFX
+  password: ''
+  port: 22006
+  server: yue-zz.yuetoto.net
+  type: ss
+- name: 🇰🇷 KR-7 | SHFX
+  password: cbbd4e92-d29d-496c-bc4c-4206a45f7f1e
+  port: 21089
+  server: yue-kr.yuetoto.net
+  skip-cert-verify: true
+  tls:
+    enabled: true
+    server_name: 'null'
+  type: hysteria2
+- name: 🇰🇷 KR-8 | SHFX
+  password: cbbd4e92-d29d-496c-bc4c-4206a45f7f1e
+  port: 21039
+  server: yue-kr.yuetoto.net
+  skip-cert-verify: true
+  tls:
+    enabled: true
+    server_name: 'null'
+  type: hysteria2
+- cipher: aes-256-cfb
+  name: 🇰🇷 KR-9 | SHFX
+  password: ''
+  port: 22007
+  server: yue-zz.yuetoto.net
+  type: ss
+- cipher: aes-256-cfb
+  name: 🇰🇷 KR-10 | SHFX
+  password: ''
+  port: 22008
+  server: yue-zz.yuetoto.net
+  type: ss
+- name: 🇸🇬 SG-9 | SHFX
+  password: cbbd4e92-d29d-496c-bc4c-4206a45f7f1e
+  port: 21021
+  server: yue-sg.yuetoto.net
+  skip-cert-verify: true
+  tls:
+    enabled: true
+    server_name: 'null'
+  type: hysteria2
+- name: 🇸🇬 SG-10 | SHFX
+  password: cbbd4e92-d29d-496c-bc4c-4206a45f7f1e
+  port: 21005
+  server: yue-sg.yuetoto.net
+  skip-cert-verify: true
+  tls:
+    enabled: true
+    server_name: 'null'
+  type: hysteria2
+- cipher: aes-256-cfb
+  name: 🇸🇬 SG-11 | SHFX
+  password: ''
   port: 22009
   server: yue-zz.yuetoto.net
   type: ss
 - cipher: aes-256-cfb
-  name: 🇸🇬 SG-9 | SHFX
+  name: 🇸🇬 SG-12 | SHFX
   password: ''
   port: 22010
   server: yue-zz.yuetoto.net
   type: ss
-- name: 🇺🇸 US-14 | SHFX
-  password: 5f1319ce-7b84-4244-81a4-95ae888864c2
-  port: 21089
+- name: 🇺🇸 US-16 | SHFX
+  password: cbbd4e92-d29d-496c-bc4c-4206a45f7f1e
+  port: 21008
   server: yue-us.yuetoto.net
   skip-cert-verify: true
   tls:
     enabled: true
     server_name: 'null'
   type: hysteria2
-- name: 🇺🇸 US-15 | SHFX
-  password: 5f1319ce-7b84-4244-81a4-95ae888864c2
-  port: 21068
+- name: 🇺🇸 US-17 | SHFX
+  password: cbbd4e92-d29d-496c-bc4c-4206a45f7f1e
+  port: 21074
   server: yue-us.yuetoto.net
   skip-cert-verify: true
   tls:
@@ -749,20 +943,20 @@ proxies:
     server_name: 'null'
   type: hysteria2
 - cipher: aes-256-cfb
-  name: 🇺🇸 US-16 | SHFX
+  name: 🇺🇸 US-18 | SHFX
   password: ''
   port: 22011
   server: yue-zz.yuetoto.net
   type: ss
 - cipher: aes-256-cfb
-  name: 🇺🇸 US-17 | SHFX
+  name: 🇺🇸 US-19 | SHFX
   password: ''
   port: 22012
   server: yue-zz.yuetoto.net
   type: ss
 - name: 🇨🇦 CA-4 | SHFX
-  password: 5f1319ce-7b84-4244-81a4-95ae888864c2
-  port: 21074
+  password: cbbd4e92-d29d-496c-bc4c-4206a45f7f1e
+  port: 21053
   server: yue-ca.yuetoto.net
   skip-cert-verify: true
   tls:
@@ -770,8 +964,8 @@ proxies:
     server_name: 'null'
   type: hysteria2
 - name: 🇨🇦 CA-5 | SHFX
-  password: 5f1319ce-7b84-4244-81a4-95ae888864c2
-  port: 21017
+  password: cbbd4e92-d29d-496c-bc4c-4206a45f7f1e
+  port: 21082
   server: yue-ca.yuetoto.net
   skip-cert-verify: true
   tls:
@@ -791,8 +985,8 @@ proxies:
   server: yue-zz.yuetoto.net
   type: ss
 - name: 🇻🇳 VN-2 | SHFX
-  password: 5f1319ce-7b84-4244-81a4-95ae888864c2
-  port: 21004
+  password: cbbd4e92-d29d-496c-bc4c-4206a45f7f1e
+  port: 21088
   server: yue-vn.yuetoto.net
   skip-cert-verify: true
   tls:
@@ -800,8 +994,8 @@ proxies:
     server_name: 'null'
   type: hysteria2
 - name: 🇻🇳 VN-3 | SHFX
-  password: 5f1319ce-7b84-4244-81a4-95ae888864c2
-  port: 21014
+  password: cbbd4e92-d29d-496c-bc4c-4206a45f7f1e
+  port: 21060
   server: yue-vn.yuetoto.net
   skip-cert-verify: true
   tls:
@@ -821,8 +1015,8 @@ proxies:
   server: yue-zz.yuetoto.net
   type: ss
 - name: 🇲🇾 MY-2 | SHFX
-  password: 5f1319ce-7b84-4244-81a4-95ae888864c2
-  port: 21055
+  password: cbbd4e92-d29d-496c-bc4c-4206a45f7f1e
+  port: 21088
   server: yue-my.yuetoto.net
   skip-cert-verify: true
   tls:
@@ -830,8 +1024,8 @@ proxies:
     server_name: 'null'
   type: hysteria2
 - name: 🇲🇾 MY-3 | SHFX
-  password: 5f1319ce-7b84-4244-81a4-95ae888864c2
-  port: 21044
+  password: cbbd4e92-d29d-496c-bc4c-4206a45f7f1e
+  port: 21084
   server: yue-vn.yuetoto.net
   skip-cert-verify: true
   tls:
@@ -851,8 +1045,8 @@ proxies:
   server: yue-zz.yuetoto.net
   type: ss
 - name: 🇹🇭 TH-2 | SHFX
-  password: 5f1319ce-7b84-4244-81a4-95ae888864c2
-  port: 21084
+  password: cbbd4e92-d29d-496c-bc4c-4206a45f7f1e
+  port: 21026
   server: yue-th.yuetoto.net
   skip-cert-verify: true
   tls:
@@ -860,8 +1054,8 @@ proxies:
     server_name: 'null'
   type: hysteria2
 - name: 🇹🇭 TH-3 | SHFX
-  password: 5f1319ce-7b84-4244-81a4-95ae888864c2
-  port: 21011
+  password: cbbd4e92-d29d-496c-bc4c-4206a45f7f1e
+  port: 21034
   server: yue-th.yuetoto.net
   skip-cert-verify: true
   tls:
@@ -881,8 +1075,8 @@ proxies:
   server: yue-zz.yuetoto.net
   type: ss
 - name: 🇮🇳 IN-1 | SHFX
-  password: 5f1319ce-7b84-4244-81a4-95ae888864c2
-  port: 21068
+  password: cbbd4e92-d29d-496c-bc4c-4206a45f7f1e
+  port: 21042
   server: yue-id.yuetoto.net
   skip-cert-verify: true
   tls:
@@ -890,8 +1084,8 @@ proxies:
     server_name: 'null'
   type: hysteria2
 - name: 🇮🇳 IN-2 | SHFX
-  password: 5f1319ce-7b84-4244-81a4-95ae888864c2
-  port: 21020
+  password: cbbd4e92-d29d-496c-bc4c-4206a45f7f1e
+  port: 21048
   server: yue-id.yuetoto.net
   skip-cert-verify: true
   tls:
@@ -911,8 +1105,8 @@ proxies:
   server: yue-zz.yuetoto.net
   type: ss
 - name: 🇵🇭 PH-1 | SHFX
-  password: 5f1319ce-7b84-4244-81a4-95ae888864c2
-  port: 21060
+  password: cbbd4e92-d29d-496c-bc4c-4206a45f7f1e
+  port: 21075
   server: yue-ph.yuetoto.net
   skip-cert-verify: true
   tls:
@@ -920,8 +1114,8 @@ proxies:
     server_name: 'null'
   type: hysteria2
 - name: 🇵🇭 PH-2 | SHFX
-  password: 5f1319ce-7b84-4244-81a4-95ae888864c2
-  port: 21089
+  password: cbbd4e92-d29d-496c-bc4c-4206a45f7f1e
+  port: 21034
   server: yue-ph.yuetoto.net
   skip-cert-verify: true
   tls:
@@ -941,8 +1135,8 @@ proxies:
   server: yue-zz.yuetoto.net
   type: ss
 - name: 🇲🇲 MM-1 | SHFX
-  password: 5f1319ce-7b84-4244-81a4-95ae888864c2
-  port: 21096
+  password: cbbd4e92-d29d-496c-bc4c-4206a45f7f1e
+  port: 21030
   server: yue-mm.yuetoto.net
   skip-cert-verify: true
   tls:
@@ -950,8 +1144,8 @@ proxies:
     server_name: 'null'
   type: hysteria2
 - name: 🇲🇲 MM-2 | SHFX
-  password: 5f1319ce-7b84-4244-81a4-95ae888864c2
-  port: 21084
+  password: cbbd4e92-d29d-496c-bc4c-4206a45f7f1e
+  port: 21043
   server: yue-mm.yuetoto.net
   skip-cert-verify: true
   tls:
@@ -971,8 +1165,8 @@ proxies:
   server: yue-zz.yuetoto.net
   type: ss
 - name: 🇰🇭 KH-1 | SHFX
-  password: 5f1319ce-7b84-4244-81a4-95ae888864c2
-  port: 21034
+  password: cbbd4e92-d29d-496c-bc4c-4206a45f7f1e
+  port: 21008
   server: yue-kh.yuetoto.net
   skip-cert-verify: true
   tls:
@@ -980,8 +1174,8 @@ proxies:
     server_name: 'null'
   type: hysteria2
 - name: 🇰🇭 KH-2 | SHFX
-  password: 5f1319ce-7b84-4244-81a4-95ae888864c2
-  port: 21027
+  password: cbbd4e92-d29d-496c-bc4c-4206a45f7f1e
+  port: 21032
   server: yue-kh.yuetoto.net
   skip-cert-verify: true
   tls:
@@ -1000,18 +1194,18 @@ proxies:
   port: 22040
   server: yue-zz.yuetoto.net
   type: ss
-- name: 🇳🇱 NL-2 | SHFX
-  password: 5f1319ce-7b84-4244-81a4-95ae888864c2
-  port: 21021
+- name: 🇳🇱 NL-3 | SHFX
+  password: cbbd4e92-d29d-496c-bc4c-4206a45f7f1e
+  port: 21060
   server: yue-nl.yuetoto.net
   skip-cert-verify: true
   tls:
     enabled: true
     server_name: 'null'
   type: hysteria2
-- name: 🇳🇱 NL-3 | SHFX
-  password: 5f1319ce-7b84-4244-81a4-95ae888864c2
-  port: 21030
+- name: 🇳🇱 NL-4 | SHFX
+  password: cbbd4e92-d29d-496c-bc4c-4206a45f7f1e
+  port: 21082
   server: yue-nl.yuetoto.net
   skip-cert-verify: true
   tls:
@@ -1019,29 +1213,29 @@ proxies:
     server_name: 'null'
   type: hysteria2
 - cipher: aes-256-cfb
-  name: 🇳🇱 NL-4 | SHFX
+  name: 🇳🇱 NL-5 | SHFX
   password: ''
   port: 22023
   server: yue-zz.yuetoto.net
   type: ss
 - cipher: aes-256-cfb
-  name: 🇳🇱 NL-5 | SHFX
+  name: 🇳🇱 NL-6 | SHFX
   password: ''
   port: 22024
   server: yue-zz.yuetoto.net
   type: ss
-- name: 🇩🇪 DE-4 | SHFX
-  password: 5f1319ce-7b84-4244-81a4-95ae888864c2
-  port: 21089
+- name: 🇩🇪 DE-5 | SHFX
+  password: cbbd4e92-d29d-496c-bc4c-4206a45f7f1e
+  port: 21087
   server: yue-de.yuetoto.net
   skip-cert-verify: true
   tls:
     enabled: true
     server_name: 'null'
   type: hysteria2
-- name: 🇩🇪 DE-5 | SHFX
-  password: 5f1319ce-7b84-4244-81a4-95ae888864c2
-  port: 21070
+- name: 🇩🇪 DE-6 | SHFX
+  password: cbbd4e92-d29d-496c-bc4c-4206a45f7f1e
+  port: 21072
   server: yue-de.yuetoto.net
   skip-cert-verify: true
   tls:
@@ -1049,29 +1243,29 @@ proxies:
     server_name: 'null'
   type: hysteria2
 - cipher: aes-256-cfb
-  name: 🇩🇪 DE-6 | SHFX
+  name: 🇩🇪 DE-7 | SHFX
   password: ''
   port: 22025
   server: yue-zz.yuetoto.net
   type: ss
 - cipher: aes-256-cfb
-  name: 🇩🇪 DE-7 | SHFX
+  name: 🇩🇪 DE-8 | SHFX
   password: ''
   port: 22026
   server: yue-zz.yuetoto.net
   type: ss
-- name: 🇬🇧 GB-1 | SHFX
-  password: 5f1319ce-7b84-4244-81a4-95ae888864c2
-  port: 21097
+- name: 🇬🇧 GB-2 | SHFX
+  password: cbbd4e92-d29d-496c-bc4c-4206a45f7f1e
+  port: 21098
   server: yue-uk.yuetoto.net
   skip-cert-verify: true
   tls:
     enabled: true
     server_name: 'null'
   type: hysteria2
-- name: 🇬🇧 GB-2 | SHFX
-  password: 5f1319ce-7b84-4244-81a4-95ae888864c2
-  port: 21036
+- name: 🇬🇧 GB-3 | SHFX
+  password: cbbd4e92-d29d-496c-bc4c-4206a45f7f1e
+  port: 21050
   server: yue-uk.yuetoto.net
   skip-cert-verify: true
   tls:
@@ -1079,29 +1273,29 @@ proxies:
     server_name: 'null'
   type: hysteria2
 - cipher: aes-256-cfb
-  name: 🇬🇧 GB-3 | SHFX
+  name: 🇬🇧 GB-4 | SHFX
   password: ''
   port: 22027
   server: yue-zz.yuetoto.net
   type: ss
 - cipher: aes-256-cfb
-  name: 🇬🇧 GB-4 | SHFX
+  name: 🇬🇧 GB-5 | SHFX
   password: ''
   port: 22028
   server: yue-zz.yuetoto.net
   type: ss
-- name: 🇷🇺 RU-1 | SHFX
-  password: 5f1319ce-7b84-4244-81a4-95ae888864c2
-  port: 21052
+- name: 🇷🇺 RU-2 | SHFX
+  password: cbbd4e92-d29d-496c-bc4c-4206a45f7f1e
+  port: 21062
   server: yue-ru.yuetoto.net
   skip-cert-verify: true
   tls:
     enabled: true
     server_name: 'null'
   type: hysteria2
-- name: 🇷🇺 RU-2 | SHFX
-  password: 5f1319ce-7b84-4244-81a4-95ae888864c2
-  port: 21074
+- name: 🇷🇺 RU-3 | SHFX
+  password: cbbd4e92-d29d-496c-bc4c-4206a45f7f1e
+  port: 21009
   server: yue-ru.yuetoto.net
   skip-cert-verify: true
   tls:
@@ -1109,20 +1303,20 @@ proxies:
     server_name: 'null'
   type: hysteria2
 - cipher: aes-256-cfb
-  name: 🇷🇺 RU-3 | SHFX
+  name: 🇷🇺 RU-4 | SHFX
   password: ''
   port: 22015
   server: yue-zz.yuetoto.net
   type: ss
 - cipher: aes-256-cfb
-  name: 🇷🇺 RU-4 | SHFX
+  name: 🇷🇺 RU-5 | SHFX
   password: ''
   port: 22016
   server: yue-zz.yuetoto.net
   type: ss
 - name: 🇹🇷 TR-1 | SHFX
-  password: 5f1319ce-7b84-4244-81a4-95ae888864c2
-  port: 21055
+  password: cbbd4e92-d29d-496c-bc4c-4206a45f7f1e
+  port: 21056
   server: yue-tr.yuetoto.net
   skip-cert-verify: true
   tls:
@@ -1130,8 +1324,8 @@ proxies:
     server_name: 'null'
   type: hysteria2
 - name: 🇹🇷 TR-2 | SHFX
-  password: 5f1319ce-7b84-4244-81a4-95ae888864c2
-  port: 21024
+  password: cbbd4e92-d29d-496c-bc4c-4206a45f7f1e
+  port: 21095
   server: yue-tr.yuetoto.net
   skip-cert-verify: true
   tls:
@@ -1151,8 +1345,8 @@ proxies:
   server: yue-zz.yuetoto.net
   type: ss
 - name: 🇳🇬 NG-1 | SHFX
-  password: 5f1319ce-7b84-4244-81a4-95ae888864c2
-  port: 21067
+  password: cbbd4e92-d29d-496c-bc4c-4206a45f7f1e
+  port: 21005
   server: yue-ng.yuetoto.net
   skip-cert-verify: true
   tls:
@@ -1160,8 +1354,8 @@ proxies:
     server_name: 'null'
   type: hysteria2
 - name: 🇳🇬 NG-2 | SHFX
-  password: 5f1319ce-7b84-4244-81a4-95ae888864c2
-  port: 21081
+  password: cbbd4e92-d29d-496c-bc4c-4206a45f7f1e
+  port: 21021
   server: yue-ng.yuetoto.net
   skip-cert-verify: true
   tls:
@@ -1360,106 +1554,314 @@ proxies:
   port: 22030
   server: yue-zz-xy.yuetoto.net
   type: ss
-- name: 🇺🇸 US-18 | SHFX
-  password: 571ec94e-613c-430a-93de-397d3d237475
-  port: 22151
-  server: hsmg.huasuan666.top
+- name: 🇭🇰 HK-17 | SHFX
+  password: 2b524171-bc7e-4579-a22e-239bdd50caca
+  port: 50001
+  server: hk1.jueduibupao.top
   skip-cert-verify: true
   tls:
     enabled: true
     insecure: true
-    server_name: hsmg.huasuan666.top
+    server_name: hk1.jueduibupao.top
   type: hysteria2
-- name: 🇭🇰 HK-14 | SHFX
-  password: 571ec94e-613c-430a-93de-397d3d237475
-  port: 22153
-  server: hsxg.huasuan666.top
+- name: 🇭🇰 HK-18 | SHFX
+  password: 2b524171-bc7e-4579-a22e-239bdd50caca
+  port: 47563
+  server: hk2.jueduibupao.top
   skip-cert-verify: true
   tls:
     enabled: true
     insecure: true
-    server_name: hsxg.huasuan666.top
+    server_name: hk2.jueduibupao.top
   type: hysteria2
-- name: 🇸🇬 SG-10 | SHFX
-  password: 571ec94e-613c-430a-93de-397d3d237475
-  port: 22154
-  server: hsxjp.huasuan666.top
+- name: 🇸🇬 SG-13 | SHFX
+  password: 2b524171-bc7e-4579-a22e-239bdd50caca
+  port: 42366
+  server: linsg1.jueduibupao.top
   skip-cert-verify: true
   tls:
     enabled: true
     insecure: true
-    server_name: hsxjp.huasuan666.top
+    server_name: linsg1.jueduibupao.top
   type: hysteria2
-- name: 🇩🇪 DE-8 | SHFX
-  password: 571ec94e-613c-430a-93de-397d3d237475
-  port: 22155
-  server: hsdg.huasuan666.top
+- name: 🇹🇼 TW-10 | SHFX
+  password: 2b524171-bc7e-4579-a22e-239bdd50caca
+  port: 30078
+  server: tw2.jueduibupao.top
   skip-cert-verify: true
   tls:
     enabled: true
     insecure: true
-    server_name: hsdg.huasuan666.top
+    server_name: tw2.jueduibupao.top
   type: hysteria2
-- name: 🇬🇧 GB-5 | SHFX
-  password: 571ec94e-613c-430a-93de-397d3d237475
-  port: 22156
-  server: hsyg.huasuan666.top
+- name: 🇯🇵 JP-14 | SHFX
+  password: 2b524171-bc7e-4579-a22e-239bdd50caca
+  port: 30000
+  server: linjp2.jueduibupao.top
   skip-cert-verify: true
   tls:
     enabled: true
     insecure: true
-    server_name: hsyg.huasuan666.top
+    server_name: linjp2.jueduibupao.top
   type: hysteria2
-- name: 🇳🇱 NL-6 | SHFX
-  password: 571ec94e-613c-430a-93de-397d3d237475
-  port: 22157
-  server: hshl.huasuan666.top
+- name: 🇯🇵 JP-15 | SHFX
+  password: 2b524171-bc7e-4579-a22e-239bdd50caca
+  port: 45368
+  server: linjp1.jueduibupao.top
   skip-cert-verify: true
   tls:
     enabled: true
     insecure: true
-    server_name: hshl.huasuan666.top
+    server_name: linjp1.jueduibupao.top
   type: hysteria2
-- name: 🇫🇷 FR-1 | SHFX
-  password: 571ec94e-613c-430a-93de-397d3d237475
-  port: 22158
-  server: hsfg.huasuan666.top
+- name: 🇰🇷 KR-11 | SHFX
+  password: 2b524171-bc7e-4579-a22e-239bdd50caca
+  port: 10100
+  server: 6bkr1.6bnw.top
   skip-cert-verify: true
   tls:
     enabled: true
     insecure: true
-    server_name: hsfg.huasuan666.top
+    server_name: 6bkr1.6bnw.top
   type: hysteria2
-- name: 🇦🇺 AU-1 | SHFX
-  password: 571ec94e-613c-430a-93de-397d3d237475
-  port: 22159
-  server: hsadly.huasuan666.top
+- name: 🇰🇷 KR-12 | SHFX
+  password: 2b524171-bc7e-4579-a22e-239bdd50caca
+  port: 30000
+  server: kr2.jueduibupao.top
   skip-cert-verify: true
   tls:
     enabled: true
     insecure: true
-    server_name: hsadly.huasuan666.top
+    server_name: kr2.jueduibupao.top
   type: hysteria2
-- name: 🇷🇺 RU-5 | SHFX
-  password: 571ec94e-613c-430a-93de-397d3d237475
-  port: 22160
-  server: hsels.huasuan666.top
+- name: 🇹🇭 TH-6 | SHFX
+  password: 2b524171-bc7e-4579-a22e-239bdd50caca
+  port: 30000
+  server: th1.jueduibupao.top
   skip-cert-verify: true
   tls:
     enabled: true
     insecure: true
-    server_name: hsels.huasuan666.top
+    server_name: th1.jueduibupao.top
   type: hysteria2
-- name: 🇯🇵 JP-11 | SHFX
-  password: 571ec94e-613c-430a-93de-397d3d237475
-  port: 22161
-  server: hsrb.huasuan666.top
+- name: 🇺🇸 US-20 | SHFX
+  password: 2b524171-bc7e-4579-a22e-239bdd50caca
+  port: 50001
+  server: lvs.jueduibupao.top
   skip-cert-verify: true
   tls:
     enabled: true
     insecure: true
-    server_name: hsrb.huasuan666.top
+    server_name: lvs.jueduibupao.top
   type: hysteria2
+- name: 🇺🇸 US-21 | SHFX
+  password: 2b524171-bc7e-4579-a22e-239bdd50caca
+  port: 50001
+  server: ny.jueduibupao.top
+  skip-cert-verify: true
+  tls:
+    enabled: true
+    insecure: true
+    server_name: ny.jueduibupao.top
+  type: hysteria2
+- name: 🇺🇸 US-22 | SHFX
+  password: 2b524171-bc7e-4579-a22e-239bdd50caca
+  port: 20101
+  server: azcus1.jueduibupao.top
+  skip-cert-verify: true
+  tls:
+    enabled: true
+    insecure: true
+    server_name: azcus1.jueduibupao.top
+  type: hysteria2
+- name: 🇨🇦 CA-8 | SHFX
+  password: 2b524171-bc7e-4579-a22e-239bdd50caca
+  port: 43278
+  server: ca1.jueduibupao.top
+  skip-cert-verify: true
+  tls:
+    enabled: true
+    insecure: true
+    server_name: ca1.jueduibupao.top
+  type: hysteria2
+- name: 🇩🇪 DE-9 | SHFX
+  password: 2b524171-bc7e-4579-a22e-239bdd50caca
+  port: 49651
+  server: de1.jueduibupao.top
+  skip-cert-verify: true
+  tls:
+    enabled: true
+    insecure: true
+    server_name: de1.jueduibupao.top
+  type: hysteria2
+- cipher: aes-256-cfb
+  name: 🇭🇰 HK-19 | SHFX
+  password: ''
+  port: 29527
+  server: hzhz1.sssyun.xyz
+  type: ss
+- cipher: aes-256-cfb
+  name: 🇭🇰 HK-20 | SHFX
+  password: ''
+  port: 40010
+  server: hzhz2.sssyun.xyz
+  type: ss
+- cipher: aes-256-cfb
+  name: 🇭🇰 HK-21 | SHFX
+  password: ''
+  port: 19527
+  server: hzhz1.sssyun.xyz
+  type: ss
+- cipher: aes-256-cfb
+  name: 🇭🇰 HK-22 | SHFX
+  password: ''
+  port: 40023
+  server: hzhz2.sssyun.xyz
+  type: ss
+- cipher: aes-256-cfb
+  name: 🇭🇰 HK-23 | SHFX
+  password: ''
+  port: 39301
+  server: hzhz1.sssyun.xyz
+  type: ss
+- cipher: aes-256-cfb
+  name: 🇭🇰 HK-24 | SHFX
+  password: ''
+  port: 40011
+  server: hzhz2.sssyun.xyz
+  type: ss
+- cipher: aes-256-cfb
+  name: 🇸🇬 SG-14 | SHFX
+  password: ''
+  port: 39204
+  server: hzhz1.sssyun.xyz
+  type: ss
+- cipher: aes-256-cfb
+  name: 🇸🇬 SG-15 | SHFX
+  password: ''
+  port: 40013
+  server: hzhz2.sssyun.xyz
+  type: ss
+- cipher: aes-256-cfb
+  name: 🇸🇬 SG-16 | SHFX
+  password: ''
+  port: 39505
+  server: hzhz1.sssyun.xyz
+  type: ss
+- cipher: aes-256-cfb
+  name: 🇸🇬 SG-17 | SHFX
+  password: ''
+  port: 44014
+  server: hzhz2.sssyun.xyz
+  type: ss
+- cipher: aes-256-cfb
+  name: 🇰🇷 KR-13 | SHFX
+  password: ''
+  port: 39206
+  server: hzhz1.sssyun.xyz
+  type: ss
+- cipher: aes-256-cfb
+  name: 🇰🇷 KR-14 | SHFX
+  password: ''
+  port: 20116
+  server: hzhz2.sssyun.xyz
+  type: ss
+- cipher: aes-256-cfb
+  name: 🇹🇼 TW-11 | SHFX
+  password: ''
+  port: 32207
+  server: hzhz1.sssyun.xyz
+  type: ss
+- cipher: aes-256-cfb
+  name: 🇹🇼 TW-12 | SHFX
+  password: ''
+  port: 40017
+  server: hzhz2.sssyun.xyz
+  type: ss
+- cipher: aes-256-cfb
+  name: 🇯🇵 JP-16 | SHFX
+  password: ''
+  port: 19529
+  server: hzhz1.sssyun.xyz
+  type: ss
+- cipher: aes-256-cfb
+  name: 🇯🇵 JP-17 | SHFX
+  password: ''
+  port: 40019
+  server: hzhz2.sssyun.xyz
+  type: ss
+- cipher: aes-256-cfb
+  name: 🇯🇵 JP-18 | SHFX
+  password: ''
+  port: 49207
+  server: hzhz1.sssyun.xyz
+  type: ss
+- cipher: aes-256-cfb
+  name: 🇯🇵 JP-19 | SHFX
+  password: ''
+  port: 40020
+  server: hzhz2.sssyun.xyz
+  type: ss
+- cipher: aes-256-cfb
+  name: 🇨🇦 CA-9 | SHFX
+  password: ''
+  port: 39209
+  server: hzhz1.sssyun.xyz
+  type: ss
+- cipher: aes-256-cfb
+  name: 🇨🇦 CA-10 | SHFX
+  password: ''
+  port: 40021
+  server: hzhz2.sssyun.xyz
+  type: ss
+- cipher: aes-256-cfb
+  name: 🇺🇸 US-23 | SHFX
+  password: ''
+  port: 12980
+  server: hzhz1.sssyun.xyz
+  type: ss
+- cipher: aes-256-cfb
+  name: 🇺🇸 US-24 | SHFX
+  password: ''
+  port: 12981
+  server: hzhz2.sssyun.xyz
+  type: ss
+- cipher: aes-256-cfb
+  name: 🇺🇸 US-25 | SHFX
+  password: ''
+  port: 12983
+  server: hzhz1.sssyun.xyz
+  type: ss
+- cipher: aes-256-cfb
+  name: 🇺🇸 US-26 | SHFX
+  password: ''
+  port: 12984
+  server: hzhz2.sssyun.xyz
+  type: ss
+- cipher: aes-256-cfb
+  name: 🇺🇸 US-27 | SHFX
+  password: ''
+  port: 39203
+  server: hzhz1.sssyun.xyz
+  type: ss
+- cipher: aes-256-cfb
+  name: 🇺🇸 US-28 | SHFX
+  password: ''
+  port: 40022
+  server: hzhz2.sssyun.xyz
+  type: ss
+- cipher: aes-256-cfb
+  name: 🇩🇪 DE-10 | SHFX
+  password: ''
+  port: 39987
+  server: hzhz1.sssyun.xyz
+  type: ss
+- cipher: aes-256-cfb
+  name: 🇩🇪 DE-11 | SHFX
+  password: ''
+  port: 39981
+  server: hzhz2.sssyun.xyz
+  type: ss
 
 proxy-groups:
   - name: 选择线路
@@ -1469,82 +1871,104 @@ proxy-groups:
       - 🇳🇱 NL-1 | SHFX
       - 🇫🇮 FI-1 | SHFX
       - 🇺🇸 US-1 | SHFX
-      - 🇲🇾 MY-1 | SHFX
       - 🇺🇸 US-2 | SHFX
-      - 🇺🇸 US-3 | SHFX
+      - 🇲🇾 MY-1 | SHFX
       - 🇭🇰 HK-1 | SHFX
-      - 🇧🇷 BR-1 | SHFX
+      - 🇺🇸 US-3 | SHFX
+      - 🇮🇪 IE-1 | SHFX
       - 🇺🇸 US-4 | SHFX
+      - 🇧🇷 BR-1 | SHFX
       - 🇮🇱 IL-1 | SHFX
-      - 🇨🇳 CN-1 | SHFX
       - 🇻🇳 VN-1 | SHFX
-      - 🇰🇷 KR-1 | SHFX
-      - 🇭🇰 HK-2 | SHFX
-      - 🇭🇰 HK-3 | SHFX
-      - 🇸🇬 SG-1 | SHFX
-      - 🇹🇼 TW-1 | SHFX
-      - 🇯🇵 JP-1 | SHFX
-      - 🇯🇵 JP-2 | SHFX
-      - 🇰🇷 KR-2 | SHFX
-      - 🇰🇷 KR-3 | SHFX
-      - 🇹🇭 TH-1 | SHFX
+      - 🇨🇳 CN-1 | SHFX
+      - 🇨🇳 CN-2 | SHFX
       - 🇺🇸 US-5 | SHFX
       - 🇺🇸 US-6 | SHFX
-      - 🇺🇸 US-7 | SHFX
-      - 🇨🇦 CA-1 | SHFX
+      - 🇭🇰 HK-2 | SHFX
+      - 🇸🇬 SG-1 | SHFX
       - 🇩🇪 DE-1 | SHFX
+      - 🇬🇧 GB-1 | SHFX
+      - 🇳🇱 NL-2 | SHFX
+      - 🇫🇷 FR-1 | SHFX
+      - 🇦🇺 AU-1 | SHFX
+      - 🇷🇺 RU-1 | SHFX
+      - 🇯🇵 JP-1 | SHFX
+      - 🇭🇰 HK-3 | SHFX
       - 🇭🇰 HK-4 | SHFX
+      - 🇸🇬 SG-2 | SHFX
+      - 🇹🇼 TW-1 | SHFX
+      - 🇯🇵 JP-2 | SHFX
+      - 🇯🇵 JP-3 | SHFX
+      - 🇰🇷 KR-1 | SHFX
+      - 🇰🇷 KR-2 | SHFX
+      - 🇹🇭 TH-1 | SHFX
+      - 🇺🇸 US-7 | SHFX
+      - 🇺🇸 US-8 | SHFX
+      - 🇺🇸 US-9 | SHFX
+      - 🇨🇦 CA-1 | SHFX
+      - 🇩🇪 DE-2 | SHFX
       - 🇭🇰 HK-5 | SHFX
       - 🇭🇰 HK-6 | SHFX
       - 🇭🇰 HK-7 | SHFX
       - 🇭🇰 HK-8 | SHFX
       - 🇭🇰 HK-9 | SHFX
-      - 🇸🇬 SG-2 | SHFX
+      - 🇭🇰 HK-10 | SHFX
       - 🇸🇬 SG-3 | SHFX
       - 🇸🇬 SG-4 | SHFX
       - 🇸🇬 SG-5 | SHFX
+      - 🇸🇬 SG-6 | SHFX
+      - 🇰🇷 KR-3 | SHFX
       - 🇰🇷 KR-4 | SHFX
-      - 🇰🇷 KR-5 | SHFX
       - 🇹🇼 TW-2 | SHFX
       - 🇹🇼 TW-3 | SHFX
-      - 🇯🇵 JP-3 | SHFX
       - 🇯🇵 JP-4 | SHFX
       - 🇯🇵 JP-5 | SHFX
       - 🇯🇵 JP-6 | SHFX
+      - 🇯🇵 JP-7 | SHFX
       - 🇨🇦 CA-2 | SHFX
       - 🇨🇦 CA-3 | SHFX
-      - 🇺🇸 US-8 | SHFX
-      - 🇺🇸 US-9 | SHFX
       - 🇺🇸 US-10 | SHFX
       - 🇺🇸 US-11 | SHFX
       - 🇺🇸 US-12 | SHFX
       - 🇺🇸 US-13 | SHFX
-      - 🇩🇪 DE-2 | SHFX
+      - 🇺🇸 US-14 | SHFX
+      - 🇺🇸 US-15 | SHFX
       - 🇩🇪 DE-3 | SHFX
-      - 🇭🇰 HK-10 | SHFX
+      - 🇩🇪 DE-4 | SHFX
       - 🇭🇰 HK-11 | SHFX
       - 🇭🇰 HK-12 | SHFX
-      - 🇭🇰 HK-13 | SHFX
       - 🇹🇼 TW-4 | SHFX
       - 🇹🇼 TW-5 | SHFX
-      - 🇹🇼 TW-6 | SHFX
-      - 🇹🇼 TW-7 | SHFX
-      - 🇯🇵 JP-7 | SHFX
       - 🇯🇵 JP-8 | SHFX
       - 🇯🇵 JP-9 | SHFX
-      - 🇯🇵 JP-10 | SHFX
+      - 🇰🇷 KR-5 | SHFX
       - 🇰🇷 KR-6 | SHFX
+      - 🇸🇬 SG-7 | SHFX
+      - 🇸🇬 SG-8 | SHFX
+      - 🇭🇰 HK-13 | SHFX
+      - 🇭🇰 HK-14 | SHFX
+      - 🇭🇰 HK-15 | SHFX
+      - 🇭🇰 HK-16 | SHFX
+      - 🇹🇼 TW-6 | SHFX
+      - 🇹🇼 TW-7 | SHFX
+      - 🇹🇼 TW-8 | SHFX
+      - 🇹🇼 TW-9 | SHFX
+      - 🇯🇵 JP-10 | SHFX
+      - 🇯🇵 JP-11 | SHFX
+      - 🇯🇵 JP-12 | SHFX
+      - 🇯🇵 JP-13 | SHFX
       - 🇰🇷 KR-7 | SHFX
       - 🇰🇷 KR-8 | SHFX
       - 🇰🇷 KR-9 | SHFX
-      - 🇸🇬 SG-6 | SHFX
-      - 🇸🇬 SG-7 | SHFX
-      - 🇸🇬 SG-8 | SHFX
+      - 🇰🇷 KR-10 | SHFX
       - 🇸🇬 SG-9 | SHFX
-      - 🇺🇸 US-14 | SHFX
-      - 🇺🇸 US-15 | SHFX
+      - 🇸🇬 SG-10 | SHFX
+      - 🇸🇬 SG-11 | SHFX
+      - 🇸🇬 SG-12 | SHFX
       - 🇺🇸 US-16 | SHFX
       - 🇺🇸 US-17 | SHFX
+      - 🇺🇸 US-18 | SHFX
+      - 🇺🇸 US-19 | SHFX
       - 🇨🇦 CA-4 | SHFX
       - 🇨🇦 CA-5 | SHFX
       - 🇨🇦 CA-6 | SHFX
@@ -1577,22 +2001,22 @@ proxy-groups:
       - 🇰🇭 KH-2 | SHFX
       - 🇰🇭 KH-3 | SHFX
       - 🇰🇭 KH-4 | SHFX
-      - 🇳🇱 NL-2 | SHFX
       - 🇳🇱 NL-3 | SHFX
       - 🇳🇱 NL-4 | SHFX
       - 🇳🇱 NL-5 | SHFX
-      - 🇩🇪 DE-4 | SHFX
+      - 🇳🇱 NL-6 | SHFX
       - 🇩🇪 DE-5 | SHFX
       - 🇩🇪 DE-6 | SHFX
       - 🇩🇪 DE-7 | SHFX
-      - 🇬🇧 GB-1 | SHFX
+      - 🇩🇪 DE-8 | SHFX
       - 🇬🇧 GB-2 | SHFX
       - 🇬🇧 GB-3 | SHFX
       - 🇬🇧 GB-4 | SHFX
-      - 🇷🇺 RU-1 | SHFX
+      - 🇬🇧 GB-5 | SHFX
       - 🇷🇺 RU-2 | SHFX
       - 🇷🇺 RU-3 | SHFX
       - 🇷🇺 RU-4 | SHFX
+      - 🇷🇺 RU-5 | SHFX
       - 🇹🇷 TR-1 | SHFX
       - 🇹🇷 TR-2 | SHFX
       - 🇹🇷 TR-3 | SHFX
@@ -1631,98 +2055,152 @@ proxy-groups:
       - 🇸🇧 SB-2 | SHFX
       - 🇬🇺 GU-1 | SHFX
       - 🇬🇺 GU-2 | SHFX
-      - 🇺🇸 US-18 | SHFX
-      - 🇭🇰 HK-14 | SHFX
-      - 🇸🇬 SG-10 | SHFX
-      - 🇩🇪 DE-8 | SHFX
-      - 🇬🇧 GB-5 | SHFX
-      - 🇳🇱 NL-6 | SHFX
-      - 🇫🇷 FR-1 | SHFX
-      - 🇦🇺 AU-1 | SHFX
-      - 🇷🇺 RU-5 | SHFX
-      - 🇯🇵 JP-11 | SHFX
+      - 🇭🇰 HK-17 | SHFX
+      - 🇭🇰 HK-18 | SHFX
+      - 🇸🇬 SG-13 | SHFX
+      - 🇹🇼 TW-10 | SHFX
+      - 🇯🇵 JP-14 | SHFX
+      - 🇯🇵 JP-15 | SHFX
+      - 🇰🇷 KR-11 | SHFX
+      - 🇰🇷 KR-12 | SHFX
+      - 🇹🇭 TH-6 | SHFX
+      - 🇺🇸 US-20 | SHFX
+      - 🇺🇸 US-21 | SHFX
+      - 🇺🇸 US-22 | SHFX
+      - 🇨🇦 CA-8 | SHFX
+      - 🇩🇪 DE-9 | SHFX
+      - 🇭🇰 HK-19 | SHFX
+      - 🇭🇰 HK-20 | SHFX
+      - 🇭🇰 HK-21 | SHFX
+      - 🇭🇰 HK-22 | SHFX
+      - 🇭🇰 HK-23 | SHFX
+      - 🇭🇰 HK-24 | SHFX
+      - 🇸🇬 SG-14 | SHFX
+      - 🇸🇬 SG-15 | SHFX
+      - 🇸🇬 SG-16 | SHFX
+      - 🇸🇬 SG-17 | SHFX
+      - 🇰🇷 KR-13 | SHFX
+      - 🇰🇷 KR-14 | SHFX
+      - 🇹🇼 TW-11 | SHFX
+      - 🇹🇼 TW-12 | SHFX
+      - 🇯🇵 JP-16 | SHFX
+      - 🇯🇵 JP-17 | SHFX
+      - 🇯🇵 JP-18 | SHFX
+      - 🇯🇵 JP-19 | SHFX
+      - 🇨🇦 CA-9 | SHFX
+      - 🇨🇦 CA-10 | SHFX
+      - 🇺🇸 US-23 | SHFX
+      - 🇺🇸 US-24 | SHFX
+      - 🇺🇸 US-25 | SHFX
+      - 🇺🇸 US-26 | SHFX
+      - 🇺🇸 US-27 | SHFX
+      - 🇺🇸 US-28 | SHFX
+      - 🇩🇪 DE-10 | SHFX
+      - 🇩🇪 DE-11 | SHFX
   - name: 自动选择⚡️
     type: url-test
     proxies:
       - 🇳🇱 NL-1 | SHFX
       - 🇫🇮 FI-1 | SHFX
       - 🇺🇸 US-1 | SHFX
-      - 🇲🇾 MY-1 | SHFX
       - 🇺🇸 US-2 | SHFX
-      - 🇺🇸 US-3 | SHFX
+      - 🇲🇾 MY-1 | SHFX
       - 🇭🇰 HK-1 | SHFX
-      - 🇧🇷 BR-1 | SHFX
+      - 🇺🇸 US-3 | SHFX
+      - 🇮🇪 IE-1 | SHFX
       - 🇺🇸 US-4 | SHFX
+      - 🇧🇷 BR-1 | SHFX
       - 🇮🇱 IL-1 | SHFX
-      - 🇨🇳 CN-1 | SHFX
       - 🇻🇳 VN-1 | SHFX
-      - 🇰🇷 KR-1 | SHFX
-      - 🇭🇰 HK-2 | SHFX
-      - 🇭🇰 HK-3 | SHFX
-      - 🇸🇬 SG-1 | SHFX
-      - 🇹🇼 TW-1 | SHFX
-      - 🇯🇵 JP-1 | SHFX
-      - 🇯🇵 JP-2 | SHFX
-      - 🇰🇷 KR-2 | SHFX
-      - 🇰🇷 KR-3 | SHFX
-      - 🇹🇭 TH-1 | SHFX
+      - 🇨🇳 CN-1 | SHFX
+      - 🇨🇳 CN-2 | SHFX
       - 🇺🇸 US-5 | SHFX
       - 🇺🇸 US-6 | SHFX
-      - 🇺🇸 US-7 | SHFX
-      - 🇨🇦 CA-1 | SHFX
+      - 🇭🇰 HK-2 | SHFX
+      - 🇸🇬 SG-1 | SHFX
       - 🇩🇪 DE-1 | SHFX
+      - 🇬🇧 GB-1 | SHFX
+      - 🇳🇱 NL-2 | SHFX
+      - 🇫🇷 FR-1 | SHFX
+      - 🇦🇺 AU-1 | SHFX
+      - 🇷🇺 RU-1 | SHFX
+      - 🇯🇵 JP-1 | SHFX
+      - 🇭🇰 HK-3 | SHFX
       - 🇭🇰 HK-4 | SHFX
+      - 🇸🇬 SG-2 | SHFX
+      - 🇹🇼 TW-1 | SHFX
+      - 🇯🇵 JP-2 | SHFX
+      - 🇯🇵 JP-3 | SHFX
+      - 🇰🇷 KR-1 | SHFX
+      - 🇰🇷 KR-2 | SHFX
+      - 🇹🇭 TH-1 | SHFX
+      - 🇺🇸 US-7 | SHFX
+      - 🇺🇸 US-8 | SHFX
+      - 🇺🇸 US-9 | SHFX
+      - 🇨🇦 CA-1 | SHFX
+      - 🇩🇪 DE-2 | SHFX
       - 🇭🇰 HK-5 | SHFX
       - 🇭🇰 HK-6 | SHFX
       - 🇭🇰 HK-7 | SHFX
       - 🇭🇰 HK-8 | SHFX
       - 🇭🇰 HK-9 | SHFX
-      - 🇸🇬 SG-2 | SHFX
+      - 🇭🇰 HK-10 | SHFX
       - 🇸🇬 SG-3 | SHFX
       - 🇸🇬 SG-4 | SHFX
       - 🇸🇬 SG-5 | SHFX
+      - 🇸🇬 SG-6 | SHFX
+      - 🇰🇷 KR-3 | SHFX
       - 🇰🇷 KR-4 | SHFX
-      - 🇰🇷 KR-5 | SHFX
       - 🇹🇼 TW-2 | SHFX
       - 🇹🇼 TW-3 | SHFX
-      - 🇯🇵 JP-3 | SHFX
       - 🇯🇵 JP-4 | SHFX
       - 🇯🇵 JP-5 | SHFX
       - 🇯🇵 JP-6 | SHFX
+      - 🇯🇵 JP-7 | SHFX
       - 🇨🇦 CA-2 | SHFX
       - 🇨🇦 CA-3 | SHFX
-      - 🇺🇸 US-8 | SHFX
-      - 🇺🇸 US-9 | SHFX
       - 🇺🇸 US-10 | SHFX
       - 🇺🇸 US-11 | SHFX
       - 🇺🇸 US-12 | SHFX
       - 🇺🇸 US-13 | SHFX
-      - 🇩🇪 DE-2 | SHFX
+      - 🇺🇸 US-14 | SHFX
+      - 🇺🇸 US-15 | SHFX
       - 🇩🇪 DE-3 | SHFX
-      - 🇭🇰 HK-10 | SHFX
+      - 🇩🇪 DE-4 | SHFX
       - 🇭🇰 HK-11 | SHFX
       - 🇭🇰 HK-12 | SHFX
-      - 🇭🇰 HK-13 | SHFX
       - 🇹🇼 TW-4 | SHFX
       - 🇹🇼 TW-5 | SHFX
-      - 🇹🇼 TW-6 | SHFX
-      - 🇹🇼 TW-7 | SHFX
-      - 🇯🇵 JP-7 | SHFX
       - 🇯🇵 JP-8 | SHFX
       - 🇯🇵 JP-9 | SHFX
-      - 🇯🇵 JP-10 | SHFX
+      - 🇰🇷 KR-5 | SHFX
       - 🇰🇷 KR-6 | SHFX
+      - 🇸🇬 SG-7 | SHFX
+      - 🇸🇬 SG-8 | SHFX
+      - 🇭🇰 HK-13 | SHFX
+      - 🇭🇰 HK-14 | SHFX
+      - 🇭🇰 HK-15 | SHFX
+      - 🇭🇰 HK-16 | SHFX
+      - 🇹🇼 TW-6 | SHFX
+      - 🇹🇼 TW-7 | SHFX
+      - 🇹🇼 TW-8 | SHFX
+      - 🇹🇼 TW-9 | SHFX
+      - 🇯🇵 JP-10 | SHFX
+      - 🇯🇵 JP-11 | SHFX
+      - 🇯🇵 JP-12 | SHFX
+      - 🇯🇵 JP-13 | SHFX
       - 🇰🇷 KR-7 | SHFX
       - 🇰🇷 KR-8 | SHFX
       - 🇰🇷 KR-9 | SHFX
-      - 🇸🇬 SG-6 | SHFX
-      - 🇸🇬 SG-7 | SHFX
-      - 🇸🇬 SG-8 | SHFX
+      - 🇰🇷 KR-10 | SHFX
       - 🇸🇬 SG-9 | SHFX
-      - 🇺🇸 US-14 | SHFX
-      - 🇺🇸 US-15 | SHFX
+      - 🇸🇬 SG-10 | SHFX
+      - 🇸🇬 SG-11 | SHFX
+      - 🇸🇬 SG-12 | SHFX
       - 🇺🇸 US-16 | SHFX
       - 🇺🇸 US-17 | SHFX
+      - 🇺🇸 US-18 | SHFX
+      - 🇺🇸 US-19 | SHFX
       - 🇨🇦 CA-4 | SHFX
       - 🇨🇦 CA-5 | SHFX
       - 🇨🇦 CA-6 | SHFX
@@ -1755,22 +2233,22 @@ proxy-groups:
       - 🇰🇭 KH-2 | SHFX
       - 🇰🇭 KH-3 | SHFX
       - 🇰🇭 KH-4 | SHFX
-      - 🇳🇱 NL-2 | SHFX
       - 🇳🇱 NL-3 | SHFX
       - 🇳🇱 NL-4 | SHFX
       - 🇳🇱 NL-5 | SHFX
-      - 🇩🇪 DE-4 | SHFX
+      - 🇳🇱 NL-6 | SHFX
       - 🇩🇪 DE-5 | SHFX
       - 🇩🇪 DE-6 | SHFX
       - 🇩🇪 DE-7 | SHFX
-      - 🇬🇧 GB-1 | SHFX
+      - 🇩🇪 DE-8 | SHFX
       - 🇬🇧 GB-2 | SHFX
       - 🇬🇧 GB-3 | SHFX
       - 🇬🇧 GB-4 | SHFX
-      - 🇷🇺 RU-1 | SHFX
+      - 🇬🇧 GB-5 | SHFX
       - 🇷🇺 RU-2 | SHFX
       - 🇷🇺 RU-3 | SHFX
       - 🇷🇺 RU-4 | SHFX
+      - 🇷🇺 RU-5 | SHFX
       - 🇹🇷 TR-1 | SHFX
       - 🇹🇷 TR-2 | SHFX
       - 🇹🇷 TR-3 | SHFX
@@ -1809,16 +2287,48 @@ proxy-groups:
       - 🇸🇧 SB-2 | SHFX
       - 🇬🇺 GU-1 | SHFX
       - 🇬🇺 GU-2 | SHFX
-      - 🇺🇸 US-18 | SHFX
-      - 🇭🇰 HK-14 | SHFX
-      - 🇸🇬 SG-10 | SHFX
-      - 🇩🇪 DE-8 | SHFX
-      - 🇬🇧 GB-5 | SHFX
-      - 🇳🇱 NL-6 | SHFX
-      - 🇫🇷 FR-1 | SHFX
-      - 🇦🇺 AU-1 | SHFX
-      - 🇷🇺 RU-5 | SHFX
-      - 🇯🇵 JP-11 | SHFX
+      - 🇭🇰 HK-17 | SHFX
+      - 🇭🇰 HK-18 | SHFX
+      - 🇸🇬 SG-13 | SHFX
+      - 🇹🇼 TW-10 | SHFX
+      - 🇯🇵 JP-14 | SHFX
+      - 🇯🇵 JP-15 | SHFX
+      - 🇰🇷 KR-11 | SHFX
+      - 🇰🇷 KR-12 | SHFX
+      - 🇹🇭 TH-6 | SHFX
+      - 🇺🇸 US-20 | SHFX
+      - 🇺🇸 US-21 | SHFX
+      - 🇺🇸 US-22 | SHFX
+      - 🇨🇦 CA-8 | SHFX
+      - 🇩🇪 DE-9 | SHFX
+      - 🇭🇰 HK-19 | SHFX
+      - 🇭🇰 HK-20 | SHFX
+      - 🇭🇰 HK-21 | SHFX
+      - 🇭🇰 HK-22 | SHFX
+      - 🇭🇰 HK-23 | SHFX
+      - 🇭🇰 HK-24 | SHFX
+      - 🇸🇬 SG-14 | SHFX
+      - 🇸🇬 SG-15 | SHFX
+      - 🇸🇬 SG-16 | SHFX
+      - 🇸🇬 SG-17 | SHFX
+      - 🇰🇷 KR-13 | SHFX
+      - 🇰🇷 KR-14 | SHFX
+      - 🇹🇼 TW-11 | SHFX
+      - 🇹🇼 TW-12 | SHFX
+      - 🇯🇵 JP-16 | SHFX
+      - 🇯🇵 JP-17 | SHFX
+      - 🇯🇵 JP-18 | SHFX
+      - 🇯🇵 JP-19 | SHFX
+      - 🇨🇦 CA-9 | SHFX
+      - 🇨🇦 CA-10 | SHFX
+      - 🇺🇸 US-23 | SHFX
+      - 🇺🇸 US-24 | SHFX
+      - 🇺🇸 US-25 | SHFX
+      - 🇺🇸 US-26 | SHFX
+      - 🇺🇸 US-27 | SHFX
+      - 🇺🇸 US-28 | SHFX
+      - 🇩🇪 DE-10 | SHFX
+      - 🇩🇪 DE-11 | SHFX
     url: https://www.gstatic.com/generate_204
     interval: 300
 rules:
