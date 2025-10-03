@@ -1,4 +1,4 @@
-# Last update: 03.10.2025 23:12:50
+# Last update: 03.10.2025 23:43:16
 mixed-port: 7897
 allow-lan: false
 mode: rule
@@ -121,6 +121,20 @@ dns:
       - +.googleapis.com
       - +.gvt1.com
 proxies:
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: 🇷🇺 RU-1 | SHFX
+  port: 443
+  reality-opts:
+    public-key: J_jQq9-SWQZjiMhuPaFV7V2MaJ4pkKgVRaz7x6tmvy8
+    short-id: 16895459a2c7768d
+  server: wa.sfasti.ru
+  servername: wa.sfasti.ru
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: d4e4c02a-d969-47a6-ba0f-3d433fdac206
 - name: 🇺🇸 US-1 | SHFX
   network: ws
   port: 443
@@ -162,57 +176,9 @@ proxies:
     headers:
       Host: eb362f92-svukg0-t12cnj-1ol97.hk.p5pv.com
     path: /
-- cipher: aes-256-cfb
-  name: 🇰🇷 KR-1 | SHFX
-  password: f8f7aCzcPKbsF8p3
-  port: 989
-  server: 154.90.63.177
-  type: ss
-- name: 🇺🇸 US-3 | SHFX
-  network: ws
-  port: 80
-  server: mstr.fastly80.hosting-ip.com
-  servername: gm195.io
-  skip-cert-verify: false
-  tls: false
-  type: vless
-  uuid: d46fbe10-7982-4229-b461-4afef5c690fa
-  ws-opts:
-    headers:
-      Host: gm195.io
-    path: /admin
 - alterId: 0
   cipher: auto
-  client-fingerprint: chrome
-  name: 🇭🇰 HK-2 | SHFX
-  network: ws
-  port: 80
-  server: c004e6fe-t1i9s0-tm53cm-1ol97.hkt.tcpbbr.net
-  skip-cert-verify: true
-  tls: false
-  type: vmess
-  uuid: 93fb69fc-77cf-11ee-85ee-f23c91369f2d
-  ws-opts:
-    headers:
-      host: c004e6fe-t1i9s0-tm53cm-1ol97.hkt.tcpbbr.net
-    path: /
-- client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: 🇷🇺 RU-1 | SHFX
-  port: 443
-  reality-opts:
-    public-key: J_jQq9-SWQZjiMhuPaFV7V2MaJ4pkKgVRaz7x6tmvy8
-    short-id: 16895459a2c7768d
-  server: wa.sfasti.ru
-  servername: wa.sfasti.ru
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: d4e4c02a-d969-47a6-ba0f-3d433fdac206
-- alterId: 0
-  cipher: auto
-  name: 🇺🇸 US-4 | SHFX
+  name: 🇺🇸 US-3 | SHFX
   network: ws
   port: 2095
   server: 104.19.45.245
@@ -226,7 +192,7 @@ proxies:
 - alterId: 2
   cipher: auto
   client-fingerprint: chrome
-  name: 🇭🇰 HK-3 | SHFX
+  name: 🇭🇰 HK-2 | SHFX
   network: ws
   port: 80
   server: 1e426046-t0fds0-t12cnj-1ol97.hk.p5pv.com
@@ -238,6 +204,27 @@ proxies:
     headers:
       host: 1e426046-t0fds0-t12cnj-1ol97.hk.p5pv.com
     path: /
+- alterId: 0
+  cipher: auto
+  client-fingerprint: chrome
+  name: 🇭🇰 HK-3 | SHFX
+  network: ws
+  port: 80
+  server: c004e6fe-t1i9s0-tm53cm-1ol97.hkt.tcpbbr.net
+  skip-cert-verify: true
+  tls: false
+  type: vmess
+  uuid: 93fb69fc-77cf-11ee-85ee-f23c91369f2d
+  ws-opts:
+    headers:
+      host: c004e6fe-t1i9s0-tm53cm-1ol97.hkt.tcpbbr.net
+    path: /
+- cipher: aes-256-cfb
+  name: 🇰🇷 KR-1 | SHFX
+  password: f8f7aCzcPKbsF8p3
+  port: 989
+  server: 154.90.63.177
+  type: ss
 - cipher: chacha20-ietf-poly1305
   name: 🇳🇱 NL-1 | SHFX
   password: QCXDxuDlTTMD7jtgHUjIoj
@@ -249,7 +236,27 @@ proxies:
   password: Xn8jKdmDM00IeO%#$#fJAMtsEAEUOpH/YWYtYqDFnT0SV
   port: 38388
   server: 103.186.154.198
+  tfo: false
   type: ss
+- cipher: aes-256-cfb
+  name: 🇰🇷 KR-2 | SHFX
+  password: qwerREWQ@@
+  port: 4652
+  server: p141.panda001.net
+  type: ss
+- name: 🇺🇸 US-4 | SHFX
+  network: ws
+  port: 80
+  server: mstr.fastly80.hosting-ip.com
+  servername: gm195.io
+  skip-cert-verify: false
+  tls: false
+  type: vless
+  uuid: d46fbe10-7982-4229-b461-4afef5c690fa
+  ws-opts:
+    headers:
+      Host: gm195.io
+    path: /admin
 - alterId: 2
   cipher: auto
   name: 🇨🇳 CN-1 | SHFX
@@ -269,11 +276,14 @@ proxies:
   port: 989
   server: 185.153.197.5
   type: ss
-- cipher: aes-256-cfb
-  name: 🇮🇸 IS-1 | SHFX
-  password: f8f7aCzcPKbsF8p3
-  port: 989
-  server: 37.235.49.168
+- alterId: 0
+  cipher: chacha20-ietf-poly1305
+  name: 🇻🇳 VN-2 | SHFX
+  password: Nk9asglDzHzjktVzTkvhaA
+  port: 443
+  server: arxfw2b78fi2q9hzylhn.freesocks.work
+  skip-cert-verify: true
+  tls: true
   type: ss
 - alterId: 2
   cipher: auto
@@ -291,19 +301,6 @@ proxies:
     headers:
       Host: baidu.com
     path: /oooo
-- alterId: 0
-  cipher: auto
-  name: 🇭🇰 HK-4 | SHFX
-  network: ws
-  port: 443
-  server: 46.3.26.12
-  tls: true
-  type: vmess
-  uuid: 4bf075f5-4d5e-4d39-f5ab-b32a86250f0e
-  ws-opts:
-    headers:
-      Host: hk.nbee.pp.ua
-    path: /aa
 - alterId: 0
   cipher: auto
   name: 🇨🇳 CN-3 | SHFX
@@ -344,7 +341,7 @@ proxies:
       Host: snippet.danfeng.site
     path: /?ed=2560
 - client-fingerprint: random
-  name: 🇰🇷 KR-2 | SHFX
+  name: 🇰🇷 KR-3 | SHFX
   network: ws
   port: 50000
   server: tp50000.kr.proxyip.fgfw.eu.org
@@ -359,7 +356,7 @@ proxies:
       Host: snippet.danfeng.site
     path: /?ed=2560
 - client-fingerprint: random
-  name: 🇭🇰 HK-5 | SHFX
+  name: 🇭🇰 HK-4 | SHFX
   network: ws
   port: 443
   server: 38.244.198.107
@@ -374,7 +371,7 @@ proxies:
       Host: snippet.danfeng.site
     path: /?ed=2560
 - client-fingerprint: random
-  name: 🇭🇰 HK-6 | SHFX
+  name: 🇭🇰 HK-5 | SHFX
   network: ws
   port: 39738
   server: 43.100.80.175
@@ -389,7 +386,7 @@ proxies:
       Host: snippet.danfeng.site
     path: /?ed=2560
 - client-fingerprint: random
-  name: 🇭🇰 HK-7 | SHFX
+  name: 🇭🇰 HK-6 | SHFX
   network: ws
   port: 13868
   server: 46.203.125.206
@@ -404,7 +401,7 @@ proxies:
       Host: snippet.danfeng.site
     path: /?ed=2560
 - client-fingerprint: random
-  name: 🇭🇰 HK-8 | SHFX
+  name: 🇭🇰 HK-7 | SHFX
   network: ws
   port: 35204
   server: 45.221.113.125
@@ -419,7 +416,7 @@ proxies:
       Host: snippet.danfeng.site
     path: /?ed=2560
 - client-fingerprint: random
-  name: 🇭🇰 HK-9 | SHFX
+  name: 🇭🇰 HK-8 | SHFX
   network: ws
   port: 34971
   server: 38.207.178.69
@@ -434,7 +431,7 @@ proxies:
       Host: snippet.danfeng.site
     path: /?ed=2560
 - client-fingerprint: random
-  name: 🇭🇰 HK-10 | SHFX
+  name: 🇭🇰 HK-9 | SHFX
   network: ws
   port: 13491
   server: 38.207.184.122
@@ -449,7 +446,7 @@ proxies:
       Host: snippet.danfeng.site
     path: /?ed=2560
 - client-fingerprint: random
-  name: 🇭🇰 HK-11 | SHFX
+  name: 🇭🇰 HK-10 | SHFX
   network: ws
   port: 443
   server: 38.180.94.97
@@ -554,7 +551,7 @@ proxies:
       Host: snippet.danfeng.site
     path: /?ed=2560
 - client-fingerprint: random
-  name: 🇰🇷 KR-3 | SHFX
+  name: 🇰🇷 KR-4 | SHFX
   network: ws
   port: 12693
   server: 152.70.245.66
@@ -814,40 +811,40 @@ proxy-groups:
     type: select
     proxies:
       - 自动选择⚡️
+      - 🇷🇺 RU-1 | SHFX
       - 🇺🇸 US-1 | SHFX
       - 🇺🇸 US-2 | SHFX
       - 🇭🇰 HK-1 | SHFX
-      - 🇰🇷 KR-1 | SHFX
       - 🇺🇸 US-3 | SHFX
       - 🇭🇰 HK-2 | SHFX
-      - 🇷🇺 RU-1 | SHFX
-      - 🇺🇸 US-4 | SHFX
       - 🇭🇰 HK-3 | SHFX
+      - 🇰🇷 KR-1 | SHFX
       - 🇳🇱 NL-1 | SHFX
       - 🇻🇳 VN-1 | SHFX
+      - 🇰🇷 KR-2 | SHFX
+      - 🇺🇸 US-4 | SHFX
       - 🇨🇳 CN-1 | SHFX
       - 🇲🇩 MD-1 | SHFX
-      - 🇮🇸 IS-1 | SHFX
+      - 🇻🇳 VN-2 | SHFX
       - 🇨🇳 CN-2 | SHFX
-      - 🇭🇰 HK-4 | SHFX
       - 🇨🇳 CN-3 | SHFX
       - 🇺🇸 US-5 | SHFX
       - 🇺🇸 US-6 | SHFX
-      - 🇰🇷 KR-2 | SHFX
+      - 🇰🇷 KR-3 | SHFX
+      - 🇭🇰 HK-4 | SHFX
       - 🇭🇰 HK-5 | SHFX
       - 🇭🇰 HK-6 | SHFX
       - 🇭🇰 HK-7 | SHFX
       - 🇭🇰 HK-8 | SHFX
       - 🇭🇰 HK-9 | SHFX
       - 🇭🇰 HK-10 | SHFX
-      - 🇭🇰 HK-11 | SHFX
       - 🇯🇵 JP-1 | SHFX
       - 🇯🇵 JP-2 | SHFX
       - 🇯🇵 JP-3 | SHFX
       - 🇯🇵 JP-4 | SHFX
       - 🇯🇵 JP-5 | SHFX
       - 🇯🇵 JP-6 | SHFX
-      - 🇰🇷 KR-3 | SHFX
+      - 🇰🇷 KR-4 | SHFX
       - 🇸🇬 SG-1 | SHFX
       - 🇸🇬 SG-2 | SHFX
       - 🇸🇬 SG-3 | SHFX
@@ -867,40 +864,40 @@ proxy-groups:
   - name: 自动选择⚡️
     type: url-test
     proxies:
+      - 🇷🇺 RU-1 | SHFX
       - 🇺🇸 US-1 | SHFX
       - 🇺🇸 US-2 | SHFX
       - 🇭🇰 HK-1 | SHFX
-      - 🇰🇷 KR-1 | SHFX
       - 🇺🇸 US-3 | SHFX
       - 🇭🇰 HK-2 | SHFX
-      - 🇷🇺 RU-1 | SHFX
-      - 🇺🇸 US-4 | SHFX
       - 🇭🇰 HK-3 | SHFX
+      - 🇰🇷 KR-1 | SHFX
       - 🇳🇱 NL-1 | SHFX
       - 🇻🇳 VN-1 | SHFX
+      - 🇰🇷 KR-2 | SHFX
+      - 🇺🇸 US-4 | SHFX
       - 🇨🇳 CN-1 | SHFX
       - 🇲🇩 MD-1 | SHFX
-      - 🇮🇸 IS-1 | SHFX
+      - 🇻🇳 VN-2 | SHFX
       - 🇨🇳 CN-2 | SHFX
-      - 🇭🇰 HK-4 | SHFX
       - 🇨🇳 CN-3 | SHFX
       - 🇺🇸 US-5 | SHFX
       - 🇺🇸 US-6 | SHFX
-      - 🇰🇷 KR-2 | SHFX
+      - 🇰🇷 KR-3 | SHFX
+      - 🇭🇰 HK-4 | SHFX
       - 🇭🇰 HK-5 | SHFX
       - 🇭🇰 HK-6 | SHFX
       - 🇭🇰 HK-7 | SHFX
       - 🇭🇰 HK-8 | SHFX
       - 🇭🇰 HK-9 | SHFX
       - 🇭🇰 HK-10 | SHFX
-      - 🇭🇰 HK-11 | SHFX
       - 🇯🇵 JP-1 | SHFX
       - 🇯🇵 JP-2 | SHFX
       - 🇯🇵 JP-3 | SHFX
       - 🇯🇵 JP-4 | SHFX
       - 🇯🇵 JP-5 | SHFX
       - 🇯🇵 JP-6 | SHFX
-      - 🇰🇷 KR-3 | SHFX
+      - 🇰🇷 KR-4 | SHFX
       - 🇸🇬 SG-1 | SHFX
       - 🇸🇬 SG-2 | SHFX
       - 🇸🇬 SG-3 | SHFX
