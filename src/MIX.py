@@ -33,6 +33,80 @@ try:
 except ValueError:
     LATENCY_THRESHOLD = 100
 
+# ---------------- Helper ----------------
+def resolve_ip(host):
+    try:
+        return socket.gethostbyname(host)
+    except:
+        return None
+
+def tcp_latency_ms(host, port, timeout=2.0):
+    try:
+        start = time.time()
+        sock = socket.create_connection((host, port), timeout=timeout)
+        sock.close()
+        return int((time.time() - start) * 1000)
+    except:
+        return 9999
+
+def geo_ip(ip):
+    try:
+        r = requests.get(f"https://ipinfo.io/{ip}/json", timeout=5)
+        if r.status_code == 200:
+            data = r.json()
+            cc = data.get("country")
+            if cc:
+                return cc.lower(), cc.upper()
+    except:
+        pass
+    return "unknown", "UN"
+    
+def country_to_flag(cc):
+    """Convert ISO 3166 two-letter code to emoji flag"""
+    if not cc or len(cc) != 2:
+        return "🏳️"
+    return chr(0x1F1E6 + (ord(cc[0].upper()) - 65)) + chr(0x1F1E6 + (ord(cc[1].upper()) - 65))
+
+def flag_to_country_code(flag):
+    """Convert emoji flag to ISO 3166 code"""
+    if not flag or len(flag) < 2:
+        return None
+    try:
+        first, second = flag[0], flag[1]
+        return chr(ord(first) - 0x1F1E6 + 65) + chr(ord(second) - 0x1F1E6 + 65)
+    except:
+        return None
+
+def load_cn_to_cc():
+    secret_data = os.environ.get("CN_TO_CC", "{}")
+    try:
+        return json.loads(secret_data)
+    except Exception as e:
+        print(f"[error] 😭 Failed to parse CN_TO_CC secret: {e}")
+        return {}
+
+# ---------------- Load sources ----------------
+def load_sources():
+    if not os.path.exists(SOURCES_FILE):
+        print(f"[FATAL] ⚠️ Source not found at {SOURCES_FILE}")
+        sys.exit(1)
+    with open(SOURCES_FILE, "r", encoding="utf-8") as f:
+        sources = [line.strip() for line in f if line.strip() and not line.startswith("#")]
+    if not sources:
+        print(f"[FATAL] 🕵️ Source is empty. Please check the secret or file content.")
+        sys.exit(1)
+    return sources
+
+# -----------------------------------------------------------
+# Helper: Safe base64 decode
+# -----------------------------------------------------------
+def decode_b64(b64str):
+    try:
+        padded = b64str + "=" * (-len(b64str) % 4)
+        return base64.urlsafe_b64decode(padded).decode("utf-8")
+    except Exception:
+        return ""
+
 # -----------------------------------------------------------
 # Helper: Generic dynamic query merger
 # -----------------------------------------------------------
@@ -46,7 +120,7 @@ def merge_dynamic_fields(node, query):
     return node
 
 # -----------------------------------------------------------
-# VMESS
+# VMESS Parser
 # -----------------------------------------------------------
 def parse_vmess(line):
     try:
@@ -78,7 +152,7 @@ def parse_vmess(line):
         return None
 
 # -----------------------------------------------------------
-# VLESS
+# VLESS Parser
 # -----------------------------------------------------------
 def parse_vless(line):
     try:
@@ -152,7 +226,7 @@ def parse_vless(line):
         return None
 
 # -----------------------------------------------------------
-# TROJAN
+# TROJAN Parser
 # -----------------------------------------------------------
 def parse_trojan(line):
     try:
@@ -214,7 +288,7 @@ def parse_trojan(line):
         return None
 
 # -----------------------------------------------------------
-# HYSTERIA2
+# HYSTERIA2 Parser
 # -----------------------------------------------------------
 def parse_hysteria2(line):
     try:
@@ -251,7 +325,7 @@ def parse_hysteria2(line):
         return None
 
 # -----------------------------------------------------------
-# ANYTLS
+# ANYTLS Parser
 # -----------------------------------------------------------
 def parse_anytls(line):
     try:
@@ -278,7 +352,7 @@ def parse_anytls(line):
         return None
 
 # -----------------------------------------------------------
-# TUIC
+# TUIC Parser
 # -----------------------------------------------------------
 def parse_tuic(line):
     try:
@@ -304,7 +378,7 @@ def parse_tuic(line):
         return None
 
 # -----------------------------------------------------------
-# SHADOWSOCKS (SS)
+# SHADOWSOCKS (SS) Parser
 # -----------------------------------------------------------
 def parse_ss(line):
     try:
@@ -358,7 +432,7 @@ def parse_ss(line):
         return None
 
 # -----------------------------------------------------------
-# SHADOWSOCKSR (SSR)
+# SHADOWSOCKSR (SSR) Parser
 # -----------------------------------------------------------
 def parse_ssr(line):
     try:
