@@ -700,16 +700,16 @@ def main():
         # ---------------- Function to reorder keys ----------------
         def reorder_info(node):
             ordered = OrderedDict()
-            # Add preferred keys in order if present
             for key in INFO_ORDER:
                 if key in node:
                     val = node[key]
-                    # Convert comma-separated strings to lists for certain keys
+                    # Convert comma-separated strings to list for proper YAML slice
                     if key in ("alpn", "fp", "client-fingerprint") and isinstance(val, str):
-                        ordered[key] = [x.strip() for x in val.split(",") if x.strip()]
+                        val_list = [x.strip() for x in val.split(",") if x.strip()]
+                        ordered[key] = val_list
                     else:
                         ordered[key] = val
-            # Add extra keys not in preferred order
+            # Append extra keys not in preferred order
             for key in node:
                 if key not in ordered:
                     ordered[key] = node[key]
