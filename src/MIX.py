@@ -701,7 +701,7 @@ def main():
         def reorder_info(node):
             ordered = OrderedDict()
             # Add preferred keys in order if present
-            for key in PREFERRED_ORDER:
+            for key in INFO_ORDER:
                 if key in node:
                     ordered[key] = node[key]
             # Add extra keys not in preferred order
