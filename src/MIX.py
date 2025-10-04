@@ -6,8 +6,7 @@ import requests
 import socket
 import concurrent.futures
 import traceback
-from collections import defaultdict
-from collections import OrderedDict
+from collections import defaultdict, OrderedDict
 from datetime import datetime, timedelta, timezone
 import base64
 import re
@@ -712,8 +711,9 @@ def main():
 
         # ---------------- Convert to YAML ----------------
         nodes_ordered = [reorder_info(n) for n in renamed_nodes]
-        proxies_yaml_block = yaml.dump(nodes_ordered, allow_unicode=True, default_flow_style=False)
-        proxy_names_block = "\n".join([f"      - {unquote(p['name'])}" for p in nodes_ordered])
+        nodes_clean = [dict(n) for n in nodes_ordered]
+        proxies_yaml_block = yaml.dump(nodes_clean, allow_unicode=True, default_flow_style=False)
+        proxy_names_block = "\n".join([f"      - {unquote(p['name'])}" for p in nodes_clean])
 
         # ---------------- Replace placeholders ----------------
         output_text = template_text.replace("{{PROXIES}}", proxies_yaml_block)
