@@ -636,10 +636,10 @@ def main():
         all_nodes = []
         for url in sources:
             nodes = load_proxies(url)
-            print(f"[source] ✅ Total {len(nodes)} valid nodes after parsing")
+            print(f"[source] 📝 {len(nodes)} nodes parsed from current subscription")
             all_nodes.extend(nodes)
 
-        print(f"[collect] 📋 Total {len(all_nodes)} nodes before filtering")
+        print(f"[collect] 📋 Total {len(all_nodes)} nodes successfully parsed from all subscriptions")
 
         # ---------------- Latency filter ----------------
         if USE_LATENCY:
@@ -711,7 +711,7 @@ def main():
 
         # ---------------- Convert to YAML ----------------
         nodes_ordered = [reorder_info(n) for n in renamed_nodes]
-        proxies_yaml_block = yaml.dump(nodes_ordered,, allow_unicode=True, default_flow_style=False)
+        proxies_yaml_block = yaml.dump(nodes_ordered, allow_unicode=True, default_flow_style=False)
         proxy_names_block = "\n".join([f"      - {unquote(p['name'])}" for p in nodes_order])
 
         # ---------------- Replace placeholders ----------------
