@@ -703,7 +703,12 @@ def main():
             # Add preferred keys in order if present
             for key in INFO_ORDER:
                 if key in node:
-                    ordered[key] = node[key]
+                    val = node[key]
+                    # Convert comma-separated strings to lists for certain keys
+                    if key in ("alpn", "fp", "client-fingerprint") and isinstance(val, str):
+                        ordered[key] = [x.strip() for x in val.split(",") if x.strip()]
+                    else:
+                        ordered[key] = val
             # Add extra keys not in preferred order
             for key in node:
                 if key not in ordered:
