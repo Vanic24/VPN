@@ -712,7 +712,7 @@ def main():
         # ---------------- Convert to YAML ----------------
         nodes_ordered = [reorder_info(n) for n in renamed_nodes]
         proxies_yaml_block = yaml.dump(nodes_ordered, allow_unicode=True, default_flow_style=False)
-        proxy_names_block = "\n".join([f"      - {unquote(p['name'])}" for p in nodes_order])
+        proxy_names_block = "\n".join([f"      - {unquote(p['name'])}" for p in nodes_ordered])
 
         # ---------------- Replace placeholders ----------------
         output_text = template_text.replace("{{PROXIES}}", proxies_yaml_block)
