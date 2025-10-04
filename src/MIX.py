@@ -717,11 +717,10 @@ def main():
         
         # Apply to all renamed nodes
         info_ordered = [reorder_info(n) for n in renamed_nodes]
-        info_ordered_dicts = [dict(n) for n in info_ordered]
 
         # ---------------- Convert to YAML ----------------
-        proxies_yaml_block = yaml.dump(info_ordered_dicts, allow_unicode=True, default_flow_style=False, sort_keys=False)
-        proxy_names_block = "\n".join([f"      - {unquote(p['name'])}" for p in info_ordered_dicts])
+        proxies_yaml_block = yaml.dump(info_ordered, allow_unicode=True, default_flow_style=False, sort_keys=False)
+        proxy_names_block = "\n".join([f"      - {unquote(p['name'])}" for p in info_ordered])
 
         # ---------------- Replace placeholders ----------------
         output_text = template_text.replace("{{PROXIES}}", proxies_yaml_block)
