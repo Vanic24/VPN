@@ -703,10 +703,16 @@ def main():
             for key in INFO_ORDER:
                 if key in node:
                     val = node[key]
-                    # Convert comma-separated strings to list for proper YAML slice
-                    if key in ("alpn", "fp", "client-fingerprint") and isinstance(val, str):
-                        val_list = [x.strip() for x in val.split(",") if x.strip()]
-                        ordered[key] = val_list
+                    # Ensure alpn, fp, client-fingerprint are always lists
+                    if key in ("alpn", "fp", "client-fingerprint"):
+                        if isinstance(val, str):
+                            val_list = [x.strip() for x in val.split(",") if x.strip()]
+                            ordered[key] = val_list
+                        elif isinstance(val, list):
+                            ordered[key] = val
+                        else:
+                            # fallback to empty list
+                            ordered[key] = []
                     else:
                         ordered[key] = val
             # Append extra keys not in preferred order
@@ -715,12 +721,20 @@ def main():
                     ordered[key] = node[key]
             return ordered
         
+        # ---------------- Custom YAML representer to force block lists ----------------
+        def represent_ordered_dict(dumper, data):
+            return dumper.represent_mapping('tag:yaml.org,2002:map', data.items())
+        
+        yaml.add_representer(OrderedDict, represent_ordered_dict)
+        yaml.add_representer(list, lambda dumper, data: dumper.represent_sequence('tag:yaml.org,2002:seq', data, flow_style=False))
+        
         # Apply to all renamed nodes
         info_ordered = [reorder_info(n) for n in renamed_nodes]
+        info_ordered_dicts = [dict(n) for n in info_ordered]
 
         # ---------------- Convert to YAML ----------------
-        proxies_yaml_block = yaml.dump(info_ordered, allow_unicode=True, default_flow_style=False, sort_keys=False)
-        proxy_names_block = "\n".join([f"      - {unquote(p['name'])}" for p in info_ordered])
+        proxies_yaml_block = yaml.dump(info_ordered_dicts, allow_unicode=True, default_flow_style=False, sort_keys=False)
+        proxy_names_block = "\n".join([f"      - {unquote(p['name'])}" for p in info_ordered_dicts])
 
         # ---------------- Replace placeholders ----------------
         output_text = template_text.replace("{{PROXIES}}", proxies_yaml_block)
