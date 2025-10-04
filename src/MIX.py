@@ -6,7 +6,7 @@ import requests
 import socket
 import concurrent.futures
 import traceback
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 from datetime import datetime, timedelta, timezone
 import base64
 import re
@@ -689,9 +689,30 @@ def main():
             print(f"[FATAL] ⚠️ Failed to fetch ClashTemplate -> {e}")
             sys.exit(1)
 
+        # ---------------- Preferred key order ----------------
+        INFO_ORDER = [
+            "name", "type", "server", "port", "uuid", "password",
+            "encryption", "network", "security", "sni", "servername",
+            "skip-cert-verify", "alpn", "fp", "client-fingerprint",
+            "path", "ws-opts", "grpc-opts", "h2-opts"
+        ]
+        
+        # ---------------- Function to reorder keys ----------------
+        def reorder_info(node, key_order=INFO_ORDER):
+            ordered = OrderedDict()
+            for key in key_order:
+                if key in node:
+                    ordered[key] = node[key]
+            # append extra keys that aren't in preferred order
+            for key in node:
+                if key not in ordered:
+                    ordered[key] = node[key]
+            return ordered
+
         # ---------------- Convert to YAML ----------------
-        proxies_yaml_block = yaml.dump(renamed_nodes, allow_unicode=True, default_flow_style=False)
-        proxy_names_block = "\n".join([f"      - {unquote(p['name'])}" for p in renamed_nodes])
+        nodes_ordered = [reorder_info(n) for n in renamed_nodes]
+        proxies_yaml_block = yaml.dump(nodes_ordered,, allow_unicode=True, default_flow_style=False)
+        proxy_names_block = "\n".join([f"      - {unquote(p['name'])}" for p in nodes_order])
 
         # ---------------- Replace placeholders ----------------
         output_text = template_text.replace("{{PROXIES}}", proxies_yaml_block)
