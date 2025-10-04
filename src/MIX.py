@@ -116,12 +116,11 @@ def merge_dynamic_fields(node, query):
     for k, v in query.items():
         if k not in known and v:  # only non-empty
             v_decoded = urllib.parse.unquote(v)
-            # Convert comma-separated strings to list for specific keys
-            if k in ("alpn", "fp", "client-fingerprint"):
+            if k == "alpn":  # only ALPN is a list
                 v_list = [x.strip() for x in v_decoded.split(",") if x.strip()]
                 if v_list:
                     node[k] = v_list
-            else:
+            else:  # everything else stays as string
                 node[k] = v_decoded
     return node
 
