@@ -1,4 +1,4 @@
-# Last update: 04.10.2025 16:05:39
+# Last update: 04.10.2025 16:44:28
 mixed-port: 7897
 allow-lan: false
 mode: rule
@@ -122,6 +122,19 @@ dns:
       - +.gvt1.com
 proxies:
 - client-fingerprint: chrome
+  name: 🇵🇱 PL-1 | SHFX
+  port: 8080
+  reality-opts:
+    public-key: iPjWLvXWt7ABJaSRRwzjgLrvlJlwoYQZN8zF-G3D-Qs
+    short-id: 27cfa05000c23cc4
+  server: 45.144.51.23
+  servername: yandex.com
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 1abaa2b6-ab8c-4525-8c91-b73bc2ab2b37
+- client-fingerprint: chrome
   name: 🇺🇸 US-1 | SHFX
   network: ws
   port: 80
@@ -138,21 +151,21 @@ proxies:
       User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
         like Gecko) Chrome/120.0.0.0 Safari/537.36
     path: /Free-VPN-Geo-Project/181.214.208.46-8011
-- client-fingerprint: chrome
-  name: 🇵🇱 PL-1 | SHFX
-  port: 8080
-  reality-opts:
-    public-key: iPjWLvXWt7ABJaSRRwzjgLrvlJlwoYQZN8zF-G3D-Qs
-    short-id: 27cfa05000c23cc4
-  server: 45.144.51.23
-  servername: yandex.com
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 1abaa2b6-ab8c-4525-8c91-b73bc2ab2b37
-- client-fingerprint: chrome
+- alterId: 0
+  cipher: auto
   name: 🇺🇸 US-2 | SHFX
+  network: ws
+  port: 443
+  server: 154.17.227.158
+  tls: true
+  type: vmess
+  uuid: de94cc0a-0592-4969-b1fc-97ea8f0ea0b3
+  ws-opts:
+    headers:
+      Host: us.nbee.pp.ua
+    path: /aa
+- client-fingerprint: chrome
+  name: 🇺🇸 US-3 | SHFX
   network: ws
   port: 2096
   server: 104.26.12.31
@@ -169,19 +182,6 @@ proxies:
       User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
         like Gecko) Chrome/120.0.0.0 Safari/537.36
     path: /snippets?ip=proxyip:port(443)&nat64=6to4
-- alterId: 0
-  cipher: auto
-  name: 🇺🇸 US-3 | SHFX
-  network: ws
-  port: 443
-  server: 154.17.227.158
-  tls: true
-  type: vmess
-  uuid: de94cc0a-0592-4969-b1fc-97ea8f0ea0b3
-  ws-opts:
-    headers:
-      Host: us.nbee.pp.ua
-    path: /aa
 - client-fingerprint: chrome
   name: 🇺🇸 US-4 | SHFX
   port: 8080
@@ -195,33 +195,20 @@ proxies:
   type: vless
   udp: true
   uuid: 1abaa2b6-ab8c-4525-8c91-b73bc2ab2b37
-- client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: 🇷🇺 RU-1 | SHFX
-  port: 443
-  reality-opts:
-    public-key: J_jQq9-SWQZjiMhuPaFV7V2MaJ4pkKgVRaz7x6tmvy8
-    short-id: 16895459a2c7768d
-  server: 188.225.81.91
-  servername: wa.sfasti.ru
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: d4e4c02a-d969-47a6-ba0f-3d433fdac206
 - alterId: 2
   cipher: auto
+  client-fingerprint: chrome
   name: 🇭🇰 HK-1 | SHFX
   network: ws
   port: 80
   server: 1e426046-t0fds0-t12cnj-1ol97.hk.p5pv.com
-  skip-cert-verify: false
+  skip-cert-verify: true
   tls: false
   type: vmess
   uuid: 93fb69fc-77cf-11ee-85ee-f23c91369f2d
   ws-opts:
     headers:
-      Host: broadcastlv.chat.bilibili.com
+      host: 1e426046-t0fds0-t12cnj-1ol97.hk.p5pv.com
     path: /
 - alterId: 2
   cipher: auto
@@ -232,6 +219,7 @@ proxies:
   skip-cert-verify: true
   tls: false
   type: vmess
+  udp: true
   uuid: 93fb69fc-77cf-11ee-85ee-f23c91369f2d
   ws-opts:
     headers:
@@ -252,19 +240,6 @@ proxies:
     headers:
       host: c004e6fe-t1i9s0-tm53cm-1ol97.hkt.tcpbbr.net
     path: /
-- alterId: 0
-  cipher: auto
-  name: 🇺🇸 US-5 | SHFX
-  network: ws
-  port: 2095
-  server: 104.19.45.245
-  skip-cert-verify: true
-  tls: false
-  type: vmess
-  udp: true
-  uuid: 7a737f41-b792-4260-94ff-3d864da67b80
-  ws-opts:
-    path: /
 - alterId: 2
   cipher: auto
   name: 🇨🇳 CN-1 | SHFX
@@ -278,6 +253,19 @@ proxies:
     headers:
       Host: ocbc.com
     path: /oooo
+- alterId: 0
+  cipher: auto
+  name: 🇺🇸 US-5 | SHFX
+  network: ws
+  port: 2095
+  server: 104.19.45.245
+  skip-cert-verify: true
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 7a737f41-b792-4260-94ff-3d864da67b80
+  ws-opts:
+    path: /
 - client-fingerprint: random
   name: 🇺🇸 US-6 | SHFX
   network: ws
@@ -779,17 +767,16 @@ proxy-groups:
     type: select
     proxies:
       - 自动选择⚡️
-      - 🇺🇸 US-1 | SHFX
       - 🇵🇱 PL-1 | SHFX
+      - 🇺🇸 US-1 | SHFX
       - 🇺🇸 US-2 | SHFX
       - 🇺🇸 US-3 | SHFX
       - 🇺🇸 US-4 | SHFX
-      - 🇷🇺 RU-1 | SHFX
       - 🇭🇰 HK-1 | SHFX
       - 🇭🇰 HK-2 | SHFX
       - 🇭🇰 HK-3 | SHFX
-      - 🇺🇸 US-5 | SHFX
       - 🇨🇳 CN-1 | SHFX
+      - 🇺🇸 US-5 | SHFX
       - 🇺🇸 US-6 | SHFX
       - 🇺🇸 US-7 | SHFX
       - 🇰🇷 KR-1 | SHFX
@@ -826,17 +813,16 @@ proxy-groups:
   - name: 自动选择⚡️
     type: url-test
     proxies:
-      - 🇺🇸 US-1 | SHFX
       - 🇵🇱 PL-1 | SHFX
+      - 🇺🇸 US-1 | SHFX
       - 🇺🇸 US-2 | SHFX
       - 🇺🇸 US-3 | SHFX
       - 🇺🇸 US-4 | SHFX
-      - 🇷🇺 RU-1 | SHFX
       - 🇭🇰 HK-1 | SHFX
       - 🇭🇰 HK-2 | SHFX
       - 🇭🇰 HK-3 | SHFX
-      - 🇺🇸 US-5 | SHFX
       - 🇨🇳 CN-1 | SHFX
+      - 🇺🇸 US-5 | SHFX
       - 🇺🇸 US-6 | SHFX
       - 🇺🇸 US-7 | SHFX
       - 🇰🇷 KR-1 | SHFX
