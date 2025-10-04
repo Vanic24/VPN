@@ -33,488 +33,348 @@ try:
 except ValueError:
     LATENCY_THRESHOLD = 100
 
-# ---------------- Helper ----------------
-def resolve_ip(host):
-    try:
-        return socket.gethostbyname(host)
-    except:
-        return None
+# -----------------------------------------------------------
+# Helper: Generic dynamic query merger
+# -----------------------------------------------------------
+def merge_dynamic_fields(node, query):
+    """Attach all unrecognized query fields dynamically."""
+    known = set(node.keys())
+    for k, v in query.items():
+        if k not in known and v is not None:
+            # If multiple values, use first unless it’s a list of unique items
+            node[k] = v if not isinstance(v, list) else v[0]
+    return node
 
-def tcp_latency_ms(host, port, timeout=2.0):
-    try:
-        start = time.time()
-        sock = socket.create_connection((host, port), timeout=timeout)
-        sock.close()
-        return int((time.time() - start) * 1000)
-    except:
-        return 9999
-
-def geo_ip(ip):
-    try:
-        r = requests.get(f"https://ipinfo.io/{ip}/json", timeout=5)
-        if r.status_code == 200:
-            data = r.json()
-            cc = data.get("country")
-            if cc:
-                return cc.lower(), cc.upper()
-    except:
-        pass
-    return "unknown", "UN"
-    
-def country_to_flag(cc):
-    """Convert ISO 3166 two-letter code to emoji flag"""
-    if not cc or len(cc) != 2:
-        return "🏳️"
-    return chr(0x1F1E6 + (ord(cc[0].upper()) - 65)) + chr(0x1F1E6 + (ord(cc[1].upper()) - 65))
-
-def flag_to_country_code(flag):
-    """Convert emoji flag to ISO 3166 code"""
-    if not flag or len(flag) < 2:
-        return None
-    try:
-        first, second = flag[0], flag[1]
-        return chr(ord(first) - 0x1F1E6 + 65) + chr(ord(second) - 0x1F1E6 + 65)
-    except:
-        return None
-
-def load_cn_to_cc():
-    secret_data = os.environ.get("CN_TO_CC", "{}")
-    try:
-        return json.loads(secret_data)
-    except Exception as e:
-        print(f"[error] 😭 Failed to parse CN_TO_CC secret: {e}")
-        return {}
-
-# ---------------- Load sources ----------------
-def load_sources():
-    if not os.path.exists(SOURCES_FILE):
-        print(f"[FATAL] ⚠️ Source not found at {SOURCES_FILE}")
-        sys.exit(1)
-    with open(SOURCES_FILE, "r", encoding="utf-8") as f:
-        sources = [line.strip() for line in f if line.strip() and not line.startswith("#")]
-    if not sources:
-        print(f"[FATAL] 🕵️ Source is empty. Please check the secret or file content.")
-        sys.exit(1)
-    return sources
-
-# ---------------- Base64 helper ----------------
-def decode_b64(data: str) -> str | None:
-    try:
-        data = data.replace("-", "+").replace("_", "/")
-        padding = "=" * (-len(data) % 4)
-        return base64.b64decode(data + padding).decode("utf-8")
-    except Exception:
-        return None
-
-# ---------------- Vmess parsers ----------------
+# -----------------------------------------------------------
+# VMESS
+# -----------------------------------------------------------
 def parse_vmess(line):
     try:
-        if line.startswith("vmess://"):
-            b64 = line[8:].strip()
-            padded = b64 + "=" * (-len(b64) % 4)
-            json_str = base64.b64decode(padded).decode('utf-8')
-            data = json.loads(json_str)
-            node = {
-                "name": data.get("ps") or "",
-                "type": "vmess",
-                "server": data["add"],
-                "port": int(data["port"]),
-                "uuid": data["id"],
-                "alterId": int(data.get("aid", 0)),
-                "cipher": data.get("scy", "auto"),
-                "tls": data.get("tls", "").lower() == "tls",
-                "network": data.get("net", "tcp"),
+        if not line.startswith("vmess://"):
+            return None
+        raw = line[8:].strip()
+        data = json.loads(base64.b64decode(raw + "=" * (-len(raw) % 4)).decode("utf-8"))
+        node = {
+            "type": "vmess",
+            "name": data.get("ps") or "",
+            "server": data.get("add", ""),
+            "port": int(data.get("port", 0)),
+            "uuid": data.get("id", ""),
+            "alterId": int(data.get("aid", 0)),
+            "cipher": data.get("scy", "auto"),
+            "tls": data.get("tls", "").lower() == "tls",
+            "network": data.get("net", "tcp"),
+        }
+        if node["network"] == "ws":
+            node["ws-opts"] = {
+                "path": data.get("path", "/"),
+                "headers": {"Host": data.get("host", "")}
             }
-            if node["network"] == "ws":
-                node["ws-opts"] = {
-                    "path": data.get("path", "/"),
-                    "headers": {"Host": data.get("host", "")}
-                }
-            return node
+        # dynamic fields
+        node = merge_dynamic_fields(node, data)
+        return node
     except Exception as e:
-        print(f"[warn] ❗Vmess parse error: {e}")
+        print(f"[warn] ❗Vmess parse error -> {e}")
         return None
-    return None
 
-# ---------------- Vless parser ----------------
-def parse_vless(line: str) -> dict | None:
+# -----------------------------------------------------------
+# VLESS
+# -----------------------------------------------------------
+def parse_vless(line):
     try:
         if not line.startswith("vless://"):
             return None
 
-        # Split off name/comment
-        name_fragment = ""
+        # Split name fragment
+        name = ""
         if "#" in line:
-            line, name_fragment = line.split("#", 1)
-            name_fragment = urllib.parse.unquote(name_fragment)
+            line, name = line.split("#", 1)
+            name = urllib.parse.unquote(name)
 
-        # Remove scheme
-        line = line[len("vless://"):]
-
-        # Split UUID and rest
-        if "@" not in line:
+        core = line[len("vless://"):]
+        if "@" not in core:
             return None
-        uuid, rest = line.split("@", 1)
+        uuid, rest = core.split("@", 1)
 
-        # Split host:port and query
+        query = {}
         if "?" in rest:
-            server_port, query_str = rest.split("?", 1)
-            query = dict(urllib.parse.parse_qsl(query_str))
+            host_port, q = rest.split("?", 1)
+            query = dict(urllib.parse.parse_qsl(q))
         else:
-            server_port = rest
-            query = {}
+            host_port = rest
 
-        if ":" not in server_port:
+        if ":" not in host_port:
             return None
-        server, port = server_port.split(":", 1)
+        host, port = host_port.split(":", 1)
 
-        # --- Build node dict ---
         node = {
-            "name": name_fragment or "VLESS Node",
             "type": "vless",
-            "server": server.strip(),
-            "port": int(port.strip()),
-            "uuid": uuid.strip(),
+            "name": name or "VLESS Node",
+            "server": host,
+            "port": int(port),
+            "uuid": uuid,
+            "encryption": query.get("encryption", "none"),
         }
 
-        # Encryption (default none)
-        if "encryption" in query:
-            node["encryption"] = query.get("encryption", "none")
-        else:
-            node["encryption"] = "none"
-
-        # TLS
+        # Security (TLS / Reality)
         if query.get("security") == "tls":
             node["tls"] = True
             node["servername"] = query.get("sni", "")
-            # keep skip-cert-verify default False
-            node["skip-cert-verify"] = query.get("allowInsecure", "0") == "1"
+            node["skip-cert-verify"] = query.get("allowInsecure", "0") in ("1", "true", "yes")
             if "fp" in query:
                 node["client-fingerprint"] = query["fp"]
-        else:
-            node["tls"] = False
-
-        # Flow (for reality / xtls-rprx-vision etc.)
-        if "flow" in query:
-            node["flow"] = query["flow"]
+        elif query.get("security") == "reality":
+            node["reality-opts"] = {
+                "public-key": query.get("pbk", ""),
+                "short-id": query.get("sid", ""),
+                "server-name": query.get("sni", "")
+            }
+            node["tls"] = True
 
         # Network
         if "type" in query:
             node["network"] = query["type"]
 
-        # WS options
         if node.get("network") == "ws":
-            ws_opts = {}
-            if "path" in query:
-                # Preserve exact path without double-encoding
-                ws_opts["path"] = urllib.parse.unquote(query["path"])
-            headers = {}
+            ws_opts = {"path": urllib.parse.unquote(query.get("path", "/"))}
             if "host" in query:
-                headers["Host"] = query["host"]
-            if headers:
-                ws_opts["headers"] = headers
-            if ws_opts:
-                node["ws-opts"] = ws_opts
+                ws_opts["headers"] = {"Host": query["host"]}
+            node["ws-opts"] = ws_opts
 
+        if node.get("network") == "grpc":
+            node["grpc-opts"] = {"grpc-service-name": query.get("serviceName", "")}
+
+        node = merge_dynamic_fields(node, query)
         return node
 
     except Exception as e:
         print(f"[warn] ❗VLESS parse error -> {e}")
         return None
 
-# ---------------- Trojan parser ----------------
-# ---------------- Trojan parser ----------------
-def parse_trojan(line: str) -> dict | None:
+# -----------------------------------------------------------
+# TROJAN
+# -----------------------------------------------------------
+def parse_trojan(line):
     try:
         if not line.startswith("trojan://"):
             return None
 
-        # Split name fragment
-        name_fragment = ""
+        name = ""
         if "#" in line:
-            line, name_fragment = line.split("#", 1)
-            name_fragment = urllib.parse.unquote(name_fragment)
+            line, name = line.split("#", 1)
+            name = urllib.parse.unquote(name.strip())
 
-        # Remove scheme
-        line = line[len("trojan://"):]
-
-        # Split password and rest
-        if "@" not in line:
+        core = line[len("trojan://"):]
+        if "@" not in core:
             return None
-        password, rest = line.split("@", 1)
+        password, rest = core.split("@", 1)
 
-        # Split host:port and query
         query = {}
         if "?" in rest:
-            host_port, query_str = rest.split("?", 1)
-            query = dict(urllib.parse.parse_qsl(query_str))
+            host_port, q = rest.split("?", 1)
+            query = dict(urllib.parse.parse_qsl(q))
         else:
             host_port = rest
 
-        # Split host and port
         if ":" not in host_port:
             return None
         host, port = host_port.split(":", 1)
 
-        # --- Build node dict ---
         node = {
-            "name": name_fragment or "Trojan Node",
             "type": "trojan",
+            "name": name or "Trojan Node",
             "server": host.strip(),
             "port": int(port.strip()),
-            "password": urllib.parse.unquote(password),
+            "password": urllib.parse.unquote(password.strip()),
         }
 
-        # TLS fields
-        node["skip-cert-verify"] = query.get("allowInsecure", "0") == "1"
-        if "sni" in query:
-            node["servername"] = query["sni"]
-        elif "peer" in query:
-            node["servername"] = query["peer"]
+        node["skip-cert-verify"] = query.get("allowInsecure", "0") in ("1", "true", "yes")
+        node["security"] = query.get("security", "tls")
+        sni = query.get("sni") or query.get("peer")
+        if sni:
+            node["sni"] = sni
+            node["servername"] = sni
 
-        # Network type (ws, grpc, tcp, etc.)
         if "type" in query:
             node["network"] = query["type"]
 
-        # WebSocket (ws) options
         if node.get("network") == "ws":
-            ws_opts = {}
-            if "path" in query:
-                ws_opts["path"] = urllib.parse.unquote(query["path"])
-            headers = {}
+            ws_opts = {"path": urllib.parse.unquote(query.get("path", "/"))}
             if "host" in query:
-                headers["Host"] = query["host"]
-            if headers:
-                ws_opts["headers"] = headers
-            if ws_opts:
-                node["ws-opts"] = ws_opts
+                ws_opts["headers"] = {"Host": query["host"]}
+            node["ws-opts"] = ws_opts
 
-        # Other optional params
-        for k in ("security", "alpn", "flow"):
-            if k in query:
-                node[k] = query[k]
+        elif node.get("network") == "grpc":
+            node["grpc-opts"] = {"grpc-service-name": query.get("serviceName", "")}
 
+        node = merge_dynamic_fields(node, query)
         return node
-
     except Exception as e:
         print(f"[warn] ❗Trojan parse error -> {e}")
         return None
 
-# ---------------- Hysteria2 parser ----------------
+# -----------------------------------------------------------
+# HYSTERIA2
+# -----------------------------------------------------------
 def parse_hysteria2(line):
     try:
         if not (line.startswith("hysteria2://") or line.startswith("hy2://")):
             return None
-
-        # Normalize prefix (replace hy2:// → hysteria2:// for parsing)
         if line.startswith("hy2://"):
             line = "hysteria2://" + line[len("hy2://"):]
 
-        # regex: capture password, host, port, optional query, optional fragment(name)
-        m = re.match(r'hysteria2://([^@]+)@([^:\/?#]+):(\d+)(?:\?([^#]*))?(?:#(.*))?$', line)
-        password = host = port = query_str = frag = None
+        parsed = urllib.parse.urlparse(line)
+        password = urllib.parse.unquote(parsed.username or "")
+        host = parsed.hostname
+        port = parsed.port
+        query = dict(urllib.parse.parse_qsl(parsed.query))
+        name = urllib.parse.unquote(parsed.fragment or "")
 
-        if m:
-            password, host, port, query_str, frag = m.groups()
-        else:
-            # fallback: try urlparse if regex fails (covers some odd variants)
-            parsed = urllib.parse.urlparse(line)
-            # parsed.username may be encoded; use split on netloc if needed
-            password = urllib.parse.unquote(parsed.username or "")
-            host = parsed.hostname
-            port = parsed.port or None
-            query_str = parsed.query or ""
-            frag = urllib.parse.unquote(parsed.fragment or "")
-
-        if not host or not port:
-            # couldn't get host/port -> invalid
-            return None
-
-        # Basic node structure (keep same keys your clients accept)
-        name = urllib.parse.unquote(frag or "") if frag else ""
         node = {
-            "name": name,
             "type": "hysteria2",
+            "name": name,
             "server": host,
-            "port": int(port),
-            "password": urllib.parse.unquote(password or ""),
+            "port": int(port or 0),
+            "password": password,
             "skip-cert-verify": True
         }
 
-        # Parse query string into dict of lists
-        qdict = {}
-        if query_str:
-            qdict = urllib.parse.parse_qs(query_str)
+        if "sni" in query:
+            node["tls"] = {"enabled": True, "server_name": query["sni"]}
+        if "insecure" in query:
+            node["tls"]["insecure"] = query["insecure"].lower() in ("1", "true", "yes")
 
-        # OPTIONAL: include extra fields ONLY if present in the query
-        # (these won't be added if absent, keeping backward compatibility)
-        if "insecure" in qdict or "sni" in qdict:
-            tls_obj = {"enabled": True}
-            if "insecure" in qdict:
-                v = qdict.get("insecure", ["true"])[0]
-                tls_obj["insecure"] = str(v).lower() in ("1", "true", "yes")
-            if "sni" in qdict:
-                tls_obj["server_name"] = qdict.get("sni", [host])[0]
-            node["tls"] = tls_obj
-
-        if "udp" in qdict:
-            v = qdict.get("udp", [""])[0]
-            node["udp"] = str(v).lower() in ("1", "true", "yes")
-
-        # Additional optional metadata if present
-        for fld in ("groupid", "outlet_ip", "outlet_region", "latency", "domain_resolver"):
-            if fld in qdict:
-                node[fld] = qdict.get(fld, [""])[0]
-
+        node = merge_dynamic_fields(node, query)
         return node
-    
     except Exception as e:
-            # keep the error log brief and include line prefix so can trace problematic ones
-        print(f"[warn] ❗Hysteria2 parse error: {e} -> {line[:120]}")
+        print(f"[warn] ❗Hysteria2 parse error -> {e}")
         return None
 
-# ---------------- Anytls parser ----------------
+# -----------------------------------------------------------
+# ANYTLS
+# -----------------------------------------------------------
 def parse_anytls(line):
     try:
-        if line.startswith("anytls://"):
-            m = re.match(r"anytls://([^@]+)@([^:]+):(\d+)#?(.*)", line)
-            if m:
-                password, host, port, name = m.groups()
-                node = {
-                    "name": name or "",
-                    "type": "anytls",
-                    "server": host,
-                    "port": int(port),
-                    "password": password,
-                }
-                return node
-    except:
-        print(f"[warn] ❗Anytls parse error -> {e}")
-    return None
+        if not line.startswith("anytls://"):
+            return None
+        parsed = urllib.parse.urlparse(line)
+        password = urllib.parse.unquote(parsed.username or "")
+        host = parsed.hostname
+        port = parsed.port
+        query = dict(urllib.parse.parse_qsl(parsed.query))
+        name = urllib.parse.unquote(parsed.fragment or "")
 
-# ---------------- TUIC parser ----------------
-def parse_tuic(line: str) -> dict | None:
+        node = {
+            "type": "anytls",
+            "name": name,
+            "server": host,
+            "port": int(port or 0),
+            "password": password,
+        }
+        node = merge_dynamic_fields(node, query)
+        return node
+    except Exception as e:
+        print(f"[warn] ❗Anytls parse error -> {e}")
+        return None
+
+# -----------------------------------------------------------
+# TUIC
+# -----------------------------------------------------------
+def parse_tuic(line):
     try:
         if not line.startswith("tuic://"):
             return None
-        # basic parse: tuic://password@host:port#name
-        m = re.match(r"tuic://([^@]+)@([^:]+):(\d+)(?:\?([^#]*))?(?:#(.*))?$", line)
-        if not m:
-            return None
-        password, host, port, q, frag = m.groups()
-        name = urllib.parse.unquote(frag or "") if frag else ""
+        parsed = urllib.parse.urlparse(line)
+        password = urllib.parse.unquote(parsed.username or "")
+        host = parsed.hostname
+        port = parsed.port
+        query = dict(urllib.parse.parse_qsl(parsed.query))
+        name = urllib.parse.unquote(parsed.fragment or "")
         node = {
-            "name": name,
             "type": "tuic",
+            "name": name,
             "server": host,
-            "port": int(port),
-            "password": urllib.parse.unquote(password or "")
+            "port": int(port or 0),
+            "password": password,
         }
+        node = merge_dynamic_fields(node, query)
         return node
-    except Exception:
+    except Exception as e:
         print(f"[warn] ❗TUIC parse error -> {e}")
         return None
 
-# ---------------- Shadowsocks (SS) parser ----------------
-def parse_ss(ss_url: str) -> dict | None:
+# -----------------------------------------------------------
+# SHADOWSOCKS (SS)
+# -----------------------------------------------------------
+def parse_ss(line):
     try:
-        ss_url = ss_url.strip()
-        if not ss_url.startswith("ss://"):
+        if not line.startswith("ss://"):
             return None
-
-        ss_url = ss_url[5:]
-
-        # Extract name/comment if exists
-        name_fragment = ""
-        if "#" in ss_url:
-            ss_url, name_fragment = ss_url.split("#", 1)
-            name_fragment = urllib.parse.unquote(name_fragment)
-
-        # Extract plugin query if exists
+        line = line[5:]
+        name = ""
+        if "#" in line:
+            line, name = line.split("#", 1)
+            name = urllib.parse.unquote(name)
         plugin = None
         plugin_opts = None
-        if "/?" in ss_url:
-            ss_core, query = ss_url.split("/?", 1)
-            query_params = urllib.parse.parse_qs(query)
-            if "plugin" in query_params:
-                plugin_full = query_params["plugin"][0]
+        if "/?" in line:
+            core, q = line.split("/?", 1)
+            qd = urllib.parse.parse_qs(q)
+            if "plugin" in qd:
+                plugin_full = qd["plugin"][0]
                 if ";" in plugin_full:
-                    plugin_parts = plugin_full.split(";")
-                    plugin = plugin_parts[0]
-                    plugin_opts = {}
-                    for part in plugin_parts[1:]:
-                        if "=" in part:
-                            k, v = part.split("=", 1)
-                            plugin_opts[k] = v
+                    parts = plugin_full.split(";")
+                    plugin = parts[0]
+                    plugin_opts = dict(p.split("=", 1) for p in parts[1:] if "=" in p)
                 else:
                     plugin = plugin_full
         else:
-            ss_core = ss_url
-
-        if "@" in ss_core:
-            b64_part, server_port = ss_core.split("@", 1)
-            decoded = decode_b64(b64_part)
-            if decoded and ":" in decoded:
-                cipher, password = decoded.split(":", 1)
-            else:
-                cipher = "aes-256-cfb"
-                password = decoded or ""
-            if ":" not in server_port:
-                return None
-            server, port = server_port.rsplit(":", 1)
+            core = line
+        if "@" in core:
+            b64, srvp = core.split("@", 1)
+            decoded = decode_b64(b64)
+            cipher, password = decoded.split(":", 1)
+            server, port = srvp.split(":")
         else:
-            decoded = decode_b64(ss_core)
-            if not decoded or "@" not in decoded:
-                return None
-            userinfo, server_port = decoded.split("@", 1)
-            if ":" not in userinfo or ":" not in server_port:
-                return None
-            cipher, password = userinfo.split(":", 1)
-            server, port = server_port.rsplit(":", 1)
-
+            decoded = decode_b64(core)
+            userinfo, srvp = decoded.split("@", 1)
+            cipher, password = userinfo.split(":")
+            server, port = srvp.split(":")
         node = {
-            "name": name_fragment or "SS Node",
             "type": "ss",
-            "server": server.strip(),
-            "port": int(port.strip()),
+            "name": name or "SS Node",
+            "server": server,
+            "port": int(port),
             "cipher": cipher,
-            "password": password
+            "password": password,
         }
         if plugin:
             node["plugin"] = plugin
         if plugin_opts:
             node["plugin-opts"] = plugin_opts
-
         return node
-    except Exception:
+    except Exception as e:
         print(f"[warn] ❗SS parse error -> {e}")
         return None
 
-# ---------------- ShadowsocksR (SSR) parser ----------------
+# -----------------------------------------------------------
+# SHADOWSOCKSR (SSR)
+# -----------------------------------------------------------
 def parse_ssr(line):
     try:
         if not line.startswith("ssr://"):
             return None
-        b64 = line[6:].strip()
-        padded = b64 + "=" * (-len(b64) % 4)
-        decoded = base64.urlsafe_b64decode(padded).decode("utf-8")
-
-        parts = decoded.split("/")
-        main_part = parts[0]
-        if "?" in main_part:
-            main_part, query_string = main_part.split("?", 1)
-        else:
-            query_string = ""
-
-        items = main_part.split(":")
-        if len(items) < 6:
+        decoded = decode_b64(line[6:])
+        main, *tail = decoded.split("/?")
+        parts = main.split(":")
+        if len(parts) < 6:
             return None
-        server, port, protocol, method, obfs, password_b64 = items[:6]
-        password = base64.urlsafe_b64decode(password_b64 + "=" * (-len(password_b64) % 4)).decode()
-
+        server, port, protocol, method, obfs, pwd_b64 = parts[:6]
+        password = decode_b64(pwd_b64)
+        qs = dict(urllib.parse.parse_qsl(tail[0])) if tail else {}
         node = {
-            "name": "",
             "type": "ssr",
+            "name": urllib.parse.unquote(decode_b64(qs.get("remarks", [""])[0])) if "remarks" in qs else "",
             "server": server,
             "port": int(port),
             "protocol": protocol,
@@ -522,25 +382,28 @@ def parse_ssr(line):
             "obfs": obfs,
             "password": password
         }
-
-        if query_string:
-            qs = urllib.parse.parse_qs(query_string)
-            if "remarks" in qs:
-                node["name"] = urllib.parse.unquote(qs["remarks"][0])
-            if "obfsparam" in qs:
-                node["obfs_param"] = base64.urlsafe_b64decode(qs["obfsparam"][0] + "=" * (-len(qs["obfsparam"][0]) % 4)).decode()
-            if "protoparam" in qs:
-                node["protocol_param"] = base64.urlsafe_b64decode(qs["protoparam"][0] + "=" * (-len(qs["protoparam"][0]) % 4)).decode()
+        node = merge_dynamic_fields(node, qs)
         return node
-    except Exception:
+    except Exception as e:
         print(f"[warn] ❗SSR parse error -> {e}")
         return None
 
-# ---------------- Dispatcher ----------------    
+# -----------------------------------------------------------
+# Dispatcher
+# -----------------------------------------------------------
 def parse_node_line(line):
-    parsers = [parse_vmess, parse_vless, parse_trojan, parse_hysteria2, parse_anytls, parse_ss, parse_ssr, parse_tuic]
-    for parser in parsers:
-        node = parser(line)
+    parsers = [
+        parse_vmess,
+        parse_vless,
+        parse_trojan,
+        parse_hysteria2,
+        parse_anytls,
+        parse_tuic,
+        parse_ss,
+        parse_ssr
+    ]
+    for fn in parsers:
+        node = fn(line.strip())
         if node:
             return node
     return None
