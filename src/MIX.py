@@ -225,19 +225,57 @@ def parse_vless(line: str) -> dict | None:
 # ---------------- Trojan parser ----------------
 def parse_trojan(line):
     try:
-        if line.startswith("trojan://"):
-            m = re.match(r"trojan://([^@]+)@([^:]+):(\d+)(?:\?(.*))?#?(.*)?$", line)
-            if m:
-                password, host, port, name = m.groups()
-                node = {
-                    "name": urllib.parse.unquote(name or "") if name else "",
-                    "type": "trojan",
-                    "server": host,
-                    "port": int(port),
-                    "password": password,
-                }
-                return node
-    except Exception:
+        if not line:
+            return None
+        line = line.strip()
+        # remove surrounding <...> if present (some subscriptions wrap lines)
+        if line.startswith("<") and line.endswith(">"):
+            line = line[1:-1].strip()
+
+        if not line.lower().startswith("trojan://"):
+            return None
+
+        parsed = urlparse(line)
+
+        # trojan URIs commonly put the password in the "username" portion (before the @)
+        password = parsed.username or parsed.password or ""
+        host = parsed.hostname
+        port = parsed.port
+        name = parsed.fragment or ""
+        query = parse_qs(parsed.query)
+
+        # basic validity checks
+        if not host or not port or not password:
+            return None
+
+        node = {
+            "name": unquote(name) if name else "",
+            "type": "trojan",
+            "server": host,
+            "port": int(port),
+            "password": unquote(password)
+        }
+
+        # map common query params:
+        if 'sni' in query:
+            node['servername'] = unquote(query['sni'][0])
+        elif 'servername' in query:
+            node['servername'] = unquote(query['servername'][0])
+
+        # allowInsecure/insecure -> skip-cert-verify (boolean)
+        if 'allowInsecure' in query or 'insecure' in query:
+            v = query.get('allowInsecure', query.get('insecure'))[0]
+            node['skip-cert-verify'] = True if v and v.lower() in ('1', 'true', 'yes', 'on') else False
+
+        # include other query params (first value) as-is
+        for k, v in query.items():
+            if k in ('sni', 'servername', 'allowInsecure', 'insecure'):
+                continue
+            if v:
+                node[k] = v[0]
+
+        return node
+    except Exception as e:
         print(f"[warn] ❗Trojan parse error -> {e}")
     return None
 
