@@ -711,19 +711,12 @@ def main():
             return ordered
         
         # Apply to all renamed nodes
-        nodes_ordered = [reorder_info(n) for n in renamed_nodes]
-        # Convert OrderedDict -> plain dict, but preserve key order in YAML
-        class OrderedDumper(yaml.SafeDumper):
-            pass
-        
-        def _dict_representer(dumper, data):
-            return dumper.represent_mapping(yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG, data.items())
-        
-        OrderedDumper.add_representer(OrderedDict, _dict_representer)
+        info_ordered = [reorder_info(n) for n in renamed_nodes]
+        info_ordered_dicts = [dict(n) for n in info_ordered]
 
         # ---------------- Convert to YAML ----------------
-        proxies_yaml_block = yaml.dump(nodes_ordered, allow_unicode=True, default_flow_style=False)
-        proxy_names_block = "\n".join([f"      - {unquote(p['name'])}" for p in nodes_ordered])
+        proxies_yaml_block = yaml.dump(info_ordered_dicts, allow_unicode=True, default_flow_style=False, sort_keys=False)
+        proxy_names_block = "\n".join([f"      - {unquote(p['name'])}" for p in info_ordered_dicts])
 
         # ---------------- Replace placeholders ----------------
         output_text = template_text.replace("{{PROXIES}}", proxies_yaml_block)
