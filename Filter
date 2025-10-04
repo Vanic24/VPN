@@ -1,4 +1,4 @@
-# Last update: 04.10.2025 15:10:51
+# Last update: 04.10.2025 15:44:23
 mixed-port: 7897
 allow-lan: false
 mode: rule
@@ -122,7 +122,34 @@ dns:
       - +.gvt1.com
 proxies:
 - client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: 🇷🇺 RU-1 | SHFX
+  port: 443
+  reality-opts:
+    public-key: V6i1V9804ZfgT8nutUwDs5IDQdcY9pK5uO075SW4ml4
+    short-id: 2d46a79deebf50fd
+  server: yt.connect-iskra.ru
+  servername: deepl.com
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: ed97e008-2b8d-4415-94c7-3da4919d361a
+- alterId: 0
+  cipher: auto
   name: 🇺🇸 US-1 | SHFX
+  network: ws
+  port: 443
+  server: 154.17.227.158
+  tls: true
+  type: vmess
+  uuid: de94cc0a-0592-4969-b1fc-97ea8f0ea0b3
+  ws-opts:
+    headers:
+      Host: us.nbee.pp.ua
+    path: /aa
+- client-fingerprint: chrome
+  name: 🇺🇸 US-2 | SHFX
   network: ws
   port: 80
   server: 172.67.168.193
@@ -139,7 +166,7 @@ proxies:
         like Gecko) Chrome/120.0.0.0 Safari/537.36
     path: /Free-VPN-Geo-Project/181.214.208.46-8011
 - client-fingerprint: chrome
-  name: 🇺🇸 US-2 | SHFX
+  name: 🇺🇸 US-3 | SHFX
   network: ws
   port: 2096
   server: 104.26.12.31
@@ -156,22 +183,23 @@ proxies:
       User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
         like Gecko) Chrome/120.0.0.0 Safari/537.36
     path: /snippets?ip=proxyip:port(443)&nat64=6to4
-- alterId: 0
-  cipher: auto
-  name: 🇺🇸 US-3 | SHFX
-  network: ws
-  port: 443
-  server: 154.17.227.158
-  tls: true
-  type: vmess
-  uuid: de94cc0a-0592-4969-b1fc-97ea8f0ea0b3
-  ws-opts:
-    headers:
-      Host: us.nbee.pp.ua
-    path: /aa
 - alterId: 2
   cipher: auto
   name: 🇭🇰 HK-1 | SHFX
+  network: ws
+  port: 80
+  server: 1e426046-t0fds0-t12cnj-1ol97.hk.p5pv.com
+  skip-cert-verify: false
+  tls: false
+  type: vmess
+  uuid: 93fb69fc-77cf-11ee-85ee-f23c91369f2d
+  ws-opts:
+    headers:
+      Host: broadcastlv.chat.bilibili.com
+    path: /
+- alterId: 2
+  cipher: auto
+  name: 🇭🇰 HK-2 | SHFX
   network: ws
   port: 80
   server: eb362f92-svukg0-t12cnj-1ol97.hk.p5pv.com
@@ -182,36 +210,6 @@ proxies:
   ws-opts:
     headers:
       Host: eb362f92-svukg0-t12cnj-1ol97.hk.p5pv.com
-    path: /
-- alterId: 2
-  cipher: auto
-  client-fingerprint: chrome
-  name: 🇭🇰 HK-2 | SHFX
-  network: ws
-  port: 80
-  server: 1e426046-t0fds0-t12cnj-1ol97.hk.p5pv.com
-  skip-cert-verify: true
-  tls: false
-  type: vmess
-  uuid: 93fb69fc-77cf-11ee-85ee-f23c91369f2d
-  ws-opts:
-    headers:
-      host: 1e426046-t0fds0-t12cnj-1ol97.hk.p5pv.com
-    path: /
-- alterId: 2
-  cipher: auto
-  client-fingerprint: chrome
-  name: 🇭🇰 HK-3 | SHFX
-  network: ws
-  port: 80
-  server: hkt.gotochinatown.net
-  skip-cert-verify: true
-  tls: false
-  type: vmess
-  uuid: 93fb69fc-77cf-11ee-85ee-f23c91369f2d
-  ws-opts:
-    headers:
-      host: hkt.gotochinatown.net
     path: /
 - client-fingerprint: chrome
   name: 🇺🇸 US-4 | SHFX
@@ -226,6 +224,19 @@ proxies:
   type: vless
   udp: true
   uuid: 1abaa2b6-ab8c-4525-8c91-b73bc2ab2b37
+- alterId: 0
+  cipher: auto
+  name: 🇺🇸 US-5 | SHFX
+  network: ws
+  port: 2095
+  server: 104.19.45.245
+  skip-cert-verify: true
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 7a737f41-b792-4260-94ff-3d864da67b80
+  ws-opts:
+    path: /
 - alterId: 2
   cipher: auto
   name: 🇨🇳 CN-1 | SHFX
@@ -241,27 +252,18 @@ proxies:
     path: /oooo
 - alterId: 0
   cipher: auto
-  name: 🇨🇳 CN-2 | SHFX
-  network: tcp
-  port: 50002
-  server: 139.129.20.6
-  skip-cert-verify: true
-  tfo: true
-  type: vmess
-  udp: true
-  uuid: 418048af-a293-4b99-9b0c-98ca3580dd24
-- alterId: 0
-  cipher: auto
-  name: 🇺🇸 US-5 | SHFX
+  client-fingerprint: chrome
+  name: 🇭🇰 HK-3 | SHFX
   network: ws
-  port: 2095
-  server: 104.19.45.245
+  port: 80
+  server: c004e6fe-t1i9s0-tm53cm-1ol97.hkt.tcpbbr.net
   skip-cert-verify: true
   tls: false
   type: vmess
-  udp: true
-  uuid: 7a737f41-b792-4260-94ff-3d864da67b80
+  uuid: 93fb69fc-77cf-11ee-85ee-f23c91369f2d
   ws-opts:
+    headers:
+      host: c004e6fe-t1i9s0-tm53cm-1ol97.hkt.tcpbbr.net
     path: /
 - client-fingerprint: random
   name: 🇺🇸 US-6 | SHFX
@@ -579,7 +581,7 @@ proxies:
       Host: snippet.danfeng.site
     path: /?ed=2560
 - client-fingerprint: random
-  name: 🇨🇳 CN-3 | SHFX
+  name: 🇨🇳 CN-2 | SHFX
   network: ws
   port: 32819
   server: 188.253.7.168
@@ -594,7 +596,7 @@ proxies:
       Host: snippet.danfeng.site
     path: /?ed=2560
 - client-fingerprint: random
-  name: 🇨🇳 CN-4 | SHFX
+  name: 🇨🇳 CN-3 | SHFX
   network: ws
   port: 7443
   server: 188.253.117.245
@@ -764,16 +766,16 @@ proxy-groups:
     type: select
     proxies:
       - 自动选择⚡️
+      - 🇷🇺 RU-1 | SHFX
       - 🇺🇸 US-1 | SHFX
       - 🇺🇸 US-2 | SHFX
       - 🇺🇸 US-3 | SHFX
       - 🇭🇰 HK-1 | SHFX
       - 🇭🇰 HK-2 | SHFX
-      - 🇭🇰 HK-3 | SHFX
       - 🇺🇸 US-4 | SHFX
-      - 🇨🇳 CN-1 | SHFX
-      - 🇨🇳 CN-2 | SHFX
       - 🇺🇸 US-5 | SHFX
+      - 🇨🇳 CN-1 | SHFX
+      - 🇭🇰 HK-3 | SHFX
       - 🇺🇸 US-6 | SHFX
       - 🇺🇸 US-7 | SHFX
       - 🇰🇷 KR-1 | SHFX
@@ -795,8 +797,8 @@ proxy-groups:
       - 🇸🇬 SG-2 | SHFX
       - 🇸🇬 SG-3 | SHFX
       - 🇸🇬 SG-4 | SHFX
+      - 🇨🇳 CN-2 | SHFX
       - 🇨🇳 CN-3 | SHFX
-      - 🇨🇳 CN-4 | SHFX
       - 🇺🇸 US-8 | SHFX
       - 🇺🇸 US-9 | SHFX
       - 🇺🇸 US-10 | SHFX
@@ -810,16 +812,16 @@ proxy-groups:
   - name: 自动选择⚡️
     type: url-test
     proxies:
+      - 🇷🇺 RU-1 | SHFX
       - 🇺🇸 US-1 | SHFX
       - 🇺🇸 US-2 | SHFX
       - 🇺🇸 US-3 | SHFX
       - 🇭🇰 HK-1 | SHFX
       - 🇭🇰 HK-2 | SHFX
-      - 🇭🇰 HK-3 | SHFX
       - 🇺🇸 US-4 | SHFX
-      - 🇨🇳 CN-1 | SHFX
-      - 🇨🇳 CN-2 | SHFX
       - 🇺🇸 US-5 | SHFX
+      - 🇨🇳 CN-1 | SHFX
+      - 🇭🇰 HK-3 | SHFX
       - 🇺🇸 US-6 | SHFX
       - 🇺🇸 US-7 | SHFX
       - 🇰🇷 KR-1 | SHFX
@@ -841,8 +843,8 @@ proxy-groups:
       - 🇸🇬 SG-2 | SHFX
       - 🇸🇬 SG-3 | SHFX
       - 🇸🇬 SG-4 | SHFX
+      - 🇨🇳 CN-2 | SHFX
       - 🇨🇳 CN-3 | SHFX
-      - 🇨🇳 CN-4 | SHFX
       - 🇺🇸 US-8 | SHFX
       - 🇺🇸 US-9 | SHFX
       - 🇺🇸 US-10 | SHFX
