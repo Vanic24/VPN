@@ -111,12 +111,18 @@ def decode_b64(b64str):
 # Helper: Generic dynamic query merger
 # -----------------------------------------------------------
 def merge_dynamic_fields(node, query):
-    """Attach all unrecognized query fields dynamically."""
+    """Attach all unrecognized query fields dynamically, without injecting defaults."""
     known = set(node.keys())
     for k, v in query.items():
-        if k not in known and v is not None:
-            # If multiple values, use first unless it’s a list of unique items
-            node[k] = v if not isinstance(v, list) else v[0]
+        if k not in known and v:  # only non-empty
+            v_decoded = urllib.parse.unquote(v)
+            # Convert comma-separated strings to list for specific keys
+            if k in ("alpn", "fp", "client-fingerprint"):
+                v_list = [x.strip() for x in v_decoded.split(",") if x.strip()]
+                if v_list:
+                    node[k] = v_list
+            else:
+                node[k] = v_decoded
     return node
 
 # -----------------------------------------------------------
