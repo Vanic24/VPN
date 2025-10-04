@@ -710,7 +710,7 @@ def main():
                 if key in node:
                     val = node[key]
                     # Convert string to list only if original value is a list or comma string
-                    if key in ("alpn", "fp", "client-fingerprint") and isinstance(val, str):
+                    if key in ("alpn") and isinstance(val, str):
                         # Only split if val is not empty
                         val_list = [x.strip() for x in val.split(",") if x.strip()]
                         ordered[key] = val_list if val_list else val
