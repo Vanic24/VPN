@@ -41,16 +41,16 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests pyyaml babel pycountry
 
-      - name: Fail if FILTER_SOURCES is missing
+      - name: Fail if SUB_FILTER is missing
         run: |
-          if [ -z "${{ secrets.FILTER_SOURCES }}" ]; then
-            echo "❌ ERROR: FILTER_SOURCES secret is not set in repository secrets."
+          if [ -z "${{ secrets.SUB_FILTER }}" ]; then
+            echo "❌ ERROR: SUB_FILTER secret is not set in repository secrets."
             exit 1
           fi
 
-      - name: Restore FILTER_SOURCES from secret
+      - name: Restore SUB_FILTER from secret
         run: |
-          echo "${{ secrets.FILTER_SOURCES }}" > FILTER_SOURCES
+          echo "${{ secrets.SUB_FILTER }}" > SUB_FILTER
 
       - name: Set latency filter environment for scheduled/manual runs
         run: |
