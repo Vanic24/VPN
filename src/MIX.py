@@ -6,8 +6,7 @@ import requests
 import socket
 import concurrent.futures
 import traceback
-from collections import defaultdict
-from collections import ordereddict
+from collections import defaultdict, OrderedDict
 from datetime import datetime, timedelta, timezone
 import base64
 import re
@@ -699,22 +698,32 @@ def main():
         ]
         
         # ---------------- Function to reorder keys ----------------
-        def reorder_info(node, key_order=INFO_ORDER):
+        def reorder_info(node):
             ordered = OrderedDict()
-            for key in key_order:
+            # Add preferred keys in order if present
+            for key in PREFERRED_ORDER:
                 if key in node:
                     ordered[key] = node[key]
-            # append extra keys that aren't in preferred order
+            # Add extra keys not in preferred order
             for key in node:
                 if key not in ordered:
                     ordered[key] = node[key]
             return ordered
+        
+        # Apply to all renamed nodes
+        nodes_ordered = [reorder_info(n) for n in renamed_nodes]
+        # Convert OrderedDict -> plain dict, but preserve key order in YAML
+        class OrderedDumper(yaml.SafeDumper):
+            pass
+        
+        def _dict_representer(dumper, data):
+            return dumper.represent_mapping(yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG, data.items())
+        
+        OrderedDumper.add_representer(OrderedDict, _dict_representer)
 
         # ---------------- Convert to YAML ----------------
-        nodes_ordered = [reorder_info(n) for n in renamed_nodes]
-        nodes_clean = [dict(n) for n in nodes_ordered]
-        proxies_yaml_block = yaml.dump(nodes_clean, allow_unicode=True, default_flow_style=False)
-        proxy_names_block = "\n".join([f"      - {unquote(p['name'])}" for p in nodes_clean])
+        proxies_yaml_block = yaml.dump(nodes_ordered, allow_unicode=True, default_flow_style=False)
+        proxy_names_block = "\n".join([f"      - {unquote(p['name'])}" for p in nodes_ordered])
 
         # ---------------- Replace placeholders ----------------
         output_text = template_text.replace("{{PROXIES}}", proxies_yaml_block)
