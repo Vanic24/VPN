@@ -623,7 +623,7 @@ def load_proxies(url):
         return nodes
 
     except Exception as e:
-        print(f"[warn] 😭 Failed to fetch. {url}: {e}")
+        print(f"[warn] 😭 Failed to fetch {url} -> {e}")
         return []
 
 # ---------------- Main ----------------
