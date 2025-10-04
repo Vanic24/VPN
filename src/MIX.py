@@ -693,7 +693,7 @@ def main():
         INFO_ORDER = [
             "name", "type", "server", "port", "uuid", "password",
             "encryption", "network", "security", "sni", "servername",
-            "skip-cert-verify", "alpn", "fp", "client-fingerprint",
+            "skip-cert-verify", "fp", "client-fingerprint",
             "path", "ws-opts", "grpc-opts", "h2-opts"
         ]
         
