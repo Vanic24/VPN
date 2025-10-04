@@ -700,19 +700,15 @@ def main():
         # ---------------- Function to reorder keys ----------------
         def reorder_info(node):
             ordered = OrderedDict()
+            # Add preferred keys only if they exist in the node
             for key in INFO_ORDER:
                 if key in node:
                     val = node[key]
-                    # Ensure alpn, fp, client-fingerprint are always lists
-                    if key in ("alpn", "fp", "client-fingerprint"):
-                        if isinstance(val, str):
-                            val_list = [x.strip() for x in val.split(",") if x.strip()]
-                            ordered[key] = val_list
-                        elif isinstance(val, list):
-                            ordered[key] = val
-                        else:
-                            # fallback to empty list
-                            ordered[key] = []
+                    # Convert string to list only if original value is a list or comma string
+                    if key in ("alpn", "fp", "client-fingerprint") and isinstance(val, str):
+                        # Only split if val is not empty
+                        val_list = [x.strip() for x in val.split(",") if x.strip()]
+                        ordered[key] = val_list if val_list else val
                     else:
                         ordered[key] = val
             # Append extra keys not in preferred order
@@ -720,13 +716,6 @@ def main():
                 if key not in ordered:
                     ordered[key] = node[key]
             return ordered
-        
-        # ---------------- Custom YAML representer to force block lists ----------------
-        def represent_ordered_dict(dumper, data):
-            return dumper.represent_mapping('tag:yaml.org,2002:map', data.items())
-        
-        yaml.add_representer(OrderedDict, represent_ordered_dict)
-        yaml.add_representer(list, lambda dumper, data: dumper.represent_sequence('tag:yaml.org,2002:seq', data, flow_style=False))
         
         # Apply to all renamed nodes
         info_ordered = [reorder_info(n) for n in renamed_nodes]
