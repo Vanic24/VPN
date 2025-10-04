@@ -223,61 +223,82 @@ def parse_vless(line: str) -> dict | None:
         return None
 
 # ---------------- Trojan parser ----------------
-def parse_trojan(line):
+# ---------------- Trojan parser ----------------
+def parse_trojan(line: str) -> dict | None:
     try:
-        if not line:
-            return None
-        line = line.strip()
-        # remove surrounding <...> if present (some subscriptions wrap lines)
-        if line.startswith("<") and line.endswith(">"):
-            line = line[1:-1].strip()
-
-        if not line.lower().startswith("trojan://"):
+        if not line.startswith("trojan://"):
             return None
 
-        parsed = urlparse(line)
+        # Split name fragment
+        name_fragment = ""
+        if "#" in line:
+            line, name_fragment = line.split("#", 1)
+            name_fragment = urllib.parse.unquote(name_fragment)
 
-        # trojan URIs commonly put the password in the "username" portion (before the @)
-        password = parsed.username or parsed.password or ""
-        host = parsed.hostname
-        port = parsed.port
-        name = parsed.fragment or ""
-        query = parse_qs(parsed.query)
+        # Remove scheme
+        line = line[len("trojan://"):]
 
-        # basic validity checks
-        if not host or not port or not password:
+        # Split password and rest
+        if "@" not in line:
             return None
+        password, rest = line.split("@", 1)
 
+        # Split host:port and query
+        query = {}
+        if "?" in rest:
+            host_port, query_str = rest.split("?", 1)
+            query = dict(urllib.parse.parse_qsl(query_str))
+        else:
+            host_port = rest
+
+        # Split host and port
+        if ":" not in host_port:
+            return None
+        host, port = host_port.split(":", 1)
+
+        # --- Build node dict ---
         node = {
-            "name": unquote(name) if name else "",
+            "name": name_fragment or "Trojan Node",
             "type": "trojan",
-            "server": host,
-            "port": int(port),
-            "password": unquote(password)
+            "server": host.strip(),
+            "port": int(port.strip()),
+            "password": urllib.parse.unquote(password),
         }
 
-        # map common query params:
-        if 'sni' in query:
-            node['servername'] = unquote(query['sni'][0])
-        elif 'servername' in query:
-            node['servername'] = unquote(query['servername'][0])
+        # TLS fields
+        node["skip-cert-verify"] = query.get("allowInsecure", "0") == "1"
+        if "sni" in query:
+            node["servername"] = query["sni"]
+        elif "peer" in query:
+            node["servername"] = query["peer"]
 
-        # allowInsecure/insecure -> skip-cert-verify (boolean)
-        if 'allowInsecure' in query or 'insecure' in query:
-            v = query.get('allowInsecure', query.get('insecure'))[0]
-            node['skip-cert-verify'] = True if v and v.lower() in ('1', 'true', 'yes', 'on') else False
+        # Network type (ws, grpc, tcp, etc.)
+        if "type" in query:
+            node["network"] = query["type"]
 
-        # include other query params (first value) as-is
-        for k, v in query.items():
-            if k in ('sni', 'servername', 'allowInsecure', 'insecure'):
-                continue
-            if v:
-                node[k] = v[0]
+        # WebSocket (ws) options
+        if node.get("network") == "ws":
+            ws_opts = {}
+            if "path" in query:
+                ws_opts["path"] = urllib.parse.unquote(query["path"])
+            headers = {}
+            if "host" in query:
+                headers["Host"] = query["host"]
+            if headers:
+                ws_opts["headers"] = headers
+            if ws_opts:
+                node["ws-opts"] = ws_opts
+
+        # Other optional params
+        for k in ("security", "alpn", "flow"):
+            if k in query:
+                node[k] = query[k]
 
         return node
+
     except Exception as e:
         print(f"[warn] ❗Trojan parse error -> {e}")
-    return None
+        return None
 
 # ---------------- Hysteria2 parser ----------------
 def parse_hysteria2(line):
