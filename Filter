@@ -1,4 +1,4 @@
-# Last update: 04.10.2025 17:41:34
+# Last update: 04.10.2025 18:05:59
 mixed-port: 7897
 allow-lan: false
 mode: rule
@@ -121,8 +121,35 @@ dns:
       - +.googleapis.com
       - +.gvt1.com
 proxies:
-- client-fingerprint: chrome
+- alterId: 0
+  cipher: auto
   name: 🇺🇸 US-1 | SHFX
+  network: ws
+  port: 2095
+  server: 104.19.45.245
+  skip-cert-verify: true
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 7a737f41-b792-4260-94ff-3d864da67b80
+  ws-opts:
+    path: /
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: 🇷🇺 RU-1 | SHFX
+  port: 443
+  reality-opts:
+    public-key: V6i1V9804ZfgT8nutUwDs5IDQdcY9pK5uO075SW4ml4
+    short-id: 2d46a79deebf50fd
+  server: yt.connect-iskra.ru
+  servername: deepl.com
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: ed97e008-2b8d-4415-94c7-3da4919d361a
+- client-fingerprint: chrome
+  name: 🇺🇸 US-2 | SHFX
   network: ws
   port: 80
   server: 172.67.168.193
@@ -140,7 +167,7 @@ proxies:
     path: /Free-VPN-Geo-Project/181.214.208.46-8011
 - alterId: 0
   cipher: auto
-  name: 🇺🇸 US-2 | SHFX
+  name: 🇺🇸 US-3 | SHFX
   network: ws
   port: 443
   server: 154.17.227.158
@@ -152,7 +179,7 @@ proxies:
       Host: us.nbee.pp.ua
     path: /aa
 - client-fingerprint: chrome
-  name: 🇺🇸 US-3 | SHFX
+  name: 🇺🇸 US-4 | SHFX
   network: ws
   port: 2096
   server: 104.26.12.31
@@ -169,60 +196,32 @@ proxies:
       User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
         like Gecko) Chrome/120.0.0.0 Safari/537.36
     path: /snippets?ip=proxyip:port(443)&nat64=6to4
-- client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: 🇳🇱 NL-1 | SHFX
-  port: 443
-  reality-opts:
-    public-key: BhTJ3phnq-Z-10aFKSsj1lzhA8mULR4L6leE4-0WTAs
-  server: deu163.unboundworld.org
-  servername: www.bing.com
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 06fbbb8d-43b5-4ede-a0fe-417df04824cc
-- alterId: 0
-  cipher: auto
-  name: 🇺🇸 US-4 | SHFX
-  network: ws
-  port: 2095
-  server: 104.19.45.245
-  skip-cert-verify: true
-  tls: false
-  type: vmess
-  udp: true
-  uuid: 7a737f41-b792-4260-94ff-3d864da67b80
-  ws-opts:
-    path: /
 - alterId: 2
   cipher: auto
   name: 🇭🇰 HK-1 | SHFX
   network: ws
   port: 80
-  server: eb362f92-svukg0-t12cnj-1ol97.hk.p5pv.com
-  skip-cert-verify: true
+  server: 1e426046-t0fds0-t12cnj-1ol97.hk.p5pv.com
+  skip-cert-verify: false
+  tfo: false
   tls: false
   type: vmess
-  udp: true
   uuid: 93fb69fc-77cf-11ee-85ee-f23c91369f2d
   ws-opts:
     headers:
-      Host: eb362f92-svukg0-t12cnj-1ol97.hk.p5pv.com
+      Host: broadcastlv.chat.bilibili.com
     path: /
-- alterId: 2
+- alterId: 0
   cipher: auto
   name: 🇨🇳 CN-1 | SHFX
-  network: ws
-  port: 30824
-  server: v24.heduian.link
+  network: tcp
+  port: 50002
+  server: 139.129.20.6
   skip-cert-verify: true
+  tfo: true
   type: vmess
-  uuid: cbb3f877-d1fb-344c-87a9-d153bffd5484
-  ws-opts:
-    headers:
-      Host: v24.heduian.link
-    path: /oooo
+  udp: true
+  uuid: 418048af-a293-4b99-9b0c-98ca3580dd24
 - client-fingerprint: random
   name: 🇺🇸 US-5 | SHFX
   network: ws
@@ -725,9 +724,9 @@ proxy-groups:
     proxies:
       - 自动选择⚡️
       - 🇺🇸 US-1 | SHFX
+      - 🇷🇺 RU-1 | SHFX
       - 🇺🇸 US-2 | SHFX
       - 🇺🇸 US-3 | SHFX
-      - 🇳🇱 NL-1 | SHFX
       - 🇺🇸 US-4 | SHFX
       - 🇭🇰 HK-1 | SHFX
       - 🇨🇳 CN-1 | SHFX
@@ -768,9 +767,9 @@ proxy-groups:
     type: url-test
     proxies:
       - 🇺🇸 US-1 | SHFX
+      - 🇷🇺 RU-1 | SHFX
       - 🇺🇸 US-2 | SHFX
       - 🇺🇸 US-3 | SHFX
-      - 🇳🇱 NL-1 | SHFX
       - 🇺🇸 US-4 | SHFX
       - 🇭🇰 HK-1 | SHFX
       - 🇨🇳 CN-1 | SHFX
