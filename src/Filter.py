@@ -632,8 +632,8 @@ def load_proxies(url, retries=3):
 
         except Exception as e:
             attempt += 1
-            print(f"[warn] 😭 Failed to fetch from current subscription link.
-            🔄️ Try to fetch again (attempt {attempt}/{retries}) -> {e}")
+            print(f"[warn] 😭 Failed to fetch from current subscription link")
+            print(f"[attempt] 🔄️ Try to fetch again (attempt {attempt}/{retries}) -> {e}")
             if attempt >= retries:
                 print("[abort] 🚫 Max retries reached. Aborting process.")
                 exit(1)
