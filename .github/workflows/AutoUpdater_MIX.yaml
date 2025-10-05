@@ -85,14 +85,33 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-
+      
           git add MIX
-
+      
           if git diff --cached --quiet; then
             echo "No changes to commit"
           else
-            git commit -m "🎉MIX Auto update successful🎉 - $TIMESTAMP"
-            git push --force-with-lease origin main
+            MAX_RETRIES=3
+            COUNT=0
+            SUCCESS=0
+      
+            while [ $COUNT -lt $MAX_RETRIES ]; do
+              echo "Attempt $(($COUNT + 1)) to commit & push..."
+              git commit -m "🎉MIX Auto update successful🎉 - $TIMESTAMP" && \
+              git push --force-with-lease origin main && \
+              SUCCESS=1 && break
+      
+              COUNT=$(($COUNT + 1))
+              echo "Push failed, retrying in 5 seconds..."
+              sleep 5
+            done
+      
+            if [ $SUCCESS -eq 1 ]; then
+              echo "Push successful!"
+            else
+              echo "Push failed after $MAX_RETRIES attempts."
+              exit 1
+            fi
           fi
 
       - name: Copy MIX with .yaml extension
