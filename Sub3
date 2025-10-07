@@ -15,22 +15,18 @@ dns:
     fallback: ['https://doh-pure.onedns.net/dns-query', 'https://ada.openbld.net/dns-query', 'https://223.5.5.5/dns-query', 'https://223.6.6.6/dns-query']
     fallback-filter: { geoip: true, ipcidr: [240.0.0.0/4, 0.0.0.0/32] }
 proxies:
-    - { name: 🇭🇰香港｜01｜aws, server: hkaws.ccwink.com, port: 56309, sni: hkaws.ccwink.cc, up: null, down: null, skip-cert-verify: true, type: hysteria2, password: 9e0f72bb-7ad6-4383-994a-497569a94d74 }
-    - { name: 🇭🇰香港｜02｜aws, type: anytls, server: hkaws.ccwink.com, port: 6549, password: 9e0f72bb-7ad6-4383-994a-497569a94d74, udp: true, sni: baidu.com, skip-cert-verify: true }
+    - { name: 🇭🇰香港｜01｜HKBN, server: hkbn.ccwink.cc, port: 56309, sni: hkbn.ccwink.cc, up: null, down: null, skip-cert-verify: true, type: hysteria2, password: 9e0f72bb-7ad6-4383-994a-497569a94d74 }
+    - { name: 🇭🇰香港｜02｜HKBN, type: anytls, server: hkbn.ccwink.cc, port: 6549, password: 9e0f72bb-7ad6-4383-994a-497569a94d74, udp: true, sni: baidu.com, skip-cert-verify: true }
     - { name: 🇹🇼台湾｜01｜HiNet, server: tw.akebi.cc, port: 30001, sni: tw1-vds14.anyhk.co, up: null, down: null, skip-cert-verify: true, type: hysteria2, password: 9e0f72bb-7ad6-4383-994a-497569a94d74 }
     - { name: 🇹🇼台湾｜02｜HiNet, type: anytls, server: tw.akebi.cc, port: 6549, password: 9e0f72bb-7ad6-4383-994a-497569a94d74, udp: true, sni: baidu.com, skip-cert-verify: true }
-    - { name: 🇯🇵日本｜01｜aws, server: jpaws.ccwink.com, port: 56309, sni: jpaws.ccwink.cc, up: 5000, down: 5000, skip-cert-verify: true, type: hysteria2, password: 9e0f72bb-7ad6-4383-994a-497569a94d74 }
-    - { name: 🇯🇵日本｜02｜aws, type: anytls, server: jpaws.ccwink.com, port: 3245, password: 9e0f72bb-7ad6-4383-994a-497569a94d74, udp: true, sni: baidu.com, skip-cert-verify: true }
-    - { name: 🇸🇬新加坡｜01｜aws, server: sgaws.ccwink.com, port: 56309, sni: sgaws.ccwink.cc, up: 5000, down: 5000, skip-cert-verify: true, type: hysteria2, password: 9e0f72bb-7ad6-4383-994a-497569a94d74 }
-    - { name: 🇸🇬新加坡｜02｜aws, type: anytls, server: sgaws.ccwink.com, port: 3245, password: 9e0f72bb-7ad6-4383-994a-497569a94d74, udp: true, sni: baidu.com, skip-cert-verify: true }
     - { name: 🇰🇷韩国｜01｜腾讯云, server: kr.ccwink.cc, port: 56309, sni: kr.ccwink.cc, up: null, down: null, skip-cert-verify: true, type: hysteria2, password: 9e0f72bb-7ad6-4383-994a-497569a94d74 }
     - { name: 🇰🇷韩国｜02｜腾讯云, type: anytls, server: kr.ccwink.cc, port: 32455, password: 9e0f72bb-7ad6-4383-994a-497569a94d74, udp: true, sni: baidu.com, skip-cert-verify: true }
     - { name: 🇰🇷韩国｜03｜oci, type: anytls, server: seoul-1ddns.aboutanime.eu.org, port: 60001, password: 9e0f72bb-7ad6-4383-994a-497569a94d74, udp: true, sni: baidu.com, skip-cert-verify: true }
     - { name: 🇺🇸美国｜03｜oci, type: anytls, server: 144.24.7.139, port: 30002, password: 9e0f72bb-7ad6-4383-994a-497569a94d74, udp: true, sni: baidu.com, skip-cert-verify: true }
 proxy-groups:
-    - { name: 凌云, type: select, proxies: [自动选择, 故障转移, 🇭🇰香港｜01｜aws, 🇭🇰香港｜02｜aws, 🇹🇼台湾｜01｜HiNet, 🇹🇼台湾｜02｜HiNet, 🇯🇵日本｜01｜aws, 🇯🇵日本｜02｜aws, 🇸🇬新加坡｜01｜aws, 🇸🇬新加坡｜02｜aws, 🇰🇷韩国｜01｜腾讯云, 🇰🇷韩国｜02｜腾讯云, 🇰🇷韩国｜03｜oci, 🇺🇸美国｜03｜oci] }
-    - { name: 自动选择, type: url-test, proxies: [🇭🇰香港｜01｜aws, 🇭🇰香港｜02｜aws, 🇹🇼台湾｜01｜HiNet, 🇹🇼台湾｜02｜HiNet, 🇯🇵日本｜01｜aws, 🇯🇵日本｜02｜aws, 🇸🇬新加坡｜01｜aws, 🇸🇬新加坡｜02｜aws, 🇰🇷韩国｜01｜腾讯云, 🇰🇷韩国｜02｜腾讯云, 🇰🇷韩国｜03｜oci, 🇺🇸美国｜03｜oci], url: 'http://www.gstatic.com/generate_204', interval: 86400 }
-    - { name: 故障转移, type: fallback, proxies: [🇭🇰香港｜01｜aws, 🇭🇰香港｜02｜aws, 🇹🇼台湾｜01｜HiNet, 🇹🇼台湾｜02｜HiNet, 🇯🇵日本｜01｜aws, 🇯🇵日本｜02｜aws, 🇸🇬新加坡｜01｜aws, 🇸🇬新加坡｜02｜aws, 🇰🇷韩国｜01｜腾讯云, 🇰🇷韩国｜02｜腾讯云, 🇰🇷韩国｜03｜oci, 🇺🇸美国｜03｜oci], url: 'http://www.gstatic.com/generate_204', interval: 7200 }
+    - { name: 凌云, type: select, proxies: [自动选择, 故障转移, 🇭🇰香港｜01｜HKBN, 🇭🇰香港｜02｜HKBN, 🇹🇼台湾｜01｜HiNet, 🇹🇼台湾｜02｜HiNet, 🇰🇷韩国｜01｜腾讯云, 🇰🇷韩国｜02｜腾讯云, 🇰🇷韩国｜03｜oci, 🇺🇸美国｜03｜oci] }
+    - { name: 自动选择, type: url-test, proxies: [🇭🇰香港｜01｜HKBN, 🇭🇰香港｜02｜HKBN, 🇹🇼台湾｜01｜HiNet, 🇹🇼台湾｜02｜HiNet, 🇰🇷韩国｜01｜腾讯云, 🇰🇷韩国｜02｜腾讯云, 🇰🇷韩国｜03｜oci, 🇺🇸美国｜03｜oci], url: 'http://www.gstatic.com/generate_204', interval: 86400 }
+    - { name: 故障转移, type: fallback, proxies: [🇭🇰香港｜01｜HKBN, 🇭🇰香港｜02｜HKBN, 🇹🇼台湾｜01｜HiNet, 🇹🇼台湾｜02｜HiNet, 🇰🇷韩国｜01｜腾讯云, 🇰🇷韩国｜02｜腾讯云, 🇰🇷韩国｜03｜oci, 🇺🇸美国｜03｜oci], url: 'http://www.gstatic.com/generate_204', interval: 7200 }
 rules:
     - 'DOMAIN,152.53.211.222,DIRECT'
     - 'DOMAIN-SUFFIX,services.googleapis.cn,凌云'
