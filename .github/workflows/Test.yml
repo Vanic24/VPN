@@ -20,13 +20,23 @@ jobs:
           $asset = $release.assets | Where-Object { $_.name -match "windows-amd64.zip" } | Select-Object -First 1
           if (-not $asset) { Write-Error "No windows-amd64.zip found"; exit 1 }
           Invoke-WebRequest -Uri $asset.browser_download_url -OutFile sing-box.zip
-          Expand-Archive sing-box.zip -DestinationPath sing-box
+          
+          # Extract directly into ./sing-box folder, flatten structure
+          Expand-Archive sing-box.zip -DestinationPath sing-box -Force
 
-      # 3️⃣ Fetch and parse subscription directly with Sing-Box
+          # List files for debug
+          Get-ChildItem .\sing-box -Recurse
+
+      # 3️⃣ Fetch and parse subscription using Sing-Box
       - name: Fetch & parse subscription
         run: |
-          # Fetch and parse subscription using Sing-Box
-          .\sing-box\sing-box.exe subscribe -u "${{ secrets.TEST_URL }}" -o nodes_checked.json
+          # Find the path to sing-box.exe inside extracted folder
+          $exe = Get-ChildItem .\sing-box -Filter sing-box.exe -Recurse | Select-Object -First 1
+          if (-not $exe) { Write-Error "sing-box.exe not found"; exit 1 }
+          echo "Using Sing-Box executable: $($exe.FullName)"
+
+          # Run subscription fetch directly with sing-box
+          & $exe.FullName subscribe -u "${{ secrets.TEST_URL }}" -o nodes_checked.json
           if (-Not (Test-Path nodes_checked.json)) { Write-Error "nodes_checked.json not created"; exit 1 }
           Get-Content nodes_checked.json -TotalCount 5
 
