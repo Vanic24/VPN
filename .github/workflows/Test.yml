@@ -15,12 +15,11 @@ jobs:
       # Step 2: Download SubConverter
       - name: Download SubConverter
         run: |
-          $url = "https://github.com/tindy2013/subconverter/releases/download/v0.6.1/subconverter-windows-amd64-v0.6.1.zip"
-          $output = "subconverter.zip"
+          $url = "https://github.com/tindy2013/subconverter/releases/download/v0.9.0/subconverter_win64.7z"
+          $output = "subconverter.7z"
           Invoke-WebRequest -Uri $url -OutFile $output
-          Expand-Archive -Path $output -DestinationPath ".\subconverter"
+          & 7z x $output -o".\subconverter"
           Remove-Item $output
-
       # Step 3: Convert subscription to Clash configuration
       - name: Convert subscription
         run: |
