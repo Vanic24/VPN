@@ -1,4 +1,4 @@
-name: Fetch & Parse Subscription with Sing-Box
+name: Test
 
 on:
   workflow_dispatch:
@@ -12,15 +12,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # 2️⃣ Download latest Sing-Box Windows release
-      - name: Download latest Sing-Box
+      # 2️⃣ Download latest Clash for Windows release
+      - name: Download latest Clash for Windows
         run: |
-          echo Fetching latest Sing-Box release...
-          $release = Invoke-RestMethod -Uri "https://api.github.com/repos/SagerNet/sing-box/releases/latest"
-          $asset = $release.assets | Where-Object { $_.name -match "windows-amd64.zip" } | Select-Object -First 1
-          if (-not $asset) { Write-Error "No windows-amd64.zip found"; exit 1 }
-          Invoke-WebRequest -Uri $asset.browser_download_url -OutFile sing-box.zip
-          Expand-Archive sing-box.zip -DestinationPath sing-box
+          echo Fetching latest Clash for Windows release...
+          $release = Invoke-RestMethod -Uri "https://api.github.com/repos/Fndroid/clash_for_windows_pkg/releases/latest"
+          $asset = $release.assets | Where-Object { $_.name -match "ClashForWindows-installer.exe" } | Select-Object -First 1
+          if (-not $asset) { Write-Error "No installer found"; exit 1 }
+          Invoke-WebRequest -Uri $asset.browser_download_url -OutFile ClashForWindows-installer.exe
+          Start-Process -FilePath ClashForWindows-installer.exe -ArgumentList "/S" -Wait
 
       # 3️⃣ Download Sing-Box config.json
       - name: Download Sing-Box config.json
@@ -29,16 +29,13 @@ jobs:
           if (-Not (Test-Path config.json)) { Write-Error "config.json not found"; exit 1 }
           Get-Content config.json -TotalCount 5
 
-      # 4️⃣ Parse config with Sing-Box
-      - name: Parse config with Sing-Box
+      # 4️⃣ Parse config with Clash for Windows
+      - name: Parse config with Clash for Windows
         run: |
-          # Find the path to sing-box.exe inside extracted folder
-          $exe = Get-ChildItem .\sing-box -Filter sing-box.exe -Recurse | Select-Object -First 1
-          if (-not $exe) { Write-Error "sing-box.exe not found"; exit 1 }
-          echo "Using Sing-Box executable: $($exe.FullName)"
-
-          # Run Sing-Box with the generated config
-          & $exe.FullName run -c config.json
+          $exe = Get-ChildItem "C:\Program Files\Clash for Windows" -Filter clash.exe -Recurse | Select-Object -First 1
+          if (-not $exe) { Write-Error "clash.exe not found"; exit 1 }
+          echo "Using Clash for Windows executable: $($exe.FullName)"
+          & $exe.FullName -c config.json
           if (-Not (Test-Path nodes_checked.json)) { Write-Error "nodes_checked.json not created"; exit 1 }
           Get-Content nodes_checked.json -TotalCount 5
 
