@@ -37,11 +37,12 @@ jobs:
           Get-Content subscription.txt -TotalCount 5
 
       # 5️⃣ Run Sing-Box to parse subscription
-      - name: Parse subscription with Sing-Box
+      - name: Fetch and parse subscription with Sing-Box
         run: |
           .\sing-box\sing-box.exe subscribe -u "${{ secrets.TEST_URL }}" -o nodes_checked.json
           if (-Not (Test-Path nodes_checked.json)) { Write-Error "nodes_checked.json not created"; exit 1 }
           Get-Content nodes_checked.json -TotalCount 5
+
 
       # 6️⃣ Process nodes in Python
       - name: Process nodes in Python
@@ -63,13 +64,13 @@ jobs:
                          chr(0x1F1E6 + ord(country_code[1].upper()) - 65)
               else:
                   flag = "🏳️"
-              new_name = f"{flag} {country_code}-{idx+1} | @SHFX"
+              new_name = f"{flag} {country_code}-{idx+1} | @Test"
               output_lines.append(f"{raw}#{new_name}")
 
-          with open("nodes_final.txt", "w", encoding="utf-8") as f:
+          with open("Test", "w", encoding="utf-8") as f:
               f.write("\n".join(output_lines))
 
-          print("✅ Processed nodes saved to nodes_final.txt")
+          print("✅ Processed nodes saved to Test")
           EOF
 
       # 7️⃣ Commit & push processed nodes
@@ -78,6 +79,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add nodes_final.txt
+          git add Test
           git commit -m "Update processed nodes [Auto]" -ErrorAction SilentlyContinue
           git push
