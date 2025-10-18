@@ -20,27 +20,32 @@ jobs:
           $asset = $release.assets | Where-Object { $_.name -match "windows-amd64.zip" } | Select-Object -First 1
           if (-not $asset) { Write-Error "No windows-amd64.zip found"; exit 1 }
           Invoke-WebRequest -Uri $asset.browser_download_url -OutFile sing-box.zip
-          
-          # Extract directly into ./sing-box folder, flatten structure
-          Expand-Archive sing-box.zip -DestinationPath sing-box -Force
+          Expand-Archive sing-box.zip -DestinationPath sing-box
 
-          # List files for debug
-          Get-ChildItem .\sing-box -Recurse
+      # 3️⃣ Convert subscription to Sing-Box config
+      - name: Convert subscription to Sing-Box config
+        run: |
+          echo Converting subscription to Sing-Box config...
+          python -m pip install --upgrade pip
+          pip install sing-box-subscribe
+          sing-box-subscribe convert "${{ secrets.TEST_URL }}" -o config.json
+          if (-Not (Test-Path config.json)) { Write-Error "config.json not created"; exit 1 }
+          Get-Content config.json -TotalCount 5
 
-      # 3️⃣ Fetch and parse subscription using Sing-Box
-      - name: Fetch & parse subscription
+      # 4️⃣ Parse config with Sing-Box
+      - name: Parse config with Sing-Box
         run: |
           # Find the path to sing-box.exe inside extracted folder
           $exe = Get-ChildItem .\sing-box -Filter sing-box.exe -Recurse | Select-Object -First 1
           if (-not $exe) { Write-Error "sing-box.exe not found"; exit 1 }
           echo "Using Sing-Box executable: $($exe.FullName)"
 
-          # Run subscription fetch directly with sing-box
-          & $exe.FullName subscribe -u "${{ secrets.TEST_URL }}" -o nodes_checked.json
+          # Run Sing-Box with the generated config
+          & $exe.FullName run -c config.json
           if (-Not (Test-Path nodes_checked.json)) { Write-Error "nodes_checked.json not created"; exit 1 }
           Get-Content nodes_checked.json -TotalCount 5
 
-      # 4️⃣ Process parsed nodes into Test_Nodes.txt
+      # 5️⃣ Process parsed nodes into Test_Nodes.txt
       - name: Generate Test_Nodes.txt
         shell: pwsh
         run: |
