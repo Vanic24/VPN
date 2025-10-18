@@ -1,4 +1,4 @@
-# Last update: 18.10.2025 12:57:22
+# Last update: 18.10.2025 14:54:04
 mixed-port: 7897
 allow-lan: false
 mode: rule
@@ -147,7 +147,7 @@ proxies:
   insecure: '0'
 - name: 🇸🇬 SG-2 | 9PB
   type: hysteria2
-  server: dv-sg-2.9966661.xyz
+  server: dv-sg.9966661.xyz
   port: 3000
   password: de8854c7-fa17-4266-ae18-50a9732a0c4e
   sni: dv-sg.9966661.xyz
@@ -159,7 +159,7 @@ proxies:
   insecure: '0'
 - name: 🇸🇬 SG-3 | 9PB
   type: hysteria2
-  server: dv-sg-3.9966661.xyz
+  server: dv-sg-2.9966661.xyz
   port: 3000
   password: de8854c7-fa17-4266-ae18-50a9732a0c4e
   sni: dv-sg.9966661.xyz
@@ -171,7 +171,7 @@ proxies:
   insecure: '0'
 - name: 🇸🇬 SG-4 | 9PB
   type: hysteria2
-  server: dv-sg-4.9966661.xyz
+  server: dv-sg-3.9966661.xyz
   port: 3000
   password: de8854c7-fa17-4266-ae18-50a9732a0c4e
   sni: dv-sg.9966661.xyz
@@ -182,6 +182,18 @@ proxies:
     insecure: false
   insecure: '0'
 - name: 🇸🇬 SG-5 | 9PB
+  type: hysteria2
+  server: dv-sg-4.9966661.xyz
+  port: 3000
+  password: de8854c7-fa17-4266-ae18-50a9732a0c4e
+  sni: dv-sg.9966661.xyz
+  skip-cert-verify: true
+  tls:
+    enabled: true
+    server_name: dv-sg.9966661.xyz
+    insecure: false
+  insecure: '0'
+- name: 🇸🇬 SG-6 | 9PB
   type: hysteria2
   server: dv-sg-5.9966661.xyz
   port: 3000
@@ -2953,6 +2965,18 @@ proxies:
   flow: xtls-rprx-vision
   pbk: WWuWxGdNTeiOpHqEkrHfv4sepTP9z-09ZtK4p71o-yM
   sid: 583d93a1
+- name: 🇦🇺 AU-6 | 9PB
+  type: ss
+  server: 1.1.1.1
+  port: 8888
+  password: de8854c7-fa17-4266-ae18-50a9732a0c4e
+  cipher: aes-128-gcm
+- name: 🇦🇺 AU-7 | 9PB
+  type: ss
+  server: 1.1.1.1
+  port: 8888
+  password: de8854c7-fa17-4266-ae18-50a9732a0c4e
+  cipher: aes-128-gcm
 
 proxy-groups:
   - name: 选择线路
@@ -2965,6 +2989,7 @@ proxy-groups:
       - 🇸🇬 SG-3 | 9PB
       - 🇸🇬 SG-4 | 9PB
       - 🇸🇬 SG-5 | 9PB
+      - 🇸🇬 SG-6 | 9PB
       - 🇯🇵 JP-1 | 9PB
       - 🇯🇵 JP-2 | 9PB
       - 🇯🇵 JP-3 | 9PB
@@ -3165,6 +3190,8 @@ proxy-groups:
       - 🇻🇳 VN-13 | 9PB
       - 🇻🇳 VN-14 | 9PB
       - 🇻🇳 VN-15 | 9PB
+      - 🇦🇺 AU-6 | 9PB
+      - 🇦🇺 AU-7 | 9PB
   - name: 自动选择⚡️
     type: url-test
     proxies:
@@ -3174,6 +3201,7 @@ proxy-groups:
       - 🇸🇬 SG-3 | 9PB
       - 🇸🇬 SG-4 | 9PB
       - 🇸🇬 SG-5 | 9PB
+      - 🇸🇬 SG-6 | 9PB
       - 🇯🇵 JP-1 | 9PB
       - 🇯🇵 JP-2 | 9PB
       - 🇯🇵 JP-3 | 9PB
@@ -3374,6 +3402,8 @@ proxy-groups:
       - 🇻🇳 VN-13 | 9PB
       - 🇻🇳 VN-14 | 9PB
       - 🇻🇳 VN-15 | 9PB
+      - 🇦🇺 AU-6 | 9PB
+      - 🇦🇺 AU-7 | 9PB
     url: https://www.gstatic.com/generate_204
     interval: 300
 rules:
