@@ -22,14 +22,11 @@ jobs:
           Invoke-WebRequest -Uri $asset.browser_download_url -OutFile sing-box.zip
           Expand-Archive sing-box.zip -DestinationPath sing-box
 
-      # 3️⃣ Convert subscription to Sing-Box config
-      - name: Convert subscription to Sing-Box config
+      # 3️⃣ Download Sing-Box config.json
+      - name: Download Sing-Box config.json
         run: |
-          echo Converting subscription to Sing-Box config...
-          python -m pip install --upgrade pip
-          pip install sing-box-subscribe
-          sing-box-subscribe convert "${{ secrets.TEST_URL }}" -o config.json
-          if (-Not (Test-Path config.json)) { Write-Error "config.json not created"; exit 1 }
+          Invoke-WebRequest -Uri "${{ secrets.TEST_URL }}" -OutFile config.json
+          if (-Not (Test-Path config.json)) { Write-Error "config.json not found"; exit 1 }
           Get-Content config.json -TotalCount 5
 
       # 4️⃣ Parse config with Sing-Box
