@@ -1,4 +1,4 @@
-# Last update: 18.10.2025 12:08:30
+# Last update: 18.10.2025 12:15:40
 mixed-port: 7897
 allow-lan: false
 mode: rule
@@ -121,6 +121,13 @@ dns:
       - +.googleapis.com
       - +.gvt1.com
 proxies:
+- name: 🇨🇳 CN-1 | SHFX
+  type: trojan
+  server: 36.151.195.112
+  port: 4556
+  password: BxceQaOe
+  network: tcp
+  skip-cert-verify: true
 - name: 🇸🇬 SG-1 | SHFX
   type: ss
   server: 5.44.249.42
@@ -129,17 +136,10 @@ proxies:
   cipher: chacha20-ietf-poly1305
   plugin: obfs
   plugin-opts:
-    host: 4a81070:6193
+    host: (TG @WangCai2)26af988:57468
     mode: tls
     tls: false
   udp: true
-- name: 🇨🇳 CN-1 | SHFX
-  type: trojan
-  server: 36.151.195.112
-  port: 4556
-  password: BxceQaOe
-  network: tcp
-  skip-cert-verify: true
 - name: 🇺🇸 US-1 | SHFX
   type: vmess
   server: 154.17.227.158
@@ -153,14 +153,6 @@ proxies:
   alterId: 0
   cipher: auto
   tls: true
-- name: 🇺🇸 US-2 | SHFX
-  type: hysteria2
-  server: 108.165.213.197
-  port: 23891
-  password: c232f411-96b5-4b07-b2f7-66a434725ffb
-  sni: fus01.mistea.top
-  skip-cert-verify: false
-  auth: c232f411-96b5-4b07-b2f7-66a434725ffb
 - name: 🇳🇱 NL-1 | SHFX
   type: vless
   server: 188.42.145.253
@@ -177,27 +169,18 @@ proxies:
   udp: true
 - name: 🇨🇳 CN-2 | SHFX
   type: vmess
-  server: 139.129.20.6
-  port: 50002
-  uuid: 418048af-a293-4b99-9b0c-98ca3580dd24
-  network: tcp
+  server: v24.heduian.link
+  port: 30824
+  uuid: cbb3f877-d1fb-344c-87a9-d153bffd5484
+  network: ws
   skip-cert-verify: true
-  alterId: 0
+  ws-opts:
+    headers:
+      Host: v24.heduian.link
+    path: /oooo
+  alterId: 2
   cipher: auto
-  tfo: true
-  udp: true
 - name: 🇨🇳 CN-3 | SHFX
-  type: vmess
-  server: 39.107.155.11
-  port: 30302
-  uuid: 418048af-a293-4b99-9b0c-98ca3580dd24
-  network: tcp
-  skip-cert-verify: true
-  alterId: 0
-  cipher: auto
-  tfo: true
-  udp: true
-- name: 🇨🇳 CN-4 | SHFX
   type: vmess
   server: v39.heduian.link
   port: 30839
@@ -212,20 +195,36 @@ proxies:
   cipher: auto
   tls: false
   udp: true
-- name: 🇨🇳 CN-5 | SHFX
+- name: 🇨🇳 CN-4 | SHFX
   type: vmess
-  server: v24.heduian.link
-  port: 30824
-  uuid: cbb3f877-d1fb-344c-87a9-d153bffd5484
-  network: ws
+  server: 39.107.155.11
+  port: 30302
+  uuid: 418048af-a293-4b99-9b0c-98ca3580dd24
+  network: tcp
   skip-cert-verify: true
-  ws-opts:
-    headers:
-      Host: v24.heduian.link
-    path: /oooo
-  alterId: 2
+  alterId: 0
   cipher: auto
-- name: 🇨🇳 CN-6 | SHFX
+  tfo: true
+  udp: true
+- name: 🇺🇸 US-2 | SHFX
+  type: hysteria2
+  server: 108.165.213.197
+  port: 23891
+  password: c232f411-96b5-4b07-b2f7-66a434725ffb
+  sni: fus01.mistea.top
+  skip-cert-verify: false
+  auth: c232f411-96b5-4b07-b2f7-66a434725ffb
+- name: 🇸🇪 SE-1 | SHFX
+  type: hysteria2
+  server: 70.34.215.221
+  port: 20335
+  password: 80747420-96c4-4a2f-83e6-eea4e46beb09
+  sni: drhystuichdfy.samanidempire.org
+  skip-cert-verify: false
+  auth: 80747420-96c4-4a2f-83e6-eea4e46beb09
+  obfs: salamander
+  obfs-password: U1wBrYQyFm
+- name: 🇨🇳 CN-5 | SHFX
   type: vmess
   server: 112.132.215.34
   port: 50007
@@ -234,613 +233,744 @@ proxies:
   skip-cert-verify: true
   alterId: 0
   cipher: auto
-- name: 🇭🇰 HK-1 | SHFX
-  type: ss
-  server: 103.103.245.158
-  port: 443
-  password: ccf426f1fe78
-  cipher: aes-256-gcm
-  plugin: v2ray-plugin
-  plugin-opts:
-    host: newroot2v1.dsjsapp.com
-    mode: websocket
-    mux: true
-    path: /zksuapgx
-    skip-cert-verify: false
-    tls: true
-  tfo: false
-- name: 🇺🇸 US-3 | SHFX
-  type: vless
-  server: cf-cname.xingpingcn.top
-  port: 443
-  uuid: b5544203-55e3-426e-92f1-0684c93f9829
-  network: ws
-  servername: snippet.danfeng.site
+- name: 🇨🇳 CN-6 | SHFX
+  type: vmess
+  server: 139.129.20.6
+  port: 50002
+  uuid: 418048af-a293-4b99-9b0c-98ca3580dd24
+  network: tcp
   skip-cert-verify: true
+  alterId: 0
+  cipher: auto
+  tfo: true
+  udp: true
+- name: 🇪🇬 EG-1 | SHFX
+  type: vless
+  server: 197.196.218.186
+  port: 61308
+  uuid: b5544203-55e3-426e-92f1-0684c93f9829
+  encryption: none
+  network: ws
+  security: tls
+  sni: Mama.Just.Killed.A.Man
+  servername: Mama.Just.Killed.A.Man
+  skip-cert-verify: true
+  fp: random
   client-fingerprint: random
+  path: /?ed=2560
   ws-opts:
     path: /?ed=2560
     headers:
-      Host: snippet.danfeng.site
+      Host: Mama.Just.Killed.A.Man
   tls: true
-  tfo: false
-- name: 🇺🇸 US-4 | SHFX
-  type: vless
-  server: mfa.gov.ua
-  port: 2096
-  uuid: b5544203-55e3-426e-92f1-0684c93f9829
-  network: ws
-  servername: snippet.danfeng.site
-  skip-cert-verify: true
-  client-fingerprint: random
-  ws-opts:
-    path: /?ed=2560
-    headers:
-      Host: snippet.danfeng.site
-  tls: true
-  tfo: false
-- name: 🇰🇷 KR-1 | SHFX
-  type: vless
-  server: tp50000.kr.proxyip.fgfw.eu.org
-  port: 50000
-  uuid: b5544203-55e3-426e-92f1-0684c93f9829
-  network: ws
-  servername: snippet.danfeng.site
-  skip-cert-verify: true
-  client-fingerprint: random
-  ws-opts:
-    path: /?ed=2560
-    headers:
-      Host: snippet.danfeng.site
-  tls: true
-  tfo: false
-- name: 🇭🇰 HK-2 | SHFX
-  type: vless
-  server: 38.147.170.48
-  port: 27031
-  uuid: b5544203-55e3-426e-92f1-0684c93f9829
-  network: ws
-  servername: snippet.danfeng.site
-  skip-cert-verify: true
-  client-fingerprint: random
-  ws-opts:
-    path: /?ed=2560
-    headers:
-      Host: snippet.danfeng.site
-  tls: true
-  tfo: false
-- name: 🇭🇰 HK-3 | SHFX
-  type: vless
-  server: 156.251.176.116
-  port: 34505
-  uuid: b5544203-55e3-426e-92f1-0684c93f9829
-  network: ws
-  servername: snippet.danfeng.site
-  skip-cert-verify: true
-  client-fingerprint: random
-  ws-opts:
-    path: /?ed=2560
-    headers:
-      Host: snippet.danfeng.site
-  tls: true
-  tfo: false
-- name: 🇭🇰 HK-4 | SHFX
-  type: vless
-  server: 46.232.107.105
-  port: 12953
-  uuid: b5544203-55e3-426e-92f1-0684c93f9829
-  network: ws
-  servername: snippet.danfeng.site
-  skip-cert-verify: true
-  client-fingerprint: random
-  ws-opts:
-    path: /?ed=2560
-    headers:
-      Host: snippet.danfeng.site
-  tls: true
-  tfo: false
-- name: 🇭🇰 HK-5 | SHFX
-  type: vless
-  server: 151.242.85.107
-  port: 16721
-  uuid: b5544203-55e3-426e-92f1-0684c93f9829
-  network: ws
-  servername: snippet.danfeng.site
-  skip-cert-verify: true
-  client-fingerprint: random
-  ws-opts:
-    path: /?ed=2560
-    headers:
-      Host: snippet.danfeng.site
-  tls: true
-  tfo: false
-- name: 🇭🇰 HK-6 | SHFX
-  type: vless
-  server: 151.242.85.107
-  port: 49411
-  uuid: b5544203-55e3-426e-92f1-0684c93f9829
-  network: ws
-  servername: snippet.danfeng.site
-  skip-cert-verify: true
-  client-fingerprint: random
-  ws-opts:
-    path: /?ed=2560
-    headers:
-      Host: snippet.danfeng.site
-  tls: true
-  tfo: false
-- name: 🇭🇰 HK-7 | SHFX
-  type: vless
-  server: 111.39.139.135
-  port: 3001
-  uuid: b5544203-55e3-426e-92f1-0684c93f9829
-  network: ws
-  servername: snippet.danfeng.site
-  skip-cert-verify: true
-  client-fingerprint: random
-  ws-opts:
-    path: /?ed=2560
-    headers:
-      Host: snippet.danfeng.site
-  tls: true
-  tfo: false
+  host: Mama.Just.Killed.A.Man
+  allowInsecure: '1'
+  fragment: 1,40-60,30-50,tlshello
 - name: 🇯🇵 JP-1 | SHFX
   type: vless
-  server: 54.150.13.126
-  port: 10005
+  server: 61.24.242.149
+  port: 5143
   uuid: b5544203-55e3-426e-92f1-0684c93f9829
+  encryption: none
   network: ws
-  servername: snippet.danfeng.site
+  security: tls
+  sni: Mama.Just.Killed.A.Man
+  servername: Mama.Just.Killed.A.Man
   skip-cert-verify: true
+  fp: random
   client-fingerprint: random
+  path: /?ed=2560
   ws-opts:
     path: /?ed=2560
     headers:
-      Host: snippet.danfeng.site
+      Host: Mama.Just.Killed.A.Man
   tls: true
-  tfo: false
+  host: Mama.Just.Killed.A.Man
+  allowInsecure: '1'
+  fragment: 1,40-60,30-50,tlshello
 - name: 🇯🇵 JP-2 | SHFX
   type: vless
-  server: 38.47.126.81
-  port: 12007
+  server: 219.27.134.223
+  port: 57042
   uuid: b5544203-55e3-426e-92f1-0684c93f9829
+  encryption: none
   network: ws
-  servername: snippet.danfeng.site
+  security: tls
+  sni: Mama.Just.Killed.A.Man
+  servername: Mama.Just.Killed.A.Man
   skip-cert-verify: true
+  fp: random
   client-fingerprint: random
+  path: /?ed=2560
   ws-opts:
     path: /?ed=2560
     headers:
-      Host: snippet.danfeng.site
+      Host: Mama.Just.Killed.A.Man
   tls: true
-  tfo: false
+  host: Mama.Just.Killed.A.Man
+  allowInsecure: '1'
+  fragment: 1,40-60,30-50,tlshello
 - name: 🇯🇵 JP-3 | SHFX
   type: vless
-  server: 103.27.79.154
-  port: 16695
+  server: 115.69.228.191
+  port: 5695
   uuid: b5544203-55e3-426e-92f1-0684c93f9829
+  encryption: none
   network: ws
-  servername: snippet.danfeng.site
+  security: tls
+  sni: Mama.Just.Killed.A.Man
+  servername: Mama.Just.Killed.A.Man
   skip-cert-verify: true
+  fp: random
   client-fingerprint: random
+  path: /?ed=2560
   ws-opts:
     path: /?ed=2560
     headers:
-      Host: snippet.danfeng.site
+      Host: Mama.Just.Killed.A.Man
   tls: true
-  tfo: false
-- name: 🇯🇵 JP-4 | SHFX
+  host: Mama.Just.Killed.A.Man
+  allowInsecure: '1'
+  fragment: 1,40-60,30-50,tlshello
+- name: 🇮🇱 IL-1 | SHFX
   type: vless
-  server: 52.69.102.187
-  port: 10005
+  server: 79.183.170.211
+  port: 6742
   uuid: b5544203-55e3-426e-92f1-0684c93f9829
+  encryption: none
   network: ws
-  servername: snippet.danfeng.site
+  security: tls
+  sni: Mama.Just.Killed.A.Man
+  servername: Mama.Just.Killed.A.Man
   skip-cert-verify: true
+  fp: random
   client-fingerprint: random
+  path: /?ed=2560
   ws-opts:
     path: /?ed=2560
     headers:
-      Host: snippet.danfeng.site
+      Host: Mama.Just.Killed.A.Man
   tls: true
-  tfo: false
-- name: 🇯🇵 JP-5 | SHFX
+  host: Mama.Just.Killed.A.Man
+  allowInsecure: '1'
+  fragment: 1,40-60,30-50,tlshello
+- name: 🇸🇦 SA-1 | SHFX
   type: vless
-  server: 103.238.129.215
-  port: 42734
+  server: 5.163.198.168
+  port: 43202
   uuid: b5544203-55e3-426e-92f1-0684c93f9829
+  encryption: none
   network: ws
-  servername: snippet.danfeng.site
+  security: tls
+  sni: Mama.Just.Killed.A.Man
+  servername: Mama.Just.Killed.A.Man
   skip-cert-verify: true
+  fp: random
   client-fingerprint: random
+  path: /?ed=2560
   ws-opts:
     path: /?ed=2560
     headers:
-      Host: snippet.danfeng.site
+      Host: Mama.Just.Killed.A.Man
   tls: true
-  tfo: false
-- name: 🇯🇵 JP-6 | SHFX
+  host: Mama.Just.Killed.A.Man
+  allowInsecure: '1'
+  fragment: 1,40-60,30-50,tlshello
+- name: 🇪🇸 ES-1 | SHFX
   type: vless
-  server: 35.73.80.176
-  port: 10017
+  server: 87.219.2.31
+  port: 61978
   uuid: b5544203-55e3-426e-92f1-0684c93f9829
+  encryption: none
   network: ws
-  servername: snippet.danfeng.site
+  security: tls
+  sni: Mama.Just.Killed.A.Man
+  servername: Mama.Just.Killed.A.Man
   skip-cert-verify: true
+  fp: random
   client-fingerprint: random
+  path: /?ed=2560
   ws-opts:
     path: /?ed=2560
     headers:
-      Host: snippet.danfeng.site
+      Host: Mama.Just.Killed.A.Man
   tls: true
-  tfo: false
-- name: 🇯🇵 JP-7 | SHFX
-  type: vless
-  server: 167.253.156.99
-  port: 25087
-  uuid: b5544203-55e3-426e-92f1-0684c93f9829
-  network: ws
-  servername: snippet.danfeng.site
-  skip-cert-verify: true
-  client-fingerprint: random
-  ws-opts:
-    path: /?ed=2560
-    headers:
-      Host: snippet.danfeng.site
-  tls: true
-  tfo: false
-- name: 🇸🇬 SG-2 | SHFX
-  type: vless
-  server: 8.219.198.241
-  port: 443
-  uuid: b5544203-55e3-426e-92f1-0684c93f9829
-  network: ws
-  servername: snippet.danfeng.site
-  skip-cert-verify: true
-  client-fingerprint: random
-  ws-opts:
-    path: /?ed=2560
-    headers:
-      Host: snippet.danfeng.site
-  tls: true
-  tfo: false
-- name: 🇸🇬 SG-3 | SHFX
-  type: vless
-  server: 61.245.11.69
-  port: 2053
-  uuid: b5544203-55e3-426e-92f1-0684c93f9829
-  network: ws
-  servername: snippet.danfeng.site
-  skip-cert-verify: true
-  client-fingerprint: random
-  ws-opts:
-    path: /?ed=2560
-    headers:
-      Host: snippet.danfeng.site
-  tls: true
-  tfo: false
-- name: 🇸🇬 SG-4 | SHFX
-  type: vless
-  server: 83.142.30.132
-  port: 2096
-  uuid: b5544203-55e3-426e-92f1-0684c93f9829
-  network: ws
-  servername: snippet.danfeng.site
-  skip-cert-verify: true
-  client-fingerprint: random
-  ws-opts:
-    path: /?ed=2560
-    headers:
-      Host: snippet.danfeng.site
-  tls: true
-  tfo: false
-- name: 🇸🇬 SG-5 | SHFX
-  type: vless
-  server: 13.229.180.215
-  port: 39738
-  uuid: b5544203-55e3-426e-92f1-0684c93f9829
-  network: ws
-  servername: snippet.danfeng.site
-  skip-cert-verify: true
-  client-fingerprint: random
-  ws-opts:
-    path: /?ed=2560
-    headers:
-      Host: snippet.danfeng.site
-  tls: true
-  tfo: false
-- name: 🇸🇬 SG-6 | SHFX
-  type: vless
-  server: 43.163.94.115
-  port: 443
-  uuid: b5544203-55e3-426e-92f1-0684c93f9829
-  network: ws
-  servername: snippet.danfeng.site
-  skip-cert-verify: true
-  client-fingerprint: random
-  ws-opts:
-    path: /?ed=2560
-    headers:
-      Host: snippet.danfeng.site
-  tls: true
-  tfo: false
-- name: 🇸🇬 SG-7 | SHFX
-  type: vless
-  server: 8.219.205.100
-  port: 443
-  uuid: b5544203-55e3-426e-92f1-0684c93f9829
-  network: ws
-  servername: snippet.danfeng.site
-  skip-cert-verify: true
-  client-fingerprint: random
-  ws-opts:
-    path: /?ed=2560
-    headers:
-      Host: snippet.danfeng.site
-  tls: true
-  tfo: false
+  host: Mama.Just.Killed.A.Man
+  allowInsecure: '1'
+  fragment: 1,40-60,30-50,tlshello
 - name: 🇨🇳 CN-7 | SHFX
   type: vless
-  server: 213.210.5.61
-  port: 8443
+  server: 27.17.251.92
+  port: 2045
   uuid: b5544203-55e3-426e-92f1-0684c93f9829
+  encryption: none
   network: ws
-  servername: snippet.danfeng.site
+  security: tls
+  sni: Mama.Just.Killed.A.Man
+  servername: Mama.Just.Killed.A.Man
   skip-cert-verify: true
+  fp: random
   client-fingerprint: random
+  path: /?ed=2560
   ws-opts:
     path: /?ed=2560
     headers:
-      Host: snippet.danfeng.site
+      Host: Mama.Just.Killed.A.Man
   tls: true
-  tfo: false
+  host: Mama.Just.Killed.A.Man
+  allowInsecure: '1'
+  fragment: 1,40-60,30-50,tlshello
+- name: 🇺🇸 US-3 | SHFX
+  type: vless
+  server: 161.250.198.116
+  port: 37032
+  uuid: b5544203-55e3-426e-92f1-0684c93f9829
+  encryption: none
+  network: ws
+  security: tls
+  sni: Mama.Just.Killed.A.Man
+  servername: Mama.Just.Killed.A.Man
+  skip-cert-verify: true
+  fp: random
+  client-fingerprint: random
+  path: /?ed=2560
+  ws-opts:
+    path: /?ed=2560
+    headers:
+      Host: Mama.Just.Killed.A.Man
+  tls: true
+  host: Mama.Just.Killed.A.Man
+  allowInsecure: '1'
+  fragment: 1,40-60,30-50,tlshello
 - name: 🇨🇳 CN-8 | SHFX
   type: vless
-  server: 82.152.90.180
-  port: 17009
+  server: 110.16.54.219
+  port: 53697
   uuid: b5544203-55e3-426e-92f1-0684c93f9829
+  encryption: none
   network: ws
-  servername: snippet.danfeng.site
+  security: tls
+  sni: Mama.Just.Killed.A.Man
+  servername: Mama.Just.Killed.A.Man
   skip-cert-verify: true
+  fp: random
   client-fingerprint: random
+  path: /?ed=2560
   ws-opts:
     path: /?ed=2560
     headers:
-      Host: snippet.danfeng.site
+      Host: Mama.Just.Killed.A.Man
   tls: true
-  tfo: false
+  host: Mama.Just.Killed.A.Man
+  allowInsecure: '1'
+  fragment: 1,40-60,30-50,tlshello
+- name: 🇺🇸 US-4 | SHFX
+  type: vless
+  server: 73.156.71.160
+  port: 1266
+  uuid: b5544203-55e3-426e-92f1-0684c93f9829
+  encryption: none
+  network: ws
+  security: tls
+  sni: Mama.Just.Killed.A.Man
+  servername: Mama.Just.Killed.A.Man
+  skip-cert-verify: true
+  fp: random
+  client-fingerprint: random
+  path: /?ed=2560
+  ws-opts:
+    path: /?ed=2560
+    headers:
+      Host: Mama.Just.Killed.A.Man
+  tls: true
+  host: Mama.Just.Killed.A.Man
+  allowInsecure: '1'
+  fragment: 1,40-60,30-50,tlshello
+- name: 🇨🇳 CN-9 | SHFX
+  type: vless
+  server: 125.69.28.195
+  port: 29189
+  uuid: b5544203-55e3-426e-92f1-0684c93f9829
+  encryption: none
+  network: ws
+  security: tls
+  sni: Mama.Just.Killed.A.Man
+  servername: Mama.Just.Killed.A.Man
+  skip-cert-verify: true
+  fp: random
+  client-fingerprint: random
+  path: /?ed=2560
+  ws-opts:
+    path: /?ed=2560
+    headers:
+      Host: Mama.Just.Killed.A.Man
+  tls: true
+  host: Mama.Just.Killed.A.Man
+  allowInsecure: '1'
+  fragment: 1,40-60,30-50,tlshello
+- name: 🇳🇱 NL-2 | SHFX
+  type: vless
+  server: 185.242.3.159
+  port: 64616
+  uuid: b5544203-55e3-426e-92f1-0684c93f9829
+  encryption: none
+  network: ws
+  security: tls
+  sni: Mama.Just.Killed.A.Man
+  servername: Mama.Just.Killed.A.Man
+  skip-cert-verify: true
+  fp: random
+  client-fingerprint: random
+  path: /?ed=2560
+  ws-opts:
+    path: /?ed=2560
+    headers:
+      Host: Mama.Just.Killed.A.Man
+  tls: true
+  host: Mama.Just.Killed.A.Man
+  allowInsecure: '1'
+  fragment: 1,40-60,30-50,tlshello
 - name: 🇺🇸 US-5 | SHFX
   type: vless
-  server: 89.208.249.11
-  port: 49899
+  server: 128.218.103.215
+  port: 4093
   uuid: b5544203-55e3-426e-92f1-0684c93f9829
+  encryption: none
   network: ws
-  servername: snippet.danfeng.site
+  security: tls
+  sni: Mama.Just.Killed.A.Man
+  servername: Mama.Just.Killed.A.Man
   skip-cert-verify: true
+  fp: random
   client-fingerprint: random
+  path: /?ed=2560
   ws-opts:
     path: /?ed=2560
     headers:
-      Host: snippet.danfeng.site
+      Host: Mama.Just.Killed.A.Man
   tls: true
-  tfo: false
+  host: Mama.Just.Killed.A.Man
+  allowInsecure: '1'
+  fragment: 1,40-60,30-50,tlshello
 - name: 🇺🇸 US-6 | SHFX
   type: vless
-  server: 38.207.162.5
-  port: 42697
+  server: 130.182.10.234
+  port: 52469
   uuid: b5544203-55e3-426e-92f1-0684c93f9829
+  encryption: none
   network: ws
-  servername: snippet.danfeng.site
+  security: tls
+  sni: Mama.Just.Killed.A.Man
+  servername: Mama.Just.Killed.A.Man
   skip-cert-verify: true
+  fp: random
   client-fingerprint: random
+  path: /?ed=2560
   ws-opts:
     path: /?ed=2560
     headers:
-      Host: snippet.danfeng.site
+      Host: Mama.Just.Killed.A.Man
   tls: true
-  tfo: false
+  host: Mama.Just.Killed.A.Man
+  allowInsecure: '1'
+  fragment: 1,40-60,30-50,tlshello
+- name: 🇮🇹 IT-1 | SHFX
+  type: vless
+  server: 178.175.221.30
+  port: 7044
+  uuid: b5544203-55e3-426e-92f1-0684c93f9829
+  encryption: none
+  network: ws
+  security: tls
+  sni: Mama.Just.Killed.A.Man
+  servername: Mama.Just.Killed.A.Man
+  skip-cert-verify: true
+  fp: random
+  client-fingerprint: random
+  path: /?ed=2560
+  ws-opts:
+    path: /?ed=2560
+    headers:
+      Host: Mama.Just.Killed.A.Man
+  tls: true
+  host: Mama.Just.Killed.A.Man
+  allowInsecure: '1'
+  fragment: 1,40-60,30-50,tlshello
 - name: 🇺🇸 US-7 | SHFX
   type: vless
-  server: 154.17.18.48
-  port: 8448
+  server: 98.173.107.127
+  port: 42385
   uuid: b5544203-55e3-426e-92f1-0684c93f9829
+  encryption: none
   network: ws
-  servername: snippet.danfeng.site
+  security: tls
+  sni: Mama.Just.Killed.A.Man
+  servername: Mama.Just.Killed.A.Man
   skip-cert-verify: true
+  fp: random
   client-fingerprint: random
+  path: /?ed=2560
   ws-opts:
     path: /?ed=2560
     headers:
-      Host: snippet.danfeng.site
+      Host: Mama.Just.Killed.A.Man
   tls: true
-  tfo: false
+  host: Mama.Just.Killed.A.Man
+  allowInsecure: '1'
+  fragment: 1,40-60,30-50,tlshello
 - name: 🇺🇸 US-8 | SHFX
   type: vless
-  server: 128.241.251.81
-  port: 40000
+  server: 148.23.60.232
+  port: 4149
   uuid: b5544203-55e3-426e-92f1-0684c93f9829
+  encryption: none
   network: ws
-  servername: snippet.danfeng.site
+  security: tls
+  sni: Mama.Just.Killed.A.Man
+  servername: Mama.Just.Killed.A.Man
   skip-cert-verify: true
+  fp: random
   client-fingerprint: random
+  path: /?ed=2560
   ws-opts:
     path: /?ed=2560
     headers:
-      Host: snippet.danfeng.site
+      Host: Mama.Just.Killed.A.Man
   tls: true
-  tfo: false
+  host: Mama.Just.Killed.A.Man
+  allowInsecure: '1'
+  fragment: 1,40-60,30-50,tlshello
 - name: 🇺🇸 US-9 | SHFX
   type: vless
-  server: 185.183.84.233
-  port: 443
+  server: 32.70.31.194
+  port: 23208
   uuid: b5544203-55e3-426e-92f1-0684c93f9829
+  encryption: none
   network: ws
-  servername: snippet.danfeng.site
+  security: tls
+  sni: Mama.Just.Killed.A.Man
+  servername: Mama.Just.Killed.A.Man
   skip-cert-verify: true
+  fp: random
   client-fingerprint: random
+  path: /?ed=2560
   ws-opts:
     path: /?ed=2560
     headers:
-      Host: snippet.danfeng.site
+      Host: Mama.Just.Killed.A.Man
   tls: true
-  tfo: false
+  host: Mama.Just.Killed.A.Man
+  allowInsecure: '1'
+  fragment: 1,40-60,30-50,tlshello
+- name: 🇿🇦 ZA-1 | SHFX
+  type: vless
+  server: 41.57.154.106
+  port: 17428
+  uuid: b5544203-55e3-426e-92f1-0684c93f9829
+  encryption: none
+  network: ws
+  security: tls
+  sni: Mama.Just.Killed.A.Man
+  servername: Mama.Just.Killed.A.Man
+  skip-cert-verify: true
+  fp: random
+  client-fingerprint: random
+  path: /?ed=2560
+  ws-opts:
+    path: /?ed=2560
+    headers:
+      Host: Mama.Just.Killed.A.Man
+  tls: true
+  host: Mama.Just.Killed.A.Man
+  allowInsecure: '1'
+  fragment: 1,40-60,30-50,tlshello
 - name: 🇺🇸 US-10 | SHFX
   type: vless
-  server: 199.180.116.138
-  port: 443
+  server: 29.91.164.3
+  port: 21856
   uuid: b5544203-55e3-426e-92f1-0684c93f9829
+  encryption: none
   network: ws
-  servername: snippet.danfeng.site
+  security: tls
+  sni: Mama.Just.Killed.A.Man
+  servername: Mama.Just.Killed.A.Man
   skip-cert-verify: true
+  fp: random
   client-fingerprint: random
+  path: /?ed=2560
   ws-opts:
     path: /?ed=2560
     headers:
-      Host: snippet.danfeng.site
+      Host: Mama.Just.Killed.A.Man
   tls: true
-  tfo: false
+  host: Mama.Just.Killed.A.Man
+  allowInsecure: '1'
+  fragment: 1,40-60,30-50,tlshello
 - name: 🇺🇸 US-11 | SHFX
   type: vless
-  server: 95.181.189.201
-  port: 443
+  server: 71.111.89.152
+  port: 24863
   uuid: b5544203-55e3-426e-92f1-0684c93f9829
+  encryption: none
   network: ws
-  servername: snippet.danfeng.site
+  security: tls
+  sni: Mama.Just.Killed.A.Man
+  servername: Mama.Just.Killed.A.Man
   skip-cert-verify: true
+  fp: random
   client-fingerprint: random
+  path: /?ed=2560
   ws-opts:
     path: /?ed=2560
     headers:
-      Host: snippet.danfeng.site
+      Host: Mama.Just.Killed.A.Man
   tls: true
-  tfo: false
-- name: 🇩🇪 DE-1 | SHFX
+  host: Mama.Just.Killed.A.Man
+  allowInsecure: '1'
+  fragment: 1,40-60,30-50,tlshello
+- name: 🇨🇳 CN-10 | SHFX
   type: vless
-  server: 185.58.159.126
-  port: 39738
+  server: 125.82.11.41
+  port: 6824
   uuid: b5544203-55e3-426e-92f1-0684c93f9829
+  encryption: none
   network: ws
-  servername: snippet.danfeng.site
+  security: tls
+  sni: Mama.Just.Killed.A.Man
+  servername: Mama.Just.Killed.A.Man
   skip-cert-verify: true
+  fp: random
   client-fingerprint: random
+  path: /?ed=2560
   ws-opts:
     path: /?ed=2560
     headers:
-      Host: snippet.danfeng.site
+      Host: Mama.Just.Killed.A.Man
   tls: true
-  tfo: false
-- name: 🇩🇪 DE-2 | SHFX
+  host: Mama.Just.Killed.A.Man
+  allowInsecure: '1'
+  fragment: 1,40-60,30-50,tlshello
+- name: 🇺🇸 US-12 | SHFX
   type: vless
-  server: 3.75.170.179
-  port: 443
+  server: 130.85.54.161
+  port: 46826
   uuid: b5544203-55e3-426e-92f1-0684c93f9829
+  encryption: none
   network: ws
-  servername: snippet.danfeng.site
+  security: tls
+  sni: Mama.Just.Killed.A.Man
+  servername: Mama.Just.Killed.A.Man
   skip-cert-verify: true
+  fp: random
   client-fingerprint: random
+  path: /?ed=2560
   ws-opts:
     path: /?ed=2560
     headers:
-      Host: snippet.danfeng.site
+      Host: Mama.Just.Killed.A.Man
   tls: true
-  tfo: false
+  host: Mama.Just.Killed.A.Man
+  allowInsecure: '1'
+  fragment: 1,40-60,30-50,tlshello
+- name: 🇲🇦 MA-1 | SHFX
+  type: vless
+  server: 105.130.137.151
+  port: 41899
+  uuid: b5544203-55e3-426e-92f1-0684c93f9829
+  encryption: none
+  network: ws
+  security: tls
+  sni: Mama.Just.Killed.A.Man
+  servername: Mama.Just.Killed.A.Man
+  skip-cert-verify: true
+  fp: random
+  client-fingerprint: random
+  path: /?ed=2560
+  ws-opts:
+    path: /?ed=2560
+    headers:
+      Host: Mama.Just.Killed.A.Man
+  tls: true
+  host: Mama.Just.Killed.A.Man
+  allowInsecure: '1'
+  fragment: 1,40-60,30-50,tlshello
+- name: 🇺🇸 US-13 | SHFX
+  type: vless
+  server: 216.46.50.44
+  port: 62870
+  uuid: b5544203-55e3-426e-92f1-0684c93f9829
+  encryption: none
+  network: ws
+  security: tls
+  sni: Mama.Just.Killed.A.Man
+  servername: Mama.Just.Killed.A.Man
+  skip-cert-verify: true
+  fp: random
+  client-fingerprint: random
+  path: /?ed=2560
+  ws-opts:
+    path: /?ed=2560
+    headers:
+      Host: Mama.Just.Killed.A.Man
+  tls: true
+  host: Mama.Just.Killed.A.Man
+  allowInsecure: '1'
+  fragment: 1,40-60,30-50,tlshello
+- name: 🇨🇦 CA-1 | SHFX
+  type: vless
+  server: 65.61.250.25
+  port: 56388
+  uuid: b5544203-55e3-426e-92f1-0684c93f9829
+  encryption: none
+  network: ws
+  security: tls
+  sni: Mama.Just.Killed.A.Man
+  servername: Mama.Just.Killed.A.Man
+  skip-cert-verify: true
+  fp: random
+  client-fingerprint: random
+  path: /?ed=2560
+  ws-opts:
+    path: /?ed=2560
+    headers:
+      Host: Mama.Just.Killed.A.Man
+  tls: true
+  host: Mama.Just.Killed.A.Man
+  allowInsecure: '1'
+  fragment: 1,40-60,30-50,tlshello
+- name: 🇨🇳 CN-11 | SHFX
+  type: vless
+  server: 59.70.43.69
+  port: 5980
+  uuid: b5544203-55e3-426e-92f1-0684c93f9829
+  encryption: none
+  network: ws
+  security: tls
+  sni: Mama.Just.Killed.A.Man
+  servername: Mama.Just.Killed.A.Man
+  skip-cert-verify: true
+  fp: random
+  client-fingerprint: random
+  path: /?ed=2560
+  ws-opts:
+    path: /?ed=2560
+    headers:
+      Host: Mama.Just.Killed.A.Man
+  tls: true
+  host: Mama.Just.Killed.A.Man
+  allowInsecure: '1'
+  fragment: 1,40-60,30-50,tlshello
+- name: 🇰🇷 KR-1 | SHFX
+  type: vless
+  server: 220.84.222.36
+  port: 8750
+  uuid: b5544203-55e3-426e-92f1-0684c93f9829
+  encryption: none
+  network: ws
+  security: tls
+  sni: Mama.Just.Killed.A.Man
+  servername: Mama.Just.Killed.A.Man
+  skip-cert-verify: true
+  fp: random
+  client-fingerprint: random
+  path: /?ed=2560
+  ws-opts:
+    path: /?ed=2560
+    headers:
+      Host: Mama.Just.Killed.A.Man
+  tls: true
+  host: Mama.Just.Killed.A.Man
+  allowInsecure: '1'
+  fragment: 1,40-60,30-50,tlshello
 
 proxy-groups:
   - name: 选择线路
     type: select
     proxies:
       - 自动选择⚡️
-      - 🇸🇬 SG-1 | SHFX
       - 🇨🇳 CN-1 | SHFX
+      - 🇸🇬 SG-1 | SHFX
       - 🇺🇸 US-1 | SHFX
-      - 🇺🇸 US-2 | SHFX
       - 🇳🇱 NL-1 | SHFX
       - 🇨🇳 CN-2 | SHFX
       - 🇨🇳 CN-3 | SHFX
       - 🇨🇳 CN-4 | SHFX
+      - 🇺🇸 US-2 | SHFX
+      - 🇸🇪 SE-1 | SHFX
       - 🇨🇳 CN-5 | SHFX
       - 🇨🇳 CN-6 | SHFX
-      - 🇭🇰 HK-1 | SHFX
-      - 🇺🇸 US-3 | SHFX
-      - 🇺🇸 US-4 | SHFX
-      - 🇰🇷 KR-1 | SHFX
-      - 🇭🇰 HK-2 | SHFX
-      - 🇭🇰 HK-3 | SHFX
-      - 🇭🇰 HK-4 | SHFX
-      - 🇭🇰 HK-5 | SHFX
-      - 🇭🇰 HK-6 | SHFX
-      - 🇭🇰 HK-7 | SHFX
+      - 🇪🇬 EG-1 | SHFX
       - 🇯🇵 JP-1 | SHFX
       - 🇯🇵 JP-2 | SHFX
       - 🇯🇵 JP-3 | SHFX
-      - 🇯🇵 JP-4 | SHFX
-      - 🇯🇵 JP-5 | SHFX
-      - 🇯🇵 JP-6 | SHFX
-      - 🇯🇵 JP-7 | SHFX
-      - 🇸🇬 SG-2 | SHFX
-      - 🇸🇬 SG-3 | SHFX
-      - 🇸🇬 SG-4 | SHFX
-      - 🇸🇬 SG-5 | SHFX
-      - 🇸🇬 SG-6 | SHFX
-      - 🇸🇬 SG-7 | SHFX
+      - 🇮🇱 IL-1 | SHFX
+      - 🇸🇦 SA-1 | SHFX
+      - 🇪🇸 ES-1 | SHFX
       - 🇨🇳 CN-7 | SHFX
+      - 🇺🇸 US-3 | SHFX
       - 🇨🇳 CN-8 | SHFX
+      - 🇺🇸 US-4 | SHFX
+      - 🇨🇳 CN-9 | SHFX
+      - 🇳🇱 NL-2 | SHFX
       - 🇺🇸 US-5 | SHFX
       - 🇺🇸 US-6 | SHFX
+      - 🇮🇹 IT-1 | SHFX
       - 🇺🇸 US-7 | SHFX
       - 🇺🇸 US-8 | SHFX
       - 🇺🇸 US-9 | SHFX
+      - 🇿🇦 ZA-1 | SHFX
       - 🇺🇸 US-10 | SHFX
       - 🇺🇸 US-11 | SHFX
-      - 🇩🇪 DE-1 | SHFX
-      - 🇩🇪 DE-2 | SHFX
+      - 🇨🇳 CN-10 | SHFX
+      - 🇺🇸 US-12 | SHFX
+      - 🇲🇦 MA-1 | SHFX
+      - 🇺🇸 US-13 | SHFX
+      - 🇨🇦 CA-1 | SHFX
+      - 🇨🇳 CN-11 | SHFX
+      - 🇰🇷 KR-1 | SHFX
   - name: 自动选择⚡️
     type: url-test
     proxies:
-      - 🇸🇬 SG-1 | SHFX
       - 🇨🇳 CN-1 | SHFX
+      - 🇸🇬 SG-1 | SHFX
       - 🇺🇸 US-1 | SHFX
-      - 🇺🇸 US-2 | SHFX
       - 🇳🇱 NL-1 | SHFX
       - 🇨🇳 CN-2 | SHFX
       - 🇨🇳 CN-3 | SHFX
       - 🇨🇳 CN-4 | SHFX
+      - 🇺🇸 US-2 | SHFX
+      - 🇸🇪 SE-1 | SHFX
       - 🇨🇳 CN-5 | SHFX
       - 🇨🇳 CN-6 | SHFX
-      - 🇭🇰 HK-1 | SHFX
-      - 🇺🇸 US-3 | SHFX
-      - 🇺🇸 US-4 | SHFX
-      - 🇰🇷 KR-1 | SHFX
-      - 🇭🇰 HK-2 | SHFX
-      - 🇭🇰 HK-3 | SHFX
-      - 🇭🇰 HK-4 | SHFX
-      - 🇭🇰 HK-5 | SHFX
-      - 🇭🇰 HK-6 | SHFX
-      - 🇭🇰 HK-7 | SHFX
+      - 🇪🇬 EG-1 | SHFX
       - 🇯🇵 JP-1 | SHFX
       - 🇯🇵 JP-2 | SHFX
       - 🇯🇵 JP-3 | SHFX
-      - 🇯🇵 JP-4 | SHFX
-      - 🇯🇵 JP-5 | SHFX
-      - 🇯🇵 JP-6 | SHFX
-      - 🇯🇵 JP-7 | SHFX
-      - 🇸🇬 SG-2 | SHFX
-      - 🇸🇬 SG-3 | SHFX
-      - 🇸🇬 SG-4 | SHFX
-      - 🇸🇬 SG-5 | SHFX
-      - 🇸🇬 SG-6 | SHFX
-      - 🇸🇬 SG-7 | SHFX
+      - 🇮🇱 IL-1 | SHFX
+      - 🇸🇦 SA-1 | SHFX
+      - 🇪🇸 ES-1 | SHFX
       - 🇨🇳 CN-7 | SHFX
+      - 🇺🇸 US-3 | SHFX
       - 🇨🇳 CN-8 | SHFX
+      - 🇺🇸 US-4 | SHFX
+      - 🇨🇳 CN-9 | SHFX
+      - 🇳🇱 NL-2 | SHFX
       - 🇺🇸 US-5 | SHFX
       - 🇺🇸 US-6 | SHFX
+      - 🇮🇹 IT-1 | SHFX
       - 🇺🇸 US-7 | SHFX
       - 🇺🇸 US-8 | SHFX
       - 🇺🇸 US-9 | SHFX
+      - 🇿🇦 ZA-1 | SHFX
       - 🇺🇸 US-10 | SHFX
       - 🇺🇸 US-11 | SHFX
-      - 🇩🇪 DE-1 | SHFX
-      - 🇩🇪 DE-2 | SHFX
+      - 🇨🇳 CN-10 | SHFX
+      - 🇺🇸 US-12 | SHFX
+      - 🇲🇦 MA-1 | SHFX
+      - 🇺🇸 US-13 | SHFX
+      - 🇨🇦 CA-1 | SHFX
+      - 🇨🇳 CN-11 | SHFX
+      - 🇰🇷 KR-1 | SHFX
     url: https://www.gstatic.com/generate_204
     interval: 300
 rules:
