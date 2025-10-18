@@ -1,4 +1,4 @@
-name: Fetch & Process Nodes with FlClash Windows
+name: Fetch & Process Nodes with Sing-Box
 
 on:
   workflow_dispatch:
@@ -20,15 +20,15 @@ jobs:
         with:
           python-version: "3.11"
 
-      # 3️⃣ Download latest FlClash Windows portable zip
-      - name: Download latest FlClash Windows
+      # 3️⃣ Download latest Sing-Box Windows release
+      - name: Download latest Sing-Box Windows
         run: |
-          echo Fetching latest FlClash release...
-          $release = Invoke-RestMethod -Uri "https://api.github.com/repos/chen08209/FlClash/releases/latest"
+          echo Fetching latest Sing-Box release...
+          $release = Invoke-RestMethod -Uri "https://api.github.com/repos/SagerNet/sing-box/releases/latest"
           $asset = $release.assets | Where-Object { $_.name -match "windows-amd64.zip" } | Select-Object -First 1
           if (-not $asset) { Write-Error "No windows-amd64.zip found"; exit 1 }
-          Invoke-WebRequest -Uri $asset.browser_download_url -OutFile flclash.zip
-          Expand-Archive flclash.zip -DestinationPath flclash
+          Invoke-WebRequest -Uri $asset.browser_download_url -OutFile sing-box.zip
+          Expand-Archive sing-box.zip -DestinationPath sing-box
 
       # 4️⃣ Download subscription from secret
       - name: Download subscription content
@@ -36,10 +36,10 @@ jobs:
           Invoke-WebRequest -Uri "${{ secrets.TEST_URL }}" -OutFile subscription.txt
           Get-Content subscription.txt -TotalCount 5
 
-      # 5️⃣ Run FlClash parse
-      - name: Parse subscription with FlClash
+      # 5️⃣ Run Sing-Box to parse subscription
+      - name: Parse subscription with Sing-Box
         run: |
-          .\flclash\flclash.exe parse -f subscription.txt -o nodes_checked.json
+          .\sing-box\sing-box.exe subscribe -u "${{ secrets.TEST_URL }}" -o nodes_checked.json
           if (-Not (Test-Path nodes_checked.json)) { Write-Error "nodes_checked.json not created"; exit 1 }
           Get-Content nodes_checked.json -TotalCount 5
 
