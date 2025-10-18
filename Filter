@@ -1,4 +1,4 @@
-# Last update: 18.10.2025 20:43:20
+# Last update: 18.10.2025 21:07:11
 mixed-port: 7897
 allow-lan: false
 mode: rule
@@ -138,12 +138,13 @@ proxies:
   plugin-opts:
     host: 4a81070:6193
     mode: tls
-  tfo: false
+    tls: false
+  udp: true
 - name: 🇹🇼 TW-2 | SHFX
   type: ss
-  server: 114.46.81.116
-  port: 10079
-  password: add8049a-647b-43fc-8de1-97b9261c6be5
+  server: 118.170.222.232
+  port: 10039
+  password: a7d8b05e-d5ab-4ee2-89c3-983c8cbab06b
   cipher: chacha20-ietf-poly1305
   udp: true
 - name: 🇺🇸 US-1 | SHFX
@@ -159,40 +160,24 @@ proxies:
   alterId: 0
   cipher: auto
   tls: true
-- name: 🇩🇪 DE-1 | SHFX
-  type: vless
-  server: 213.165.56.19
-  port: 666
-  uuid: 13e824c8-46a7-458a-b9d5-24ab4058acae
-  skip-cert-verify: true
-  tls: false
-  udp: true
-- name: 🇭🇰 HK-1 | SHFX
-  type: vmess
-  server: hkt.gotochinatown.net
-  port: 80
-  uuid: 93fb69fc-77cf-11ee-85ee-f23c91369f2d
-  network: ws
-  skip-cert-verify: false
-  ws-opts:
-    headers:
-      Host: hkt.gotochinatown.net
-    path: /
-  alterId: 2
-  cipher: auto
-  tls: false
-- name: 🇪🇸 ES-1 | SHFX
+- name: 🇻🇳 VN-1 | SHFX
   type: ss
-  server: 188.214.157.30
-  port: 990
-  password: ARgvGZywA+gacgGV26Bvmu05+wZmRW/j+AdU+Z8Bt44=
+  server: arxfw2b78fi2q9hzylhn.freesocks.work
+  port: 443
+  password: Nk9asglDzHzjktVzTkvhaA
   cipher: chacha20-ietf-poly1305
-  udp: true
 - name: 🇹🇼 TW-3 | SHFX
   type: ss
-  server: 118.170.222.232
-  port: 10039
-  password: a7d8b05e-d5ab-4ee2-89c3-983c8cbab06b
+  server: 114.46.81.116
+  port: 10079
+  password: add8049a-647b-43fc-8de1-97b9261c6be5
+  cipher: chacha20-ietf-poly1305
+  udp: true
+- name: 🇹🇼 TW-4 | SHFX
+  type: ss
+  server: 114.46.76.16
+  port: 10067
+  password: add8049a-647b-43fc-8de1-97b9261c6be5
   cipher: chacha20-ietf-poly1305
   udp: true
 - name: 🇨🇳 CN-1 | SHFX
@@ -204,12 +189,19 @@ proxies:
   skip-cert-verify: true
   alterId: 0
   cipher: auto
-- name: 🇻🇳 VN-1 | SHFX
-  type: ss
-  server: arxfw2b78fi2q9hzylhn.freesocks.work
-  port: 443
-  password: Nk9asglDzHzjktVzTkvhaA
-  cipher: chacha20-ietf-poly1305
+- name: 🇺🇸 US-2 | SHFX
+  type: trojan
+  server: 172.67.204.84
+  port: 2083
+  password: 0e81a9cd-d849-4101-8d64-574c283207de
+  network: ws
+  sni: de1.trojanvpn.de
+  skip-cert-verify: true
+  ws-opts:
+    headers:
+      Host: de1.trojanvpn.de
+    path: '%252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252525252Fwebsocket'
+  udp: true
 - name: 🇨🇳 CN-2 | SHFX
   type: vmess
   server: 139.129.20.6
@@ -221,6 +213,14 @@ proxies:
   cipher: auto
   tfo: true
   udp: true
+- name: 🇩🇪 DE-1 | SHFX
+  type: vless
+  server: 213.165.56.19
+  port: 666
+  uuid: 13e824c8-46a7-458a-b9d5-24ab4058acae
+  skip-cert-verify: true
+  tls: false
+  udp: true
 - name: 🇨🇳 CN-3 | SHFX
   type: vmess
   server: 112.132.215.34
@@ -230,81 +230,6 @@ proxies:
   skip-cert-verify: true
   alterId: 0
   cipher: auto
-- name: 🇲🇩 MD-1 | SHFX
-  type: ss
-  server: 185.153.197.5
-  port: 989
-  password: f8f7aCzcPKbsF8p3
-  cipher: aes-256-cfb
-- name: 🇨🇳 CN-4 | SHFX
-  type: vmess
-  server: v9.heduian.link
-  port: '30809'
-  uuid: cbb3f877-d1fb-344c-87a9-d153bffd5484
-  network: ws
-  servername: ''
-  skip-cert-verify: false
-  ws-opts:
-    headers:
-      Host: baidu.com
-    path: /oooo
-  alterId: 2
-  cipher: auto
-  tfo: false
-  tls: false
-- name: 🇨🇳 CN-5 | SHFX
-  type: vmess
-  server: v39.heduian.link
-  port: 30839
-  uuid: cbb3f877-d1fb-344c-87a9-d153bffd5484
-  network: ws
-  skip-cert-verify: true
-  ws-opts:
-    headers:
-      Host: baidu.com
-    path: /oooo
-  alterId: 2
-  cipher: auto
-  tls: false
-  udp: true
-- name: 🇨🇳 CN-6 | SHFX
-  type: vmess
-  server: 39.107.155.11
-  port: 30302
-  uuid: 418048af-a293-4b99-9b0c-98ca3580dd24
-  network: tcp
-  skip-cert-verify: true
-  alterId: 0
-  cipher: auto
-  tfo: true
-  udp: true
-- name: 🇺🇸 US-2 | SHFX
-  type: vmess
-  server: vc.fly.dev
-  port: 443
-  uuid: 35379219-6535-4f2e-a4fe-3e44f61e0eee
-  network: ws
-  skip-cert-verify: true
-  client-fingerprint: chrome
-  ws-opts:
-    headers:
-      host: vc.fly.dev
-    path: /vc
-  alterId: 32
-  cipher: auto
-  tls: true
-- name: 🇳🇱 NL-1 | SHFX
-  type: ss
-  server: 45.87.175.35
-  port: 8080
-  password: oZIoA69Q8yhcQV8ka3Pa3A
-  cipher: chacha20-ietf-poly1305
-- name: 🇰🇷 KR-1 | SHFX
-  type: ss
-  server: 154.90.62.168
-  port: 989
-  password: f8f7aCzcPKbsF8p3
-  cipher: aes-256-cfb
 - name: 🇺🇸 US-3 | SHFX
   type: vless
   server: cf-cname.xingpingcn.top
@@ -335,7 +260,7 @@ proxies:
       Host: snippet.danfeng.site
   tls: true
   tfo: false
-- name: 🇰🇷 KR-2 | SHFX
+- name: 🇰🇷 KR-1 | SHFX
   type: vless
   server: tp50000.kr.proxyip.fgfw.eu.org
   port: 50000
@@ -350,10 +275,25 @@ proxies:
       Host: snippet.danfeng.site
   tls: true
   tfo: false
+- name: 🇭🇰 HK-1 | SHFX
+  type: vless
+  server: 45.121.215.113
+  port: 26359
+  uuid: b5544203-55e3-426e-92f1-0684c93f9829
+  network: ws
+  servername: snippet.danfeng.site
+  skip-cert-verify: true
+  client-fingerprint: random
+  ws-opts:
+    path: /?ed=2560
+    headers:
+      Host: snippet.danfeng.site
+  tls: true
+  tfo: false
 - name: 🇭🇰 HK-2 | SHFX
   type: vless
-  server: 154.16.10.205
-  port: 58443
+  server: 38.207.172.108
+  port: 19967
   uuid: b5544203-55e3-426e-92f1-0684c93f9829
   network: ws
   servername: snippet.danfeng.site
@@ -367,8 +307,8 @@ proxies:
   tfo: false
 - name: 🇭🇰 HK-3 | SHFX
   type: vless
-  server: 149.62.47.38
-  port: 41292
+  server: 40.81.29.103
+  port: 8089
   uuid: b5544203-55e3-426e-92f1-0684c93f9829
   network: ws
   servername: snippet.danfeng.site
@@ -382,23 +322,8 @@ proxies:
   tfo: false
 - name: 🇭🇰 HK-4 | SHFX
   type: vless
-  server: 83.229.123.194
-  port: 35134
-  uuid: b5544203-55e3-426e-92f1-0684c93f9829
-  network: ws
-  servername: snippet.danfeng.site
-  skip-cert-verify: true
-  client-fingerprint: random
-  ws-opts:
-    path: /?ed=2560
-    headers:
-      Host: snippet.danfeng.site
-  tls: true
-  tfo: false
-- name: 🇭🇰 HK-5 | SHFX
-  type: vless
-  server: 43.100.86.119
-  port: 39738
+  server: 38.207.151.74
+  port: 61017
   uuid: b5544203-55e3-426e-92f1-0684c93f9829
   network: ws
   servername: snippet.danfeng.site
@@ -412,8 +337,8 @@ proxies:
   tfo: false
 - name: 🇯🇵 JP-1 | SHFX
   type: vless
-  server: 103.232.213.177
-  port: 27053
+  server: 13.114.81.83
+  port: 10030
   uuid: b5544203-55e3-426e-92f1-0684c93f9829
   network: ws
   servername: snippet.danfeng.site
@@ -427,8 +352,8 @@ proxies:
   tfo: false
 - name: 🇯🇵 JP-2 | SHFX
   type: vless
-  server: 45.251.241.43
-  port: 39738
+  server: 185.220.239.29
+  port: 25047
   uuid: b5544203-55e3-426e-92f1-0684c93f9829
   network: ws
   servername: snippet.danfeng.site
@@ -442,8 +367,8 @@ proxies:
   tfo: false
 - name: 🇯🇵 JP-3 | SHFX
   type: vless
-  server: 47.79.34.117
-  port: 10036
+  server: 191.96.29.122
+  port: 17871
   uuid: b5544203-55e3-426e-92f1-0684c93f9829
   network: ws
   servername: snippet.danfeng.site
@@ -457,8 +382,8 @@ proxies:
   tfo: false
 - name: 🇯🇵 JP-4 | SHFX
   type: vless
-  server: 54.95.109.40
-  port: 10005
+  server: 139.162.83.106
+  port: 443
   uuid: b5544203-55e3-426e-92f1-0684c93f9829
   network: ws
   servername: snippet.danfeng.site
@@ -472,8 +397,8 @@ proxies:
   tfo: false
 - name: 🇯🇵 JP-5 | SHFX
   type: vless
-  server: 210.152.11.231
-  port: 12453
+  server: 103.238.129.36
+  port: 21918
   uuid: b5544203-55e3-426e-92f1-0684c93f9829
   network: ws
   servername: snippet.danfeng.site
@@ -487,8 +412,8 @@ proxies:
   tfo: false
 - name: 🇯🇵 JP-6 | SHFX
   type: vless
-  server: 43.165.133.183
-  port: 17628
+  server: 54.95.109.40
+  port: 10030
   uuid: b5544203-55e3-426e-92f1-0684c93f9829
   network: ws
   servername: snippet.danfeng.site
@@ -502,23 +427,8 @@ proxies:
   tfo: false
 - name: 🇯🇵 JP-7 | SHFX
   type: vless
-  server: 45.89.235.225
-  port: 27950
-  uuid: b5544203-55e3-426e-92f1-0684c93f9829
-  network: ws
-  servername: snippet.danfeng.site
-  skip-cert-verify: true
-  client-fingerprint: random
-  ws-opts:
-    path: /?ed=2560
-    headers:
-      Host: snippet.danfeng.site
-  tls: true
-  tfo: false
-- name: 🇰🇷 KR-3 | SHFX
-  type: vless
-  server: 152.67.223.108
-  port: 8105
+  server: 13.158.141.213
+  port: 39738
   uuid: b5544203-55e3-426e-92f1-0684c93f9829
   network: ws
   servername: snippet.danfeng.site
@@ -532,8 +442,8 @@ proxies:
   tfo: false
 - name: 🇸🇬 SG-2 | SHFX
   type: vless
-  server: 13.250.1.123
-  port: 2443
+  server: 185.115.207.198
+  port: 15611
   uuid: b5544203-55e3-426e-92f1-0684c93f9829
   network: ws
   servername: snippet.danfeng.site
@@ -547,7 +457,7 @@ proxies:
   tfo: false
 - name: 🇸🇬 SG-3 | SHFX
   type: vless
-  server: 160.22.79.166
+  server: 156.244.57.227
   port: 443
   uuid: b5544203-55e3-426e-92f1-0684c93f9829
   network: ws
@@ -560,10 +470,10 @@ proxies:
       Host: snippet.danfeng.site
   tls: true
   tfo: false
-- name: 🇨🇳 CN-7 | SHFX
+- name: 🇨🇳 CN-4 | SHFX
   type: vless
-  server: 188.253.117.245
-  port: 7443
+  server: 45.196.238.71
+  port: 56396
   uuid: b5544203-55e3-426e-92f1-0684c93f9829
   network: ws
   servername: snippet.danfeng.site
@@ -575,10 +485,25 @@ proxies:
       Host: snippet.danfeng.site
   tls: true
   tfo: false
-- name: 🇨🇳 CN-8 | SHFX
+- name: 🇨🇳 CN-5 | SHFX
   type: vless
-  server: 103.236.227.155
-  port: 39738
+  server: 141.11.87.155
+  port: 17009
+  uuid: b5544203-55e3-426e-92f1-0684c93f9829
+  network: ws
+  servername: snippet.danfeng.site
+  skip-cert-verify: true
+  client-fingerprint: random
+  ws-opts:
+    path: /?ed=2560
+    headers:
+      Host: snippet.danfeng.site
+  tls: true
+  tfo: false
+- name: 🇨🇳 CN-6 | SHFX
+  type: vless
+  server: 82.152.90.44
+  port: 51010
   uuid: b5544203-55e3-426e-92f1-0684c93f9829
   network: ws
   servername: snippet.danfeng.site
@@ -592,8 +517,8 @@ proxies:
   tfo: false
 - name: 🇺🇸 US-5 | SHFX
   type: vless
-  server: 64.64.253.96
-  port: 34237
+  server: 144.34.232.245
+  port: 30000
   uuid: b5544203-55e3-426e-92f1-0684c93f9829
   network: ws
   servername: snippet.danfeng.site
@@ -607,8 +532,8 @@ proxies:
   tfo: false
 - name: 🇺🇸 US-6 | SHFX
   type: vless
-  server: 38.59.240.180
-  port: 49871
+  server: 47.254.89.92
+  port: 8093
   uuid: b5544203-55e3-426e-92f1-0684c93f9829
   network: ws
   servername: snippet.danfeng.site
@@ -622,8 +547,8 @@ proxies:
   tfo: false
 - name: 🇺🇸 US-7 | SHFX
   type: vless
-  server: 89.208.249.11
-  port: 49899
+  server: 38.47.114.176
+  port: 22221
   uuid: b5544203-55e3-426e-92f1-0684c93f9829
   network: ws
   servername: snippet.danfeng.site
@@ -637,8 +562,8 @@ proxies:
   tfo: false
 - name: 🇺🇸 US-8 | SHFX
   type: vless
-  server: 91.149.239.122
-  port: 443
+  server: 154.21.88.111
+  port: 59411
   uuid: b5544203-55e3-426e-92f1-0684c93f9829
   network: ws
   servername: snippet.danfeng.site
@@ -652,8 +577,8 @@ proxies:
   tfo: false
 - name: 🇺🇸 US-9 | SHFX
   type: vless
-  server: 154.17.228.83
-  port: 58889
+  server: 52.230.146.177
+  port: 443
   uuid: b5544203-55e3-426e-92f1-0684c93f9829
   network: ws
   servername: snippet.danfeng.site
@@ -667,8 +592,8 @@ proxies:
   tfo: false
 - name: 🇺🇸 US-10 | SHFX
   type: vless
-  server: 166.0.188.249
-  port: 51321
+  server: 38.59.244.40
+  port: 21010
   uuid: b5544203-55e3-426e-92f1-0684c93f9829
   network: ws
   servername: snippet.danfeng.site
@@ -682,8 +607,8 @@ proxies:
   tfo: false
 - name: 🇺🇸 US-11 | SHFX
   type: vless
-  server: 54.193.53.75
-  port: 10002
+  server: 38.105.25.97
+  port: 51951
   uuid: b5544203-55e3-426e-92f1-0684c93f9829
   network: ws
   servername: snippet.danfeng.site
@@ -697,8 +622,8 @@ proxies:
   tfo: false
 - name: 🇺🇸 US-12 | SHFX
   type: vless
-  server: 104.224.181.22
-  port: 443
+  server: 128.241.251.154
+  port: 62826
   uuid: b5544203-55e3-426e-92f1-0684c93f9829
   network: ws
   servername: snippet.danfeng.site
@@ -712,8 +637,8 @@ proxies:
   tfo: false
 - name: 🇺🇸 US-13 | SHFX
   type: vless
-  server: 38.47.114.208
-  port: 26490
+  server: 72.249.205.226
+  port: 42806
   uuid: b5544203-55e3-426e-92f1-0684c93f9829
   network: ws
   servername: snippet.danfeng.site
@@ -727,23 +652,8 @@ proxies:
   tfo: false
 - name: 🇺🇸 US-14 | SHFX
   type: vless
-  server: 4.155.242.86
-  port: 39738
-  uuid: b5544203-55e3-426e-92f1-0684c93f9829
-  network: ws
-  servername: snippet.danfeng.site
-  skip-cert-verify: true
-  client-fingerprint: random
-  ws-opts:
-    path: /?ed=2560
-    headers:
-      Host: snippet.danfeng.site
-  tls: true
-  tfo: false
-- name: 🇺🇸 US-15 | SHFX
-  type: vless
-  server: 38.105.24.143
-  port: 27448
+  server: 38.207.170.78
+  port: 41871
   uuid: b5544203-55e3-426e-92f1-0684c93f9829
   network: ws
   servername: snippet.danfeng.site
@@ -757,8 +667,8 @@ proxies:
   tfo: false
 - name: 🇩🇪 DE-2 | SHFX
   type: vless
-  server: 18.156.209.101
-  port: 443
+  server: 82.115.31.209
+  port: 20531
   uuid: b5544203-55e3-426e-92f1-0684c93f9829
   network: ws
   servername: snippet.danfeng.site
@@ -770,10 +680,10 @@ proxies:
       Host: snippet.danfeng.site
   tls: true
   tfo: false
-- name: 🇮🇳 IN-1 | SHFX
+- name: 🇬🇧 GB-1 | SHFX
   type: vless
-  server: 43.218.77.16
-  port: 443
+  server: 175.29.22.34
+  port: 21025
   uuid: b5544203-55e3-426e-92f1-0684c93f9829
   network: ws
   servername: snippet.danfeng.site
@@ -785,10 +695,10 @@ proxies:
       Host: snippet.danfeng.site
   tls: true
   tfo: false
-- name: 🇲🇾 MY-1 | SHFX
+- name: 🇬🇧 GB-2 | SHFX
   type: vless
-  server: 47.250.37.87
-  port: 443
+  server: 175.29.22.71
+  port: 21025
   uuid: b5544203-55e3-426e-92f1-0684c93f9829
   network: ws
   servername: snippet.danfeng.site
@@ -810,28 +720,21 @@ proxy-groups:
       - 🇸🇬 SG-1 | SHFX
       - 🇹🇼 TW-2 | SHFX
       - 🇺🇸 US-1 | SHFX
-      - 🇩🇪 DE-1 | SHFX
-      - 🇭🇰 HK-1 | SHFX
-      - 🇪🇸 ES-1 | SHFX
-      - 🇹🇼 TW-3 | SHFX
-      - 🇨🇳 CN-1 | SHFX
       - 🇻🇳 VN-1 | SHFX
-      - 🇨🇳 CN-2 | SHFX
-      - 🇨🇳 CN-3 | SHFX
-      - 🇲🇩 MD-1 | SHFX
-      - 🇨🇳 CN-4 | SHFX
-      - 🇨🇳 CN-5 | SHFX
-      - 🇨🇳 CN-6 | SHFX
+      - 🇹🇼 TW-3 | SHFX
+      - 🇹🇼 TW-4 | SHFX
+      - 🇨🇳 CN-1 | SHFX
       - 🇺🇸 US-2 | SHFX
-      - 🇳🇱 NL-1 | SHFX
-      - 🇰🇷 KR-1 | SHFX
+      - 🇨🇳 CN-2 | SHFX
+      - 🇩🇪 DE-1 | SHFX
+      - 🇨🇳 CN-3 | SHFX
       - 🇺🇸 US-3 | SHFX
       - 🇺🇸 US-4 | SHFX
-      - 🇰🇷 KR-2 | SHFX
+      - 🇰🇷 KR-1 | SHFX
+      - 🇭🇰 HK-1 | SHFX
       - 🇭🇰 HK-2 | SHFX
       - 🇭🇰 HK-3 | SHFX
       - 🇭🇰 HK-4 | SHFX
-      - 🇭🇰 HK-5 | SHFX
       - 🇯🇵 JP-1 | SHFX
       - 🇯🇵 JP-2 | SHFX
       - 🇯🇵 JP-3 | SHFX
@@ -839,11 +742,11 @@ proxy-groups:
       - 🇯🇵 JP-5 | SHFX
       - 🇯🇵 JP-6 | SHFX
       - 🇯🇵 JP-7 | SHFX
-      - 🇰🇷 KR-3 | SHFX
       - 🇸🇬 SG-2 | SHFX
       - 🇸🇬 SG-3 | SHFX
-      - 🇨🇳 CN-7 | SHFX
-      - 🇨🇳 CN-8 | SHFX
+      - 🇨🇳 CN-4 | SHFX
+      - 🇨🇳 CN-5 | SHFX
+      - 🇨🇳 CN-6 | SHFX
       - 🇺🇸 US-5 | SHFX
       - 🇺🇸 US-6 | SHFX
       - 🇺🇸 US-7 | SHFX
@@ -854,10 +757,9 @@ proxy-groups:
       - 🇺🇸 US-12 | SHFX
       - 🇺🇸 US-13 | SHFX
       - 🇺🇸 US-14 | SHFX
-      - 🇺🇸 US-15 | SHFX
       - 🇩🇪 DE-2 | SHFX
-      - 🇮🇳 IN-1 | SHFX
-      - 🇲🇾 MY-1 | SHFX
+      - 🇬🇧 GB-1 | SHFX
+      - 🇬🇧 GB-2 | SHFX
   - name: 自动选择⚡️
     type: url-test
     proxies:
@@ -865,28 +767,21 @@ proxy-groups:
       - 🇸🇬 SG-1 | SHFX
       - 🇹🇼 TW-2 | SHFX
       - 🇺🇸 US-1 | SHFX
-      - 🇩🇪 DE-1 | SHFX
-      - 🇭🇰 HK-1 | SHFX
-      - 🇪🇸 ES-1 | SHFX
-      - 🇹🇼 TW-3 | SHFX
-      - 🇨🇳 CN-1 | SHFX
       - 🇻🇳 VN-1 | SHFX
-      - 🇨🇳 CN-2 | SHFX
-      - 🇨🇳 CN-3 | SHFX
-      - 🇲🇩 MD-1 | SHFX
-      - 🇨🇳 CN-4 | SHFX
-      - 🇨🇳 CN-5 | SHFX
-      - 🇨🇳 CN-6 | SHFX
+      - 🇹🇼 TW-3 | SHFX
+      - 🇹🇼 TW-4 | SHFX
+      - 🇨🇳 CN-1 | SHFX
       - 🇺🇸 US-2 | SHFX
-      - 🇳🇱 NL-1 | SHFX
-      - 🇰🇷 KR-1 | SHFX
+      - 🇨🇳 CN-2 | SHFX
+      - 🇩🇪 DE-1 | SHFX
+      - 🇨🇳 CN-3 | SHFX
       - 🇺🇸 US-3 | SHFX
       - 🇺🇸 US-4 | SHFX
-      - 🇰🇷 KR-2 | SHFX
+      - 🇰🇷 KR-1 | SHFX
+      - 🇭🇰 HK-1 | SHFX
       - 🇭🇰 HK-2 | SHFX
       - 🇭🇰 HK-3 | SHFX
       - 🇭🇰 HK-4 | SHFX
-      - 🇭🇰 HK-5 | SHFX
       - 🇯🇵 JP-1 | SHFX
       - 🇯🇵 JP-2 | SHFX
       - 🇯🇵 JP-3 | SHFX
@@ -894,11 +789,11 @@ proxy-groups:
       - 🇯🇵 JP-5 | SHFX
       - 🇯🇵 JP-6 | SHFX
       - 🇯🇵 JP-7 | SHFX
-      - 🇰🇷 KR-3 | SHFX
       - 🇸🇬 SG-2 | SHFX
       - 🇸🇬 SG-3 | SHFX
-      - 🇨🇳 CN-7 | SHFX
-      - 🇨🇳 CN-8 | SHFX
+      - 🇨🇳 CN-4 | SHFX
+      - 🇨🇳 CN-5 | SHFX
+      - 🇨🇳 CN-6 | SHFX
       - 🇺🇸 US-5 | SHFX
       - 🇺🇸 US-6 | SHFX
       - 🇺🇸 US-7 | SHFX
@@ -909,10 +804,9 @@ proxy-groups:
       - 🇺🇸 US-12 | SHFX
       - 🇺🇸 US-13 | SHFX
       - 🇺🇸 US-14 | SHFX
-      - 🇺🇸 US-15 | SHFX
       - 🇩🇪 DE-2 | SHFX
-      - 🇮🇳 IN-1 | SHFX
-      - 🇲🇾 MY-1 | SHFX
+      - 🇬🇧 GB-1 | SHFX
+      - 🇬🇧 GB-2 | SHFX
     url: https://www.gstatic.com/generate_204
     interval: 300
 rules:
