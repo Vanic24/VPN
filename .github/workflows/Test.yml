@@ -1,12 +1,10 @@
-name: Fetch & Process Nodes with Sing-Box
+name: Fetch & Parse Subscription with Sing-Box
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '0 */6 * * *'  # every 6 hours
 
 jobs:
-  process_nodes:
+  fetch_parse_nodes:
     runs-on: windows-latest
 
     steps:
@@ -14,14 +12,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # 2️⃣ Install dependencies (Python)
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.11"
-
-      # 3️⃣ Download latest Sing-Box Windows release
-      - name: Download latest Sing-Box Windows
+      # 2️⃣ Download latest Sing-Box Windows release
+      - name: Download latest Sing-Box
         run: |
           echo Fetching latest Sing-Box release...
           $release = Invoke-RestMethod -Uri "https://api.github.com/repos/SagerNet/sing-box/releases/latest"
@@ -30,22 +22,16 @@ jobs:
           Invoke-WebRequest -Uri $asset.browser_download_url -OutFile sing-box.zip
           Expand-Archive sing-box.zip -DestinationPath sing-box
 
-      # 4️⃣ Download subscription from secret
-      - name: Download subscription content
+      # 3️⃣ Fetch and parse subscription directly with Sing-Box
+      - name: Fetch & parse subscription
         run: |
-          Invoke-WebRequest -Uri "${{ secrets.TEST_URL }}" -OutFile subscription.txt
-          Get-Content subscription.txt -TotalCount 5
-
-      # 5️⃣ Run Sing-Box to parse subscription
-      - name: Fetch and parse subscription with Sing-Box
-        run: |
+          # Fetch and parse subscription using Sing-Box
           .\sing-box\sing-box.exe subscribe -u "${{ secrets.TEST_URL }}" -o nodes_checked.json
           if (-Not (Test-Path nodes_checked.json)) { Write-Error "nodes_checked.json not created"; exit 1 }
           Get-Content nodes_checked.json -TotalCount 5
 
-
-      # 6️⃣ Process nodes in Python
-      - name: Process nodes in Python
+      # 4️⃣ Process parsed nodes into Test_Nodes.txt
+      - name: Generate Test_Nodes.txt
         shell: pwsh
         run: |
           python <<'EOF'
@@ -67,18 +53,8 @@ jobs:
               new_name = f"{flag} {country_code}-{idx+1} | @Test"
               output_lines.append(f"{raw}#{new_name}")
 
-          with open("Test", "w", encoding="utf-8") as f:
+          with open("Test_Nodes.txt", "w", encoding="utf-8") as f:
               f.write("\n".join(output_lines))
 
-          print("✅ Processed nodes saved to Test")
+          print("✅ Parsed nodes saved to Test_Nodes.txt")
           EOF
-
-      # 7️⃣ Commit & push processed nodes
-      - name: Commit & push processed nodes
-        shell: pwsh
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add Test
-          git commit -m "Update processed nodes [Auto]" -ErrorAction SilentlyContinue
-          git push
