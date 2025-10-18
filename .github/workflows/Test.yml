@@ -4,55 +4,46 @@ on:
   workflow_dispatch:
 
 jobs:
-  fetch_parse_nodes:
+  fetch_parse_subscription:
     runs-on: windows-latest
 
     steps:
-      # 1️⃣ Checkout repository
+      # Step 1: Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # 2️⃣ Download latest Clash for Windows release
-      - name: Download latest Clash for Windows
+      # Step 2: Download SubConverter
+      - name: Download SubConverter
         run: |
-          echo Fetching latest Clash for Windows release...
-          $release = Invoke-RestMethod -Uri "https://api.github.com/repos/Fndroid/clash_for_windows_pkg/releases/latest"
-          $asset = $release.assets | Where-Object { $_.name -match "ClashForWindows-installer.exe" } | Select-Object -First 1
-          if (-not $asset) { Write-Error "No installer found"; exit 1 }
-          Invoke-WebRequest -Uri $asset.browser_download_url -OutFile ClashForWindows-installer.exe
-          Start-Process -FilePath ClashForWindows-installer.exe -ArgumentList "/S" -Wait
+          $url = "https://github.com/tindy2013/subconverter/releases/download/v0.6.1/subconverter-windows-amd64-v0.6.1.zip"
+          $output = "subconverter.zip"
+          Invoke-WebRequest -Uri $url -OutFile $output
+          Expand-Archive -Path $output -DestinationPath ".\subconverter"
+          Remove-Item $output
 
-      # 3️⃣ Download Sing-Box config.json
-      - name: Download Sing-Box config.json
+      # Step 3: Convert subscription to Clash configuration
+      - name: Convert subscription
         run: |
-          Invoke-WebRequest -Uri "${{ secrets.TEST_URL }}" -OutFile config.json
-          if (-Not (Test-Path config.json)) { Write-Error "config.json not found"; exit 1 }
-          Get-Content config.json -TotalCount 5
+          $sub_url = "${{ secrets.TEST_URL }}"
+          $config_file = "config.yaml"
+          & ".\subconverter\subconverter-windows-amd64-v0.6.1.exe" -u $sub_url -o $config_file
+          if (-Not (Test-Path $config_file)) { Write-Error "config.yaml not created"; exit 1 }
+          Get-Content $config_file -TotalCount 5
 
-      # 4️⃣ Parse config with Clash for Windows
-      - name: Parse config with Clash for Windows
-        run: |
-          $exe = Get-ChildItem "C:\Program Files\Clash for Windows" -Filter clash.exe -Recurse | Select-Object -First 1
-          if (-not $exe) { Write-Error "clash.exe not found"; exit 1 }
-          echo "Using Clash for Windows executable: $($exe.FullName)"
-          & $exe.FullName -c config.json
-          if (-Not (Test-Path nodes_checked.json)) { Write-Error "nodes_checked.json not created"; exit 1 }
-          Get-Content nodes_checked.json -TotalCount 5
-
-      # 5️⃣ Process parsed nodes into Test_Nodes.txt
+      # Step 4: Parse nodes and generate Test_Nodes.txt
       - name: Generate Test_Nodes.txt
         shell: pwsh
         run: |
           python <<'EOF'
-          import json
+          import yaml
 
-          with open("nodes_checked.json", encoding="utf-8") as f:
-              data = json.load(f)
+          with open("config.yaml", "r", encoding="utf-8") as f:
+              config = yaml.safe_load(f)
 
           output_lines = []
-          for idx, node in enumerate(data):
-              raw = node.get("raw", "").strip()
-              country_code = node.get("country_code", "XX")
+          for idx, proxy in enumerate(config.get("proxies", [])):
+              raw = proxy.get("name", "").strip()
+              country_code = proxy.get("country_code", "XX")
               # Assign flag emoji
               if len(country_code) == 2:
                   flag = chr(0x1F1E6 + ord(country_code[0].upper()) - 65) + \
