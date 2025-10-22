@@ -1,4 +1,4 @@
-# Last update: 23.10.2025 03:42:26
+# Last update: 23.10.2025 04:05:48
 mixed-port: 7897
 allow-lan: false
 mode: rule
@@ -151,6 +151,13 @@ proxies:
   udp: true
 - name: 🇻🇳 VN-4 | SHFX
   type: ss
+  server: 103.186.155.111
+  port: 38388
+  password: Xn8jKdmDM00IeO%#$#fJAMtsEAEUOpH/YWYtYqDFnT0SV
+  cipher: aes-256-cfb
+  udp: true
+- name: 🇻🇳 VN-5 | SHFX
+  type: ss
   server: 103.186.154.250
   port: 38388
   password: Xn8jKdmDM00IeO%#$#fJAMtsEAEUOpH/YWYtYqDFnT0SV
@@ -169,19 +176,26 @@ proxies:
   alterId: 0
   cipher: auto
   tls: true
-- name: 🇻🇳 VN-5 | SHFX
-  type: ss
-  server: 103.186.155.111
-  port: 38388
-  password: Xn8jKdmDM00IeO%#$#fJAMtsEAEUOpH/YWYtYqDFnT0SV
-  cipher: aes-256-cfb
+- name: 🇨🇳 CN-2 | SHFX
+  type: vmess
+  server: 106.14.75.114
+  port: 50002
+  uuid: 418048af-a293-4b99-9b0c-98ca3580dd24
+  network: tcp
+  skip-cert-verify: true
+  alterId: 0
+  cipher: auto
+- name: 🇨🇳 CN-3 | SHFX
+  type: vmess
+  server: 39.107.155.11
+  port: 30302
+  uuid: 418048af-a293-4b99-9b0c-98ca3580dd24
+  network: tcp
+  skip-cert-verify: true
+  alterId: 0
+  cipher: auto
+  tfo: true
   udp: true
-- name: 🇻🇳 VN-6 | SHFX
-  type: ss
-  server: arxfw2b78fi2q9hzylhn.freesocks.work
-  port: 443
-  password: Nk9asglDzHzjktVzTkvhaA
-  cipher: chacha20-ietf-poly1305
 - name: 🇺🇸 US-2 | SHFX
   type: vless
   server: cf-cname.xingpingcn.top
@@ -287,7 +301,7 @@ proxies:
       Host: snippet.danfeng.site
   tls: true
   tfo: false
-- name: 🇨🇳 CN-2 | SHFX
+- name: 🇨🇳 CN-4 | SHFX
   type: vless
   server: saas.sin.fan
   port: 2087
@@ -313,9 +327,10 @@ proxy-groups:
       - 🇻🇳 VN-2 | SHFX
       - 🇻🇳 VN-3 | SHFX
       - 🇻🇳 VN-4 | SHFX
-      - 🇺🇸 US-1 | SHFX
       - 🇻🇳 VN-5 | SHFX
-      - 🇻🇳 VN-6 | SHFX
+      - 🇺🇸 US-1 | SHFX
+      - 🇨🇳 CN-2 | SHFX
+      - 🇨🇳 CN-3 | SHFX
       - 🇺🇸 US-2 | SHFX
       - 🇹🇬 TG-1 | SHFX
       - 🇺🇸 US-3 | SHFX
@@ -323,7 +338,7 @@ proxy-groups:
       - 🇺🇸 US-5 | SHFX
       - 🇺🇸 US-6 | SHFX
       - 🇺🇸 US-7 | SHFX
-      - 🇨🇳 CN-2 | SHFX
+      - 🇨🇳 CN-4 | SHFX
   - name: 自动选择⚡️
     type: url-test
     proxies:
@@ -332,9 +347,10 @@ proxy-groups:
       - 🇻🇳 VN-2 | SHFX
       - 🇻🇳 VN-3 | SHFX
       - 🇻🇳 VN-4 | SHFX
-      - 🇺🇸 US-1 | SHFX
       - 🇻🇳 VN-5 | SHFX
-      - 🇻🇳 VN-6 | SHFX
+      - 🇺🇸 US-1 | SHFX
+      - 🇨🇳 CN-2 | SHFX
+      - 🇨🇳 CN-3 | SHFX
       - 🇺🇸 US-2 | SHFX
       - 🇹🇬 TG-1 | SHFX
       - 🇺🇸 US-3 | SHFX
@@ -342,7 +358,7 @@ proxy-groups:
       - 🇺🇸 US-5 | SHFX
       - 🇺🇸 US-6 | SHFX
       - 🇺🇸 US-7 | SHFX
-      - 🇨🇳 CN-2 | SHFX
+      - 🇨🇳 CN-4 | SHFX
     url: https://www.gstatic.com/generate_204
     interval: 300
 rules:
