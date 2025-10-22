@@ -1,4 +1,4 @@
-# Last update: 22.10.2025 21:16:38
+# Last update: 22.10.2025 21:46:55
 mixed-port: 7897
 allow-lan: false
 mode: rule
@@ -121,6 +121,13 @@ dns:
       - +.googleapis.com
       - +.gvt1.com
 proxies:
+- name: 🇻🇳 VN-1 | SHFX
+  type: ss
+  server: 103.186.155.111
+  port: 38388
+  password: Xn8jKdmDM00IeO%#$#fJAMtsEAEUOpH/YWYtYqDFnT0SV
+  cipher: aes-256-cfb
+  udp: true
 - name: 🇺🇸 US-1 | SHFX
   type: vmess
   server: 154.17.227.158
@@ -134,13 +141,6 @@ proxies:
   alterId: 0
   cipher: auto
   tls: true
-- name: 🇻🇳 VN-1 | SHFX
-  type: ss
-  server: 103.186.155.104
-  port: 38388
-  password: Xn8jKdmDM00IeO%#$#fJAMtsEAEUOpH/YWYtYqDFnT0SV
-  cipher: aes-256-cfb
-  udp: true
 - name: 🇻🇳 VN-2 | SHFX
   type: ss
   server: 103.186.155.214
@@ -148,16 +148,37 @@ proxies:
   password: Xn8jKdmDM00IeO%#$#fJAMtsEAEUOpH/YWYtYqDFnT0SV
   cipher: aes-256-cfb
   udp: true
+- name: 🇸🇪 SE-1 | SHFX
+  type: ss
+  server: 46.253.4.25
+  port: 35916
+  password: K0McnRF6v64k7o3teZ6F49
+  cipher: chacha20-ietf-poly1305
+  udp: true
 - name: 🇻🇳 VN-3 | SHFX
   type: ss
-  server: 103.186.155.25
+  server: 103.186.155.228
   port: 38388
   password: Xn8jKdmDM00IeO%#$#fJAMtsEAEUOpH/YWYtYqDFnT0SV
   cipher: aes-256-cfb
   udp: true
 - name: 🇻🇳 VN-4 | SHFX
   type: ss
-  server: 103.186.155.111
+  server: 103.186.155.13
+  port: 38388
+  password: Xn8jKdmDM00IeO%#$#fJAMtsEAEUOpH/YWYtYqDFnT0SV
+  cipher: aes-256-cfb
+  udp: true
+- name: 🇻🇳 VN-5 | SHFX
+  type: ss
+  server: 103.186.155.104
+  port: 38388
+  password: Xn8jKdmDM00IeO%#$#fJAMtsEAEUOpH/YWYtYqDFnT0SV
+  cipher: aes-256-cfb
+  udp: true
+- name: 🇻🇳 VN-6 | SHFX
+  type: ss
+  server: 103.186.155.114
   port: 38388
   password: Xn8jKdmDM00IeO%#$#fJAMtsEAEUOpH/YWYtYqDFnT0SV
   cipher: aes-256-cfb
@@ -175,30 +196,9 @@ proxies:
   alterId: 0
   cipher: auto
   tls: true
-- name: 🇻🇳 VN-5 | SHFX
-  type: ss
-  server: 103.186.155.114
-  port: 38388
-  password: Xn8jKdmDM00IeO%#$#fJAMtsEAEUOpH/YWYtYqDFnT0SV
-  cipher: aes-256-cfb
-  udp: true
-- name: 🇻🇳 VN-6 | SHFX
-  type: ss
-  server: 103.186.155.228
-  port: 38388
-  password: Xn8jKdmDM00IeO%#$#fJAMtsEAEUOpH/YWYtYqDFnT0SV
-  cipher: aes-256-cfb
-  udp: true
-- name: 🇸🇪 SE-1 | SHFX
-  type: ss
-  server: 46.253.4.25
-  port: 35916
-  password: K0McnRF6v64k7o3teZ6F49
-  cipher: chacha20-ietf-poly1305
-  udp: true
 - name: 🇻🇳 VN-7 | SHFX
   type: ss
-  server: 103.186.155.13
+  server: 103.186.155.25
   port: 38388
   password: Xn8jKdmDM00IeO%#$#fJAMtsEAEUOpH/YWYtYqDFnT0SV
   cipher: aes-256-cfb
@@ -336,15 +336,15 @@ proxy-groups:
     type: select
     proxies:
       - 自动选择⚡️
-      - 🇺🇸 US-1 | SHFX
       - 🇻🇳 VN-1 | SHFX
+      - 🇺🇸 US-1 | SHFX
       - 🇻🇳 VN-2 | SHFX
+      - 🇸🇪 SE-1 | SHFX
       - 🇻🇳 VN-3 | SHFX
       - 🇻🇳 VN-4 | SHFX
-      - 🇭🇰 HK-1 | SHFX
       - 🇻🇳 VN-5 | SHFX
       - 🇻🇳 VN-6 | SHFX
-      - 🇸🇪 SE-1 | SHFX
+      - 🇭🇰 HK-1 | SHFX
       - 🇻🇳 VN-7 | SHFX
       - 🇯🇵 JP-1 | SHFX
       - 🇺🇸 US-2 | SHFX
@@ -358,15 +358,15 @@ proxy-groups:
   - name: 自动选择⚡️
     type: url-test
     proxies:
-      - 🇺🇸 US-1 | SHFX
       - 🇻🇳 VN-1 | SHFX
+      - 🇺🇸 US-1 | SHFX
       - 🇻🇳 VN-2 | SHFX
+      - 🇸🇪 SE-1 | SHFX
       - 🇻🇳 VN-3 | SHFX
       - 🇻🇳 VN-4 | SHFX
-      - 🇭🇰 HK-1 | SHFX
       - 🇻🇳 VN-5 | SHFX
       - 🇻🇳 VN-6 | SHFX
-      - 🇸🇪 SE-1 | SHFX
+      - 🇭🇰 HK-1 | SHFX
       - 🇻🇳 VN-7 | SHFX
       - 🇯🇵 JP-1 | SHFX
       - 🇺🇸 US-2 | SHFX
