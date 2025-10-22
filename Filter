@@ -1,4 +1,4 @@
-# Last update: 23.10.2025 00:55:31
+# Last update: 23.10.2025 01:20:28
 mixed-port: 7897
 allow-lan: false
 mode: rule
@@ -121,6 +121,34 @@ dns:
       - +.googleapis.com
       - +.gvt1.com
 proxies:
+- name: 🇻🇳 VN-1 | SHFX
+  type: ss
+  server: 103.186.154.250
+  port: 38388
+  password: Xn8jKdmDM00IeO%#$#fJAMtsEAEUOpH/YWYtYqDFnT0SV
+  cipher: aes-256-cfb
+  udp: true
+- name: 🇻🇳 VN-2 | SHFX
+  type: ss
+  server: 103.186.155.114
+  port: 38388
+  password: Xn8jKdmDM00IeO%#$#fJAMtsEAEUOpH/YWYtYqDFnT0SV
+  cipher: aes-256-cfb
+  udp: true
+- name: 🇻🇳 VN-3 | SHFX
+  type: ss
+  server: 103.186.155.111
+  port: 38388
+  password: Xn8jKdmDM00IeO%#$#fJAMtsEAEUOpH/YWYtYqDFnT0SV
+  cipher: aes-256-cfb
+  udp: true
+- name: 🇻🇳 VN-4 | SHFX
+  type: ss
+  server: 103.186.155.13
+  port: 38388
+  password: Xn8jKdmDM00IeO%#$#fJAMtsEAEUOpH/YWYtYqDFnT0SV
+  cipher: aes-256-cfb
+  udp: true
 - name: 🇺🇸 US-1 | SHFX
   type: vmess
   server: 154.17.227.158
@@ -134,62 +162,42 @@ proxies:
   alterId: 0
   cipher: auto
   tls: true
-- name: 🇻🇳 VN-1 | SHFX
-  type: ss
-  server: 103.186.155.25
-  port: 38388
-  password: Xn8jKdmDM00IeO%#$#fJAMtsEAEUOpH/YWYtYqDFnT0SV
-  cipher: aes-256-cfb
-  udp: true
-- name: 🇻🇳 VN-2 | SHFX
-  type: ss
-  server: 103.186.155.111
-  port: 38388
-  password: Xn8jKdmDM00IeO%#$#fJAMtsEAEUOpH/YWYtYqDFnT0SV
-  cipher: aes-256-cfb
-  udp: true
-- name: 🇻🇳 VN-3 | SHFX
-  type: ss
-  server: 103.186.155.13
-  port: 38388
-  password: Xn8jKdmDM00IeO%#$#fJAMtsEAEUOpH/YWYtYqDFnT0SV
-  cipher: aes-256-cfb
-  udp: true
-- name: 🇻🇳 VN-4 | SHFX
-  type: ss
-  server: 103.186.155.114
-  port: 38388
-  password: Xn8jKdmDM00IeO%#$#fJAMtsEAEUOpH/YWYtYqDFnT0SV
-  cipher: aes-256-cfb
-  udp: true
 - name: 🇻🇳 VN-5 | SHFX
   type: ss
-  server: 103.186.155.214
+  server: 103.186.155.237
   port: 38388
   password: Xn8jKdmDM00IeO%#$#fJAMtsEAEUOpH/YWYtYqDFnT0SV
   cipher: aes-256-cfb
   udp: true
 - name: 🇻🇳 VN-6 | SHFX
   type: ss
-  server: 103.186.154.250
+  server: 103.186.155.25
   port: 38388
   password: Xn8jKdmDM00IeO%#$#fJAMtsEAEUOpH/YWYtYqDFnT0SV
   cipher: aes-256-cfb
   udp: true
-- name: 🇭🇰 HK-1 | SHFX
+- name: 🇰🇷 KR-1 | SHFX
+  type: ss
+  server: p141.panda001.net
+  port: 4652
+  password: qwerREWQ@@
+  cipher: aes-256-cfb
+- name: 🇲🇩 MD-1 | SHFX
+  type: ss
+  server: 185.153.197.5
+  port: 989
+  password: f8f7aCzcPKbsF8p3
+  cipher: aes-256-cfb
+- name: 🇨🇳 CN-1 | SHFX
   type: vmess
-  server: 46.3.26.12
-  port: 443
-  uuid: 4bf075f5-4d5e-4d39-f5ab-b32a86250f0e
-  network: ws
-  ws-opts:
-    headers:
-      Host: hk.nbee.pp.ua
-    path: /aa
+  server: 106.14.75.114
+  port: 50002
+  uuid: 418048af-a293-4b99-9b0c-98ca3580dd24
+  network: tcp
+  skip-cert-verify: true
   alterId: 0
   cipher: auto
-  tls: true
-- name: 🇨🇳 CN-1 | SHFX
+- name: 🇨🇳 CN-2 | SHFX
   type: vmess
   server: 112.132.215.34
   port: 50007
@@ -303,7 +311,7 @@ proxies:
       Host: snippet.danfeng.site
   tls: true
   tfo: false
-- name: 🇨🇳 CN-2 | SHFX
+- name: 🇨🇳 CN-3 | SHFX
   type: vless
   server: saas.sin.fan
   port: 2087
@@ -324,15 +332,17 @@ proxy-groups:
     type: select
     proxies:
       - 自动选择⚡️
-      - 🇺🇸 US-1 | SHFX
       - 🇻🇳 VN-1 | SHFX
       - 🇻🇳 VN-2 | SHFX
       - 🇻🇳 VN-3 | SHFX
       - 🇻🇳 VN-4 | SHFX
+      - 🇺🇸 US-1 | SHFX
       - 🇻🇳 VN-5 | SHFX
       - 🇻🇳 VN-6 | SHFX
-      - 🇭🇰 HK-1 | SHFX
+      - 🇰🇷 KR-1 | SHFX
+      - 🇲🇩 MD-1 | SHFX
       - 🇨🇳 CN-1 | SHFX
+      - 🇨🇳 CN-2 | SHFX
       - 🇺🇸 US-2 | SHFX
       - 🇹🇬 TG-1 | SHFX
       - 🇺🇸 US-3 | SHFX
@@ -340,19 +350,21 @@ proxy-groups:
       - 🇺🇸 US-5 | SHFX
       - 🇺🇸 US-6 | SHFX
       - 🇺🇸 US-7 | SHFX
-      - 🇨🇳 CN-2 | SHFX
+      - 🇨🇳 CN-3 | SHFX
   - name: 自动选择⚡️
     type: url-test
     proxies:
-      - 🇺🇸 US-1 | SHFX
       - 🇻🇳 VN-1 | SHFX
       - 🇻🇳 VN-2 | SHFX
       - 🇻🇳 VN-3 | SHFX
       - 🇻🇳 VN-4 | SHFX
+      - 🇺🇸 US-1 | SHFX
       - 🇻🇳 VN-5 | SHFX
       - 🇻🇳 VN-6 | SHFX
-      - 🇭🇰 HK-1 | SHFX
+      - 🇰🇷 KR-1 | SHFX
+      - 🇲🇩 MD-1 | SHFX
       - 🇨🇳 CN-1 | SHFX
+      - 🇨🇳 CN-2 | SHFX
       - 🇺🇸 US-2 | SHFX
       - 🇹🇬 TG-1 | SHFX
       - 🇺🇸 US-3 | SHFX
@@ -360,7 +372,7 @@ proxy-groups:
       - 🇺🇸 US-5 | SHFX
       - 🇺🇸 US-6 | SHFX
       - 🇺🇸 US-7 | SHFX
-      - 🇨🇳 CN-2 | SHFX
+      - 🇨🇳 CN-3 | SHFX
     url: https://www.gstatic.com/generate_204
     interval: 300
 rules:
