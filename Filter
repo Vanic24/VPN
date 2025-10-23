@@ -1,4 +1,4 @@
-# Last update: 23.10.2025 10:04:13
+# Last update: 23.10.2025 10:49:38
 mixed-port: 7897
 allow-lan: false
 mode: rule
@@ -140,24 +140,6 @@ proxies:
   port: 443
   password: Nk9asglDzHzjktVzTkvhaA
   cipher: chacha20-ietf-poly1305
-- name: 🇺🇸 US-2 | SHFX
-  type: hysteria2
-  server: 108.165.213.197
-  port: 23891
-  password: c232f411-96b5-4b07-b2f7-66a434725ffb
-  sni: fus01.mistea.top
-  skip-cert-verify: false
-  auth: c232f411-96b5-4b07-b2f7-66a434725ffb
-- name: 🇳🇱 NL-1 | SHFX
-  type: hysteria2
-  server: 185.92.220.240
-  port: 30205
-  password: 8864aa9f-7517-4fd5-aef1-32050eb3095d
-  sni: net2025.afsharidempire.uk
-  skip-cert-verify: false
-  auth: 8864aa9f-7517-4fd5-aef1-32050eb3095d
-  obfs: salamander
-  obfs-password: GdQ4bgvT8RFwuWi2
 - name: 🇭🇰 HK-1 | SHFX
   type: vmess
   server: 46.3.26.12
@@ -171,9 +153,17 @@ proxies:
   alterId: 0
   cipher: auto
   tls: true
+- name: 🇺🇸 US-2 | SHFX
+  type: hysteria2
+  server: 108.165.213.197
+  port: 23891
+  password: c232f411-96b5-4b07-b2f7-66a434725ffb
+  sni: fus01.mistea.top
+  skip-cert-verify: false
+  auth: c232f411-96b5-4b07-b2f7-66a434725ffb
 - name: 🇸🇪 SE-1 | SHFX
   type: hysteria2
-  server: 70.34.215.221
+  server: drhystuichdfy.samanidempire.org
   port: 20335
   password: 80747420-96c4-4a2f-83e6-eea4e46beb09
   sni: drhystuichdfy.samanidempire.org
@@ -181,12 +171,16 @@ proxies:
   auth: 80747420-96c4-4a2f-83e6-eea4e46beb09
   obfs: salamander
   obfs-password: U1wBrYQyFm
-- name: 🇲🇩 MD-1 | SHFX
-  type: ss
-  server: 185.153.197.5
-  port: 989
-  password: f8f7aCzcPKbsF8p3
-  cipher: aes-256-cfb
+- name: 🇳🇱 NL-1 | SHFX
+  type: hysteria2
+  server: 185.92.220.240
+  port: 30205
+  password: 8864aa9f-7517-4fd5-aef1-32050eb3095d
+  sni: net2025.afsharidempire.uk
+  skip-cert-verify: false
+  auth: 8864aa9f-7517-4fd5-aef1-32050eb3095d
+  obfs: salamander
+  obfs-password: GdQ4bgvT8RFwuWi2
 - name: 🇨🇳 CN-1 | SHFX
   type: trojan
   server: 36.150.215.138
@@ -205,7 +199,28 @@ proxies:
   cipher: auto
   tfo: true
   udp: true
+- name: 🇸🇪 SE-2 | SHFX
+  type: hysteria2
+  server: 70.34.215.221
+  port: 20335
+  password: 80747420-96c4-4a2f-83e6-eea4e46beb09
+  sni: drhystuichdfy.samanidempire.org
+  skip-cert-verify: false
+  auth: 80747420-96c4-4a2f-83e6-eea4e46beb09
+  obfs: salamander
+  obfs-password: U1wBrYQyFm
 - name: 🇨🇳 CN-3 | SHFX
+  type: vmess
+  server: 39.107.155.11
+  port: 30302
+  uuid: 418048af-a293-4b99-9b0c-98ca3580dd24
+  network: tcp
+  skip-cert-verify: true
+  alterId: 0
+  cipher: auto
+  tfo: true
+  udp: true
+- name: 🇨🇳 CN-4 | SHFX
   type: vmess
   server: 112.132.215.34
   port: 50007
@@ -214,7 +229,7 @@ proxies:
   skip-cert-verify: true
   alterId: 0
   cipher: auto
-- name: 🇨🇳 CN-4 | SHFX
+- name: 🇨🇳 CN-5 | SHFX
   type: vmess
   server: 106.14.75.114
   port: 50002
@@ -223,7 +238,26 @@ proxies:
   skip-cert-verify: true
   alterId: 0
   cipher: auto
-- name: 🇨🇳 CN-5 | SHFX
+- name: 🇨🇳 CN-6 | SHFX
+  type: vmess
+  server: v8.heduian.link
+  port: 30808
+  uuid: cbb3f877-d1fb-344c-87a9-d153bffd5484
+  network: ws
+  skip-cert-verify: true
+  ws-opts:
+    headers:
+      Host: v8.heduian.link
+    path: /oooo
+  alterId: 2
+  cipher: auto
+- name: 🇲🇩 MD-1 | SHFX
+  type: ss
+  server: 185.153.197.5
+  port: 989
+  password: f8f7aCzcPKbsF8p3
+  cipher: aes-256-cfb
+- name: 🇨🇳 CN-7 | SHFX
   type: vmess
   server: v24.heduian.link
   port: 30824
@@ -236,33 +270,6 @@ proxies:
     path: /oooo
   alterId: 2
   cipher: auto
-- name: 🇨🇳 CN-6 | SHFX
-  type: trojan
-  server: 36.156.102.82
-  port: 401
-  password: BxceQaOe
-  skip-cert-verify: true
-  alterId: 0
-  tls: true
-  udp: true
-- name: 🇳🇱 NL-2 | SHFX
-  type: ss
-  server: 45.87.175.199
-  port: 8080
-  password: 4a2rfixophdjffa8KVA4Aa
-  cipher: chacha20-ietf-poly1305
-- name: 🇯🇵 JP-1 | SHFX
-  type: ss
-  server: 149.22.87.204
-  port: 443
-  password: shadowsocks
-  cipher: aes-128-gcm
-- name: 🇫🇮 FI-1 | SHFX
-  type: ss
-  server: 37.143.129.230
-  port: 989
-  password: f8f7aCzcPKbsF8p3
-  cipher: aes-256-cfb
 - name: 🇺🇸 US-3 | SHFX
   type: vless
   server: cf-cname.xingpingcn.top
@@ -383,7 +390,7 @@ proxies:
       Host: snippet.danfeng.site
   tls: true
   tfo: false
-- name: 🇯🇵 JP-2 | SHFX
+- name: 🇯🇵 JP-1 | SHFX
   type: vless
   server: 103.160.100.111
   port: 21759
@@ -398,7 +405,7 @@ proxies:
       Host: snippet.danfeng.site
   tls: true
   tfo: false
-- name: 🇯🇵 JP-3 | SHFX
+- name: 🇯🇵 JP-2 | SHFX
   type: vless
   server: 210.79.150.3
   port: 44312
@@ -413,7 +420,7 @@ proxies:
       Host: snippet.danfeng.site
   tls: true
   tfo: false
-- name: 🇯🇵 JP-4 | SHFX
+- name: 🇯🇵 JP-3 | SHFX
   type: vless
   server: 154.31.113.99
   port: 30443
@@ -428,7 +435,7 @@ proxies:
       Host: snippet.danfeng.site
   tls: true
   tfo: false
-- name: 🇯🇵 JP-5 | SHFX
+- name: 🇯🇵 JP-4 | SHFX
   type: vless
   server: 178.157.63.141
   port: 50427
@@ -443,7 +450,7 @@ proxies:
       Host: snippet.danfeng.site
   tls: true
   tfo: false
-- name: 🇯🇵 JP-6 | SHFX
+- name: 🇯🇵 JP-5 | SHFX
   type: vless
   server: 103.137.215.61
   port: 52866
@@ -458,7 +465,7 @@ proxies:
       Host: snippet.danfeng.site
   tls: true
   tfo: false
-- name: 🇯🇵 JP-7 | SHFX
+- name: 🇯🇵 JP-6 | SHFX
   type: vless
   server: 141.98.198.209
   port: 50242
@@ -473,7 +480,7 @@ proxies:
       Host: snippet.danfeng.site
   tls: true
   tfo: false
-- name: 🇯🇵 JP-8 | SHFX
+- name: 🇯🇵 JP-7 | SHFX
   type: vless
   server: 212.50.253.184
   port: 33033
@@ -488,7 +495,7 @@ proxies:
       Host: snippet.danfeng.site
   tls: true
   tfo: false
-- name: 🇯🇵 JP-9 | SHFX
+- name: 🇯🇵 JP-8 | SHFX
   type: vless
   server: 45.14.64.185
   port: 39738
@@ -533,7 +540,7 @@ proxies:
       Host: snippet.danfeng.site
   tls: true
   tfo: false
-- name: 🇨🇳 CN-7 | SHFX
+- name: 🇨🇳 CN-8 | SHFX
   type: vless
   server: 141.11.87.155
   port: 17009
@@ -548,7 +555,7 @@ proxies:
       Host: snippet.danfeng.site
   tls: true
   tfo: false
-- name: 🇨🇳 CN-8 | SHFX
+- name: 🇨🇳 CN-9 | SHFX
   type: vless
   server: 213.210.5.61
   port: 8443
@@ -751,20 +758,19 @@ proxy-groups:
       - 自动选择⚡️
       - 🇺🇸 US-1 | SHFX
       - 🇻🇳 VN-1 | SHFX
-      - 🇺🇸 US-2 | SHFX
-      - 🇳🇱 NL-1 | SHFX
       - 🇭🇰 HK-1 | SHFX
+      - 🇺🇸 US-2 | SHFX
       - 🇸🇪 SE-1 | SHFX
-      - 🇲🇩 MD-1 | SHFX
+      - 🇳🇱 NL-1 | SHFX
       - 🇨🇳 CN-1 | SHFX
       - 🇨🇳 CN-2 | SHFX
+      - 🇸🇪 SE-2 | SHFX
       - 🇨🇳 CN-3 | SHFX
       - 🇨🇳 CN-4 | SHFX
       - 🇨🇳 CN-5 | SHFX
       - 🇨🇳 CN-6 | SHFX
-      - 🇳🇱 NL-2 | SHFX
-      - 🇯🇵 JP-1 | SHFX
-      - 🇫🇮 FI-1 | SHFX
+      - 🇲🇩 MD-1 | SHFX
+      - 🇨🇳 CN-7 | SHFX
       - 🇺🇸 US-3 | SHFX
       - 🇺🇸 US-4 | SHFX
       - 🇰🇷 KR-1 | SHFX
@@ -773,6 +779,7 @@ proxy-groups:
       - 🇭🇰 HK-4 | SHFX
       - 🇭🇰 HK-5 | SHFX
       - 🇭🇰 HK-6 | SHFX
+      - 🇯🇵 JP-1 | SHFX
       - 🇯🇵 JP-2 | SHFX
       - 🇯🇵 JP-3 | SHFX
       - 🇯🇵 JP-4 | SHFX
@@ -780,11 +787,10 @@ proxy-groups:
       - 🇯🇵 JP-6 | SHFX
       - 🇯🇵 JP-7 | SHFX
       - 🇯🇵 JP-8 | SHFX
-      - 🇯🇵 JP-9 | SHFX
       - 🇸🇬 SG-1 | SHFX
       - 🇸🇬 SG-2 | SHFX
-      - 🇨🇳 CN-7 | SHFX
       - 🇨🇳 CN-8 | SHFX
+      - 🇨🇳 CN-9 | SHFX
       - 🇺🇸 US-5 | SHFX
       - 🇺🇸 US-6 | SHFX
       - 🇺🇸 US-7 | SHFX
@@ -802,20 +808,19 @@ proxy-groups:
     proxies:
       - 🇺🇸 US-1 | SHFX
       - 🇻🇳 VN-1 | SHFX
-      - 🇺🇸 US-2 | SHFX
-      - 🇳🇱 NL-1 | SHFX
       - 🇭🇰 HK-1 | SHFX
+      - 🇺🇸 US-2 | SHFX
       - 🇸🇪 SE-1 | SHFX
-      - 🇲🇩 MD-1 | SHFX
+      - 🇳🇱 NL-1 | SHFX
       - 🇨🇳 CN-1 | SHFX
       - 🇨🇳 CN-2 | SHFX
+      - 🇸🇪 SE-2 | SHFX
       - 🇨🇳 CN-3 | SHFX
       - 🇨🇳 CN-4 | SHFX
       - 🇨🇳 CN-5 | SHFX
       - 🇨🇳 CN-6 | SHFX
-      - 🇳🇱 NL-2 | SHFX
-      - 🇯🇵 JP-1 | SHFX
-      - 🇫🇮 FI-1 | SHFX
+      - 🇲🇩 MD-1 | SHFX
+      - 🇨🇳 CN-7 | SHFX
       - 🇺🇸 US-3 | SHFX
       - 🇺🇸 US-4 | SHFX
       - 🇰🇷 KR-1 | SHFX
@@ -824,6 +829,7 @@ proxy-groups:
       - 🇭🇰 HK-4 | SHFX
       - 🇭🇰 HK-5 | SHFX
       - 🇭🇰 HK-6 | SHFX
+      - 🇯🇵 JP-1 | SHFX
       - 🇯🇵 JP-2 | SHFX
       - 🇯🇵 JP-3 | SHFX
       - 🇯🇵 JP-4 | SHFX
@@ -831,11 +837,10 @@ proxy-groups:
       - 🇯🇵 JP-6 | SHFX
       - 🇯🇵 JP-7 | SHFX
       - 🇯🇵 JP-8 | SHFX
-      - 🇯🇵 JP-9 | SHFX
       - 🇸🇬 SG-1 | SHFX
       - 🇸🇬 SG-2 | SHFX
-      - 🇨🇳 CN-7 | SHFX
       - 🇨🇳 CN-8 | SHFX
+      - 🇨🇳 CN-9 | SHFX
       - 🇺🇸 US-5 | SHFX
       - 🇺🇸 US-6 | SHFX
       - 🇺🇸 US-7 | SHFX
