@@ -1,4 +1,4 @@
-# Last update: 23.10.2025 12:54:42
+# Last update: 23.10.2025 13:19:39
 mixed-port: 7897
 allow-lan: false
 mode: rule
@@ -140,6 +140,20 @@ proxies:
   port: 443
   password: Nk9asglDzHzjktVzTkvhaA
   cipher: chacha20-ietf-poly1305
+- name: 🇨🇭 CH-1 | SHFX
+  type: vless
+  server: 83.228.208.219
+  port: 8443
+  uuid: 5c44b52f-361e-45c5-bd12-dc72f28397ce
+  servername: auto.quattro-tech.ru
+  skip-cert-verify: false
+  client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  reality-opts:
+    public-key: 10rVZPoOUP1TlQviIAsQ_jAROX0fRQxH0C92nq_zGQc
+    short-id: 43dcff53849b81e6
+  tls: true
+  udp: true
 - name: 🇭🇰 HK-1 | SHFX
   type: vmess
   server: 46.3.26.12
@@ -153,14 +167,6 @@ proxies:
   alterId: 0
   cipher: auto
   tls: true
-- name: 🇺🇸 US-2 | SHFX
-  type: hysteria2
-  server: 108.165.213.197
-  port: 23891
-  password: c232f411-96b5-4b07-b2f7-66a434725ffb
-  sni: fus01.mistea.top
-  skip-cert-verify: false
-  auth: c232f411-96b5-4b07-b2f7-66a434725ffb
 - name: 🇲🇩 MD-1 | SHFX
   type: ss
   server: 185.153.197.5
@@ -168,24 +174,6 @@ proxies:
   password: f8f7aCzcPKbsF8p3
   cipher: aes-256-cfb
 - name: 🇨🇳 CN-1 | SHFX
-  type: trojan
-  server: 36.150.215.138
-  port: 4451
-  password: BxceQaOe
-  network: tcp
-  skip-cert-verify: true
-- name: 🇨🇳 CN-2 | SHFX
-  type: vmess
-  server: 139.129.20.6
-  port: 50002
-  uuid: 418048af-a293-4b99-9b0c-98ca3580dd24
-  network: tcp
-  skip-cert-verify: true
-  alterId: 0
-  cipher: auto
-  tfo: true
-  udp: true
-- name: 🇨🇳 CN-3 | SHFX
   type: vmess
   server: v24.heduian.link
   port: 30824
@@ -198,7 +186,7 @@ proxies:
     path: /oooo
   alterId: 2
   cipher: auto
-- name: 🇨🇳 CN-4 | SHFX
+- name: 🇨🇳 CN-2 | SHFX
   type: vmess
   server: 106.14.75.114
   port: 50002
@@ -207,28 +195,55 @@ proxies:
   skip-cert-verify: true
   alterId: 0
   cipher: auto
-- name: 🇨🇳 CN-5 | SHFX
+- name: 🇨🇳 CN-3 | SHFX
   type: vmess
-  server: v6.heduian.link
-  port: 30806
-  uuid: cbb3f877-d1fb-344c-87a9-d153bffd5484
-  network: ws
-  skip-cert-verify: false
-  ws-opts:
-    headers:
-      Host: ocbc.com
-    path: /oooo
-  alterId: 2
+  server: 139.129.20.6
+  port: 50002
+  uuid: 418048af-a293-4b99-9b0c-98ca3580dd24
+  network: tcp
+  skip-cert-verify: true
+  alterId: 0
   cipher: auto
-  tfo: false
-  tls: false
-- name: 🇨🇳 CN-6 | SHFX
+  tfo: true
+  udp: true
+- name: 🇨🇳 CN-4 | SHFX
   type: vmess
   server: 39.107.155.11
   port: 30302
   uuid: 418048af-a293-4b99-9b0c-98ca3580dd24
   network: tcp
   skip-cert-verify: true
+  alterId: 0
+  cipher: auto
+  tfo: true
+  udp: true
+- name: 🇨🇳 CN-5 | SHFX
+  type: vmess
+  server: 112.132.215.34
+  port: 50007
+  uuid: 418048af-a293-4b99-9b0c-98ca3580dd24
+  network: tcp
+  skip-cert-verify: true
+  alterId: 0
+  cipher: auto
+- name: 🇨🇳 CN-6 | SHFX
+  type: trojan
+  server: 36.150.215.138
+  port: 4451
+  password: BxceQaOe
+  network: tcp
+  skip-cert-verify: true
+- name: 🇺🇸 US-2 | SHFX
+  type: vmess
+  server: 209.126.84.189
+  port: 443
+  uuid: 2c981164-9b93-4bca-94ff-b78d3f8498d7
+  network: ws
+  skip-cert-verify: true
+  ws-opts:
+    headers:
+      Host: 209.126.84.189
+    path: /vmessws
   alterId: 0
   cipher: auto
   tfo: true
@@ -721,8 +736,8 @@ proxy-groups:
       - 自动选择⚡️
       - 🇺🇸 US-1 | SHFX
       - 🇻🇳 VN-1 | SHFX
+      - 🇨🇭 CH-1 | SHFX
       - 🇭🇰 HK-1 | SHFX
-      - 🇺🇸 US-2 | SHFX
       - 🇲🇩 MD-1 | SHFX
       - 🇨🇳 CN-1 | SHFX
       - 🇨🇳 CN-2 | SHFX
@@ -730,6 +745,7 @@ proxy-groups:
       - 🇨🇳 CN-4 | SHFX
       - 🇨🇳 CN-5 | SHFX
       - 🇨🇳 CN-6 | SHFX
+      - 🇺🇸 US-2 | SHFX
       - 🇺🇸 US-3 | SHFX
       - 🇺🇸 US-4 | SHFX
       - 🇰🇷 KR-1 | SHFX
@@ -767,8 +783,8 @@ proxy-groups:
     proxies:
       - 🇺🇸 US-1 | SHFX
       - 🇻🇳 VN-1 | SHFX
+      - 🇨🇭 CH-1 | SHFX
       - 🇭🇰 HK-1 | SHFX
-      - 🇺🇸 US-2 | SHFX
       - 🇲🇩 MD-1 | SHFX
       - 🇨🇳 CN-1 | SHFX
       - 🇨🇳 CN-2 | SHFX
@@ -776,6 +792,7 @@ proxy-groups:
       - 🇨🇳 CN-4 | SHFX
       - 🇨🇳 CN-5 | SHFX
       - 🇨🇳 CN-6 | SHFX
+      - 🇺🇸 US-2 | SHFX
       - 🇺🇸 US-3 | SHFX
       - 🇺🇸 US-4 | SHFX
       - 🇰🇷 KR-1 | SHFX
