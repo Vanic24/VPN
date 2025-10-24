@@ -1,4 +1,4 @@
-# Last update: 24.10.2025 15:01:26
+# Last update: 24.10.2025 19:20:57
 mixed-port: 7897
 allow-lan: false
 mode: rule
@@ -147,19 +147,6 @@ proxies:
   - h3
   congestion-controller: bbr
   udp-relay-mode: native
-- name: 🇸🇬 SG-2 | StarLink
-  type: tuic
-  server: 38.247.64.210
-  port: 42634
-  uuid: d1b2d150-f575-4252-bd46-3800f4756d89
-  password: d1b2d150-f575-4252-bd46-3800f4756d89
-  sni: www.apple.com
-  skip-cert-verify: true
-  udp: true
-  alpn:
-  - h3
-  congestion-controller: bbr
-  udp-relay-mode: native
 - name: 🇭🇰 HK-1 | StarLink
   type: vless
   server: hk2.vosniehcihwocc.cfd
@@ -167,7 +154,7 @@ proxies:
   uuid: d1b2d150-f575-4252-bd46-3800f4756d89
   servername: python.org
   skip-cert-verify: false
-  client-fingerprint: ios
+  client-fingerprint: safari
   alterId: 0
   cipher: auto
   udp: true
@@ -309,22 +296,24 @@ proxies:
 - name: 🇳🇱 NL-4 | StarLink
   type: trojan
   server: amsterdam.xn--mes995ajya725k.com
-  port: 49264
-  password: d1b2d150-f575-4252-bd46-3800f4756d89
-  network: tcp
-  sni: amsterdam.xn--mes995ajya725k.com
-  skip-cert-verify: true
-  udp: true
-- name: 🇳🇱 NL-5 | StarLink
-  type: trojan
-  server: amsterdam.xn--mes995ajya725k.com
   port: 34264
   password: d1b2d150-f575-4252-bd46-3800f4756d89
   network: tcp
   sni: amsterdam.xn--mes995ajya725k.com
   skip-cert-verify: true
   udp: true
-- name: 🇸🇬 SG-3 | StarLink
+- name: 🇲🇩 MD-1 | StarLink
+  type: hysteria2
+  server: moldova.vosniehcihwocc.cfd
+  port: 49751
+  password: d1b2d150-f575-4252-bd46-3800f4756d89
+  sni: apple.com
+  skip-cert-verify: true
+  up: null
+  down: null
+  obfs: salamander
+  obfs-password: 43DcG8L2RByYtcRP
+- name: 🇸🇬 SG-2 | StarLink
   type: hysteria2
   server: 38.247.64.210
   port: 45171
@@ -335,17 +324,6 @@ proxies:
   down: null
   obfs: salamander
   obfs-password: Us1D6sMDVWAGkJFl
-- name: 🇲🇩 MD-1 | StarLink
-  type: hysteria2
-  server: moldova.vosniehcihwocc.cfd
-  port: 59751
-  password: d1b2d150-f575-4252-bd46-3800f4756d89
-  sni: apple.com
-  skip-cert-verify: true
-  up: null
-  down: null
-  obfs: salamander
-  obfs-password: qATHHa99E4ctuzTB
 - name: 🇲🇩 MD-2 | StarLink
   type: hysteria2
   server: moldova.vosniehcihwocc.cfd
@@ -420,7 +398,7 @@ proxies:
   network: grpc
   servername: apple.com
   skip-cert-verify: true
-  client-fingerprint: safari
+  client-fingerprint: chrome
   grpc-opts:
     grpc-service-name: d2fsfg5
   alterId: 0
@@ -431,18 +409,7 @@ proxies:
   reality-opts:
     public-key: kaNrqXln9wxqqrv3KAukTht88o7mVYnz3kMFVCzMoXc
     short-id: 4a6465
-- name: 🇲🇩 MD-7 | StarLink
-  type: hysteria2
-  server: moldova.vosniehcihwocc.cfd
-  port: 49751
-  password: d1b2d150-f575-4252-bd46-3800f4756d89
-  sni: apple.com
-  skip-cert-verify: true
-  up: null
-  down: null
-  obfs: salamander
-  obfs-password: 43DcG8L2RByYtcRP
-- name: 🇸🇬 SG-4 | StarLink
+- name: 🇸🇬 SG-3 | StarLink
   type: hysteria2
   server: 38.247.64.210
   port: 26457
@@ -453,6 +420,17 @@ proxies:
   down: null
   obfs: salamander
   obfs-password: aVmRSRbUVjxf4o9O
+- name: 🇲🇩 MD-7 | StarLink
+  type: hysteria2
+  server: moldova.vosniehcihwocc.cfd
+  port: 59751
+  password: d1b2d150-f575-4252-bd46-3800f4756d89
+  sni: apple.com
+  skip-cert-verify: true
+  up: null
+  down: null
+  obfs: salamander
+  obfs-password: qATHHa99E4ctuzTB
 - name: 🇺🇸 US-8 | StarLink
   type: vless
   server: 166.88.164.204
@@ -480,7 +458,7 @@ proxies:
   network: grpc
   servername: apple.com
   skip-cert-verify: true
-  client-fingerprint: chrome
+  client-fingerprint: firefox
   grpc-opts:
     grpc-service-name: d24fsfg5
   alterId: 0
@@ -538,19 +516,6 @@ proxies:
   udp-relay-mode: native
 - name: 🇺🇸 US-13 | StarLink
   type: tuic
-  server: 2602:f9f3:0:2::926
-  port: 34345
-  uuid: d1b2d150-f575-4252-bd46-3800f4756d89
-  password: d1b2d150-f575-4252-bd46-3800f4756d89
-  sni: apple.com
-  skip-cert-verify: true
-  udp: true
-  alpn:
-  - h3
-  congestion-controller: bbr
-  udp-relay-mode: native
-- name: 🇺🇸 US-14 | StarLink
-  type: tuic
   server: 166.0.192.239
   port: 61631
   uuid: d1b2d150-f575-4252-bd46-3800f4756d89
@@ -562,18 +527,20 @@ proxies:
   - h3
   congestion-controller: bbr
   udp-relay-mode: native
-- name: 🇺🇸 US-15 | StarLink
-  type: hysteria2
+- name: 🇺🇸 US-14 | StarLink
+  type: tuic
   server: 2602:f9f3:0:2::926
-  port: 41832
+  port: 34345
+  uuid: d1b2d150-f575-4252-bd46-3800f4756d89
   password: d1b2d150-f575-4252-bd46-3800f4756d89
   sni: apple.com
   skip-cert-verify: true
-  up: null
-  down: null
-  obfs: salamander
-  obfs-password: NhCDdnNQp96SASF3
-- name: 🇺🇸 US-16 | StarLink
+  udp: true
+  alpn:
+  - h3
+  congestion-controller: bbr
+  udp-relay-mode: native
+- name: 🇺🇸 US-15 | StarLink
   type: hysteria2
   server: 166.0.192.239
   port: 31532
@@ -584,6 +551,17 @@ proxies:
   down: null
   obfs: salamander
   obfs-password: IGIanRJXA7UdAsad
+- name: 🇺🇸 US-16 | StarLink
+  type: hysteria2
+  server: 2602:f9f3:0:2::926
+  port: 41832
+  password: d1b2d150-f575-4252-bd46-3800f4756d89
+  sni: apple.com
+  skip-cert-verify: true
+  up: null
+  down: null
+  obfs: salamander
+  obfs-password: NhCDdnNQp96SASF3
 - name: 🇺🇸 US-17 | StarLink
   type: hysteria2
   server: 38.45.89.44
@@ -619,61 +597,6 @@ proxies:
   - h3
   congestion-controller: bbr
   udp-relay-mode: native
-- name: 🇺🇸 US-20 | StarLink
-  type: hysteria2
-  server: dallas.vosniehcihwocc.cfd
-  port: 443
-  password: d1b2d150-f575-4252-bd46-3800f4756d89
-  sni: dallas.vosniehcihwocc.cfd
-  skip-cert-verify: true
-  up: null
-  down: null
-  obfs: salamander
-  obfs-password: cNAi9uHky4ypFofV
-- name: 🇺🇸 US-21 | StarLink
-  type: hysteria2
-  server: dallas.vosniehcihwocc.cfd
-  port: 1443
-  password: d1b2d150-f575-4252-bd46-3800f4756d89
-  sni: dallas.vosniehcihwocc.cfd
-  skip-cert-verify: true
-  up: null
-  down: null
-  obfs: salamander
-  obfs-password: 3RC2F9PEvZRs3EM5
-- name: 🇺🇸 US-22 | StarLink
-  type: hysteria2
-  server: dallas.vosniehcihwocc.cfd
-  port: 5443
-  password: d1b2d150-f575-4252-bd46-3800f4756d89
-  sni: dallas.vosniehcihwocc.cfd
-  skip-cert-verify: true
-  up: null
-  down: null
-  obfs: salamander
-  obfs-password: cNAi9uHky4ypFofV
-- name: 🇺🇸 US-23 | StarLink
-  type: hysteria2
-  server: dallas.vosniehcihwocc.cfd
-  port: 63443
-  password: d1b2d150-f575-4252-bd46-3800f4756d89
-  sni: dallas.vosniehcihwocc.cfd
-  skip-cert-verify: true
-  up: null
-  down: null
-  obfs: salamander
-  obfs-password: WpQ7LdRKwcPWC5IH
-- name: 🇺🇸 US-24 | StarLink
-  type: hysteria2
-  server: dallas.vosniehcihwocc.cfd
-  port: 52443
-  password: d1b2d150-f575-4252-bd46-3800f4756d89
-  sni: dallas.vosniehcihwocc.cfd
-  skip-cert-verify: true
-  up: null
-  down: null
-  obfs: salamander
-  obfs-password: U48KTfubtl1YlOIm
 - name: 🇦🇱 AL-1 | StarLink
   type: hysteria2
   server: tirana.vosniehcihwocc.cfd
@@ -729,7 +652,7 @@ proxies:
   down: null
   obfs: salamander
   obfs-password: umutEpLIfQ07lgco
-- name: 🇺🇸 US-25 | StarLink
+- name: 🇺🇸 US-20 | StarLink
   type: tuic
   server: dallasusa.vosniehcihwocc.cfd
   port: 31521
@@ -742,7 +665,7 @@ proxies:
   - h3
   congestion-controller: bbr
   udp-relay-mode: native
-- name: 🇺🇸 US-26 | StarLink
+- name: 🇺🇸 US-21 | StarLink
   type: tuic
   server: dallasusa.vosniehcihwocc.cfd
   port: 31551
@@ -755,7 +678,7 @@ proxies:
   - h3
   congestion-controller: bbr
   udp-relay-mode: native
-- name: 🇺🇸 US-27 | StarLink
+- name: 🇺🇸 US-22 | StarLink
   type: tuic
   server: dallasusa.vosniehcihwocc.cfd
   port: 61141
@@ -768,7 +691,7 @@ proxies:
   - h3
   congestion-controller: bbr
   udp-relay-mode: native
-- name: 🇺🇸 US-28 | StarLink
+- name: 🇺🇸 US-23 | StarLink
   type: tuic
   server: dallasusa.vosniehcihwocc.cfd
   port: 64141
@@ -840,7 +763,7 @@ proxies:
   - h3
   congestion-controller: bbr
   udp-relay-mode: native
-- name: 🇺🇸 US-29 | StarLink
+- name: 🇺🇸 US-24 | StarLink
   type: tuic
   server: texas.vosniehcihwocc.cfd
   port: 15526
@@ -853,7 +776,7 @@ proxies:
   - h3
   congestion-controller: bbr
   udp-relay-mode: native
-- name: 🇺🇸 US-30 | StarLink
+- name: 🇺🇸 US-25 | StarLink
   type: tuic
   server: texas.vosniehcihwocc.cfd
   port: 52526
@@ -866,7 +789,7 @@ proxies:
   - h3
   congestion-controller: bbr
   udp-relay-mode: native
-- name: 🇺🇸 US-31 | StarLink
+- name: 🇺🇸 US-26 | StarLink
   type: hysteria2
   server: texas.vosniehcihwocc.cfd
   port: 52136
@@ -877,7 +800,7 @@ proxies:
   down: null
   obfs: salamander
   obfs-password: pG4ac7sm0fq93XhN
-- name: 🇺🇸 US-32 | StarLink
+- name: 🇺🇸 US-27 | StarLink
   type: hysteria2
   server: texas.vosniehcihwocc.cfd
   port: 52416
@@ -888,7 +811,7 @@ proxies:
   down: null
   obfs: salamander
   obfs-password: CCi4KYucnIr2dMGf
-- name: 🇺🇸 US-33 | StarLink
+- name: 🇺🇸 US-28 | StarLink
   type: hysteria2
   server: texas.vosniehcihwocc.cfd
   port: 32115
@@ -899,7 +822,7 @@ proxies:
   down: null
   obfs: salamander
   obfs-password: 7buYbeSOivQaYCXZ
-- name: 🇺🇸 US-34 | StarLink
+- name: 🇺🇸 US-29 | StarLink
   type: tuic
   server: seattle2.vosniehcihwocc.cfd
   port: 21844
@@ -912,7 +835,7 @@ proxies:
   - h3
   congestion-controller: bbr
   udp-relay-mode: native
-- name: 🇺🇸 US-35 | StarLink
+- name: 🇺🇸 US-30 | StarLink
   type: tuic
   server: seattle2.vosniehcihwocc.cfd
   port: 21841
@@ -925,7 +848,7 @@ proxies:
   - h3
   congestion-controller: bbr
   udp-relay-mode: native
-- name: 🇺🇸 US-36 | StarLink
+- name: 🇺🇸 US-31 | StarLink
   type: hysteria2
   server: seattle2.vosniehcihwocc.cfd
   port: 14162
@@ -1070,7 +993,7 @@ proxies:
   uuid: d1b2d150-f575-4252-bd46-3800f4756d89
   servername: apple.com
   skip-cert-verify: true
-  client-fingerprint: edge
+  client-fingerprint: chrome
   alterId: 0
   cipher: auto
   udp: true
@@ -1086,7 +1009,7 @@ proxies:
   uuid: d1b2d150-f575-4252-bd46-3800f4756d89
   servername: apple.com
   skip-cert-verify: true
-  client-fingerprint: safari
+  client-fingerprint: firefox
   alterId: 0
   cipher: auto
   udp: true
@@ -1103,7 +1026,6 @@ proxy-groups:
       - 自动选择⚡️
       - 🇬🇧 GB-1 | StarLink
       - 🇸🇬 SG-1 | StarLink
-      - 🇸🇬 SG-2 | StarLink
       - 🇭🇰 HK-1 | StarLink
       - 🇺🇸 US-1 | StarLink
       - 🇺🇸 US-2 | StarLink
@@ -1117,9 +1039,8 @@ proxy-groups:
       - 🇸🇮 SI-2 | StarLink
       - 🇸🇮 SI-3 | StarLink
       - 🇳🇱 NL-4 | StarLink
-      - 🇳🇱 NL-5 | StarLink
-      - 🇸🇬 SG-3 | StarLink
       - 🇲🇩 MD-1 | StarLink
+      - 🇸🇬 SG-2 | StarLink
       - 🇲🇩 MD-2 | StarLink
       - 🇲🇩 MD-3 | StarLink
       - 🇲🇩 MD-4 | StarLink
@@ -1127,8 +1048,8 @@ proxy-groups:
       - 🇺🇸 US-6 | StarLink
       - 🇲🇩 MD-6 | StarLink
       - 🇺🇸 US-7 | StarLink
+      - 🇸🇬 SG-3 | StarLink
       - 🇲🇩 MD-7 | StarLink
-      - 🇸🇬 SG-4 | StarLink
       - 🇺🇸 US-8 | StarLink
       - 🇺🇸 US-9 | StarLink
       - 🇺🇸 US-10 | StarLink
@@ -1141,33 +1062,28 @@ proxy-groups:
       - 🇺🇸 US-17 | StarLink
       - 🇺🇸 US-18 | StarLink
       - 🇺🇸 US-19 | StarLink
-      - 🇺🇸 US-20 | StarLink
-      - 🇺🇸 US-21 | StarLink
-      - 🇺🇸 US-22 | StarLink
-      - 🇺🇸 US-23 | StarLink
-      - 🇺🇸 US-24 | StarLink
       - 🇦🇱 AL-1 | StarLink
       - 🇦🇱 AL-2 | StarLink
       - 🇦🇱 AL-3 | StarLink
       - 🇦🇱 AL-4 | StarLink
       - 🇦🇱 AL-5 | StarLink
-      - 🇺🇸 US-25 | StarLink
-      - 🇺🇸 US-26 | StarLink
-      - 🇺🇸 US-27 | StarLink
-      - 🇺🇸 US-28 | StarLink
+      - 🇺🇸 US-20 | StarLink
+      - 🇺🇸 US-21 | StarLink
+      - 🇺🇸 US-22 | StarLink
+      - 🇺🇸 US-23 | StarLink
       - 🇭🇰 HK-2 | StarLink
       - 🇭🇰 HK-3 | StarLink
       - 🇭🇰 HK-4 | StarLink
       - 🇭🇰 HK-5 | StarLink
       - 🇭🇰 HK-6 | StarLink
+      - 🇺🇸 US-24 | StarLink
+      - 🇺🇸 US-25 | StarLink
+      - 🇺🇸 US-26 | StarLink
+      - 🇺🇸 US-27 | StarLink
+      - 🇺🇸 US-28 | StarLink
       - 🇺🇸 US-29 | StarLink
       - 🇺🇸 US-30 | StarLink
       - 🇺🇸 US-31 | StarLink
-      - 🇺🇸 US-32 | StarLink
-      - 🇺🇸 US-33 | StarLink
-      - 🇺🇸 US-34 | StarLink
-      - 🇺🇸 US-35 | StarLink
-      - 🇺🇸 US-36 | StarLink
       - 🇭🇰 HK-7 | StarLink
       - 🇭🇰 HK-8 | StarLink
       - 🇭🇰 HK-9 | StarLink
@@ -1185,7 +1101,6 @@ proxy-groups:
     proxies:
       - 🇬🇧 GB-1 | StarLink
       - 🇸🇬 SG-1 | StarLink
-      - 🇸🇬 SG-2 | StarLink
       - 🇭🇰 HK-1 | StarLink
       - 🇺🇸 US-1 | StarLink
       - 🇺🇸 US-2 | StarLink
@@ -1199,9 +1114,8 @@ proxy-groups:
       - 🇸🇮 SI-2 | StarLink
       - 🇸🇮 SI-3 | StarLink
       - 🇳🇱 NL-4 | StarLink
-      - 🇳🇱 NL-5 | StarLink
-      - 🇸🇬 SG-3 | StarLink
       - 🇲🇩 MD-1 | StarLink
+      - 🇸🇬 SG-2 | StarLink
       - 🇲🇩 MD-2 | StarLink
       - 🇲🇩 MD-3 | StarLink
       - 🇲🇩 MD-4 | StarLink
@@ -1209,8 +1123,8 @@ proxy-groups:
       - 🇺🇸 US-6 | StarLink
       - 🇲🇩 MD-6 | StarLink
       - 🇺🇸 US-7 | StarLink
+      - 🇸🇬 SG-3 | StarLink
       - 🇲🇩 MD-7 | StarLink
-      - 🇸🇬 SG-4 | StarLink
       - 🇺🇸 US-8 | StarLink
       - 🇺🇸 US-9 | StarLink
       - 🇺🇸 US-10 | StarLink
@@ -1223,33 +1137,28 @@ proxy-groups:
       - 🇺🇸 US-17 | StarLink
       - 🇺🇸 US-18 | StarLink
       - 🇺🇸 US-19 | StarLink
-      - 🇺🇸 US-20 | StarLink
-      - 🇺🇸 US-21 | StarLink
-      - 🇺🇸 US-22 | StarLink
-      - 🇺🇸 US-23 | StarLink
-      - 🇺🇸 US-24 | StarLink
       - 🇦🇱 AL-1 | StarLink
       - 🇦🇱 AL-2 | StarLink
       - 🇦🇱 AL-3 | StarLink
       - 🇦🇱 AL-4 | StarLink
       - 🇦🇱 AL-5 | StarLink
-      - 🇺🇸 US-25 | StarLink
-      - 🇺🇸 US-26 | StarLink
-      - 🇺🇸 US-27 | StarLink
-      - 🇺🇸 US-28 | StarLink
+      - 🇺🇸 US-20 | StarLink
+      - 🇺🇸 US-21 | StarLink
+      - 🇺🇸 US-22 | StarLink
+      - 🇺🇸 US-23 | StarLink
       - 🇭🇰 HK-2 | StarLink
       - 🇭🇰 HK-3 | StarLink
       - 🇭🇰 HK-4 | StarLink
       - 🇭🇰 HK-5 | StarLink
       - 🇭🇰 HK-6 | StarLink
+      - 🇺🇸 US-24 | StarLink
+      - 🇺🇸 US-25 | StarLink
+      - 🇺🇸 US-26 | StarLink
+      - 🇺🇸 US-27 | StarLink
+      - 🇺🇸 US-28 | StarLink
       - 🇺🇸 US-29 | StarLink
       - 🇺🇸 US-30 | StarLink
       - 🇺🇸 US-31 | StarLink
-      - 🇺🇸 US-32 | StarLink
-      - 🇺🇸 US-33 | StarLink
-      - 🇺🇸 US-34 | StarLink
-      - 🇺🇸 US-35 | StarLink
-      - 🇺🇸 US-36 | StarLink
       - 🇭🇰 HK-7 | StarLink
       - 🇭🇰 HK-8 | StarLink
       - 🇭🇰 HK-9 | StarLink
