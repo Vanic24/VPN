@@ -1,4 +1,4 @@
-# Last update: 24.10.2025 06:05:47
+# Last update: 24.10.2025 07:41:37
 mixed-port: 7897
 allow-lan: false
 mode: rule
@@ -134,13 +134,6 @@ proxies:
     short-id: b525ecd2fc
   tls: true
   udp: true
-- name: 🇸🇬 SG-1 | SHFX
-  type: ss
-  server: 172.237.82.96
-  port: 6579
-  password: vrV64r9gL2RlG96kd9YOkM
-  cipher: chacha20-ietf-poly1305
-  udp: true
 - name: 🇺🇸 US-1 | SHFX
   type: vmess
   server: 154.17.227.158
@@ -154,12 +147,6 @@ proxies:
   alterId: 0
   cipher: auto
   tls: true
-- name: 🇻🇳 VN-1 | SHFX
-  type: ss
-  server: arxfw2b78fi2q9hzylhn.freesocks.work
-  port: 443
-  password: Nk9asglDzHzjktVzTkvhaA
-  cipher: chacha20-ietf-poly1305
 - name: 🇭🇰 HK-1 | SHFX
   type: vmess
   server: 46.3.26.12
@@ -173,6 +160,19 @@ proxies:
   alterId: 0
   cipher: auto
   tls: true
+- name: 🇻🇳 VN-1 | SHFX
+  type: ss
+  server: arxfw2b78fi2q9hzylhn.freesocks.work
+  port: 443
+  password: Nk9asglDzHzjktVzTkvhaA
+  cipher: chacha20-ietf-poly1305
+- name: 🇸🇬 SG-1 | SHFX
+  type: ss
+  server: 172.237.82.96
+  port: 6579
+  password: vrV64r9gL2RlG96kd9YOkM
+  cipher: chacha20-ietf-poly1305
+  udp: true
 - name: 🇵🇹 PT-1 | SHFX
   type: ss
   server: 185.231.233.112
@@ -208,7 +208,26 @@ proxies:
   auth: Yet-Another-Public-Config-1
   obfs: salamander
   obfs-password: Yet-Another-Public-Config-1
+- name: 🇸🇪 SE-1 | SHFX
+  type: hysteria2
+  server: drhystuichdfy.samanidempire.org
+  port: 20335
+  password: 80747420-96c4-4a2f-83e6-eea4e46beb09
+  sni: drhystuichdfy.samanidempire.org
+  skip-cert-verify: false
+  auth: 80747420-96c4-4a2f-83e6-eea4e46beb09
+  obfs: salamander
+  obfs-password: U1wBrYQyFm
 - name: 🇨🇳 CN-2 | SHFX
+  type: vmess
+  server: 106.14.75.114
+  port: 50002
+  uuid: 418048af-a293-4b99-9b0c-98ca3580dd24
+  network: tcp
+  skip-cert-verify: true
+  alterId: 0
+  cipher: auto
+- name: 🇨🇳 CN-3 | SHFX
   type: vmess
   server: 39.107.155.11
   port: 30302
@@ -219,15 +238,6 @@ proxies:
   cipher: auto
   tfo: true
   udp: true
-- name: 🇨🇳 CN-3 | SHFX
-  type: vmess
-  server: 106.14.75.114
-  port: 50002
-  uuid: 418048af-a293-4b99-9b0c-98ca3580dd24
-  network: tcp
-  skip-cert-verify: true
-  alterId: 0
-  cipher: auto
 - name: 🇨🇳 CN-4 | SHFX
   type: vmess
   server: 139.129.20.6
@@ -248,16 +258,18 @@ proxies:
   skip-cert-verify: true
   alterId: 0
   cipher: auto
-- name: 🇸🇪 SE-1 | SHFX
-  type: hysteria2
-  server: drhystuichdfy.samanidempire.org
-  port: 20335
-  password: 80747420-96c4-4a2f-83e6-eea4e46beb09
-  sni: drhystuichdfy.samanidempire.org
+- name: 🇲🇾 MY-1 | SHFX
+  type: vmess
+  server: 45.89.107.51
+  port: 20521
+  uuid: 3dbaa5c3-f493-4ad1-9c5d-8525f4962a6c
+  network: ws
   skip-cert-verify: false
-  auth: 80747420-96c4-4a2f-83e6-eea4e46beb09
-  obfs: salamander
-  obfs-password: U1wBrYQyFm
+  ws-opts:
+    path: /
+  alterId: 0
+  cipher: auto
+  tls: false
 - name: 🇺🇸 US-2 | SHFX
   type: vless
   server: cf-cname.xingpingcn.top
@@ -745,19 +757,20 @@ proxy-groups:
     proxies:
       - 自动选择⚡️
       - 🇩🇪 DE-1 | SHFX
-      - 🇸🇬 SG-1 | SHFX
       - 🇺🇸 US-1 | SHFX
-      - 🇻🇳 VN-1 | SHFX
       - 🇭🇰 HK-1 | SHFX
+      - 🇻🇳 VN-1 | SHFX
+      - 🇸🇬 SG-1 | SHFX
       - 🇵🇹 PT-1 | SHFX
       - 🇲🇩 MD-1 | SHFX
       - 🇨🇳 CN-1 | SHFX
       - 🇳🇱 NL-1 | SHFX
+      - 🇸🇪 SE-1 | SHFX
       - 🇨🇳 CN-2 | SHFX
       - 🇨🇳 CN-3 | SHFX
       - 🇨🇳 CN-4 | SHFX
       - 🇨🇳 CN-5 | SHFX
-      - 🇸🇪 SE-1 | SHFX
+      - 🇲🇾 MY-1 | SHFX
       - 🇺🇸 US-2 | SHFX
       - 🇺🇸 US-3 | SHFX
       - 🇰🇷 KR-1 | SHFX
@@ -794,19 +807,20 @@ proxy-groups:
     type: url-test
     proxies:
       - 🇩🇪 DE-1 | SHFX
-      - 🇸🇬 SG-1 | SHFX
       - 🇺🇸 US-1 | SHFX
-      - 🇻🇳 VN-1 | SHFX
       - 🇭🇰 HK-1 | SHFX
+      - 🇻🇳 VN-1 | SHFX
+      - 🇸🇬 SG-1 | SHFX
       - 🇵🇹 PT-1 | SHFX
       - 🇲🇩 MD-1 | SHFX
       - 🇨🇳 CN-1 | SHFX
       - 🇳🇱 NL-1 | SHFX
+      - 🇸🇪 SE-1 | SHFX
       - 🇨🇳 CN-2 | SHFX
       - 🇨🇳 CN-3 | SHFX
       - 🇨🇳 CN-4 | SHFX
       - 🇨🇳 CN-5 | SHFX
-      - 🇸🇪 SE-1 | SHFX
+      - 🇲🇾 MY-1 | SHFX
       - 🇺🇸 US-2 | SHFX
       - 🇺🇸 US-3 | SHFX
       - 🇰🇷 KR-1 | SHFX
