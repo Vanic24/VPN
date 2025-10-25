@@ -1,4 +1,4 @@
-# Last update: 25.10.2025 14:48:59
+# Last update: 25.10.2025 15:11:50
 mixed-port: 7897
 allow-lan: false
 mode: rule
@@ -121,6 +121,13 @@ dns:
       - +.googleapis.com
       - +.gvt1.com
 proxies:
+- name: 🇨🇳 CN-1 | SHFX
+  type: trojan
+  server: 36.151.251.23
+  port: 4451
+  password: BxceQaOe
+  network: tcp
+  skip-cert-verify: true
 - name: 🇯🇵 JP-1 | SHFX
   type: trojan
   server: 37.202.200.11
@@ -131,12 +138,6 @@ proxies:
   alterId: 0
   tls: true
   udp: true
-- name: 🇻🇳 VN-1 | SHFX
-  type: ss
-  server: arxfw2b78fi2q9hzylhn.freesocks.work
-  port: 443
-  password: Nk9asglDzHzjktVzTkvhaA
-  cipher: chacha20-ietf-poly1305
 - name: 🇺🇸 US-1 | SHFX
   type: vmess
   server: 154.17.227.158
@@ -150,6 +151,12 @@ proxies:
   alterId: 0
   cipher: auto
   tls: true
+- name: 🇻🇳 VN-1 | SHFX
+  type: ss
+  server: arxfw2b78fi2q9hzylhn.freesocks.work
+  port: 443
+  password: Nk9asglDzHzjktVzTkvhaA
+  cipher: chacha20-ietf-poly1305
 - name: 🇭🇰 HK-1 | SHFX
   type: vmess
   server: 46.3.26.12
@@ -163,13 +170,12 @@ proxies:
   alterId: 0
   cipher: auto
   tls: true
-- name: 🇨🇳 CN-1 | SHFX
-  type: trojan
-  server: 36.151.251.23
-  port: 4451
-  password: BxceQaOe
-  network: tcp
-  skip-cert-verify: true
+- name: 🇲🇩 MD-1 | SHFX
+  type: ss
+  server: 185.153.197.5
+  port: 989
+  password: f8f7aCzcPKbsF8p3
+  cipher: aes-256-cfb
 - name: 🇨🇳 CN-2 | SHFX
   type: vmess
   server: v24.heduian.link
@@ -183,20 +189,18 @@ proxies:
     path: /oooo
   alterId: 2
   cipher: auto
-- name: 🇲🇩 MD-1 | SHFX
-  type: ss
-  server: 185.153.197.5
-  port: 989
-  password: f8f7aCzcPKbsF8p3
-  cipher: aes-256-cfb
+- name: 🇨🇳 CN-3 | SHFX
+  type: vmess
+  server: 139.129.20.6
+  port: 50002
+  uuid: 418048af-a293-4b99-9b0c-98ca3580dd24
+  network: tcp
+  skip-cert-verify: true
+  alterId: 0
+  cipher: auto
+  tfo: true
+  udp: true
 - name: 🇯🇵 JP-2 | SHFX
-  type: trojan
-  server: 160.16.89.176
-  port: 2381
-  password: ea39fa94f1ee00999337ea1fd3318e69
-  sni: www.nintendogames.net
-  skip-cert-verify: false
-- name: 🇯🇵 JP-3 | SHFX
   type: trojan
   server: 37.202.200.19
   port: 15013
@@ -206,21 +210,10 @@ proxies:
   alterId: 0
   tls: true
   udp: true
-- name: 🇨🇳 CN-3 | SHFX
+- name: 🇨🇳 CN-4 | SHFX
   type: vmess
   server: 39.107.155.11
   port: 30302
-  uuid: 418048af-a293-4b99-9b0c-98ca3580dd24
-  network: tcp
-  skip-cert-verify: true
-  alterId: 0
-  cipher: auto
-  tfo: true
-  udp: true
-- name: 🇨🇳 CN-4 | SHFX
-  type: vmess
-  server: 139.129.20.6
-  port: 50002
   uuid: 418048af-a293-4b99-9b0c-98ca3580dd24
   network: tcp
   skip-cert-verify: true
@@ -363,7 +356,7 @@ proxies:
       Host: snippet.danfeng.site
   tls: true
   tfo: false
-- name: 🇯🇵 JP-4 | SHFX
+- name: 🇯🇵 JP-3 | SHFX
   type: vless
   server: 103.160.100.111
   port: 21759
@@ -378,7 +371,7 @@ proxies:
       Host: snippet.danfeng.site
   tls: true
   tfo: false
-- name: 🇯🇵 JP-5 | SHFX
+- name: 🇯🇵 JP-4 | SHFX
   type: vless
   server: 210.79.150.3
   port: 44312
@@ -393,7 +386,7 @@ proxies:
       Host: snippet.danfeng.site
   tls: true
   tfo: false
-- name: 🇯🇵 JP-6 | SHFX
+- name: 🇯🇵 JP-5 | SHFX
   type: vless
   server: 154.31.113.99
   port: 30443
@@ -408,7 +401,7 @@ proxies:
       Host: snippet.danfeng.site
   tls: true
   tfo: false
-- name: 🇯🇵 JP-7 | SHFX
+- name: 🇯🇵 JP-6 | SHFX
   type: vless
   server: 178.157.63.141
   port: 50427
@@ -423,7 +416,7 @@ proxies:
       Host: snippet.danfeng.site
   tls: true
   tfo: false
-- name: 🇯🇵 JP-8 | SHFX
+- name: 🇯🇵 JP-7 | SHFX
   type: vless
   server: 103.137.215.61
   port: 52866
@@ -438,7 +431,7 @@ proxies:
       Host: snippet.danfeng.site
   tls: true
   tfo: false
-- name: 🇯🇵 JP-9 | SHFX
+- name: 🇯🇵 JP-8 | SHFX
   type: vless
   server: 141.98.198.209
   port: 50242
@@ -453,7 +446,7 @@ proxies:
       Host: snippet.danfeng.site
   tls: true
   tfo: false
-- name: 🇯🇵 JP-10 | SHFX
+- name: 🇯🇵 JP-9 | SHFX
   type: vless
   server: 212.50.253.184
   port: 33033
@@ -468,7 +461,7 @@ proxies:
       Host: snippet.danfeng.site
   tls: true
   tfo: false
-- name: 🇯🇵 JP-11 | SHFX
+- name: 🇯🇵 JP-10 | SHFX
   type: vless
   server: 45.14.64.185
   port: 39738
@@ -729,16 +722,15 @@ proxy-groups:
     type: select
     proxies:
       - 自动选择⚡️
-      - 🇯🇵 JP-1 | SHFX
-      - 🇻🇳 VN-1 | SHFX
-      - 🇺🇸 US-1 | SHFX
-      - 🇭🇰 HK-1 | SHFX
       - 🇨🇳 CN-1 | SHFX
-      - 🇨🇳 CN-2 | SHFX
+      - 🇯🇵 JP-1 | SHFX
+      - 🇺🇸 US-1 | SHFX
+      - 🇻🇳 VN-1 | SHFX
+      - 🇭🇰 HK-1 | SHFX
       - 🇲🇩 MD-1 | SHFX
-      - 🇯🇵 JP-2 | SHFX
-      - 🇯🇵 JP-3 | SHFX
+      - 🇨🇳 CN-2 | SHFX
       - 🇨🇳 CN-3 | SHFX
+      - 🇯🇵 JP-2 | SHFX
       - 🇨🇳 CN-4 | SHFX
       - 🇨🇳 CN-5 | SHFX
       - 🇰🇷 KR-1 | SHFX
@@ -750,6 +742,7 @@ proxy-groups:
       - 🇭🇰 HK-4 | SHFX
       - 🇭🇰 HK-5 | SHFX
       - 🇭🇰 HK-6 | SHFX
+      - 🇯🇵 JP-3 | SHFX
       - 🇯🇵 JP-4 | SHFX
       - 🇯🇵 JP-5 | SHFX
       - 🇯🇵 JP-6 | SHFX
@@ -757,7 +750,6 @@ proxy-groups:
       - 🇯🇵 JP-8 | SHFX
       - 🇯🇵 JP-9 | SHFX
       - 🇯🇵 JP-10 | SHFX
-      - 🇯🇵 JP-11 | SHFX
       - 🇸🇬 SG-1 | SHFX
       - 🇸🇬 SG-2 | SHFX
       - 🇨🇳 CN-6 | SHFX
@@ -777,16 +769,15 @@ proxy-groups:
   - name: 自动选择⚡️
     type: url-test
     proxies:
-      - 🇯🇵 JP-1 | SHFX
-      - 🇻🇳 VN-1 | SHFX
-      - 🇺🇸 US-1 | SHFX
-      - 🇭🇰 HK-1 | SHFX
       - 🇨🇳 CN-1 | SHFX
-      - 🇨🇳 CN-2 | SHFX
+      - 🇯🇵 JP-1 | SHFX
+      - 🇺🇸 US-1 | SHFX
+      - 🇻🇳 VN-1 | SHFX
+      - 🇭🇰 HK-1 | SHFX
       - 🇲🇩 MD-1 | SHFX
-      - 🇯🇵 JP-2 | SHFX
-      - 🇯🇵 JP-3 | SHFX
+      - 🇨🇳 CN-2 | SHFX
       - 🇨🇳 CN-3 | SHFX
+      - 🇯🇵 JP-2 | SHFX
       - 🇨🇳 CN-4 | SHFX
       - 🇨🇳 CN-5 | SHFX
       - 🇰🇷 KR-1 | SHFX
@@ -798,6 +789,7 @@ proxy-groups:
       - 🇭🇰 HK-4 | SHFX
       - 🇭🇰 HK-5 | SHFX
       - 🇭🇰 HK-6 | SHFX
+      - 🇯🇵 JP-3 | SHFX
       - 🇯🇵 JP-4 | SHFX
       - 🇯🇵 JP-5 | SHFX
       - 🇯🇵 JP-6 | SHFX
@@ -805,7 +797,6 @@ proxy-groups:
       - 🇯🇵 JP-8 | SHFX
       - 🇯🇵 JP-9 | SHFX
       - 🇯🇵 JP-10 | SHFX
-      - 🇯🇵 JP-11 | SHFX
       - 🇸🇬 SG-1 | SHFX
       - 🇸🇬 SG-2 | SHFX
       - 🇨🇳 CN-6 | SHFX
