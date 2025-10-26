@@ -1,4 +1,4 @@
-# Last update: 27.10.2025 04:44:52
+# Last update: 27.10.2025 05:09:01
 mixed-port: 7897
 allow-lan: false
 mode: rule
@@ -130,37 +130,30 @@ proxies:
   skip-cert-verify: true
 - name: 🇨🇳 CN-1 | SHFX
   type: trojan
-  server: 36.151.251.23
-  port: 4451
+  server: 36.151.251.35
+  port: 24392
   password: BxceQaOe
+  network: tcp
   skip-cert-verify: true
   udp: true
 - name: 🇨🇳 CN-2 | SHFX
   type: trojan
-  server: 36.151.251.35
-  port: 24392
+  server: 36.151.251.23
+  port: 4451
   password: BxceQaOe
+  network: tcp
   skip-cert-verify: true
   udp: true
-- name: 🇬🇧 GB-1 | SHFX
+- name: 🇳🇱 NL-1 | SHFX
   type: hysteria2
-  server: adas-polo-ba-mahi.kotlet.org
-  port: 2083
-  password: siEk2SjZFG
-  sni: ghasem.kotlet.org
+  server: net2025.afsharidempire.uk
+  port: 30205
+  password: 8864aa9f-7517-4fd5-aef1-32050eb3095d
+  sni: net2025.afsharidempire.uk
   skip-cert-verify: false
-  auth: siEk2SjZFG
+  auth: 8864aa9f-7517-4fd5-aef1-32050eb3095d
   obfs: salamander
-  obfs-password: ki(rtoko(s-maret-khamneii
-- name: 🇨🇳 CN-3 | SHFX
-  type: trojan
-  server: 36.150.215.241
-  port: 26373
-  password: BxceQaOe
-  skip-cert-verify: true
-  alterId: 0
-  tls: true
-  udp: true
+  obfs-password: GdQ4bgvT8RFwuWi2
 - name: 🇺🇸 US-1 | SHFX
   type: vmess
   server: 154.17.227.158
@@ -174,6 +167,15 @@ proxies:
   alterId: 0
   cipher: auto
   tls: true
+- name: 🇨🇳 CN-3 | SHFX
+  type: trojan
+  server: 36.150.215.241
+  port: 26373
+  password: BxceQaOe
+  skip-cert-verify: true
+  alterId: 0
+  tls: true
+  udp: true
 - name: 🇻🇳 VN-1 | SHFX
   type: ss
   server: arxfw2b78fi2q9hzylhn.freesocks.work
@@ -196,44 +198,22 @@ proxies:
   alterId: 0
   cipher: auto
   tls: true
+- name: 🇸🇪 SE-1 | SHFX
+  type: hysteria2
+  server: 70.34.215.221
+  port: 20335
+  password: 80747420-96c4-4a2f-83e6-eea4e46beb09
+  sni: drhystuichdfy.samanidempire.org
+  skip-cert-verify: false
+  auth: 80747420-96c4-4a2f-83e6-eea4e46beb09
+  obfs: salamander
+  obfs-password: U1wBrYQyFm
 - name: 🇰🇷 KR-1 | SHFX
   type: ss
   server: p141.panda001.net
   port: 4652
   password: qwerREWQ@@
   cipher: aes-256-cfb
-- name: 🇳🇱 NL-1 | SHFX
-  type: hysteria2
-  server: net2025.afsharidempire.uk
-  port: 30205
-  password: 8864aa9f-7517-4fd5-aef1-32050eb3095d
-  sni: net2025.afsharidempire.uk
-  skip-cert-verify: false
-  auth: 8864aa9f-7517-4fd5-aef1-32050eb3095d
-  obfs: salamander
-  obfs-password: GdQ4bgvT8RFwuWi2
-- name: 🇨🇳 CN-4 | SHFX
-  type: vmess
-  server: 39.107.155.11
-  port: 30302
-  uuid: 418048af-a293-4b99-9b0c-98ca3580dd24
-  network: tcp
-  skip-cert-verify: true
-  alterId: 0
-  cipher: auto
-  tfo: true
-  udp: true
-- name: 🇨🇳 CN-5 | SHFX
-  type: vmess
-  server: 139.129.20.6
-  port: 50002
-  uuid: 418048af-a293-4b99-9b0c-98ca3580dd24
-  network: tcp
-  skip-cert-verify: true
-  alterId: 0
-  cipher: auto
-  tfo: true
-  udp: true
 - name: 🇺🇸 US-2 | SHFX
   type: vless
   server: cf-cname.xingpingcn.top
@@ -504,7 +484,7 @@ proxies:
       Host: snippet.danfeng.site
   tls: true
   tfo: false
-- name: 🇨🇳 CN-6 | SHFX
+- name: 🇨🇳 CN-4 | SHFX
   type: vless
   server: 141.11.87.155
   port: 17009
@@ -519,7 +499,7 @@ proxies:
       Host: snippet.danfeng.site
   tls: true
   tfo: false
-- name: 🇨🇳 CN-7 | SHFX
+- name: 🇨🇳 CN-5 | SHFX
   type: vless
   server: 213.210.5.61
   port: 8443
@@ -699,7 +679,7 @@ proxies:
       Host: snippet.danfeng.site
   tls: true
   tfo: false
-- name: 🇬🇧 GB-2 | SHFX
+- name: 🇬🇧 GB-1 | SHFX
   type: vless
   server: 91.149.203.109
   port: 39738
@@ -723,15 +703,13 @@ proxy-groups:
       - 🇭🇰 HK-1 | SHFX
       - 🇨🇳 CN-1 | SHFX
       - 🇨🇳 CN-2 | SHFX
-      - 🇬🇧 GB-1 | SHFX
-      - 🇨🇳 CN-3 | SHFX
+      - 🇳🇱 NL-1 | SHFX
       - 🇺🇸 US-1 | SHFX
+      - 🇨🇳 CN-3 | SHFX
       - 🇻🇳 VN-1 | SHFX
       - 🇭🇰 HK-2 | SHFX
+      - 🇸🇪 SE-1 | SHFX
       - 🇰🇷 KR-1 | SHFX
-      - 🇳🇱 NL-1 | SHFX
-      - 🇨🇳 CN-4 | SHFX
-      - 🇨🇳 CN-5 | SHFX
       - 🇺🇸 US-2 | SHFX
       - 🇺🇸 US-3 | SHFX
       - 🇰🇷 KR-2 | SHFX
@@ -750,8 +728,8 @@ proxy-groups:
       - 🇯🇵 JP-8 | SHFX
       - 🇸🇬 SG-1 | SHFX
       - 🇸🇬 SG-2 | SHFX
-      - 🇨🇳 CN-6 | SHFX
-      - 🇨🇳 CN-7 | SHFX
+      - 🇨🇳 CN-4 | SHFX
+      - 🇨🇳 CN-5 | SHFX
       - 🇺🇸 US-4 | SHFX
       - 🇺🇸 US-5 | SHFX
       - 🇺🇸 US-6 | SHFX
@@ -763,22 +741,20 @@ proxy-groups:
       - 🇺🇸 US-12 | SHFX
       - 🇺🇸 US-13 | SHFX
       - 🇺🇸 US-14 | SHFX
-      - 🇬🇧 GB-2 | SHFX
+      - 🇬🇧 GB-1 | SHFX
   - name: 自动选择⚡️
     type: url-test
     proxies:
       - 🇭🇰 HK-1 | SHFX
       - 🇨🇳 CN-1 | SHFX
       - 🇨🇳 CN-2 | SHFX
-      - 🇬🇧 GB-1 | SHFX
-      - 🇨🇳 CN-3 | SHFX
+      - 🇳🇱 NL-1 | SHFX
       - 🇺🇸 US-1 | SHFX
+      - 🇨🇳 CN-3 | SHFX
       - 🇻🇳 VN-1 | SHFX
       - 🇭🇰 HK-2 | SHFX
+      - 🇸🇪 SE-1 | SHFX
       - 🇰🇷 KR-1 | SHFX
-      - 🇳🇱 NL-1 | SHFX
-      - 🇨🇳 CN-4 | SHFX
-      - 🇨🇳 CN-5 | SHFX
       - 🇺🇸 US-2 | SHFX
       - 🇺🇸 US-3 | SHFX
       - 🇰🇷 KR-2 | SHFX
@@ -797,8 +773,8 @@ proxy-groups:
       - 🇯🇵 JP-8 | SHFX
       - 🇸🇬 SG-1 | SHFX
       - 🇸🇬 SG-2 | SHFX
-      - 🇨🇳 CN-6 | SHFX
-      - 🇨🇳 CN-7 | SHFX
+      - 🇨🇳 CN-4 | SHFX
+      - 🇨🇳 CN-5 | SHFX
       - 🇺🇸 US-4 | SHFX
       - 🇺🇸 US-5 | SHFX
       - 🇺🇸 US-6 | SHFX
@@ -810,7 +786,7 @@ proxy-groups:
       - 🇺🇸 US-12 | SHFX
       - 🇺🇸 US-13 | SHFX
       - 🇺🇸 US-14 | SHFX
-      - 🇬🇧 GB-2 | SHFX
+      - 🇬🇧 GB-1 | SHFX
     url: https://www.gstatic.com/generate_204
     interval: 300
 rules:
