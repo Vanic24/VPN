@@ -1,4 +1,4 @@
-# Last update: 27.10.2025 14:08:21
+# Last update: 27.10.2025 14:53:10
 mixed-port: 7897
 allow-lan: false
 mode: rule
@@ -121,16 +121,22 @@ dns:
       - +.googleapis.com
       - +.gvt1.com
 proxies:
+- name: 🇺🇸 US-1 | SHFX
+  type: hysteria2
+  server: 108.165.213.197
+  port: 23891
+  password: c232f411-96b5-4b07-b2f7-66a434725ffb
+  sni: fus01.mistea.top
+  skip-cert-verify: false
+  auth: c232f411-96b5-4b07-b2f7-66a434725ffb
 - name: 🇨🇳 CN-1 | SHFX
   type: trojan
   server: 36.151.251.23
   port: 4451
   password: BxceQaOe
   skip-cert-verify: true
-  alterId: 0
-  tls: true
   udp: true
-- name: 🇺🇸 US-1 | SHFX
+- name: 🇺🇸 US-2 | SHFX
   type: vmess
   server: 154.17.227.158
   port: 443
@@ -148,9 +154,8 @@ proxies:
   server: 36.151.251.35
   port: 24392
   password: BxceQaOe
+  network: tcp
   skip-cert-verify: true
-  alterId: 0
-  tls: true
   udp: true
 - name: 🇭🇰 HK-1 | SHFX
   type: vmess
@@ -165,23 +170,19 @@ proxies:
   alterId: 0
   cipher: auto
   tls: true
-- name: 🇺🇸 US-2 | SHFX
-  type: hysteria2
-  server: 108.165.213.197
-  port: 23891
-  password: c232f411-96b5-4b07-b2f7-66a434725ffb
-  sni: fus01.mistea.top
-  skip-cert-verify: false
-  auth: c232f411-96b5-4b07-b2f7-66a434725ffb
 - name: 🇭🇰 HK-2 | SHFX
   type: trojan
   server: 58.152.46.98
   port: 443
   password: BxceQaOe
+  network: tcp
   skip-cert-verify: true
-  alterId: 0
-  tls: true
-  udp: true
+- name: 🇻🇳 VN-1 | SHFX
+  type: ss
+  server: arxfw2b78fi2q9hzylhn.freesocks.work
+  port: 443
+  password: Nk9asglDzHzjktVzTkvhaA
+  cipher: chacha20-ietf-poly1305
 - name: 🇬🇧 GB-1 | SHFX
   type: vmess
   server: salamdash.bedonemarz.site
@@ -192,12 +193,12 @@ proxies:
   cipher: auto
   tls: false
   udp: true
-- name: 🇻🇳 VN-1 | SHFX
+- name: 🇲🇩 MD-1 | SHFX
   type: ss
-  server: arxfw2b78fi2q9hzylhn.freesocks.work
-  port: 443
-  password: Nk9asglDzHzjktVzTkvhaA
-  cipher: chacha20-ietf-poly1305
+  server: 185.153.197.5
+  port: 989
+  password: f8f7aCzcPKbsF8p3
+  cipher: aes-256-cfb
 - name: 🇨🇳 CN-3 | SHFX
   type: vmess
   server: v24.heduian.link
@@ -211,22 +212,7 @@ proxies:
     path: /oooo
   alterId: 2
   cipher: auto
-- name: 🇲🇩 MD-1 | SHFX
-  type: ss
-  server: 185.153.197.5
-  port: 989
-  password: f8f7aCzcPKbsF8p3
-  cipher: aes-256-cfb
 - name: 🇨🇳 CN-4 | SHFX
-  type: vmess
-  server: 112.132.215.34
-  port: 50007
-  uuid: 418048af-a293-4b99-9b0c-98ca3580dd24
-  network: tcp
-  skip-cert-verify: true
-  alterId: 0
-  cipher: auto
-- name: 🇨🇳 CN-5 | SHFX
   type: vmess
   server: 139.129.20.6
   port: 50002
@@ -237,7 +223,7 @@ proxies:
   cipher: auto
   tfo: true
   udp: true
-- name: 🇨🇳 CN-6 | SHFX
+- name: 🇨🇳 CN-5 | SHFX
   type: vmess
   server: 106.14.75.114
   port: 50002
@@ -246,7 +232,7 @@ proxies:
   skip-cert-verify: true
   alterId: 0
   cipher: auto
-- name: 🇨🇳 CN-7 | SHFX
+- name: 🇨🇳 CN-6 | SHFX
   type: vmess
   server: 39.107.155.11
   port: 30302
@@ -256,6 +242,21 @@ proxies:
   alterId: 0
   cipher: auto
   tfo: true
+  udp: true
+- name: 🇨🇳 CN-7 | SHFX
+  type: vmess
+  server: v39.heduian.link
+  port: 30839
+  uuid: cbb3f877-d1fb-344c-87a9-d153bffd5484
+  network: ws
+  skip-cert-verify: true
+  ws-opts:
+    headers:
+      Host: baidu.com
+    path: /oooo
+  alterId: 2
+  cipher: auto
+  tls: false
   udp: true
 - name: 🇺🇸 US-3 | SHFX
   type: vless
@@ -743,16 +744,16 @@ proxy-groups:
     type: select
     proxies:
       - 自动选择⚡️
-      - 🇨🇳 CN-1 | SHFX
       - 🇺🇸 US-1 | SHFX
+      - 🇨🇳 CN-1 | SHFX
+      - 🇺🇸 US-2 | SHFX
       - 🇨🇳 CN-2 | SHFX
       - 🇭🇰 HK-1 | SHFX
-      - 🇺🇸 US-2 | SHFX
       - 🇭🇰 HK-2 | SHFX
-      - 🇬🇧 GB-1 | SHFX
       - 🇻🇳 VN-1 | SHFX
-      - 🇨🇳 CN-3 | SHFX
+      - 🇬🇧 GB-1 | SHFX
       - 🇲🇩 MD-1 | SHFX
+      - 🇨🇳 CN-3 | SHFX
       - 🇨🇳 CN-4 | SHFX
       - 🇨🇳 CN-5 | SHFX
       - 🇨🇳 CN-6 | SHFX
@@ -792,16 +793,16 @@ proxy-groups:
   - name: 自动选择⚡️
     type: url-test
     proxies:
-      - 🇨🇳 CN-1 | SHFX
       - 🇺🇸 US-1 | SHFX
+      - 🇨🇳 CN-1 | SHFX
+      - 🇺🇸 US-2 | SHFX
       - 🇨🇳 CN-2 | SHFX
       - 🇭🇰 HK-1 | SHFX
-      - 🇺🇸 US-2 | SHFX
       - 🇭🇰 HK-2 | SHFX
-      - 🇬🇧 GB-1 | SHFX
       - 🇻🇳 VN-1 | SHFX
-      - 🇨🇳 CN-3 | SHFX
+      - 🇬🇧 GB-1 | SHFX
       - 🇲🇩 MD-1 | SHFX
+      - 🇨🇳 CN-3 | SHFX
       - 🇨🇳 CN-4 | SHFX
       - 🇨🇳 CN-5 | SHFX
       - 🇨🇳 CN-6 | SHFX
