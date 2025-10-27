@@ -1,4 +1,4 @@
-# Last update: 27.10.2025 12:12:46
+# Last update: 27.10.2025 12:57:54
 mixed-port: 7897
 allow-lan: false
 mode: rule
@@ -129,18 +129,12 @@ proxies:
   sni: fus01.mistea.top
   skip-cert-verify: false
   auth: c232f411-96b5-4b07-b2f7-66a434725ffb
-- name: 🇭🇰 HK-1 | SHFX
-  type: trojan
-  server: 58.152.46.98
-  port: 443
-  password: BxceQaOe
-  network: tcp
-  skip-cert-verify: true
 - name: 🇨🇳 CN-1 | SHFX
   type: trojan
   server: 36.151.251.23
   port: 4451
   password: BxceQaOe
+  network: tcp
   skip-cert-verify: true
   udp: true
 - name: 🇨🇳 CN-2 | SHFX
@@ -150,6 +144,15 @@ proxies:
   password: BxceQaOe
   network: tcp
   skip-cert-verify: true
+  udp: true
+- name: 🇭🇰 HK-1 | SHFX
+  type: trojan
+  server: 58.152.46.98
+  port: 443
+  password: BxceQaOe
+  skip-cert-verify: true
+  alterId: 0
+  tls: true
   udp: true
 - name: 🇺🇸 US-2 | SHFX
   type: vmess
@@ -164,13 +167,18 @@ proxies:
   alterId: 0
   cipher: auto
   tls: true
-- name: 🇬🇧 GB-1 | SHFX
+- name: 🇨🇳 CN-3 | SHFX
   type: vmess
-  server: salamdash.bedonemarz.site
-  port: 444
-  uuid: 89de8c17-9b41-4632-9a0b-440f850548fd
+  server: v29.heduian.link
+  port: 30829
+  uuid: cbb3f877-d1fb-344c-87a9-d153bffd5484
+  network: ws
   skip-cert-verify: false
-  alterId: 0
+  ws-opts:
+    headers:
+      Host: v29.heduian.link
+    path: /oooo
+  alterId: 2
   cipher: auto
   tls: false
   udp: true
@@ -192,22 +200,10 @@ proxies:
   server: arxfw2b78fi2q9hzylhn.freesocks.work
   port: 443
   password: Nk9asglDzHzjktVzTkvhaA
+  skip-cert-verify: true
+  alterId: 0
   cipher: chacha20-ietf-poly1305
-- name: 🇨🇳 CN-3 | SHFX
-  type: vmess
-  server: v29.heduian.link
-  port: 30829
-  uuid: cbb3f877-d1fb-344c-87a9-d153bffd5484
-  network: ws
-  skip-cert-verify: false
-  ws-opts:
-    headers:
-      Host: v29.heduian.link
-    path: /oooo
-  alterId: 2
-  cipher: auto
-  tls: false
-  udp: true
+  tls: true
 - name: 🇳🇱 NL-1 | SHFX
   type: hysteria2
   server: net2025.afsharidempire.uk
@@ -218,6 +214,16 @@ proxies:
   auth: 8864aa9f-7517-4fd5-aef1-32050eb3095d
   obfs: salamander
   obfs-password: GdQ4bgvT8RFwuWi2
+- name: 🇬🇧 GB-1 | SHFX
+  type: vmess
+  server: salamdash.bedonemarz.site
+  port: 444
+  uuid: 89de8c17-9b41-4632-9a0b-440f850548fd
+  skip-cert-verify: false
+  alterId: 0
+  cipher: auto
+  tls: false
+  udp: true
 - name: 🇨🇳 CN-4 | SHFX
   type: vmess
   server: 106.14.75.114
@@ -240,6 +246,17 @@ proxies:
   udp: true
 - name: 🇨🇳 CN-6 | SHFX
   type: vmess
+  server: 139.129.20.6
+  port: 50002
+  uuid: 418048af-a293-4b99-9b0c-98ca3580dd24
+  network: tcp
+  skip-cert-verify: true
+  alterId: 0
+  cipher: auto
+  tfo: true
+  udp: true
+- name: 🇨🇳 CN-7 | SHFX
+  type: vmess
   server: v6.heduian.link
   port: 30806
   uuid: cbb3f877-d1fb-344c-87a9-d153bffd5484
@@ -253,13 +270,6 @@ proxies:
   cipher: auto
   tfo: false
   tls: false
-- name: 🇨🇳 CN-7 | SHFX
-  type: trojan
-  server: 36.150.215.241
-  port: 1924
-  password: BxceQaOe
-  network: tcp
-  skip-cert-verify: true
 - name: 🇺🇸 US-3 | SHFX
   type: vless
   server: cf-cname.xingpingcn.top
@@ -747,15 +757,15 @@ proxy-groups:
     proxies:
       - 自动选择⚡️
       - 🇺🇸 US-1 | SHFX
-      - 🇭🇰 HK-1 | SHFX
       - 🇨🇳 CN-1 | SHFX
       - 🇨🇳 CN-2 | SHFX
+      - 🇭🇰 HK-1 | SHFX
       - 🇺🇸 US-2 | SHFX
-      - 🇬🇧 GB-1 | SHFX
+      - 🇨🇳 CN-3 | SHFX
       - 🇭🇰 HK-2 | SHFX
       - 🇻🇳 VN-1 | SHFX
-      - 🇨🇳 CN-3 | SHFX
       - 🇳🇱 NL-1 | SHFX
+      - 🇬🇧 GB-1 | SHFX
       - 🇨🇳 CN-4 | SHFX
       - 🇨🇳 CN-5 | SHFX
       - 🇨🇳 CN-6 | SHFX
@@ -796,15 +806,15 @@ proxy-groups:
     type: url-test
     proxies:
       - 🇺🇸 US-1 | SHFX
-      - 🇭🇰 HK-1 | SHFX
       - 🇨🇳 CN-1 | SHFX
       - 🇨🇳 CN-2 | SHFX
+      - 🇭🇰 HK-1 | SHFX
       - 🇺🇸 US-2 | SHFX
-      - 🇬🇧 GB-1 | SHFX
+      - 🇨🇳 CN-3 | SHFX
       - 🇭🇰 HK-2 | SHFX
       - 🇻🇳 VN-1 | SHFX
-      - 🇨🇳 CN-3 | SHFX
       - 🇳🇱 NL-1 | SHFX
+      - 🇬🇧 GB-1 | SHFX
       - 🇨🇳 CN-4 | SHFX
       - 🇨🇳 CN-5 | SHFX
       - 🇨🇳 CN-6 | SHFX
