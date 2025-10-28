@@ -1,4 +1,4 @@
-# Last update: 28.10.2025 15:48:00
+# Last update: 28.10.2025 16:11:01
 mixed-port: 7897
 allow-lan: false
 mode: rule
@@ -151,13 +151,6 @@ proxies:
   cipher: auto
   tls: true
 - name: 🇭🇰 HK-1 | SHFX
-  type: trojan
-  server: 58.152.46.98
-  port: 443
-  password: BxceQaOe
-  skip-cert-verify: true
-  client-fingerprint: chrome
-- name: 🇭🇰 HK-2 | SHFX
   type: vmess
   server: 46.3.26.12
   port: 443
@@ -170,27 +163,14 @@ proxies:
   alterId: 0
   cipher: auto
   tls: true
-- name: 🇨🇳 CN-1 | SHFX
-  type: ss
-  server: 113.99.143.139
-  port: 26470
-  password: b637f2e47b7827b308ebf399008075d2
-  cipher: aes-128-gcm
-  tfo: false
-- name: 🇨🇳 CN-2 | SHFX
-  type: vmess
-  server: v24.heduian.link
-  port: 30824
-  uuid: cbb3f877-d1fb-344c-87a9-d153bffd5484
-  network: ws
+- name: 🇭🇰 HK-2 | SHFX
+  type: trojan
+  server: 58.152.46.98
+  port: 443
+  password: BxceQaOe
   skip-cert-verify: true
-  ws-opts:
-    headers:
-      Host: v24.heduian.link
-    path: /oooo
-  alterId: 2
-  cipher: auto
-- name: 🇨🇳 CN-3 | SHFX
+  client-fingerprint: chrome
+- name: 🇨🇳 CN-1 | SHFX
   type: vmess
   server: v39.heduian.link
   port: 30839
@@ -211,18 +191,13 @@ proxies:
   port: 989
   password: f8f7aCzcPKbsF8p3
   cipher: aes-256-cfb
-- name: 🇨🇳 CN-4 | SHFX
-  type: vmess
-  server: 139.129.20.6
-  port: 50002
-  uuid: 418048af-a293-4b99-9b0c-98ca3580dd24
-  network: tcp
-  skip-cert-verify: true
-  alterId: 0
-  cipher: auto
-  tfo: true
-  udp: true
-- name: 🇨🇳 CN-5 | SHFX
+- name: 🇨🇳 CN-2 | SHFX
+  type: ss
+  server: 113.99.143.139
+  port: 26470
+  password: b637f2e47b7827b308ebf399008075d2
+  cipher: aes-128-gcm
+- name: 🇨🇳 CN-3 | SHFX
   type: vmess
   server: 39.107.155.11
   port: 30302
@@ -233,7 +208,7 @@ proxies:
   cipher: auto
   tfo: true
   udp: true
-- name: 🇨🇳 CN-6 | SHFX
+- name: 🇨🇳 CN-4 | SHFX
   type: vmess
   server: 106.14.75.114
   port: 50002
@@ -242,18 +217,30 @@ proxies:
   skip-cert-verify: true
   alterId: 0
   cipher: auto
-- name: 🇩🇪 DE-1 | SHFX
-  type: ss
-  server: 95.163.176.37
-  port: 8506
-  password: eUh4lSpi7nOYj0vSrqLUh0
-  cipher: chacha20-ietf-poly1305
-- name: 🇳🇱 NL-1 | SHFX
-  type: ss
-  server: 151.242.251.147
-  port: 8080
-  password: QCXDxuDlTTMD7jtgHUjIoj
-  cipher: chacha20-ietf-poly1305
+- name: 🇨🇳 CN-5 | SHFX
+  type: vmess
+  server: 139.129.20.6
+  port: 50002
+  uuid: 418048af-a293-4b99-9b0c-98ca3580dd24
+  network: tcp
+  skip-cert-verify: true
+  alterId: 0
+  cipher: auto
+  tfo: true
+  udp: true
+- name: 🇨🇳 CN-6 | SHFX
+  type: vmess
+  server: v24.heduian.link
+  port: 30824
+  uuid: cbb3f877-d1fb-344c-87a9-d153bffd5484
+  network: ws
+  skip-cert-verify: true
+  ws-opts:
+    headers:
+      Host: v24.heduian.link
+    path: /oooo
+  alterId: 2
+  cipher: auto
 - name: 🇺🇸 US-4 | SHFX
   type: vless
   server: cf-cname.xingpingcn.top
@@ -746,14 +733,12 @@ proxy-groups:
       - 🇭🇰 HK-1 | SHFX
       - 🇭🇰 HK-2 | SHFX
       - 🇨🇳 CN-1 | SHFX
+      - 🇲🇩 MD-1 | SHFX
       - 🇨🇳 CN-2 | SHFX
       - 🇨🇳 CN-3 | SHFX
-      - 🇲🇩 MD-1 | SHFX
       - 🇨🇳 CN-4 | SHFX
       - 🇨🇳 CN-5 | SHFX
       - 🇨🇳 CN-6 | SHFX
-      - 🇩🇪 DE-1 | SHFX
-      - 🇳🇱 NL-1 | SHFX
       - 🇺🇸 US-4 | SHFX
       - 🇺🇸 US-5 | SHFX
       - 🇰🇷 KR-1 | SHFX
@@ -795,14 +780,12 @@ proxy-groups:
       - 🇭🇰 HK-1 | SHFX
       - 🇭🇰 HK-2 | SHFX
       - 🇨🇳 CN-1 | SHFX
+      - 🇲🇩 MD-1 | SHFX
       - 🇨🇳 CN-2 | SHFX
       - 🇨🇳 CN-3 | SHFX
-      - 🇲🇩 MD-1 | SHFX
       - 🇨🇳 CN-4 | SHFX
       - 🇨🇳 CN-5 | SHFX
       - 🇨🇳 CN-6 | SHFX
-      - 🇩🇪 DE-1 | SHFX
-      - 🇳🇱 NL-1 | SHFX
       - 🇺🇸 US-4 | SHFX
       - 🇺🇸 US-5 | SHFX
       - 🇰🇷 KR-1 | SHFX
