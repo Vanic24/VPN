@@ -1,4 +1,4 @@
-# Last update: 29.10.2025 04:07:47
+# Last update: 29.10.2025 04:45:55
 mixed-port: 7897
 allow-lan: false
 mode: rule
@@ -126,10 +126,8 @@ proxies:
   server: 58.152.46.98
   port: 443
   password: BxceQaOe
+  network: tcp
   skip-cert-verify: true
-  alterId: 0
-  tls: true
-  udp: true
 - name: 🇺🇸 US-1 | SHFX
   type: hysteria2
   server: 108.165.213.197
@@ -138,6 +136,12 @@ proxies:
   sni: fus01.mistea.top
   skip-cert-verify: false
   auth: c232f411-96b5-4b07-b2f7-66a434725ffb
+- name: 🇰🇷 KR-1 | SHFX
+  type: ss
+  server: p141.panda001.net
+  port: 4652
+  password: qwerREWQ@@
+  cipher: aes-256-cfb
 - name: 🇺🇸 US-2 | SHFX
   type: vmess
   server: 154.17.227.158
@@ -166,72 +170,6 @@ proxies:
   tls: true
 - name: 🇨🇳 CN-1 | SHFX
   type: vmess
-  server: v9.heduian.link
-  port: '30809'
-  uuid: cbb3f877-d1fb-344c-87a9-d153bffd5484
-  network: ws
-  servername: ''
-  skip-cert-verify: false
-  ws-opts:
-    headers:
-      Host: baidu.com
-    path: /oooo
-  alterId: 2
-  cipher: auto
-  tfo: false
-  tls: false
-- name: 🇨🇳 CN-2 | SHFX
-  type: trojan
-  server: oss-cn-shanghai.letssepub.com
-  port: 20021
-  password: adbac894-90b9-4913-b77e-a715a8d4ebc8
-  network: tcp
-  sni: dingding-doc.com
-  skip-cert-verify: false
-- name: 🇳🇱 NL-1 | SHFX
-  type: hysteria2
-  server: 185.92.220.240
-  port: 30205
-  password: 8864aa9f-7517-4fd5-aef1-32050eb3095d
-  sni: net2025.afsharidempire.uk
-  skip-cert-verify: false
-  auth: 8864aa9f-7517-4fd5-aef1-32050eb3095d
-  obfs: salamander
-  obfs-password: GdQ4bgvT8RFwuWi2
-- name: 🇨🇦 CA-1 | SHFX
-  type: ss
-  server: 35.183.43.124
-  port: 443
-  password: amazonskr05
-  cipher: aes-256-cfb
-- name: 🇭🇰 HK-3 | SHFX
-  type: vmess
-  server: v10.heduian.link
-  port: 30807
-  uuid: cbb3f877-d1fb-344c-87a9-d153bffd5484
-  network: ws
-  skip-cert-verify: true
-  ws-opts:
-    headers:
-      Host: v10.heduian.link
-    path: /oooo
-  alterId: 2
-  cipher: auto
-- name: 🇨🇳 CN-3 | SHFX
-  type: vmess
-  server: v24.heduian.link
-  port: 30824
-  uuid: cbb3f877-d1fb-344c-87a9-d153bffd5484
-  network: ws
-  skip-cert-verify: true
-  ws-opts:
-    headers:
-      Host: v24.heduian.link
-    path: /oooo
-  alterId: 2
-  cipher: auto
-- name: 🇨🇳 CN-4 | SHFX
-  type: vmess
   server: v39.heduian.link
   port: 30839
   uuid: cbb3f877-d1fb-344c-87a9-d153bffd5484
@@ -245,6 +183,29 @@ proxies:
   cipher: auto
   tls: false
   udp: true
+- name: 🇨🇳 CN-2 | SHFX
+  type: vmess
+  server: v9.heduian.link
+  port: 30809
+  uuid: cbb3f877-d1fb-344c-87a9-d153bffd5484
+  network: ws
+  skip-cert-verify: false
+  ws-opts:
+    headers:
+      Host: baidu.com
+    path: /oooo
+  alterId: 2
+  cipher: auto
+  tfo: false
+  tls: false
+- name: 🇨🇳 CN-3 | SHFX
+  type: trojan
+  server: oss-cn-shanghai.letssepub.com
+  port: 20021
+  password: adbac894-90b9-4913-b77e-a715a8d4ebc8
+  network: tcp
+  sni: dingding-doc.com
+  skip-cert-verify: false
 - name: 🇸🇪 SE-1 | SHFX
   type: hysteria2
   server: drhystuichdfy.samanidempire.org
@@ -255,23 +216,79 @@ proxies:
   auth: 80747420-96c4-4a2f-83e6-eea4e46beb09
   obfs: salamander
   obfs-password: U1wBrYQyFm
+- name: 🇨🇦 CA-1 | SHFX
+  type: ss
+  server: 35.183.43.124
+  port: 443
+  password: amazonskr05
+  cipher: aes-256-cfb
+- name: 🇨🇳 CN-4 | SHFX
+  type: vmess
+  server: v29.heduian.link
+  port: 30829
+  uuid: cbb3f877-d1fb-344c-87a9-d153bffd5484
+  network: ws
+  skip-cert-verify: false
+  ws-opts:
+    headers:
+      Host: v29.heduian.link
+    path: /oooo
+  alterId: 2
+  cipher: auto
+  tls: false
+  udp: true
 - name: 🇨🇳 CN-5 | SHFX
+  type: vmess
+  server: v24.heduian.link
+  port: 30824
+  uuid: cbb3f877-d1fb-344c-87a9-d153bffd5484
+  network: ws
+  skip-cert-verify: true
+  ws-opts:
+    headers:
+      Host: v24.heduian.link
+    path: /oooo
+  alterId: 2
+  cipher: auto
+- name: 🇨🇳 CN-6 | SHFX
   type: ss
   server: 113.99.143.139
   port: 26470
   password: b637f2e47b7827b308ebf399008075d2
   cipher: aes-128-gcm
-- name: 🇸🇪 SE-2 | SHFX
+- name: 🇭🇰 HK-3 | SHFX
+  type: vmess
+  server: v10.heduian.link
+  port: 30807
+  uuid: cbb3f877-d1fb-344c-87a9-d153bffd5484
+  network: ws
+  skip-cert-verify: true
+  ws-opts:
+    headers:
+      Host: v10.heduian.link
+    path: /oooo
+  alterId: 2
+  cipher: auto
+- name: 🇳🇱 NL-1 | SHFX
   type: hysteria2
-  server: 70.34.215.221
-  port: 20335
-  password: 80747420-96c4-4a2f-83e6-eea4e46beb09
-  sni: drhystuichdfy.samanidempire.org
+  server: 185.92.220.240
+  port: 30205
+  password: 8864aa9f-7517-4fd5-aef1-32050eb3095d
+  sni: net2025.afsharidempire.uk
   skip-cert-verify: false
-  auth: 80747420-96c4-4a2f-83e6-eea4e46beb09
+  auth: 8864aa9f-7517-4fd5-aef1-32050eb3095d
   obfs: salamander
-  obfs-password: U1wBrYQyFm
-- name: 🇨🇳 CN-6 | SHFX
+  obfs-password: GdQ4bgvT8RFwuWi2
+- name: 🇳🇱 NL-2 | SHFX
+  type: ss
+  server: switcher-nick-croquet.freesocks.work
+  port: 443
+  password: RFK38Cg7APneSB5cWDcpbm
+  skip-cert-verify: true
+  alterId: 0
+  cipher: chacha20-ietf-poly1305
+  tls: true
+- name: 🇨🇳 CN-7 | SHFX
   type: vmess
   server: 39.107.155.11
   port: 30302
@@ -282,15 +299,6 @@ proxies:
   cipher: auto
   tfo: true
   udp: true
-- name: 🇨🇳 CN-7 | SHFX
-  type: vmess
-  server: 106.14.75.114
-  port: 50002
-  uuid: 418048af-a293-4b99-9b0c-98ca3580dd24
-  network: tcp
-  skip-cert-verify: true
-  alterId: 0
-  cipher: auto
 - name: 🇺🇸 US-3 | SHFX
   type: vless
   server: cf-cname.xingpingcn.top
@@ -321,7 +329,7 @@ proxies:
       Host: snippet.danfeng.site
   tls: true
   tfo: false
-- name: 🇰🇷 KR-1 | SHFX
+- name: 🇰🇷 KR-2 | SHFX
   type: vless
   server: tp50000.kr.proxyip.fgfw.eu.org
   port: 50000
@@ -779,23 +787,24 @@ proxy-groups:
       - 自动选择⚡️
       - 🇭🇰 HK-1 | SHFX
       - 🇺🇸 US-1 | SHFX
+      - 🇰🇷 KR-1 | SHFX
       - 🇺🇸 US-2 | SHFX
       - 🇭🇰 HK-2 | SHFX
       - 🇨🇳 CN-1 | SHFX
       - 🇨🇳 CN-2 | SHFX
-      - 🇳🇱 NL-1 | SHFX
-      - 🇨🇦 CA-1 | SHFX
-      - 🇭🇰 HK-3 | SHFX
       - 🇨🇳 CN-3 | SHFX
-      - 🇨🇳 CN-4 | SHFX
       - 🇸🇪 SE-1 | SHFX
+      - 🇨🇦 CA-1 | SHFX
+      - 🇨🇳 CN-4 | SHFX
       - 🇨🇳 CN-5 | SHFX
-      - 🇸🇪 SE-2 | SHFX
       - 🇨🇳 CN-6 | SHFX
+      - 🇭🇰 HK-3 | SHFX
+      - 🇳🇱 NL-1 | SHFX
+      - 🇳🇱 NL-2 | SHFX
       - 🇨🇳 CN-7 | SHFX
       - 🇺🇸 US-3 | SHFX
       - 🇺🇸 US-4 | SHFX
-      - 🇰🇷 KR-1 | SHFX
+      - 🇰🇷 KR-2 | SHFX
       - 🇭🇰 HK-4 | SHFX
       - 🇭🇰 HK-5 | SHFX
       - 🇭🇰 HK-6 | SHFX
@@ -830,23 +839,24 @@ proxy-groups:
     proxies:
       - 🇭🇰 HK-1 | SHFX
       - 🇺🇸 US-1 | SHFX
+      - 🇰🇷 KR-1 | SHFX
       - 🇺🇸 US-2 | SHFX
       - 🇭🇰 HK-2 | SHFX
       - 🇨🇳 CN-1 | SHFX
       - 🇨🇳 CN-2 | SHFX
-      - 🇳🇱 NL-1 | SHFX
-      - 🇨🇦 CA-1 | SHFX
-      - 🇭🇰 HK-3 | SHFX
       - 🇨🇳 CN-3 | SHFX
-      - 🇨🇳 CN-4 | SHFX
       - 🇸🇪 SE-1 | SHFX
+      - 🇨🇦 CA-1 | SHFX
+      - 🇨🇳 CN-4 | SHFX
       - 🇨🇳 CN-5 | SHFX
-      - 🇸🇪 SE-2 | SHFX
       - 🇨🇳 CN-6 | SHFX
+      - 🇭🇰 HK-3 | SHFX
+      - 🇳🇱 NL-1 | SHFX
+      - 🇳🇱 NL-2 | SHFX
       - 🇨🇳 CN-7 | SHFX
       - 🇺🇸 US-3 | SHFX
       - 🇺🇸 US-4 | SHFX
-      - 🇰🇷 KR-1 | SHFX
+      - 🇰🇷 KR-2 | SHFX
       - 🇭🇰 HK-4 | SHFX
       - 🇭🇰 HK-5 | SHFX
       - 🇭🇰 HK-6 | SHFX
