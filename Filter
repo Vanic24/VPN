@@ -1,4 +1,4 @@
-# Last update: 29.10.2025 10:53:08
+# Last update: 29.10.2025 11:16:19
 mixed-port: 7897
 allow-lan: false
 mode: rule
@@ -130,31 +130,21 @@ proxies:
   skip-cert-verify: true
 - name: 🇺🇸 US-1 | SHFX
   type: hysteria2
-  server: 108.165.213.197
-  port: 23891
-  password: c232f411-96b5-4b07-b2f7-66a434725ffb
-  sni: fus01.mistea.top
-  skip-cert-verify: false
-  auth: c232f411-96b5-4b07-b2f7-66a434725ffb
-- name: 🇺🇸 US-2 | SHFX
-  type: hysteria2
   server: 38.45.89.97
   port: 23892
   password: c232f411-96b5-4b07-b2f7-66a434725ffb
   sni: fus02.mistea.top
   skip-cert-verify: false
   auth: c232f411-96b5-4b07-b2f7-66a434725ffb
-- name: 🇳🇱 NL-1 | SHFX
+- name: 🇺🇸 US-2 | SHFX
   type: hysteria2
-  server: net2025.afsharidempire.uk
-  port: 30205
-  password: 8864aa9f-7517-4fd5-aef1-32050eb3095d
-  sni: net2025.afsharidempire.uk
+  server: 108.165.213.197
+  port: 23891
+  password: c232f411-96b5-4b07-b2f7-66a434725ffb
+  sni: fus01.mistea.top
   skip-cert-verify: false
-  auth: 8864aa9f-7517-4fd5-aef1-32050eb3095d
-  obfs: salamander
-  obfs-password: GdQ4bgvT8RFwuWi2
-- name: 🇳🇱 NL-2 | SHFX
+  auth: c232f411-96b5-4b07-b2f7-66a434725ffb
+- name: 🇳🇱 NL-1 | SHFX
   type: hysteria2
   server: 185.92.220.240
   port: 30205
@@ -190,6 +180,12 @@ proxies:
   port: 989
   password: f8f7aCzcPKbsF8p3
   cipher: aes-256-cfb
+- name: 🇻🇳 VN-1 | SHFX
+  type: ss
+  server: arxfw2b78fi2q9hzylhn.freesocks.work
+  port: 443
+  password: Nk9asglDzHzjktVzTkvhaA
+  cipher: chacha20-ietf-poly1305
 - name: 🇺🇸 US-3 | SHFX
   type: vmess
   server: 154.17.227.158
@@ -202,15 +198,6 @@ proxies:
     path: /aa
   alterId: 0
   cipher: auto
-  tls: true
-- name: 🇻🇳 VN-1 | SHFX
-  type: ss
-  server: arxfw2b78fi2q9hzylhn.freesocks.work
-  port: 443
-  password: Nk9asglDzHzjktVzTkvhaA
-  skip-cert-verify: true
-  alterId: 0
-  cipher: chacha20-ietf-poly1305
   tls: true
 - name: 🇭🇰 HK-1 | SHFX
   type: vmess
@@ -234,13 +221,25 @@ proxies:
   alterId: 0
   tls: true
   udp: true
+- name: 🇳🇱 NL-2 | SHFX
+  type: hysteria2
+  server: net2025.afsharidempire.uk
+  port: 30205
+  password: 8864aa9f-7517-4fd5-aef1-32050eb3095d
+  sni: net2025.afsharidempire.uk
+  skip-cert-verify: false
+  auth: 8864aa9f-7517-4fd5-aef1-32050eb3095d
+  obfs: salamander
+  obfs-password: GdQ4bgvT8RFwuWi2
 - name: 🇨🇳 CN-2 | SHFX
-  type: ss
-  server: 113.99.143.139
-  port: 26470
-  password: b637f2e47b7827b308ebf399008075d2
-  cipher: aes-128-gcm
-  tfo: false
+  type: vmess
+  server: 106.14.75.114
+  port: 50002
+  uuid: 418048af-a293-4b99-9b0c-98ca3580dd24
+  network: tcp
+  skip-cert-verify: true
+  alterId: 0
+  cipher: auto
 - name: 🇺🇸 US-4 | SHFX
   type: vless
   server: cf-cname.xingpingcn.top
@@ -731,14 +730,14 @@ proxy-groups:
       - 🇺🇸 US-1 | SHFX
       - 🇺🇸 US-2 | SHFX
       - 🇳🇱 NL-1 | SHFX
-      - 🇳🇱 NL-2 | SHFX
       - 🇸🇪 SE-1 | SHFX
       - 🇸🇪 SE-2 | SHFX
       - 🇭🇷 HR-1 | SHFX
-      - 🇺🇸 US-3 | SHFX
       - 🇻🇳 VN-1 | SHFX
+      - 🇺🇸 US-3 | SHFX
       - 🇭🇰 HK-1 | SHFX
       - 🇭🇰 HK-2 | SHFX
+      - 🇳🇱 NL-2 | SHFX
       - 🇨🇳 CN-2 | SHFX
       - 🇺🇸 US-4 | SHFX
       - 🇺🇸 US-5 | SHFX
@@ -779,14 +778,14 @@ proxy-groups:
       - 🇺🇸 US-1 | SHFX
       - 🇺🇸 US-2 | SHFX
       - 🇳🇱 NL-1 | SHFX
-      - 🇳🇱 NL-2 | SHFX
       - 🇸🇪 SE-1 | SHFX
       - 🇸🇪 SE-2 | SHFX
       - 🇭🇷 HR-1 | SHFX
-      - 🇺🇸 US-3 | SHFX
       - 🇻🇳 VN-1 | SHFX
+      - 🇺🇸 US-3 | SHFX
       - 🇭🇰 HK-1 | SHFX
       - 🇭🇰 HK-2 | SHFX
+      - 🇳🇱 NL-2 | SHFX
       - 🇨🇳 CN-2 | SHFX
       - 🇺🇸 US-4 | SHFX
       - 🇺🇸 US-5 | SHFX
