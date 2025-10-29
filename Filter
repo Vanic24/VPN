@@ -1,4 +1,4 @@
-# Last update: 29.10.2025 15:18:02
+# Last update: 29.10.2025 15:47:19
 mixed-port: 7897
 allow-lan: false
 mode: rule
@@ -150,6 +150,7 @@ proxies:
   port: 989
   password: f8f7aCzcPKbsF8p3
   cipher: aes-256-cfb
+  udp: true
 - name: 🇺🇸 US-3 | SHFX
   type: vmess
   server: 154.17.227.158
@@ -181,17 +182,7 @@ proxies:
   server: arxfw2b78fi2q9hzylhn.freesocks.work
   port: 443
   password: Nk9asglDzHzjktVzTkvhaA
-  skip-cert-verify: true
-  alterId: 0
   cipher: chacha20-ietf-poly1305
-  tls: true
-- name: 🇭🇰 HK-3 | SHFX
-  type: trojan
-  server: 58.152.46.98
-  port: 443
-  password: BxceQaOe
-  skip-cert-verify: true
-  client-fingerprint: chrome
 - name: 🇨🇳 CN-1 | SHFX
   type: trojan
   server: 36.156.102.72
@@ -204,10 +195,21 @@ proxies:
   server: 113.99.143.139
   port: 26470
   password: b637f2e47b7827b308ebf399008075d2
-  skip-cert-verify: true
-  alterId: 0
   cipher: aes-128-gcm
-  tls: true
+  tfo: false
+- name: 🇭🇰 HK-3 | SHFX
+  type: trojan
+  server: 58.152.46.98
+  port: 443
+  password: BxceQaOe
+  skip-cert-verify: true
+  client-fingerprint: chrome
+- name: 🇰🇷 KR-1 | SHFX
+  type: ss
+  server: p141.panda001.net
+  port: 4652
+  password: qwerREWQ@@
+  cipher: aes-256-cfb
 - name: 🇨🇳 CN-3 | SHFX
   type: vmess
   server: 39.107.155.11
@@ -219,12 +221,6 @@ proxies:
   cipher: auto
   tfo: true
   udp: true
-- name: 🇰🇷 KR-1 | SHFX
-  type: ss
-  server: p141.panda001.net
-  port: 4652
-  password: qwerREWQ@@
-  cipher: aes-256-cfb
 - name: 🇺🇸 US-4 | SHFX
   type: vless
   server: cf-cname.xingpingcn.top
@@ -718,11 +714,11 @@ proxy-groups:
       - 🇺🇸 US-3 | SHFX
       - 🇭🇰 HK-2 | SHFX
       - 🇻🇳 VN-1 | SHFX
-      - 🇭🇰 HK-3 | SHFX
       - 🇨🇳 CN-1 | SHFX
       - 🇨🇳 CN-2 | SHFX
-      - 🇨🇳 CN-3 | SHFX
+      - 🇭🇰 HK-3 | SHFX
       - 🇰🇷 KR-1 | SHFX
+      - 🇨🇳 CN-3 | SHFX
       - 🇺🇸 US-4 | SHFX
       - 🇺🇸 US-5 | SHFX
       - 🇰🇷 KR-2 | SHFX
@@ -765,11 +761,11 @@ proxy-groups:
       - 🇺🇸 US-3 | SHFX
       - 🇭🇰 HK-2 | SHFX
       - 🇻🇳 VN-1 | SHFX
-      - 🇭🇰 HK-3 | SHFX
       - 🇨🇳 CN-1 | SHFX
       - 🇨🇳 CN-2 | SHFX
-      - 🇨🇳 CN-3 | SHFX
+      - 🇭🇰 HK-3 | SHFX
       - 🇰🇷 KR-1 | SHFX
+      - 🇨🇳 CN-3 | SHFX
       - 🇺🇸 US-4 | SHFX
       - 🇺🇸 US-5 | SHFX
       - 🇰🇷 KR-2 | SHFX
