@@ -1,4 +1,4 @@
-# Last update: 29.10.2025 23:19:42
+# Last update: 29.10.2025 23:46:06
 mixed-port: 7897
 allow-lan: false
 mode: rule
@@ -123,14 +123,6 @@ dns:
 proxies:
 - name: 🇺🇸 US-1 | SHFX
   type: hysteria2
-  server: 108.165.213.197
-  port: 23891
-  password: c232f411-96b5-4b07-b2f7-66a434725ffb
-  sni: fus01.mistea.top
-  skip-cert-verify: false
-  auth: c232f411-96b5-4b07-b2f7-66a434725ffb
-- name: 🇺🇸 US-2 | SHFX
-  type: hysteria2
   server: 38.45.89.97
   port: 23892
   password: c232f411-96b5-4b07-b2f7-66a434725ffb
@@ -141,6 +133,21 @@ proxies:
   type: trojan
   server: 58.152.53.3
   port: 443
+  password: BxceQaOe
+  network: tcp
+  skip-cert-verify: true
+- name: 🇺🇸 US-2 | SHFX
+  type: hysteria2
+  server: 108.165.213.197
+  port: 23891
+  password: c232f411-96b5-4b07-b2f7-66a434725ffb
+  sni: fus01.mistea.top
+  skip-cert-verify: false
+  auth: c232f411-96b5-4b07-b2f7-66a434725ffb
+- name: 🇨🇳 CN-1 | SHFX
+  type: trojan
+  server: 36.156.102.72
+  port: 194
   password: BxceQaOe
   network: tcp
   skip-cert-verify: true
@@ -177,13 +184,6 @@ proxies:
   password: BxceQaOe
   skip-cert-verify: true
   client-fingerprint: chrome
-- name: 🇨🇳 CN-1 | SHFX
-  type: trojan
-  server: 36.156.102.72
-  port: 194
-  password: BxceQaOe
-  network: tcp
-  skip-cert-verify: true
 - name: 🇻🇳 VN-1 | SHFX
   type: ss
   server: arxfw2b78fi2q9hzylhn.freesocks.work
@@ -708,12 +708,12 @@ proxy-groups:
     proxies:
       - 自动选择⚡️
       - 🇺🇸 US-1 | SHFX
-      - 🇺🇸 US-2 | SHFX
       - 🇭🇰 HK-1 | SHFX
+      - 🇺🇸 US-2 | SHFX
+      - 🇨🇳 CN-1 | SHFX
       - 🇺🇸 US-3 | SHFX
       - 🇭🇰 HK-2 | SHFX
       - 🇭🇰 HK-3 | SHFX
-      - 🇨🇳 CN-1 | SHFX
       - 🇻🇳 VN-1 | SHFX
       - 🇭🇷 HR-1 | SHFX
       - 🇨🇳 CN-2 | SHFX
@@ -754,12 +754,12 @@ proxy-groups:
     type: url-test
     proxies:
       - 🇺🇸 US-1 | SHFX
-      - 🇺🇸 US-2 | SHFX
       - 🇭🇰 HK-1 | SHFX
+      - 🇺🇸 US-2 | SHFX
+      - 🇨🇳 CN-1 | SHFX
       - 🇺🇸 US-3 | SHFX
       - 🇭🇰 HK-2 | SHFX
       - 🇭🇰 HK-3 | SHFX
-      - 🇨🇳 CN-1 | SHFX
       - 🇻🇳 VN-1 | SHFX
       - 🇭🇷 HR-1 | SHFX
       - 🇨🇳 CN-2 | SHFX
