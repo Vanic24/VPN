@@ -1,4 +1,4 @@
-# Last update: 29.10.2025 18:07:22
+# Last update: 29.10.2025 19:06:01
 mixed-port: 7897
 allow-lan: false
 mode: rule
@@ -128,13 +128,6 @@ proxies:
   password: BxceQaOe
   network: tcp
   skip-cert-verify: true
-- name: 🇨🇳 CN-1 | SHFX
-  type: trojan
-  server: 36.150.215.197
-  port: 2088
-  password: BxceQaOe
-  network: tcp
-  skip-cert-verify: true
 - name: 🇺🇸 US-1 | SHFX
   type: hysteria2
   server: 38.45.89.97
@@ -164,6 +157,13 @@ proxies:
   alterId: 0
   cipher: auto
   tls: true
+- name: 🇨🇳 CN-1 | SHFX
+  type: trojan
+  server: 36.150.215.197
+  port: 2088
+  password: BxceQaOe
+  network: tcp
+  skip-cert-verify: true
 - name: 🇭🇰 HK-2 | SHFX
   type: vmess
   server: 46.3.26.12
@@ -195,13 +195,6 @@ proxies:
   alterId: 0
   tls: true
   udp: true
-- name: 🇭🇷 HR-1 | SHFX
-  type: ss
-  server: 46.183.184.60
-  port: 989
-  password: f8f7aCzcPKbsF8p3
-  cipher: aes-256-cfb
-  udp: true
 - name: 🇭🇰 HK-3 | SHFX
   type: trojan
   server: 58.152.46.98
@@ -209,17 +202,19 @@ proxies:
   password: BxceQaOe
   skip-cert-verify: true
   client-fingerprint: chrome
+- name: 🇭🇷 HR-1 | SHFX
+  type: ss
+  server: 46.183.184.60
+  port: 989
+  password: f8f7aCzcPKbsF8p3
+  cipher: aes-256-cfb
 - name: 🇨🇳 CN-3 | SHFX
-  type: vmess
-  server: 139.129.20.6
-  port: 50002
-  uuid: 418048af-a293-4b99-9b0c-98ca3580dd24
-  network: tcp
-  skip-cert-verify: true
-  alterId: 0
-  cipher: auto
-  tfo: true
-  udp: true
+  type: ss
+  server: 113.99.143.139
+  port: 26470
+  password: b637f2e47b7827b308ebf399008075d2
+  cipher: aes-128-gcm
+  tfo: false
 - name: 🇨🇳 CN-4 | SHFX
   type: vmess
   server: 106.14.75.114
@@ -231,8 +226,8 @@ proxies:
   cipher: auto
 - name: 🇨🇳 CN-5 | SHFX
   type: vmess
-  server: 39.107.155.11
-  port: 30302
+  server: 139.129.20.6
+  port: 50002
   uuid: 418048af-a293-4b99-9b0c-98ca3580dd24
   network: tcp
   skip-cert-verify: true
@@ -242,32 +237,27 @@ proxies:
   udp: true
 - name: 🇨🇳 CN-6 | SHFX
   type: vmess
-  server: v39.heduian.link
-  port: 30839
-  uuid: cbb3f877-d1fb-344c-87a9-d153bffd5484
-  network: ws
+  server: 39.107.155.11
+  port: 30302
+  uuid: 418048af-a293-4b99-9b0c-98ca3580dd24
+  network: tcp
   skip-cert-verify: true
-  ws-opts:
-    headers:
-      Host: baidu.com
-    path: /oooo
-  alterId: 2
+  alterId: 0
   cipher: auto
-  tls: false
+  tfo: true
   udp: true
 - name: 🇺🇸 US-4 | SHFX
   type: vmess
-  server: 104.19.44.232
-  port: 80
-  uuid: 1cfaad16-d2ba-4c49-af07-d7b9f11f43d0
+  server: 154.64.243.19
+  port: 38533
+  uuid: 9bc23ccf-4769-4e9a-b278-2dfa8d9ef425
   network: ws
-  skip-cert-verify: true
+  skip-cert-verify: false
   ws-opts:
-    path: /xn--mes53ddysu0o3gl
+    path: /
   alterId: 0
   cipher: auto
   tls: false
-  udp: true
 - name: 🇺🇸 US-5 | SHFX
   type: vless
   server: cf-cname.xingpingcn.top
@@ -755,15 +745,15 @@ proxy-groups:
     proxies:
       - 自动选择⚡️
       - 🇭🇰 HK-1 | SHFX
-      - 🇨🇳 CN-1 | SHFX
       - 🇺🇸 US-1 | SHFX
       - 🇺🇸 US-2 | SHFX
       - 🇺🇸 US-3 | SHFX
+      - 🇨🇳 CN-1 | SHFX
       - 🇭🇰 HK-2 | SHFX
       - 🇻🇳 VN-1 | SHFX
       - 🇨🇳 CN-2 | SHFX
-      - 🇭🇷 HR-1 | SHFX
       - 🇭🇰 HK-3 | SHFX
+      - 🇭🇷 HR-1 | SHFX
       - 🇨🇳 CN-3 | SHFX
       - 🇨🇳 CN-4 | SHFX
       - 🇨🇳 CN-5 | SHFX
@@ -805,15 +795,15 @@ proxy-groups:
     type: url-test
     proxies:
       - 🇭🇰 HK-1 | SHFX
-      - 🇨🇳 CN-1 | SHFX
       - 🇺🇸 US-1 | SHFX
       - 🇺🇸 US-2 | SHFX
       - 🇺🇸 US-3 | SHFX
+      - 🇨🇳 CN-1 | SHFX
       - 🇭🇰 HK-2 | SHFX
       - 🇻🇳 VN-1 | SHFX
       - 🇨🇳 CN-2 | SHFX
-      - 🇭🇷 HR-1 | SHFX
       - 🇭🇰 HK-3 | SHFX
+      - 🇭🇷 HR-1 | SHFX
       - 🇨🇳 CN-3 | SHFX
       - 🇨🇳 CN-4 | SHFX
       - 🇨🇳 CN-5 | SHFX
