@@ -1,4 +1,4 @@
-# Last update: 01.11.2025 06:04:51
+# Last update: 01.11.2025 07:50:20
 mixed-port: 7897
 allow-lan: false
 mode: rule
@@ -131,6 +131,16 @@ proxies:
   auth: c232f411-96b5-4b07-b2f7-66a434725ffb
 - name: 🇳🇱 NL-1 | SHFX
   type: hysteria2
+  server: 185.92.220.240
+  port: 30205
+  password: 8864aa9f-7517-4fd5-aef1-32050eb3095d
+  sni: net2025.afsharidempire.uk
+  skip-cert-verify: false
+  auth: 8864aa9f-7517-4fd5-aef1-32050eb3095d
+  obfs: salamander
+  obfs-password: GdQ4bgvT8RFwuWi2
+- name: 🇳🇱 NL-2 | SHFX
+  type: hysteria2
   server: net2025.afsharidempire.uk
   port: 30205
   password: 8864aa9f-7517-4fd5-aef1-32050eb3095d
@@ -146,16 +156,6 @@ proxies:
   password: BxceQaOe
   network: tcp
   skip-cert-verify: true
-- name: 🇳🇱 NL-2 | SHFX
-  type: hysteria2
-  server: 185.92.220.240
-  port: 30205
-  password: 8864aa9f-7517-4fd5-aef1-32050eb3095d
-  sni: net2025.afsharidempire.uk
-  skip-cert-verify: false
-  auth: 8864aa9f-7517-4fd5-aef1-32050eb3095d
-  obfs: salamander
-  obfs-password: GdQ4bgvT8RFwuWi2
 - name: 🇳🇱 NL-3 | SHFX
   type: hysteria2
   server: 206.71.158.37
@@ -168,7 +168,7 @@ proxies:
   obfs-password: Yet-Another-Public-Config-1
 - name: 🇸🇪 SE-1 | SHFX
   type: hysteria2
-  server: drhystuichdfy.samanidempire.org
+  server: 70.34.215.221
   port: 20335
   password: 80747420-96c4-4a2f-83e6-eea4e46beb09
   sni: drhystuichdfy.samanidempire.org
@@ -178,7 +178,7 @@ proxies:
   obfs-password: U1wBrYQyFm
 - name: 🇸🇪 SE-2 | SHFX
   type: hysteria2
-  server: 70.34.215.221
+  server: drhystuichdfy.samanidempire.org
   port: 20335
   password: 80747420-96c4-4a2f-83e6-eea4e46beb09
   sni: drhystuichdfy.samanidempire.org
@@ -191,16 +191,28 @@ proxies:
   server: 58.152.53.3
   port: 443
   password: BxceQaOe
-  network: tcp
   skip-cert-verify: true
+  client-fingerprint: chrome
+- name: 🇯🇵 JP-1 | SHFX
+  type: vless
+  server: softbank88.xzcloudnode.sbs
+  port: 51623
+  uuid: 8129a335-37d4-4932-8dca-ac4358ce60b7
+  servername: itunes.apple.com
+  skip-cert-verify: false
+  client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  reality-opts:
+    public-key: ln4RiHk9_Ea_EyeI2GpZfzilPyrqKYDBqis09esVECo
+    short-id: 6ba85179e30d4fc2
+  tls: true
+  udp: true
 - name: 🇨🇳 CN-2 | SHFX
   type: trojan
   server: 36.156.102.74
   port: 43567
   password: BxceQaOe
-  network: tcp
   skip-cert-verify: true
-  udp: true
 - name: 🇺🇸 US-2 | SHFX
   type: vmess
   server: 154.17.227.158
@@ -231,20 +243,6 @@ proxies:
   tls: false
 - name: 🇭🇰 HK-3 | SHFX
   type: vmess
-  server: eb362f92-svukg0-t12cnj-1ol97.hk.p5pv.com
-  port: 80
-  uuid: 93fb69fc-77cf-11ee-85ee-f23c91369f2d
-  network: ws
-  skip-cert-verify: true
-  ws-opts:
-    headers:
-      Host: eb362f92-svukg0-t12cnj-1ol97.hk.p5pv.com
-    path: /
-  alterId: 2
-  cipher: auto
-  tls: false
-- name: 🇭🇰 HK-4 | SHFX
-  type: vmess
   server: 95811783-t02f40-t4nxvc-1p1b.hk.p5pv.com
   port: 80
   uuid: 279b8588-616b-11ed-a8bf-f23c91cfbbc9
@@ -259,20 +257,20 @@ proxies:
   cipher: auto
   tfo: false
   tls: false
-- name: 🇯🇵 JP-1 | SHFX
-  type: vless
-  server: softbank88.xzcloudnode.sbs
-  port: 51623
-  uuid: 8129a335-37d4-4932-8dca-ac4358ce60b7
-  servername: itunes.apple.com
-  skip-cert-verify: false
-  client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  reality-opts:
-    public-key: ln4RiHk9_Ea_EyeI2GpZfzilPyrqKYDBqis09esVECo
-    short-id: 6ba85179e30d4fc2
-  tls: true
-  udp: true
+- name: 🇭🇰 HK-4 | SHFX
+  type: vmess
+  server: eb362f92-svukg0-t12cnj-1ol97.hk.p5pv.com
+  port: 80
+  uuid: 93fb69fc-77cf-11ee-85ee-f23c91369f2d
+  network: ws
+  skip-cert-verify: true
+  ws-opts:
+    headers:
+      Host: eb362f92-svukg0-t12cnj-1ol97.hk.p5pv.com
+    path: /
+  alterId: 2
+  cipher: auto
+  tls: false
 - name: 🇵🇾 PY-1 | SHFX
   type: ss
   server: 38.165.233.93
@@ -827,18 +825,18 @@ proxy-groups:
       - 自动选择⚡️
       - 🇺🇸 US-1 | SHFX
       - 🇳🇱 NL-1 | SHFX
-      - 🇨🇳 CN-1 | SHFX
       - 🇳🇱 NL-2 | SHFX
+      - 🇨🇳 CN-1 | SHFX
       - 🇳🇱 NL-3 | SHFX
       - 🇸🇪 SE-1 | SHFX
       - 🇸🇪 SE-2 | SHFX
       - 🇭🇰 HK-1 | SHFX
+      - 🇯🇵 JP-1 | SHFX
       - 🇨🇳 CN-2 | SHFX
       - 🇺🇸 US-2 | SHFX
       - 🇭🇰 HK-2 | SHFX
       - 🇭🇰 HK-3 | SHFX
       - 🇭🇰 HK-4 | SHFX
-      - 🇯🇵 JP-1 | SHFX
       - 🇵🇾 PY-1 | SHFX
       - 🇭🇰 HK-5 | SHFX
       - 🇬🇧 GB-1 | SHFX
@@ -882,18 +880,18 @@ proxy-groups:
     proxies:
       - 🇺🇸 US-1 | SHFX
       - 🇳🇱 NL-1 | SHFX
-      - 🇨🇳 CN-1 | SHFX
       - 🇳🇱 NL-2 | SHFX
+      - 🇨🇳 CN-1 | SHFX
       - 🇳🇱 NL-3 | SHFX
       - 🇸🇪 SE-1 | SHFX
       - 🇸🇪 SE-2 | SHFX
       - 🇭🇰 HK-1 | SHFX
+      - 🇯🇵 JP-1 | SHFX
       - 🇨🇳 CN-2 | SHFX
       - 🇺🇸 US-2 | SHFX
       - 🇭🇰 HK-2 | SHFX
       - 🇭🇰 HK-3 | SHFX
       - 🇭🇰 HK-4 | SHFX
-      - 🇯🇵 JP-1 | SHFX
       - 🇵🇾 PY-1 | SHFX
       - 🇭🇰 HK-5 | SHFX
       - 🇬🇧 GB-1 | SHFX
