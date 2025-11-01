@@ -1,4 +1,4 @@
-# Last update: 01.11.2025 19:11:38
+# Last update: 01.11.2025 19:14:19
 mixed-port: 7897
 allow-lan: false
 mode: rule
@@ -122,236 +122,380 @@ dns:
       - +.gvt1.com
 proxies:
 - name: 🇭🇰 HK-1 | MIX
+  type: hysteria2
+  server: hk1.jueduibupao.top
+  port: 50001
+  password: 64333edd-018a-4d81-aca3-709de14ae66d
+  sni: hk1.jueduibupao.top
+  skip-cert-verify: true
+  up: 100
+  down: 100
+- name: 🇭🇰 HK-2 | MIX
+  type: hysteria2
+  server: hk2.jueduibupao.top
+  port: 48098
+  password: 64333edd-018a-4d81-aca3-709de14ae66d
+  sni: hk2.jueduibupao.top
+  skip-cert-verify: true
+  up: 100
+  down: 100
+  ports: 40000-50000
+- name: 🇸🇬 SG-1 | MIX
+  type: hysteria2
+  server: linsg1.jueduibupao.top
+  port: 44861
+  password: 64333edd-018a-4d81-aca3-709de14ae66d
+  sni: linsg1.jueduibupao.top
+  skip-cert-verify: true
+  up: 100
+  down: 100
+  ports: 40000-50000
+- name: 🇹🇼 TW-1 | MIX
+  type: hysteria2
+  server: tw2.jueduibupao.top
+  port: 30078
+  password: 64333edd-018a-4d81-aca3-709de14ae66d
+  sni: tw2.jueduibupao.top
+  skip-cert-verify: true
+  up: 100
+  down: 100
+- name: 🇯🇵 JP-1 | MIX
+  type: hysteria2
+  server: linjp2.jueduibupao.top
+  port: 30000
+  password: 64333edd-018a-4d81-aca3-709de14ae66d
+  sni: linjp2.jueduibupao.top
+  skip-cert-verify: true
+  up: 100
+  down: 100
+- name: 🇯🇵 JP-2 | MIX
+  type: hysteria2
+  server: linjp1.jueduibupao.top
+  port: 49641
+  password: 64333edd-018a-4d81-aca3-709de14ae66d
+  sni: linjp1.jueduibupao.top
+  skip-cert-verify: true
+  up: 100
+  down: 100
+  ports: 40000-50000
+- name: 🇰🇷 KR-1 | MIX
+  type: hysteria2
+  server: 6bkr1.6bnw.top
+  port: 10100
+  password: 64333edd-018a-4d81-aca3-709de14ae66d
+  sni: 6bkr1.6bnw.top
+  skip-cert-verify: true
+  up: 100
+  down: 100
+- name: 🇰🇷 KR-2 | MIX
+  type: hysteria2
+  server: kr2.jueduibupao.top
+  port: 30000
+  password: 64333edd-018a-4d81-aca3-709de14ae66d
+  sni: kr2.jueduibupao.top
+  skip-cert-verify: true
+  up: 100
+  down: 100
+- name: 🇹🇭 TH-1 | MIX
+  type: hysteria2
+  server: th1.jueduibupao.top
+  port: 30000
+  password: 64333edd-018a-4d81-aca3-709de14ae66d
+  sni: th1.jueduibupao.top
+  skip-cert-verify: true
+  up: 100
+  down: 100
+- name: 🇺🇸 US-1 | MIX
+  type: hysteria2
+  server: lvs.jueduibupao.top
+  port: 50001
+  password: 64333edd-018a-4d81-aca3-709de14ae66d
+  sni: lvs.jueduibupao.top
+  skip-cert-verify: true
+  up: 100
+  down: 100
+- name: 🇺🇸 US-2 | MIX
+  type: hysteria2
+  server: ny.jueduibupao.top
+  port: 50001
+  password: 64333edd-018a-4d81-aca3-709de14ae66d
+  sni: ny.jueduibupao.top
+  skip-cert-verify: true
+  up: 100
+  down: 100
+- name: 🇺🇸 US-3 | MIX
+  type: hysteria2
+  server: azcus1.jueduibupao.top
+  port: 20101
+  password: 64333edd-018a-4d81-aca3-709de14ae66d
+  sni: azcus1.jueduibupao.top
+  skip-cert-verify: true
+  up: 100
+  down: 100
+- name: 🇨🇦 CA-1 | MIX
+  type: hysteria2
+  server: ca1.jueduibupao.top
+  port: 43934
+  password: 64333edd-018a-4d81-aca3-709de14ae66d
+  sni: ca1.jueduibupao.top
+  skip-cert-verify: true
+  up: 100
+  down: 100
+  ports: 40000-50000
+- name: 🇩🇪 DE-1 | MIX
+  type: hysteria2
+  server: de1.jueduibupao.top
+  port: 46543
+  password: 64333edd-018a-4d81-aca3-709de14ae66d
+  sni: de1.jueduibupao.top
+  skip-cert-verify: true
+  up: 100
+  down: 100
+  ports: 40000-50000
+- name: 🇭🇰 HK-3 | MIX
   type: ss
   server: zz1.xxxyun.top
   port: 29527
   password: MDhhMTdjZDI0MjI2ZWRlNg==:NjQzMzNlZGQtMDE4YS00ZA==
   cipher: 2022-blake3-aes-128-gcm
-- name: 🇭🇰 HK-2 | MIX
+  udp: true
+- name: 🇭🇰 HK-4 | MIX
   type: ss
   server: zz2.xxxyun.top
   port: 40010
   password: MDhhMTdjZDI0MjI2ZWRlNg==:NjQzMzNlZGQtMDE4YS00ZA==
   cipher: 2022-blake3-aes-128-gcm
-- name: 🇭🇰 HK-3 | MIX
+  udp: true
+- name: 🇭🇰 HK-5 | MIX
   type: ss
   server: zz1.xxxyun.top
   port: 19527
   password: MDhhMTdjZDI0MjI2ZWRlNg==:NjQzMzNlZGQtMDE4YS00ZA==
   cipher: 2022-blake3-aes-128-gcm
-- name: 🇭🇰 HK-4 | MIX
+  udp: true
+- name: 🇭🇰 HK-6 | MIX
   type: ss
   server: zz2.xxxyun.top
   port: 40023
   password: MDhhMTdjZDI0MjI2ZWRlNg==:NjQzMzNlZGQtMDE4YS00ZA==
   cipher: 2022-blake3-aes-128-gcm
-- name: 🇭🇰 HK-5 | MIX
+  udp: true
+- name: 🇭🇰 HK-7 | MIX
   type: ss
   server: zz1.xxxyun.top
   port: 39301
   password: MDhhMTdjZDI0MjI2ZWRlNg==:NjQzMzNlZGQtMDE4YS00ZA==
   cipher: 2022-blake3-aes-128-gcm
-- name: 🇭🇰 HK-6 | MIX
+  udp: true
+- name: 🇭🇰 HK-8 | MIX
   type: ss
   server: zz2.xxxyun.top
   port: 40011
   password: MDhhMTdjZDI0MjI2ZWRlNg==:NjQzMzNlZGQtMDE4YS00ZA==
   cipher: 2022-blake3-aes-128-gcm
-- name: 🇸🇬 SG-1 | MIX
+  udp: true
+- name: 🇸🇬 SG-2 | MIX
   type: ss
   server: zz1.xxxyun.top
   port: 39204
   password: MDhhMTdjZDI0MjI2ZWRlNg==:NjQzMzNlZGQtMDE4YS00ZA==
   cipher: 2022-blake3-aes-128-gcm
-- name: 🇸🇬 SG-2 | MIX
+  udp: true
+- name: 🇸🇬 SG-3 | MIX
   type: ss
   server: zz2.xxxyun.top
   port: 40013
   password: MDhhMTdjZDI0MjI2ZWRlNg==:NjQzMzNlZGQtMDE4YS00ZA==
   cipher: 2022-blake3-aes-128-gcm
-- name: 🇸🇬 SG-3 | MIX
+  udp: true
+- name: 🇸🇬 SG-4 | MIX
   type: ss
   server: zz1.xxxyun.top
   port: 39505
   password: MDhhMTdjZDI0MjI2ZWRlNg==:NjQzMzNlZGQtMDE4YS00ZA==
   cipher: 2022-blake3-aes-128-gcm
-- name: 🇸🇬 SG-4 | MIX
+  udp: true
+- name: 🇸🇬 SG-5 | MIX
   type: ss
   server: zz2.xxxyun.top
   port: 44014
   password: MDhhMTdjZDI0MjI2ZWRlNg==:NjQzMzNlZGQtMDE4YS00ZA==
   cipher: 2022-blake3-aes-128-gcm
-- name: 🇰🇷 KR-1 | MIX
+  udp: true
+- name: 🇰🇷 KR-3 | MIX
   type: ss
   server: zz1.xxxyun.top
   port: 39206
   password: NjVhMWE2YmVmNzg4MTcwMA==:NjQzMzNlZGQtMDE4YS00ZA==
   cipher: 2022-blake3-aes-128-gcm
-- name: 🇰🇷 KR-2 | MIX
+  udp: true
+- name: 🇰🇷 KR-4 | MIX
   type: ss
   server: zz2.xxxyun.top
   port: 20116
   password: NjVhMWE2YmVmNzg4MTcwMA==:NjQzMzNlZGQtMDE4YS00ZA==
   cipher: 2022-blake3-aes-128-gcm
-- name: 🇹🇼 TW-1 | MIX
+  udp: true
+- name: 🇹🇼 TW-2 | MIX
   type: ss
   server: zz1.xxxyun.top
   port: 32207
   password: NjVhMWE2YmVmNzg4MTcwMA==:NjQzMzNlZGQtMDE4YS00ZA==
   cipher: 2022-blake3-aes-128-gcm
-- name: 🇹🇼 TW-2 | MIX
+  udp: true
+- name: 🇹🇼 TW-3 | MIX
   type: ss
   server: zz2.xxxyun.top
   port: 40017
   password: NjVhMWE2YmVmNzg4MTcwMA==:NjQzMzNlZGQtMDE4YS00ZA==
   cipher: 2022-blake3-aes-128-gcm
-- name: 🇯🇵 JP-1 | MIX
+  udp: true
+- name: 🇯🇵 JP-3 | MIX
   type: ss
   server: zz1.xxxyun.top
   port: 19529
   password: MDhhMTdjZDI0MjI2ZWRlNg==:NjQzMzNlZGQtMDE4YS00ZA==
   cipher: 2022-blake3-aes-128-gcm
-- name: 🇯🇵 JP-2 | MIX
+  udp: true
+- name: 🇯🇵 JP-4 | MIX
   type: ss
   server: zz2.xxxyun.top
   port: 40019
   password: MDhhMTdjZDI0MjI2ZWRlNg==:NjQzMzNlZGQtMDE4YS00ZA==
   cipher: 2022-blake3-aes-128-gcm
-- name: 🇯🇵 JP-3 | MIX
+  udp: true
+- name: 🇯🇵 JP-5 | MIX
   type: ss
   server: zz1.xxxyun.top
   port: 49207
   password: MDhhMTdjZDI0MjI2ZWRlNjE5OWQyNDYxZjM1MjA0OTg=:NjQzMzNlZGQtMDE4YS00ZDgxLWFjYTMtNzA5ZGUxNGE=
   cipher: 2022-blake3-aes-256-gcm
-- name: 🇯🇵 JP-4 | MIX
+  udp: true
+- name: 🇯🇵 JP-6 | MIX
   type: ss
   server: zz2.xxxyun.top
   port: 40020
   password: MDhhMTdjZDI0MjI2ZWRlNjE5OWQyNDYxZjM1MjA0OTg=:NjQzMzNlZGQtMDE4YS00ZDgxLWFjYTMtNzA5ZGUxNGE=
   cipher: 2022-blake3-aes-256-gcm
-- name: 🇨🇦 CA-1 | MIX
+  udp: true
+- name: 🇨🇦 CA-2 | MIX
   type: ss
   server: zz1.xxxyun.top
   port: 39209
   password: MDhhMTdjZDI0MjI2ZWRlNg==:NjQzMzNlZGQtMDE4YS00ZA==
   cipher: 2022-blake3-aes-128-gcm
-- name: 🇨🇦 CA-2 | MIX
+  udp: true
+- name: 🇨🇦 CA-3 | MIX
   type: ss
   server: zz2.xxxyun.top
   port: 40021
   password: MDhhMTdjZDI0MjI2ZWRlNg==:NjQzMzNlZGQtMDE4YS00ZA==
   cipher: 2022-blake3-aes-128-gcm
-- name: 🇺🇸 US-1 | MIX
+  udp: true
+- name: 🇺🇸 US-4 | MIX
   type: ss
   server: zz1.xxxyun.top
   port: 12980
   password: MDhhMTdjZDI0MjI2ZWRlNg==:NjQzMzNlZGQtMDE4YS00ZA==
   cipher: 2022-blake3-aes-128-gcm
-- name: 🇺🇸 US-2 | MIX
+  udp: true
+- name: 🇺🇸 US-5 | MIX
   type: ss
   server: zz2.xxxyun.top
   port: 12981
   password: MDhhMTdjZDI0MjI2ZWRlNg==:NjQzMzNlZGQtMDE4YS00ZA==
   cipher: 2022-blake3-aes-128-gcm
-- name: 🇺🇸 US-3 | MIX
+  udp: true
+- name: 🇺🇸 US-6 | MIX
   type: ss
   server: zz1.xxxyun.top
   port: 12983
   password: MDhhMTdjZDI0MjI2ZWRlNg==:NjQzMzNlZGQtMDE4YS00ZA==
   cipher: 2022-blake3-aes-128-gcm
-- name: 🇺🇸 US-4 | MIX
+  udp: true
+- name: 🇺🇸 US-7 | MIX
   type: ss
   server: zz2.xxxyun.top
   port: 12984
   password: MDhhMTdjZDI0MjI2ZWRlNg==:NjQzMzNlZGQtMDE4YS00ZA==
   cipher: 2022-blake3-aes-128-gcm
-- name: 🇺🇸 US-5 | MIX
+  udp: true
+- name: 🇺🇸 US-8 | MIX
   type: ss
   server: zz1.xxxyun.top
   port: 39203
   password: MDhhMTdjZDI0MjI2ZWRlNg==:NjQzMzNlZGQtMDE4YS00ZA==
   cipher: 2022-blake3-aes-128-gcm
-- name: 🇺🇸 US-6 | MIX
+  udp: true
+- name: 🇺🇸 US-9 | MIX
   type: ss
   server: zz2.xxxyun.top
   port: 40022
   password: MDhhMTdjZDI0MjI2ZWRlNg==:NjQzMzNlZGQtMDE4YS00ZA==
   cipher: 2022-blake3-aes-128-gcm
-- name: 🇩🇪 DE-1 | MIX
+  udp: true
+- name: 🇩🇪 DE-2 | MIX
   type: ss
   server: zz1.xxxyun.top
   port: 39987
   password: MDhhMTdjZDI0MjI2ZWRlNg==:NjQzMzNlZGQtMDE4YS00ZA==
   cipher: 2022-blake3-aes-128-gcm
-- name: 🇩🇪 DE-2 | MIX
+  udp: true
+- name: 🇩🇪 DE-3 | MIX
   type: ss
   server: zz2.xxxyun.top
   port: 39981
   password: MDhhMTdjZDI0MjI2ZWRlNg==:NjQzMzNlZGQtMDE4YS00ZA==
   cipher: 2022-blake3-aes-128-gcm
-- name: 🇺🇸 US-7 | MIX
+  udp: true
+- name: 🇺🇸 US-10 | MIX
   type: vmess
   server: mugen11.6bnw.top
   port: 8080
   uuid: 64333edd-018a-4d81-aca3-709de14ae66d
   network: ws
-  path: /?ed=2560
   ws-opts:
     path: /?ed=2560
     headers:
       Host: buyvmus2.6bnw.top
   alterId: 0
   cipher: auto
-  tls: false
-  v: '2'
-  ps: ❗如果只显示此节点|0.1x
-  add: mugen11.6bnw.top
-  id: 64333edd-018a-4d81-aca3-709de14ae66d
-  aid: '0'
-  net: ws
-  host: buyvmus2.6bnw.top
-- name: 🇺🇸 US-8 | MIX
+  udp: true
+  ws-path: /?ed=2560
+  ws-headers:
+    Host: buyvmus2.6bnw.top
+- name: 🇺🇸 US-11 | MIX
   type: vmess
   server: mugen33.6bnw.top
   port: 8080
   uuid: 64333edd-018a-4d81-aca3-709de14ae66d
   network: ws
-  path: /?ed=2560
   ws-opts:
     path: /?ed=2560
     headers:
       Host: buyvmus2.6bnw.top
   alterId: 0
   cipher: auto
-  tls: false
-  v: '2'
-  ps: ❗请到网站使用教程|0.1x
-  add: mugen33.6bnw.top
-  id: 64333edd-018a-4d81-aca3-709de14ae66d
-  aid: '0'
-  net: ws
-  host: buyvmus2.6bnw.top
-- name: 🇺🇸 US-9 | MIX
+  udp: true
+  ws-path: /?ed=2560
+  ws-headers:
+    Host: buyvmus2.6bnw.top
+- name: 🇺🇸 US-12 | MIX
   type: vmess
   server: mugen44.6bnw.top
   port: 8080
   uuid: 64333edd-018a-4d81-aca3-709de14ae66d
   network: ws
-  path: /?ed=2560
   ws-opts:
     path: /?ed=2560
     headers:
       Host: buyvmus2.6bnw.top
   alterId: 0
   cipher: auto
-  tls: false
-  v: '2'
-  ps: ❗更新一下客户端|0.1x
-  add: mugen44.6bnw.top
-  id: 64333edd-018a-4d81-aca3-709de14ae66d
-  aid: '0'
-  net: ws
-  host: buyvmus2.6bnw.top
+  udp: true
+  ws-path: /?ed=2560
+  ws-headers:
+    Host: buyvmus2.6bnw.top
 
 proxy-groups:
   - name: 选择线路
@@ -360,69 +504,97 @@ proxy-groups:
       - 自动选择⚡️
       - 🇭🇰 HK-1 | MIX
       - 🇭🇰 HK-2 | MIX
+      - 🇸🇬 SG-1 | MIX
+      - 🇹🇼 TW-1 | MIX
+      - 🇯🇵 JP-1 | MIX
+      - 🇯🇵 JP-2 | MIX
+      - 🇰🇷 KR-1 | MIX
+      - 🇰🇷 KR-2 | MIX
+      - 🇹🇭 TH-1 | MIX
+      - 🇺🇸 US-1 | MIX
+      - 🇺🇸 US-2 | MIX
+      - 🇺🇸 US-3 | MIX
+      - 🇨🇦 CA-1 | MIX
+      - 🇩🇪 DE-1 | MIX
       - 🇭🇰 HK-3 | MIX
       - 🇭🇰 HK-4 | MIX
       - 🇭🇰 HK-5 | MIX
       - 🇭🇰 HK-6 | MIX
-      - 🇸🇬 SG-1 | MIX
+      - 🇭🇰 HK-7 | MIX
+      - 🇭🇰 HK-8 | MIX
       - 🇸🇬 SG-2 | MIX
       - 🇸🇬 SG-3 | MIX
       - 🇸🇬 SG-4 | MIX
-      - 🇰🇷 KR-1 | MIX
-      - 🇰🇷 KR-2 | MIX
-      - 🇹🇼 TW-1 | MIX
+      - 🇸🇬 SG-5 | MIX
+      - 🇰🇷 KR-3 | MIX
+      - 🇰🇷 KR-4 | MIX
       - 🇹🇼 TW-2 | MIX
-      - 🇯🇵 JP-1 | MIX
-      - 🇯🇵 JP-2 | MIX
+      - 🇹🇼 TW-3 | MIX
       - 🇯🇵 JP-3 | MIX
       - 🇯🇵 JP-4 | MIX
-      - 🇨🇦 CA-1 | MIX
+      - 🇯🇵 JP-5 | MIX
+      - 🇯🇵 JP-6 | MIX
       - 🇨🇦 CA-2 | MIX
-      - 🇺🇸 US-1 | MIX
-      - 🇺🇸 US-2 | MIX
-      - 🇺🇸 US-3 | MIX
+      - 🇨🇦 CA-3 | MIX
       - 🇺🇸 US-4 | MIX
       - 🇺🇸 US-5 | MIX
       - 🇺🇸 US-6 | MIX
-      - 🇩🇪 DE-1 | MIX
-      - 🇩🇪 DE-2 | MIX
       - 🇺🇸 US-7 | MIX
       - 🇺🇸 US-8 | MIX
       - 🇺🇸 US-9 | MIX
+      - 🇩🇪 DE-2 | MIX
+      - 🇩🇪 DE-3 | MIX
+      - 🇺🇸 US-10 | MIX
+      - 🇺🇸 US-11 | MIX
+      - 🇺🇸 US-12 | MIX
   - name: 自动选择⚡️
     type: url-test
     proxies:
       - 🇭🇰 HK-1 | MIX
       - 🇭🇰 HK-2 | MIX
+      - 🇸🇬 SG-1 | MIX
+      - 🇹🇼 TW-1 | MIX
+      - 🇯🇵 JP-1 | MIX
+      - 🇯🇵 JP-2 | MIX
+      - 🇰🇷 KR-1 | MIX
+      - 🇰🇷 KR-2 | MIX
+      - 🇹🇭 TH-1 | MIX
+      - 🇺🇸 US-1 | MIX
+      - 🇺🇸 US-2 | MIX
+      - 🇺🇸 US-3 | MIX
+      - 🇨🇦 CA-1 | MIX
+      - 🇩🇪 DE-1 | MIX
       - 🇭🇰 HK-3 | MIX
       - 🇭🇰 HK-4 | MIX
       - 🇭🇰 HK-5 | MIX
       - 🇭🇰 HK-6 | MIX
-      - 🇸🇬 SG-1 | MIX
+      - 🇭🇰 HK-7 | MIX
+      - 🇭🇰 HK-8 | MIX
       - 🇸🇬 SG-2 | MIX
       - 🇸🇬 SG-3 | MIX
       - 🇸🇬 SG-4 | MIX
-      - 🇰🇷 KR-1 | MIX
-      - 🇰🇷 KR-2 | MIX
-      - 🇹🇼 TW-1 | MIX
+      - 🇸🇬 SG-5 | MIX
+      - 🇰🇷 KR-3 | MIX
+      - 🇰🇷 KR-4 | MIX
       - 🇹🇼 TW-2 | MIX
-      - 🇯🇵 JP-1 | MIX
-      - 🇯🇵 JP-2 | MIX
+      - 🇹🇼 TW-3 | MIX
       - 🇯🇵 JP-3 | MIX
       - 🇯🇵 JP-4 | MIX
-      - 🇨🇦 CA-1 | MIX
+      - 🇯🇵 JP-5 | MIX
+      - 🇯🇵 JP-6 | MIX
       - 🇨🇦 CA-2 | MIX
-      - 🇺🇸 US-1 | MIX
-      - 🇺🇸 US-2 | MIX
-      - 🇺🇸 US-3 | MIX
+      - 🇨🇦 CA-3 | MIX
       - 🇺🇸 US-4 | MIX
       - 🇺🇸 US-5 | MIX
       - 🇺🇸 US-6 | MIX
-      - 🇩🇪 DE-1 | MIX
-      - 🇩🇪 DE-2 | MIX
       - 🇺🇸 US-7 | MIX
       - 🇺🇸 US-8 | MIX
       - 🇺🇸 US-9 | MIX
+      - 🇩🇪 DE-2 | MIX
+      - 🇩🇪 DE-3 | MIX
+      - 🇺🇸 US-10 | MIX
+      - 🇺🇸 US-11 | MIX
+      - 🇺🇸 US-12 | MIX
     url: https://www.gstatic.com/generate_204
     interval: 300
 rules:
