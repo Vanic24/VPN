@@ -1,4 +1,4 @@
-# Last update: 01.11.2025 16:45:58
+# Last update: 01.11.2025 17:09:49
 mixed-port: 7897
 allow-lan: false
 mode: rule
@@ -129,7 +129,44 @@ proxies:
   sni: fus01.mistea.top
   skip-cert-verify: false
   auth: c232f411-96b5-4b07-b2f7-66a434725ffb
+- name: 🇯🇵 JP-1 | SHFX
+  type: vless
+  server: softbank88.xzcloudnode.sbs
+  port: 51623
+  uuid: 8129a335-37d4-4932-8dca-ac4358ce60b7
+  servername: itunes.apple.com
+  skip-cert-verify: false
+  client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  reality-opts:
+    public-key: ln4RiHk9_Ea_EyeI2GpZfzilPyrqKYDBqis09esVECo
+    short-id: 6ba85179e30d4fc2
+  tls: true
+  udp: true
+- name: 🇬🇧 GB-1 | SHFX
+  type: hysteria2
+  server: 81.168.83.89
+  port: 2083
+  password: YwuvGJk36B
+  sni: kotlet.arshiacomplus.dpdns.org
+  skip-cert-verify: false
+  auth: YwuvGJk36B
+  obfs: salamander
+  obfs-password: khameniiko@smad@ret
 - name: 🇺🇸 US-2 | SHFX
+  type: vless
+  server: freeyx.cloudflare88.eu.org
+  port: 443
+  uuid: 1955487c-1f99-45df-867f-04bfbbf28f8d
+  network: ws
+  servername: oracle-kr-chuncheon.862400.xyz
+  skip-cert-verify: false
+  ws-opts:
+    headers:
+      Host: oracle-kr-chuncheon.862400.xyz
+    path: /announcement?ed=2048fp=random
+  tls: true
+- name: 🇺🇸 US-3 | SHFX
   type: vmess
   server: 154.17.227.158
   port: 443
@@ -144,18 +181,17 @@ proxies:
   tls: true
 - name: 🇭🇰 HK-1 | SHFX
   type: vmess
-  server: hkt.gotochinatown.net
+  server: 5e4eabfc-sv2sg0-t2lc1c-1mim2.hk.p5pv.com
   port: 80
-  uuid: b68f4b4c-2d02-11ec-9ee8-f23c913c8d2b
+  uuid: 6e3ee1de-381f-11ee-87f9-f23c91cfbbc9
   network: ws
-  skip-cert-verify: false
-  ws-opts:
-    headers:
-      Host: broadcastlv.chat.bilibili.com
-    path: /
+  skip-cert-verify: true
   alterId: 2
   cipher: auto
   tls: false
+  ws-headers:
+    Host: broadcastlv.chat.bilibili.com
+  ws-path: /
 - name: 🇩🇪 DE-1 | SHFX
   type: vless
   server: cent1de.maga171717.sbs
@@ -170,24 +206,26 @@ proxies:
     short-id: 913f32684b4776f9
   tls: true
   udp: true
+- name: 🇰🇷 KR-1 | SHFX
+  type: vmess
+  server: 152.70.92.69
+  port: 80
+  uuid: bb9c3993-a4b9-4dad-aeb9-ac86371ae68b
+  network: http
+  skip-cert-verify: false
+  alterId: 0
+  cipher: auto
+  http-opts:
+    method: GET
+    path:
+    - /
+  tls: false
+  udp: true
 - name: 🇭🇰 HK-2 | SHFX
   type: vmess
-  server: 1fee460c-sv6hs0-tbcla6-194tt.hk.p5pv.com
+  server: 532538de-sv0xs0-sylfil-1gcq2.hk.p5pv.com
   port: 80
-  uuid: 602e99aa-718d-11eb-b77b-f23c913c8d2b
-  network: ws
-  skip-cert-verify: true
-  alterId: 2
-  cipher: auto
-  tls: false
-  ws-headers:
-    Host: broadcastlv.chat.bilibili.com
-  ws-path: /
-- name: 🇭🇰 HK-3 | SHFX
-  type: vmess
-  server: 8058f442-sv6hs0-t2p691-1s4hc.hk.p5pv.com
-  port: 80
-  uuid: aafedc64-9c23-11ef-a79f-f23c91cfbbc9
+  uuid: 759bf004-6137-11ec-bd7c-f23c913c8d2b
   network: ws
   skip-cert-verify: true
   alterId: 2
@@ -209,11 +247,24 @@ proxies:
     short-id: 11c996b441cf6c
   tls: true
   udp: true
+- name: 🇭🇰 HK-3 | SHFX
+  type: vmess
+  server: eaf70f66-sv0xs0-t8ivpf-z65w.hk.p5pv.com
+  port: 80
+  uuid: a2313fba-74a6-11ed-a8bf-f23c91cfbbc9
+  network: ws
+  skip-cert-verify: true
+  alterId: 2
+  cipher: auto
+  tls: false
+  ws-headers:
+    Host: broadcastlv.chat.bilibili.com
+  ws-path: /
 - name: 🇭🇰 HK-4 | SHFX
   type: vmess
-  server: 49aa3fd4-sv2sg0-tbcla6-194tt.hk.p5pv.com
+  server: 0bdf3f30-sv8cg0-t9uin7-19ord.hk.p5pv.com
   port: 80
-  uuid: 602e99aa-718d-11eb-b77b-f23c913c8d2b
+  uuid: dcdb1278-4b7d-11ed-bb74-f23c9164ca5d
   network: ws
   skip-cert-verify: true
   alterId: 2
@@ -224,17 +275,31 @@ proxies:
   ws-path: /
 - name: 🇭🇰 HK-5 | SHFX
   type: vmess
-  server: 5d49c948-suvds0-tb6yrr-1tfcw.hk.p5pv.com
+  server: dcf99c60-sv0xs0-tasors-1tdqt.hk.p5pv.com
   port: 80
-  uuid: 1282cc1a-f426-11ef-9495-f23c91cfbbc9
+  uuid: 167db97c-ee01-11ef-b737-f23c91cfbbc9
   network: ws
   skip-cert-verify: true
   alterId: 2
   cipher: auto
   tls: false
   ws-headers:
-    Host: 5d49c948-suvds0-tb6yrr-1tfcw.hk.p5pv.com
+    Host: broadcastlv.chat.bilibili.com
   ws-path: /
+- name: 🇺🇸 US-4 | SHFX
+  type: vless
+  server: usa.savanet.pro
+  port: 443
+  uuid: 87eff1bd-d55f-4df2-a5ad-863368a16cb7
+  servername: yandex.com
+  skip-cert-verify: false
+  client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  reality-opts:
+    public-key: s1YS6OaMKypumOxq7u22Pf_FaSjEbRvgLrJf1iTOKWY
+    short-id: bce24697c04e
+  tls: true
+  udp: true
 - name: 🇭🇰 HK-6 | SHFX
   type: vmess
   server: 46.3.26.12
@@ -255,25 +320,25 @@ proxies:
   password: BxceQaOe
   network: tcp
   skip-cert-verify: true
-- name: 🇯🇵 JP-1 | SHFX
+- name: 🇫🇮 FI-1 | SHFX
   type: vless
-  server: softbank88.xzcloudnode.sbs
-  port: 51623
-  uuid: 8129a335-37d4-4932-8dca-ac4358ce60b7
-  servername: itunes.apple.com
+  server: fin.monkeyisland.life
+  port: 443
+  uuid: 74c0af7c-8482-4b4e-b067-ea456a80cdb7
+  servername: fin.monkeyisland.life
   skip-cert-verify: false
   client-fingerprint: chrome
   flow: xtls-rprx-vision
   reality-opts:
-    public-key: ln4RiHk9_Ea_EyeI2GpZfzilPyrqKYDBqis09esVECo
-    short-id: 6ba85179e30d4fc2
+    public-key: NvdLgcQKj0XeAmqIpCEdvcsgfNrtSyfGnQYNdZ7eTFE
+    short-id: 08aa0813199a4c38
   tls: true
   udp: true
 - name: 🇭🇰 HK-7 | SHFX
   type: vmess
-  server: 0bdf3f30-sv8cg0-t9uin7-19ord.hk.p5pv.com
+  server: 8058f442-sv6hs0-t2p691-1s4hc.hk.p5pv.com
   port: 80
-  uuid: dcdb1278-4b7d-11ed-bb74-f23c9164ca5d
+  uuid: aafedc64-9c23-11ef-a79f-f23c91cfbbc9
   network: ws
   skip-cert-verify: true
   alterId: 2
@@ -295,14 +360,27 @@ proxies:
   ws-headers:
     Host: broadcastlv.chat.bilibili.com
   ws-path: /
-- name: 🇨🇳 CN-2 | SHFX
-  type: trojan
-  server: 36.150.215.197
-  port: 9713
-  password: BxceQaOe
-  network: tcp
-  skip-cert-verify: true
 - name: 🇭🇰 HK-9 | SHFX
+  type: trojan
+  server: 58.152.53.3
+  port: 443
+  password: BxceQaOe
+  skip-cert-verify: true
+  client-fingerprint: chrome
+- name: 🇭🇰 HK-10 | SHFX
+  type: vmess
+  server: 4fdb9910-sv0xs0-t2p691-1s4hc.hk.p5pv.com
+  port: 80
+  uuid: aafedc64-9c23-11ef-a79f-f23c91cfbbc9
+  network: ws
+  skip-cert-verify: true
+  alterId: 2
+  cipher: auto
+  tls: false
+  ws-headers:
+    Host: broadcastlv.chat.bilibili.com
+  ws-path: /
+- name: 🇭🇰 HK-11 | SHFX
   type: vmess
   server: 0971c36b-sv2sg0-t61ki5-1smhu.hk.p5pv.com
   port: 80
@@ -315,174 +393,17 @@ proxies:
   ws-headers:
     Host: broadcastlv.chat.bilibili.com
   ws-path: /
-- name: 🇰🇷 KR-1 | SHFX
-  type: vmess
-  server: 152.70.92.69
-  port: 80
-  uuid: bb9c3993-a4b9-4dad-aeb9-ac86371ae68b
-  network: http
+- name: 🇳🇱 NL-1 | SHFX
+  type: hysteria2
+  server: 206.71.158.37
+  port: 35000
+  password: Yet-Another-Public-Config-1
+  sni: YAPC-1.afshin.ir
   skip-cert-verify: false
-  alterId: 0
-  cipher: auto
-  http-opts:
-    method: GET
-    path:
-    - /
-  tls: false
-  udp: true
-- name: 🇭🇰 HK-10 | SHFX
-  type: vmess
-  server: dcf99c60-sv0xs0-tasors-1tdqt.hk.p5pv.com
-  port: 80
-  uuid: 167db97c-ee01-11ef-b737-f23c91cfbbc9
-  network: ws
-  skip-cert-verify: true
-  alterId: 2
-  cipher: auto
-  tls: false
-  ws-headers:
-    Host: broadcastlv.chat.bilibili.com
-  ws-path: /
-- name: 🇭🇰 HK-11 | SHFX
-  type: vmess
-  server: 56ef1baf-sv6hs0-t09t13-z7a1.hk.p5pv.com
-  port: 80
-  uuid: 3bd247a8-993e-11ec-a8bf-f23c91cfbbc9
-  network: ws
-  skip-cert-verify: true
-  alterId: 2
-  cipher: auto
-  tls: false
-  ws-headers:
-    Host: broadcastlv.chat.bilibili.com
-  ws-path: /
+  auth: Yet-Another-Public-Config-1
+  obfs: salamander
+  obfs-password: Yet-Another-Public-Config-1
 - name: 🇭🇰 HK-12 | SHFX
-  type: trojan
-  server: 58.152.46.98
-  port: 443
-  password: BxceQaOe
-  skip-cert-verify: true
-  alterId: 0
-  tls: true
-  udp: true
-- name: 🇭🇰 HK-13 | SHFX
-  type: vmess
-  server: 377dc0dd-sva740-tbrhck-1thqb.hk.p5pv.com
-  port: 80
-  uuid: 4f4c6876-fcf6-11ef-94aa-f23c913c8d2b
-  network: ws
-  skip-cert-verify: true
-  alterId: 2
-  cipher: auto
-  tls: false
-  ws-headers:
-    Host: broadcastlv.chat.bilibili.com
-  ws-path: /
-- name: 🇭🇰 HK-14 | SHFX
-  type: vmess
-  server: 0a46ce00-sunz40-taz53d-1j0y6.hk.p5pv.com
-  port: 80
-  uuid: 1cce7df2-251c-11ee-9409-f23c9164ca5d
-  network: ws
-  skip-cert-verify: true
-  alterId: 2
-  cipher: auto
-  tls: false
-  ws-headers:
-    Host: 0a46ce00-sunz40-taz53d-1j0y6.hk.p5pv.com
-  ws-path: /
-- name: 🇭🇰 HK-15 | SHFX
-  type: vmess
-  server: dbacca25-sv2sg0-sv0wpw-17xo8.hk.p5pv.com
-  port: 80
-  uuid: b4e40aa2-74a1-11ed-b0b5-f23c9164ca5d
-  network: ws
-  skip-cert-verify: true
-  alterId: 2
-  cipher: auto
-  tls: false
-  ws-headers:
-    Host: broadcastlv.chat.bilibili.com
-  ws-path: /
-- name: 🇭🇰 HK-16 | SHFX
-  type: vmess
-  server: cf6a54ef-sv2sg0-swxjgn-1la2q.hk.p5pv.com
-  port: 80
-  uuid: 431026c8-7397-11ed-a8bf-f23c91cfbbc9
-  network: ws
-  skip-cert-verify: true
-  alterId: 2
-  cipher: auto
-  tls: false
-  ws-headers:
-    Host: broadcastlv.chat.bilibili.com
-  ws-path: /
-- name: 🇭🇰 HK-17 | SHFX
-  type: vmess
-  server: bd12944a-sv0xs0-t2lc1c-1mim2.hk.p5pv.com
-  port: 80
-  uuid: 6e3ee1de-381f-11ee-87f9-f23c91cfbbc9
-  network: ws
-  skip-cert-verify: true
-  alterId: 2
-  cipher: auto
-  tls: false
-  ws-headers:
-    Host: broadcastlv.chat.bilibili.com
-  ws-path: /
-- name: 🇭🇰 HK-18 | SHFX
-  type: vmess
-  server: 5e4eabfc-sv2sg0-t2lc1c-1mim2.hk.p5pv.com
-  port: 80
-  uuid: 6e3ee1de-381f-11ee-87f9-f23c91cfbbc9
-  network: ws
-  skip-cert-verify: true
-  alterId: 2
-  cipher: auto
-  tls: false
-  ws-headers:
-    Host: broadcastlv.chat.bilibili.com
-  ws-path: /
-- name: 🇭🇰 HK-19 | SHFX
-  type: vmess
-  server: 13e491cf-szv0g0-t167d0-ggww.hk.p5pv.com
-  port: 80
-  uuid: bcc58e88-e147-11ec-b286-f23c91cfbbc9
-  network: ws
-  skip-cert-verify: true
-  alterId: 2
-  cipher: auto
-  tls: false
-  ws-headers:
-    Host: broadcastlv.chat.bilibili.com
-  ws-path: /
-- name: 🇭🇰 HK-20 | SHFX
-  type: vmess
-  server: cb0c61e4-t0fds0-tfi5fd-1imi4.hk.p5pv.com
-  port: 80
-  uuid: 40fb1315-191a-11ed-b0ca-f23c91cfbbc9
-  network: ws
-  skip-cert-verify: true
-  alterId: 2
-  cipher: auto
-  tls: false
-  ws-headers:
-    Host: broadcastlv.chat.bilibili.com
-  ws-path: /
-- name: 🇭🇰 HK-21 | SHFX
-  type: vmess
-  server: 3aeac334-sv2sg0-t2nkut-jx5r.hk.p5pv.com
-  port: 80
-  uuid: 73bfcc1c-5814-5f2a-b43a-3ef6af011db8
-  network: ws
-  skip-cert-verify: true
-  alterId: 2
-  cipher: auto
-  tls: false
-  ws-headers:
-    Host: broadcastlv.chat.bilibili.com
-  ws-path: /
-- name: 🇭🇰 HK-22 | SHFX
   type: vmess
   server: ab01eb81-sv2sg0-tcsjnd-1tff5.hk.p5pv.com
   port: 80
@@ -495,31 +416,109 @@ proxies:
   ws-headers:
     Host: broadcastlv.chat.bilibili.com
   ws-path: /
-- name: 🇫🇮 FI-1 | SHFX
-  type: vless
-  server: fin.monkeyisland.life
-  port: 443
-  uuid: 74c0af7c-8482-4b4e-b067-ea456a80cdb7
-  servername: fin.monkeyisland.life
-  skip-cert-verify: false
-  client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  reality-opts:
-    public-key: NvdLgcQKj0XeAmqIpCEdvcsgfNrtSyfGnQYNdZ7eTFE
-    short-id: 08aa0813199a4c38
-  tls: true
+- name: 🇭🇰 HK-13 | SHFX
+  type: vmess
+  server: c6008c16-sydb40-tgzvop-hns7.hk.p5pv.com
+  port: 80
+  uuid: 6857f1bc-f27b-11ea-87ad-f23c913c8d2b
+  network: ws
+  skip-cert-verify: true
+  alterId: 2
+  cipher: auto
+  tls: false
+  ws-headers:
+    Host: broadcastlv.chat.bilibili.com
+  ws-path: /
+- name: 🇭🇰 HK-14 | SHFX
+  type: vmess
+  server: 3aeac334-sv2sg0-t2nkut-jx5r.hk.p5pv.com
+  port: 80
+  uuid: 73bfcc1c-5814-5f2a-b43a-3ef6af011db8
+  network: ws
+  skip-cert-verify: true
+  alterId: 2
+  cipher: auto
+  tls: false
+  ws-headers:
+    Host: broadcastlv.chat.bilibili.com
+  ws-path: /
+- name: 🇭🇰 HK-15 | SHFX
+  type: vmess
+  server: c4d1a16b-szg740-t41p4y-1hpo0.hk.p5pv.com
+  port: 80
+  uuid: c3dc8d26-ab2b-11ec-a8bf-f23c91cfbbc9
+  network: ws
+  skip-cert-verify: true
+  alterId: 2
+  cipher: auto
+  tls: false
+  ws-headers:
+    Host: broadcastlv.chat.bilibili.com
+  ws-path: /
+- name: 🇭🇰 HK-16 | SHFX
+  type: vmess
+  server: 0a46ce00-sunz40-taz53d-1j0y6.hk.p5pv.com
+  port: 80
+  uuid: 1cce7df2-251c-11ee-9409-f23c9164ca5d
+  network: ws
+  skip-cert-verify: true
+  alterId: 2
+  cipher: auto
+  tls: false
+  ws-headers:
+    Host: 0a46ce00-sunz40-taz53d-1j0y6.hk.p5pv.com
+  ws-path: /
+- name: 🇭🇰 HK-17 | SHFX
+  type: vmess
+  server: da79f07b-sv0xs0-t7hu58-1q1la.hk3.p5pv.com
+  port: 80
+  uuid: 25b46954-9a33-11ee-8b86-f23c91cfbbc9
+  network: ws
+  skip-cert-verify: true
+  alterId: 2
+  cipher: auto
+  tls: false
+  ws-headers:
+    Host: broadcastlv.chat.bilibili.com
+  ws-path: /
+- name: 🇨🇳 CN-2 | SHFX
+  type: vmess
+  server: 139.129.20.6
+  port: 50002
+  uuid: 418048af-a293-4b99-9b0c-98ca3580dd24
+  network: tcp
+  skip-cert-verify: true
+  alterId: 0
+  cipher: auto
+  tfo: true
   udp: true
-- name: 🇳🇱 NL-1 | SHFX
-  type: hysteria2
-  server: 206.71.158.37
-  port: 35000
-  password: Yet-Another-Public-Config-1
-  sni: YAPC-1.afshin.ir
-  skip-cert-verify: false
-  auth: Yet-Another-Public-Config-1
-  obfs: salamander
-  obfs-password: Yet-Another-Public-Config-1
-- name: 🇺🇸 US-3 | SHFX
+- name: 🇭🇰 HK-18 | SHFX
+  type: vmess
+  server: 56ef1baf-sv6hs0-t09t13-z7a1.hk.p5pv.com
+  port: 80
+  uuid: 3bd247a8-993e-11ec-a8bf-f23c91cfbbc9
+  network: ws
+  skip-cert-verify: true
+  alterId: 2
+  cipher: auto
+  tls: false
+  ws-headers:
+    Host: broadcastlv.chat.bilibili.com
+  ws-path: /
+- name: 🇭🇰 HK-19 | SHFX
+  type: vmess
+  server: 80aec38c-sv0xs0-sx16xo-1j3zm.hk3.p5pv.com
+  port: 80
+  uuid: 6ce63b80-8b5b-11ef-b635-f23c9164ca5d
+  network: ws
+  skip-cert-verify: true
+  alterId: 2
+  cipher: auto
+  tls: false
+  ws-headers:
+    Host: broadcastlv.chat.bilibili.com
+  ws-path: /
+- name: 🇺🇸 US-5 | SHFX
   type: vless
   server: cf-cname.xingpingcn.top
   port: 443
@@ -534,7 +533,7 @@ proxies:
       Host: snippet.danfeng.site
   tls: true
   tfo: false
-- name: 🇺🇸 US-4 | SHFX
+- name: 🇺🇸 US-6 | SHFX
   type: vless
   server: time.is
   port: 2096
@@ -564,7 +563,7 @@ proxies:
       Host: snippet.danfeng.site
   tls: true
   tfo: false
-- name: 🇭🇰 HK-23 | SHFX
+- name: 🇭🇰 HK-20 | SHFX
   type: vless
   server: 46.232.108.71
   port: 37764
@@ -579,7 +578,7 @@ proxies:
       Host: snippet.danfeng.site
   tls: true
   tfo: false
-- name: 🇭🇰 HK-24 | SHFX
+- name: 🇭🇰 HK-21 | SHFX
   type: vless
   server: 46.232.108.166
   port: 57811
@@ -594,7 +593,7 @@ proxies:
       Host: snippet.danfeng.site
   tls: true
   tfo: false
-- name: 🇭🇰 HK-25 | SHFX
+- name: 🇭🇰 HK-22 | SHFX
   type: vless
   server: 205.189.160.29
   port: 443
@@ -609,7 +608,7 @@ proxies:
       Host: snippet.danfeng.site
   tls: true
   tfo: false
-- name: 🇭🇰 HK-26 | SHFX
+- name: 🇭🇰 HK-23 | SHFX
   type: vless
   server: 38.207.174.80
   port: 43242
@@ -624,7 +623,7 @@ proxies:
       Host: snippet.danfeng.site
   tls: true
   tfo: false
-- name: 🇭🇰 HK-27 | SHFX
+- name: 🇭🇰 HK-24 | SHFX
   type: vless
   server: 38.71.124.55
   port: 1443
@@ -819,7 +818,7 @@ proxies:
       Host: snippet.danfeng.site
   tls: true
   tfo: false
-- name: 🇺🇸 US-5 | SHFX
+- name: 🇺🇸 US-7 | SHFX
   type: vless
   server: 154.26.190.103
   port: 23456
@@ -834,7 +833,7 @@ proxies:
       Host: snippet.danfeng.site
   tls: true
   tfo: false
-- name: 🇺🇸 US-6 | SHFX
+- name: 🇺🇸 US-8 | SHFX
   type: vless
   server: 154.9.26.241
   port: 41668
@@ -849,7 +848,7 @@ proxies:
       Host: snippet.danfeng.site
   tls: true
   tfo: false
-- name: 🇺🇸 US-7 | SHFX
+- name: 🇺🇸 US-9 | SHFX
   type: vless
   server: 38.207.183.237
   port: 10358
@@ -864,7 +863,7 @@ proxies:
       Host: snippet.danfeng.site
   tls: true
   tfo: false
-- name: 🇺🇸 US-8 | SHFX
+- name: 🇺🇸 US-10 | SHFX
   type: vless
   server: 38.47.118.247
   port: 11283
@@ -879,7 +878,7 @@ proxies:
       Host: snippet.danfeng.site
   tls: true
   tfo: false
-- name: 🇺🇸 US-9 | SHFX
+- name: 🇺🇸 US-11 | SHFX
   type: vless
   server: 154.17.1.6
   port: 6443
@@ -894,7 +893,7 @@ proxies:
       Host: snippet.danfeng.site
   tls: true
   tfo: false
-- name: 🇺🇸 US-10 | SHFX
+- name: 🇺🇸 US-12 | SHFX
   type: vless
   server: 72.249.204.153
   port: 46200
@@ -909,7 +908,7 @@ proxies:
       Host: snippet.danfeng.site
   tls: true
   tfo: false
-- name: 🇺🇸 US-11 | SHFX
+- name: 🇺🇸 US-13 | SHFX
   type: vless
   server: 170.106.152.78
   port: 443
@@ -924,7 +923,7 @@ proxies:
       Host: snippet.danfeng.site
   tls: true
   tfo: false
-- name: 🇺🇸 US-12 | SHFX
+- name: 🇺🇸 US-14 | SHFX
   type: vless
   server: 38.47.116.238
   port: 15625
@@ -939,7 +938,7 @@ proxies:
       Host: snippet.danfeng.site
   tls: true
   tfo: false
-- name: 🇺🇸 US-13 | SHFX
+- name: 🇺🇸 US-15 | SHFX
   type: vless
   server: 38.79.114.49
   port: 587
@@ -954,7 +953,7 @@ proxies:
       Host: snippet.danfeng.site
   tls: true
   tfo: false
-- name: 🇺🇸 US-14 | SHFX
+- name: 🇺🇸 US-16 | SHFX
   type: vless
   server: 65.49.216.153
   port: 2443
@@ -969,7 +968,7 @@ proxies:
       Host: snippet.danfeng.site
   tls: true
   tfo: false
-- name: 🇺🇸 US-15 | SHFX
+- name: 🇺🇸 US-17 | SHFX
   type: vless
   server: 104.194.87.63
   port: 40001
@@ -984,7 +983,7 @@ proxies:
       Host: snippet.danfeng.site
   tls: true
   tfo: false
-- name: 🇬🇧 GB-1 | SHFX
+- name: 🇬🇧 GB-2 | SHFX
   type: vless
   server: 91.149.203.109
   port: 39738
@@ -1006,45 +1005,45 @@ proxy-groups:
     proxies:
       - 自动选择⚡️
       - 🇺🇸 US-1 | SHFX
+      - 🇯🇵 JP-1 | SHFX
+      - 🇬🇧 GB-1 | SHFX
       - 🇺🇸 US-2 | SHFX
+      - 🇺🇸 US-3 | SHFX
       - 🇭🇰 HK-1 | SHFX
       - 🇩🇪 DE-1 | SHFX
+      - 🇰🇷 KR-1 | SHFX
       - 🇭🇰 HK-2 | SHFX
-      - 🇭🇰 HK-3 | SHFX
       - 🇫🇷 FR-1 | SHFX
+      - 🇭🇰 HK-3 | SHFX
       - 🇭🇰 HK-4 | SHFX
       - 🇭🇰 HK-5 | SHFX
+      - 🇺🇸 US-4 | SHFX
       - 🇭🇰 HK-6 | SHFX
       - 🇨🇳 CN-1 | SHFX
-      - 🇯🇵 JP-1 | SHFX
+      - 🇫🇮 FI-1 | SHFX
       - 🇭🇰 HK-7 | SHFX
       - 🇭🇰 HK-8 | SHFX
-      - 🇨🇳 CN-2 | SHFX
       - 🇭🇰 HK-9 | SHFX
-      - 🇰🇷 KR-1 | SHFX
       - 🇭🇰 HK-10 | SHFX
       - 🇭🇰 HK-11 | SHFX
+      - 🇳🇱 NL-1 | SHFX
       - 🇭🇰 HK-12 | SHFX
       - 🇭🇰 HK-13 | SHFX
       - 🇭🇰 HK-14 | SHFX
       - 🇭🇰 HK-15 | SHFX
       - 🇭🇰 HK-16 | SHFX
       - 🇭🇰 HK-17 | SHFX
+      - 🇨🇳 CN-2 | SHFX
       - 🇭🇰 HK-18 | SHFX
       - 🇭🇰 HK-19 | SHFX
+      - 🇺🇸 US-5 | SHFX
+      - 🇺🇸 US-6 | SHFX
+      - 🇰🇷 KR-2 | SHFX
       - 🇭🇰 HK-20 | SHFX
       - 🇭🇰 HK-21 | SHFX
       - 🇭🇰 HK-22 | SHFX
-      - 🇫🇮 FI-1 | SHFX
-      - 🇳🇱 NL-1 | SHFX
-      - 🇺🇸 US-3 | SHFX
-      - 🇺🇸 US-4 | SHFX
-      - 🇰🇷 KR-2 | SHFX
       - 🇭🇰 HK-23 | SHFX
       - 🇭🇰 HK-24 | SHFX
-      - 🇭🇰 HK-25 | SHFX
-      - 🇭🇰 HK-26 | SHFX
-      - 🇭🇰 HK-27 | SHFX
       - 🇯🇵 JP-2 | SHFX
       - 🇯🇵 JP-3 | SHFX
       - 🇯🇵 JP-4 | SHFX
@@ -1057,8 +1056,6 @@ proxy-groups:
       - 🇸🇬 SG-2 | SHFX
       - 🇨🇳 CN-3 | SHFX
       - 🇨🇳 CN-4 | SHFX
-      - 🇺🇸 US-5 | SHFX
-      - 🇺🇸 US-6 | SHFX
       - 🇺🇸 US-7 | SHFX
       - 🇺🇸 US-8 | SHFX
       - 🇺🇸 US-9 | SHFX
@@ -1068,50 +1065,52 @@ proxy-groups:
       - 🇺🇸 US-13 | SHFX
       - 🇺🇸 US-14 | SHFX
       - 🇺🇸 US-15 | SHFX
-      - 🇬🇧 GB-1 | SHFX
+      - 🇺🇸 US-16 | SHFX
+      - 🇺🇸 US-17 | SHFX
+      - 🇬🇧 GB-2 | SHFX
   - name: 自动选择⚡️
     type: url-test
     proxies:
       - 🇺🇸 US-1 | SHFX
+      - 🇯🇵 JP-1 | SHFX
+      - 🇬🇧 GB-1 | SHFX
       - 🇺🇸 US-2 | SHFX
+      - 🇺🇸 US-3 | SHFX
       - 🇭🇰 HK-1 | SHFX
       - 🇩🇪 DE-1 | SHFX
+      - 🇰🇷 KR-1 | SHFX
       - 🇭🇰 HK-2 | SHFX
-      - 🇭🇰 HK-3 | SHFX
       - 🇫🇷 FR-1 | SHFX
+      - 🇭🇰 HK-3 | SHFX
       - 🇭🇰 HK-4 | SHFX
       - 🇭🇰 HK-5 | SHFX
+      - 🇺🇸 US-4 | SHFX
       - 🇭🇰 HK-6 | SHFX
       - 🇨🇳 CN-1 | SHFX
-      - 🇯🇵 JP-1 | SHFX
+      - 🇫🇮 FI-1 | SHFX
       - 🇭🇰 HK-7 | SHFX
       - 🇭🇰 HK-8 | SHFX
-      - 🇨🇳 CN-2 | SHFX
       - 🇭🇰 HK-9 | SHFX
-      - 🇰🇷 KR-1 | SHFX
       - 🇭🇰 HK-10 | SHFX
       - 🇭🇰 HK-11 | SHFX
+      - 🇳🇱 NL-1 | SHFX
       - 🇭🇰 HK-12 | SHFX
       - 🇭🇰 HK-13 | SHFX
       - 🇭🇰 HK-14 | SHFX
       - 🇭🇰 HK-15 | SHFX
       - 🇭🇰 HK-16 | SHFX
       - 🇭🇰 HK-17 | SHFX
+      - 🇨🇳 CN-2 | SHFX
       - 🇭🇰 HK-18 | SHFX
       - 🇭🇰 HK-19 | SHFX
+      - 🇺🇸 US-5 | SHFX
+      - 🇺🇸 US-6 | SHFX
+      - 🇰🇷 KR-2 | SHFX
       - 🇭🇰 HK-20 | SHFX
       - 🇭🇰 HK-21 | SHFX
       - 🇭🇰 HK-22 | SHFX
-      - 🇫🇮 FI-1 | SHFX
-      - 🇳🇱 NL-1 | SHFX
-      - 🇺🇸 US-3 | SHFX
-      - 🇺🇸 US-4 | SHFX
-      - 🇰🇷 KR-2 | SHFX
       - 🇭🇰 HK-23 | SHFX
       - 🇭🇰 HK-24 | SHFX
-      - 🇭🇰 HK-25 | SHFX
-      - 🇭🇰 HK-26 | SHFX
-      - 🇭🇰 HK-27 | SHFX
       - 🇯🇵 JP-2 | SHFX
       - 🇯🇵 JP-3 | SHFX
       - 🇯🇵 JP-4 | SHFX
@@ -1124,8 +1123,6 @@ proxy-groups:
       - 🇸🇬 SG-2 | SHFX
       - 🇨🇳 CN-3 | SHFX
       - 🇨🇳 CN-4 | SHFX
-      - 🇺🇸 US-5 | SHFX
-      - 🇺🇸 US-6 | SHFX
       - 🇺🇸 US-7 | SHFX
       - 🇺🇸 US-8 | SHFX
       - 🇺🇸 US-9 | SHFX
@@ -1135,7 +1132,9 @@ proxy-groups:
       - 🇺🇸 US-13 | SHFX
       - 🇺🇸 US-14 | SHFX
       - 🇺🇸 US-15 | SHFX
-      - 🇬🇧 GB-1 | SHFX
+      - 🇺🇸 US-16 | SHFX
+      - 🇺🇸 US-17 | SHFX
+      - 🇬🇧 GB-2 | SHFX
     url: https://www.gstatic.com/generate_204
     interval: 300
 rules:
