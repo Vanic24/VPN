@@ -1,4 +1,4 @@
-# Last update: 02.11.2025 14:53:03
+# Last update: 02.11.2025 16:48:52
 mixed-port: 7897
 allow-lan: false
 mode: rule
@@ -265,18 +265,6 @@ proxies:
   pbk: VcoqMQrm5m2yWZ2DRkKDIYe3RylXv-wOTLfinnHdniI
   sid: 322e026f
 - name: 🇨🇦 CA-2 | 9PB
-  type: hysteria2
-  server: ca.9966663.xyz
-  port: 46352
-  password: a7c5d30b-ce9b-4e34-b5cb-66f8308790ef
-  sni: ca.9966663.xyz
-  skip-cert-verify: true
-  tls:
-    enabled: true
-    server_name: ca.9966663.xyz
-    insecure: false
-  insecure: '0'
-- name: 🇨🇦 CA-3 | 9PB
   type: anytls
   server: ca.9966663.xyz
   port: 53633
@@ -689,69 +677,6 @@ proxies:
   password: a7c5d30b-ce9b-4e34-b5cb-66f8308790ef
   sni: de.9966663.xyz
   insecure: '0'
-- name: 🇮🇸 IS-1 | 9PB
-  type: vless
-  server: ua.9966663.xyz
-  port: 22111
-  uuid: a7c5d30b-ce9b-4e34-b5cb-66f8308790ef
-  encryption: none
-  network: tcp
-  security: reality
-  sni: www.cloudflare.com
-  fp: chrome
-  reality-opts:
-    public-key: YaurDKSYIW7aJB-j2v0nwE2V7WOfBr7Jusf9iIclxEo
-    short-id: d2782666
-    server-name: www.cloudflare.com
-  tls: true
-  headerType: none
-  quicSecurity: none
-  flow: xtls-rprx-vision
-  insecure: '0'
-  pbk: YaurDKSYIW7aJB-j2v0nwE2V7WOfBr7Jusf9iIclxEo
-  sid: d2782666
-- name: 🇮🇸 IS-2 | 9PB
-  type: vless
-  server: ua.9966663.xyz
-  port: 22112
-  uuid: a7c5d30b-ce9b-4e34-b5cb-66f8308790ef
-  encryption: none
-  network: tcp
-  security: reality
-  sni: www.cloudflare.com
-  fp: chrome
-  reality-opts:
-    public-key: ohDoWy4rz39b0RFFHylbF2nYRE3TaDypLG967mFn4H4
-    short-id: 57c86d91
-    server-name: www.cloudflare.com
-  tls: true
-  headerType: none
-  quicSecurity: none
-  flow: xtls-rprx-vision
-  insecure: '0'
-  pbk: ohDoWy4rz39b0RFFHylbF2nYRE3TaDypLG967mFn4H4
-  sid: 57c86d91
-- name: 🇮🇸 IS-3 | 9PB
-  type: vless
-  server: ua.9966663.xyz
-  port: 22113
-  uuid: a7c5d30b-ce9b-4e34-b5cb-66f8308790ef
-  encryption: none
-  network: tcp
-  security: reality
-  sni: www.cloudflare.com
-  fp: chrome
-  reality-opts:
-    public-key: vEi6zDAm47dfH3a2AqUtV885yNokUhUQk4XzmITj9x0
-    short-id: 243e48c1
-    server-name: www.cloudflare.com
-  tls: true
-  headerType: none
-  quicSecurity: none
-  flow: xtls-rprx-vision
-  insecure: '0'
-  pbk: vEi6zDAm47dfH3a2AqUtV885yNokUhUQk4XzmITj9x0
-  sid: 243e48c1
 - name: 🇱🇹 LT-1 | 9PB
   type: vless
   server: lt.9966663.xyz
@@ -1507,7 +1432,25 @@ proxies:
   port: 8888
   password: a7c5d30b-ce9b-4e34-b5cb-66f8308790ef
   cipher: aes-128-gcm
+- name: 🇭🇰 HK-4 | 9PB
+  type: trojan
+  server: 36.151.192.242
+  port: 194
+  password: BxceQaOe
+  network: tcp
+  security: tls
+  sni: 36.151.192.242
+  servername: 36.151.192.242
+  skip-cert-verify: true
+  allowInsecure: '1'
+  peer: 36.151.192.242
 - name: 🇦🇺 AU-2 | 9PB
+  type: ss
+  server: 1.1.1.1
+  port: 8888
+  password: a7c5d30b-ce9b-4e34-b5cb-66f8308790ef
+  cipher: aes-128-gcm
+- name: 🇦🇺 AU-3 | 9PB
   type: ss
   server: 1.1.1.1
   port: 8888
@@ -1529,7 +1472,6 @@ proxy-groups:
       - 🇺🇸 US-7 | 9PB
       - 🇨🇦 CA-1 | 9PB
       - 🇨🇦 CA-2 | 9PB
-      - 🇨🇦 CA-3 | 9PB
       - 🇭🇰 HK-1 | 9PB
       - 🇭🇰 HK-2 | 9PB
       - 🇭🇰 HK-3 | 9PB
@@ -1557,9 +1499,6 @@ proxy-groups:
       - 🇩🇪 DE-1 | 9PB
       - 🇩🇪 DE-2 | 9PB
       - 🇩🇪 DE-3 | 9PB
-      - 🇮🇸 IS-1 | 9PB
-      - 🇮🇸 IS-2 | 9PB
-      - 🇮🇸 IS-3 | 9PB
       - 🇱🇹 LT-1 | 9PB
       - 🇱🇹 LT-2 | 9PB
       - 🇱🇹 LT-3 | 9PB
@@ -1612,7 +1551,9 @@ proxy-groups:
       - 🇧🇪 BE-2 | 9PB
       - 🇧🇪 BE-3 | 9PB
       - 🇦🇺 AU-1 | 9PB
+      - 🇭🇰 HK-4 | 9PB
       - 🇦🇺 AU-2 | 9PB
+      - 🇦🇺 AU-3 | 9PB
   - name: 自动选择⚡️
     type: url-test
     proxies:
@@ -1626,7 +1567,6 @@ proxy-groups:
       - 🇺🇸 US-7 | 9PB
       - 🇨🇦 CA-1 | 9PB
       - 🇨🇦 CA-2 | 9PB
-      - 🇨🇦 CA-3 | 9PB
       - 🇭🇰 HK-1 | 9PB
       - 🇭🇰 HK-2 | 9PB
       - 🇭🇰 HK-3 | 9PB
@@ -1654,9 +1594,6 @@ proxy-groups:
       - 🇩🇪 DE-1 | 9PB
       - 🇩🇪 DE-2 | 9PB
       - 🇩🇪 DE-3 | 9PB
-      - 🇮🇸 IS-1 | 9PB
-      - 🇮🇸 IS-2 | 9PB
-      - 🇮🇸 IS-3 | 9PB
       - 🇱🇹 LT-1 | 9PB
       - 🇱🇹 LT-2 | 9PB
       - 🇱🇹 LT-3 | 9PB
@@ -1709,7 +1646,9 @@ proxy-groups:
       - 🇧🇪 BE-2 | 9PB
       - 🇧🇪 BE-3 | 9PB
       - 🇦🇺 AU-1 | 9PB
+      - 🇭🇰 HK-4 | 9PB
       - 🇦🇺 AU-2 | 9PB
+      - 🇦🇺 AU-3 | 9PB
     url: https://www.gstatic.com/generate_204
     interval: 300
 rules:
