@@ -1,4 +1,4 @@
-# Last update: 04.11.2025 08:23:13
+# Last update: 04.11.2025 10:57:52
 mixed-port: 7897
 allow-lan: false
 mode: rule
@@ -121,38 +121,36 @@ dns:
       - +.googleapis.com
       - +.gvt1.com
 proxies:
-- name: 🇺🇸 US-1 | StarLink
+- name: 🇫🇷 FR-1 | StarLink
   type: vless
-  server: ip.sb
-  port: 443
-  uuid: b15acbbd-a093-4269-a20d-d74dce4bff89
+  server: 95.164.45.27
+  port: 8880
+  uuid: df0680ca-e43c-498d-ed86-8e196eedd012
   encryption: none
-  network: ws
-  security: tls
-  sni: 1079ca08.turk-71y.pages.dev
-  servername: 1079ca08.turk-71y.pages.dev
-  skip-cert-verify: false
-  path: /
-  ws-opts:
-    path: /
-  tls: true
-- name: 🇰🇷 KR-1 | StarLink
-  type: vmess
-  server: 152.70.92.69
-  port: 80
-  uuid: bb9c3993-a4b9-4dad-aeb9-ac86371ae68b
-  network: tcp
-  path: /
-  alterId: 0
-  cipher: auto
-  tls: false
-  v: '2'
-  ps: 🔥【交流群@pgkj0402】
-  add: 152.70.92.69
-  id: bb9c3993-a4b9-4dad-aeb9-ac86371ae68b
-  aid: '0'
-  scy: auto
-  net: tcp
+  network: grpc
+  security: none
+  grpc-opts:
+    grpc-service-name: ''
+- name: 🇫🇷 FR-2 | StarLink
+  type: vless
+  server: 94.232.247.208
+  port: 8880
+  uuid: df0680ca-e43c-498d-ed86-8e196eedd012
+  encryption: none
+  network: grpc
+  security: none
+  grpc-opts:
+    grpc-service-name: ''
+- name: 🇫🇷 FR-3 | StarLink
+  type: vless
+  server: 95.164.45.119
+  port: 8880
+  uuid: df0680ca-e43c-498d-ed86-8e196eedd012
+  encryption: none
+  network: grpc
+  security: none
+  grpc-opts:
+    grpc-service-name: ''
 - name: 🇭🇰 HK-1 | StarLink
   type: trojan
   server: 58.152.46.98
@@ -163,7 +161,7 @@ proxies:
   skip-cert-verify: true
   allowInsecure: '1'
   headerType: none
-- name: 🇫🇷 FR-1 | StarLink
+- name: 🇫🇷 FR-4 | StarLink
   type: vless
   server: 95.164.45.62
   port: 8880
@@ -223,7 +221,7 @@ proxies:
   security: none
   grpc-opts:
     grpc-service-name: ''
-- name: 🇫🇷 FR-2 | StarLink
+- name: 🇫🇷 FR-5 | StarLink
   type: vless
   server: 95.164.45.27
   port: 8880
@@ -233,7 +231,7 @@ proxies:
   security: none
   grpc-opts:
     grpc-service-name: ''
-- name: 🇫🇷 FR-3 | StarLink
+- name: 🇫🇷 FR-6 | StarLink
   type: vless
   server: 95.164.45.119
   port: 8880
@@ -273,25 +271,6 @@ proxies:
   security: none
   grpc-opts:
     grpc-service-name: ''
-- name: 🇳🇱 NL-1 | StarLink
-  type: vless
-  server: 195.66.27.152
-  port: 443
-  uuid: fa-7549225089-1761680237482111
-  encryption: none
-  network: tcp
-  security: reality
-  sni: mycatcollection.com
-  fp: chrome
-  reality-opts:
-    public-key: 2rjzbqQ49m-jpfzhiuBNb8Izwwjw0dIg5JAKdv-B2kE
-    short-id: d1d42381ba35
-    server-name: mycatcollection.com
-  tls: true
-  flow: xtls-rprx-vision
-  pbk: 2rjzbqQ49m-jpfzhiuBNb8Izwwjw0dIg5JAKdv-B2kE
-  sid: d1d42381ba35
-  headerType: none
 - name: 🇯🇵 JP-1 | StarLink
   type: vless
   server: softbank88.xzcloudnode.sbs
@@ -441,26 +420,7 @@ proxies:
   security: none
   grpc-opts:
     grpc-service-name: ''
-- name: 🇸🇪 SE-1 | StarLink
-  type: vless
-  server: se.monkeyisland.life
-  port: 443
-  uuid: 74c0af7c-8482-4b4e-b067-ea456a80cdb7
-  encryption: none
-  network: tcp
-  security: reality
-  sni: se.monkeyisland.life
-  fp: chrome
-  reality-opts:
-    public-key: NvdLgcQKj0XeAmqIpCEdvcsgfNrtSyfGnQYNdZ7eTFE
-    short-id: 08aa0813199a4c38
-    server-name: se.monkeyisland.life
-  tls: true
-  flow: xtls-rprx-vision
-  pbk: NvdLgcQKj0XeAmqIpCEdvcsgfNrtSyfGnQYNdZ7eTFE
-  sid: 08aa0813199a4c38
-  headerType: none
-- name: 🇺🇸 US-2 | StarLink
+- name: 🇺🇸 US-1 | StarLink
   type: vless
   server: 199.34.230.114
   port: 2053
@@ -481,45 +441,7 @@ proxies:
   - h3
   - h2
   - http/1.1
-- name: 🇸🇪 SE-2 | StarLink
-  type: vless
-  server: 62.182.192.91
-  port: 443
-  uuid: 74c0af7c-8482-4b4e-b067-ea456a80cdb7
-  encryption: none
-  network: tcp
-  security: reality
-  sni: se.monkeyisland.life
-  fp: chrome
-  reality-opts:
-    public-key: NvdLgcQKj0XeAmqIpCEdvcsgfNrtSyfGnQYNdZ7eTFE
-    short-id: 08aa0813199a4c38
-    server-name: se.monkeyisland.life
-  tls: true
-  flow: xtls-rprx-vision
-  pbk: NvdLgcQKj0XeAmqIpCEdvcsgfNrtSyfGnQYNdZ7eTFE
-  sid: 08aa0813199a4c38
-  headerType: none
-- name: 🇺🇸 US-3 | StarLink
-  type: vless
-  server: usa.savanet.pro
-  port: 443
-  uuid: 87eff1bd-d55f-4df2-a5ad-863368a16cb7
-  encryption: none
-  network: tcp
-  security: reality
-  sni: yandex.com
-  fp: chrome
-  reality-opts:
-    public-key: s1YS6OaMKypumOxq7u22Pf_FaSjEbRvgLrJf1iTOKWY
-    short-id: bce24697c04e
-    server-name: yandex.com
-  tls: true
-  flow: xtls-rprx-vision
-  pbk: s1YS6OaMKypumOxq7u22Pf_FaSjEbRvgLrJf1iTOKWY
-  sid: bce24697c04e
-  headerType: none
-- name: 🇺🇸 US-4 | StarLink
+- name: 🇺🇸 US-2 | StarLink
   type: hysteria2
   server: 825eee23-t4un40-tcj7b6-d70y.la.shifen.uk
   port: 1743
@@ -531,124 +453,7 @@ proxies:
     server_name: 825eee23-t4un40-tcj7b6-d70y.la.shifen.uk
     insecure: false
   insecure: '0'
-- name: 🇸🇬 SG-1 | StarLink
-  type: hysteria2
-  server: 111.91.27.107
-  port: 46107
-  password: miaoge110
-  sni: www.bing.com
-  skip-cert-verify: true
-  tls:
-    enabled: true
-    server_name: www.bing.com
-    insecure: true
-  insecure: '1'
-- name: 🇸🇬 SG-2 | StarLink
-  type: vless
-  server: ns.cloudflare.com
-  port: 2095
-  uuid: 86c50e3a-5b87-49dd-bd20-03c7f2735e40
-  encryption: none
-  network: ws
-  security: none
-  sni: fuckingfangbinxing.fangbinxingnmsl.workers.dev
-  path: /
-  ws-opts:
-    path: /
-    headers:
-      Host: fuckingfangbinxing.fangbinxingnmsl.workers.dev
-  host: fuckingfangbinxing.fangbinxingnmsl.workers.dev
-- name: 🇩🇪 DE-1 | StarLink
-  type: vless
-  server: ip.sb
-  port: 443
-  uuid: b15acbbd-a093-4269-a20d-d74dce4bff89
-  encryption: none
-  network: ws
-  security: tls
-  sni: 1079ca08.turk-71y.pages.dev
-  servername: 1079ca08.turk-71y.pages.dev
-  skip-cert-verify: false
-  path: /rqi2wmvf7pii4hrp/njiumy4xmi4xodu=?ed=2560
-  ws-opts:
-    path: /rqi2wmvf7pii4hrp/njiumy4xmi4xodu=?ed=2560
-    headers:
-      Host: 1079ca08.turk-71y.pages.dev
-  tls: true
-  host: 1079ca08.turk-71y.pages.dev
-- name: 🇩🇪 DE-2 | StarLink
-  type: vless
-  server: ip.sb
-  port: 443
-  uuid: 70f8697b-f9f3-4692-8e0a-3d1834fd76dc
-  encryption: none
-  network: ws
-  security: tls
-  sni: 9ed0E8C6.aE-1eR.pAGes.DeV
-  servername: 9ed0E8C6.aE-1eR.pAGes.DeV
-  skip-cert-verify: false
-  path: /3lsr9x5oumrtis3q/mtkzljeymy42os43nw==?ed=2560
-  ws-opts:
-    path: /3lsr9x5oumrtis3q/mtkzljeymy42os43nw==?ed=2560
-    headers:
-      Host: 9ed0E8C6.aE-1eR.pAGes.DeV
-  tls: true
-  host: 9ed0E8C6.aE-1eR.pAGes.DeV
-- name: 🇺🇸 US-5 | StarLink
-  type: vless
-  server: 193.31.127.10
-  port: 443
-  uuid: 40730d97-ffa7-1108-2c53-761516eb5fda
-  encryption: none
-  network: tcp
-  security: reality
-  sni: speed.cloudflare.com
-  fp: chrome
-  reality-opts:
-    public-key: ehRbIcN9HhqjhReY1pjqIBGqHCbdY26Kq70_w7k4jgY
-    short-id: ''
-    server-name: speed.cloudflare.com
-  tls: true
-  flow: xtls-rprx-vision
-  pbk: ehRbIcN9HhqjhReY1pjqIBGqHCbdY26Kq70_w7k4jgY
-  headerType: none
-- name: 🇺🇸 US-6 | StarLink
-  type: vless
-  server: 45.159.23.10
-  port: 443
-  uuid: 40730d97-ffa7-1108-2c53-761516eb5fda
-  encryption: none
-  network: tcp
-  security: reality
-  sni: speed.cloudflare.com
-  fp: chrome
-  reality-opts:
-    public-key: wcgZB6t2VBnMQf55huXkibGw4RPL6WqXPfcZxhJ8Qms
-    short-id: ''
-    server-name: speed.cloudflare.com
-  tls: true
-  flow: xtls-rprx-vision
-  pbk: wcgZB6t2VBnMQf55huXkibGw4RPL6WqXPfcZxhJ8Qms
-  headerType: none
-- name: 🇺🇸 US-7 | StarLink
-  type: vless
-  server: 193.202.12.10
-  port: 443
-  uuid: 40730d97-ffa7-1108-2c53-761516eb5fda
-  encryption: none
-  network: tcp
-  security: reality
-  sni: speed.cloudflare.com
-  fp: chrome
-  reality-opts:
-    public-key: BqPcbcS0agCOmW5xem5nQldi_2oGariVJdJZ6Q57810
-    short-id: ''
-    server-name: speed.cloudflare.com
-  tls: true
-  flow: xtls-rprx-vision
-  pbk: BqPcbcS0agCOmW5xem5nQldi_2oGariVJdJZ6Q57810
-  headerType: none
-- name: 🇺🇸 US-8 | StarLink
+- name: 🇺🇸 US-3 | StarLink
   type: vless
   server: 185.77.221.10
   port: 443
@@ -666,7 +471,7 @@ proxies:
   flow: xtls-rprx-vision
   pbk: hxPcjUR-8QiEhcFdvvJz3JS4xUnoSv6KsxMWG0yGkh0
   headerType: none
-- name: 🇺🇸 US-9 | StarLink
+- name: 🇺🇸 US-4 | StarLink
   type: vless
   server: 193.56.20.10
   port: 443
@@ -684,7 +489,7 @@ proxies:
   flow: xtls-rprx-vision
   pbk: wl7R7v8MbaC_Nh-_FNf1DoFXHDquVRtfX2Z20oXL6Q8
   headerType: none
-- name: 🇺🇸 US-10 | StarLink
+- name: 🇺🇸 US-5 | StarLink
   type: vless
   server: 185.77.221.10
   port: 993
@@ -702,7 +507,7 @@ proxies:
   flow: xtls-rprx-vision
   pbk: hxPcjUR-8QiEhcFdvvJz3JS4xUnoSv6KsxMWG0yGkh0
   headerType: none
-- name: 🇺🇸 US-11 | StarLink
+- name: 🇺🇸 US-6 | StarLink
   type: vless
   server: 193.56.20.10
   port: 993
@@ -737,132 +542,6 @@ proxies:
   tls: true
   flow: xtls-rprx-vision
   pbk: oE7ZEghzkaOUiw1q3PqBtpllP1NlPHLY8ydJRuICtko
-  headerType: none
-- name: 🇺🇸 US-12 | StarLink
-  type: vless
-  server: 193.202.12.10
-  port: 993
-  uuid: 40730d97-ffa7-1108-2c53-761516eb5fda
-  encryption: none
-  network: tcp
-  security: reality
-  sni: speed.cloudflare.com
-  fp: chrome
-  reality-opts:
-    public-key: BqPcbcS0agCOmW5xem5nQldi_2oGariVJdJZ6Q57810
-    short-id: ''
-    server-name: speed.cloudflare.com
-  tls: true
-  flow: xtls-rprx-vision
-  pbk: BqPcbcS0agCOmW5xem5nQldi_2oGariVJdJZ6Q57810
-  headerType: none
-- name: 🇺🇸 US-13 | StarLink
-  type: vless
-  server: 193.31.127.10
-  port: 993
-  uuid: 40730d97-ffa7-1108-2c53-761516eb5fda
-  encryption: none
-  network: tcp
-  security: reality
-  sni: speed.cloudflare.com
-  fp: chrome
-  reality-opts:
-    public-key: ehRbIcN9HhqjhReY1pjqIBGqHCbdY26Kq70_w7k4jgY
-    short-id: ''
-    server-name: speed.cloudflare.com
-  tls: true
-  flow: xtls-rprx-vision
-  pbk: ehRbIcN9HhqjhReY1pjqIBGqHCbdY26Kq70_w7k4jgY
-  headerType: none
-- name: 🇺🇸 US-14 | StarLink
-  type: vless
-  server: 45.159.23.10
-  port: 993
-  uuid: 40730d97-ffa7-1108-2c53-761516eb5fda
-  encryption: none
-  network: tcp
-  security: reality
-  sni: speed.cloudflare.com
-  fp: chrome
-  reality-opts:
-    public-key: wcgZB6t2VBnMQf55huXkibGw4RPL6WqXPfcZxhJ8Qms
-    short-id: ''
-    server-name: speed.cloudflare.com
-  tls: true
-  flow: xtls-rprx-vision
-  pbk: wcgZB6t2VBnMQf55huXkibGw4RPL6WqXPfcZxhJ8Qms
-  headerType: none
-- name: 🇦🇪 AE-1 | StarLink
-  type: vless
-  server: 45.88.13.10
-  port: 443
-  uuid: 40730d97-ffa7-1108-2c53-761516eb5fda
-  encryption: none
-  network: tcp
-  security: reality
-  sni: speed.cloudflare.com
-  fp: chrome
-  reality-opts:
-    public-key: Tv-cNH4ADnhrcIc_JIHdTCz2PJ3b4jkmLNAJ4OVKuzY
-    short-id: ''
-    server-name: speed.cloudflare.com
-  tls: true
-  flow: xtls-rprx-vision
-  pbk: Tv-cNH4ADnhrcIc_JIHdTCz2PJ3b4jkmLNAJ4OVKuzY
-  headerType: none
-- name: 🇦🇪 AE-2 | StarLink
-  type: vless
-  server: 45.88.13.10
-  port: 993
-  uuid: 40730d97-ffa7-1108-2c53-761516eb5fda
-  encryption: none
-  network: tcp
-  security: reality
-  sni: speed.cloudflare.com
-  fp: chrome
-  reality-opts:
-    public-key: Tv-cNH4ADnhrcIc_JIHdTCz2PJ3b4jkmLNAJ4OVKuzY
-    short-id: ''
-    server-name: speed.cloudflare.com
-  tls: true
-  flow: xtls-rprx-vision
-  pbk: Tv-cNH4ADnhrcIc_JIHdTCz2PJ3b4jkmLNAJ4OVKuzY
-  headerType: none
-- name: 🇬🇧 GB-1 | StarLink
-  type: vless
-  server: 91.242.228.10
-  port: 443
-  uuid: 40730d97-ffa7-1108-2c53-761516eb5fda
-  encryption: none
-  network: tcp
-  security: reality
-  sni: speed.cloudflare.com
-  fp: chrome
-  reality-opts:
-    public-key: FkyaPwhmd80B_vHrzI_74WrhAcTHXMC6g83x61jL3Xs
-    short-id: ''
-    server-name: speed.cloudflare.com
-  tls: true
-  flow: xtls-rprx-vision
-  pbk: FkyaPwhmd80B_vHrzI_74WrhAcTHXMC6g83x61jL3Xs
-  headerType: none
-- name: 🇬🇧 GB-2 | StarLink
-  type: vless
-  server: 91.242.228.10
-  port: 993
-  uuid: 40730d97-ffa7-1108-2c53-761516eb5fda
-  encryption: none
-  network: tcp
-  security: reality
-  sni: speed.cloudflare.com
-  fp: chrome
-  reality-opts:
-    public-key: FkyaPwhmd80B_vHrzI_74WrhAcTHXMC6g83x61jL3Xs
-    short-id: ''
-    server-name: speed.cloudflare.com
-  tls: true
-  flow: xtls-rprx-vision
-  pbk: FkyaPwhmd80B_vHrzI_74WrhAcTHXMC6g83x61jL3Xs
   headerType: none
 - name: 🇮🇳 IN-1 | StarLink
   type: vless
@@ -900,80 +579,26 @@ proxies:
   flow: xtls-rprx-vision
   pbk: SnjXP0GFBVxg3C7sbWUJ5JqKpnlg_BNMXuqoE78YhVE
   headerType: none
+- name: 🇳🇱 NL-1 | StarLink
+  type: vless
+  server: 155.212.37.10
+  port: 443
+  uuid: 40730d97-ffa7-1108-2c53-761516eb5fda
+  encryption: none
+  network: tcp
+  security: reality
+  sni: speed.cloudflare.com
+  fp: chrome
+  reality-opts:
+    public-key: 0xVsi6JYS-gJFUILwuePsB32jvWtxRT_okJSmcWEQEc
+    short-id: ''
+    server-name: speed.cloudflare.com
+  tls: true
+  flow: xtls-rprx-vision
+  pbk: 0xVsi6JYS-gJFUILwuePsB32jvWtxRT_okJSmcWEQEc
+  headerType: none
 - name: 🇳🇱 NL-2 | StarLink
   type: vless
-  server: 45.148.233.10
-  port: 443
-  uuid: 40730d97-ffa7-1108-2c53-761516eb5fda
-  encryption: none
-  network: tcp
-  security: reality
-  sni: speed.cloudflare.com
-  fp: chrome
-  reality-opts:
-    public-key: eJeVlxdi2YBV1YpPVCcCgTez80y8ny27SQoZZVBFGyc
-    short-id: ''
-    server-name: speed.cloudflare.com
-  tls: true
-  flow: xtls-rprx-vision
-  pbk: eJeVlxdi2YBV1YpPVCcCgTez80y8ny27SQoZZVBFGyc
-  headerType: none
-- name: 🇳🇱 NL-3 | StarLink
-  type: vless
-  server: 45.148.233.10
-  port: 993
-  uuid: 40730d97-ffa7-1108-2c53-761516eb5fda
-  encryption: none
-  network: tcp
-  security: reality
-  sni: speed.cloudflare.com
-  fp: chrome
-  reality-opts:
-    public-key: eJeVlxdi2YBV1YpPVCcCgTez80y8ny27SQoZZVBFGyc
-    short-id: ''
-    server-name: speed.cloudflare.com
-  tls: true
-  flow: xtls-rprx-vision
-  pbk: eJeVlxdi2YBV1YpPVCcCgTez80y8ny27SQoZZVBFGyc
-  headerType: none
-- name: 🇺🇦 UA-1 | StarLink
-  type: vless
-  server: 91.218.122.10
-  port: 993
-  uuid: 40730d97-ffa7-1108-2c53-761516eb5fda
-  encryption: none
-  network: tcp
-  security: reality
-  sni: speed.cloudflare.com
-  fp: chrome
-  reality-opts:
-    public-key: VxlbLM9ypmP8KyH65M6nPgArl19XOyREm9oNUlCN2yA
-    short-id: ''
-    server-name: speed.cloudflare.com
-  tls: true
-  flow: xtls-rprx-vision
-  pbk: VxlbLM9ypmP8KyH65M6nPgArl19XOyREm9oNUlCN2yA
-  headerType: none
-- name: 🇳🇱 NL-4 | StarLink
-  type: vless
-  server: 155.212.37.10
-  port: 443
-  uuid: 40730d97-ffa7-1108-2c53-761516eb5fda
-  encryption: none
-  network: tcp
-  security: reality
-  sni: speed.cloudflare.com
-  fp: chrome
-  reality-opts:
-    public-key: 0xVsi6JYS-gJFUILwuePsB32jvWtxRT_okJSmcWEQEc
-    short-id: ''
-    server-name: speed.cloudflare.com
-  tls: true
-  flow: xtls-rprx-vision
-  pbk: 0xVsi6JYS-gJFUILwuePsB32jvWtxRT_okJSmcWEQEc
-  headerType: none
-- name: 🇳🇱 NL-5 | StarLink
-  type: vless
   server: 155.212.37.10
   port: 993
   uuid: 40730d97-ffa7-1108-2c53-761516eb5fda
@@ -990,7 +615,7 @@ proxies:
   flow: xtls-rprx-vision
   pbk: 0xVsi6JYS-gJFUILwuePsB32jvWtxRT_okJSmcWEQEc
   headerType: none
-- name: 🇫🇷 FR-4 | StarLink
+- name: 🇫🇷 FR-7 | StarLink
   type: vless
   server: 130.49.77.10
   port: 443
@@ -1008,7 +633,7 @@ proxies:
   flow: xtls-rprx-vision
   pbk: pd7ujYvrLsVhoEia4dhxPqmpAuapnezqMilXBSDIfgk
   headerType: none
-- name: 🇫🇷 FR-5 | StarLink
+- name: 🇫🇷 FR-8 | StarLink
   type: vless
   server: 130.49.77.10
   port: 993
@@ -1026,7 +651,7 @@ proxies:
   flow: xtls-rprx-vision
   pbk: pd7ujYvrLsVhoEia4dhxPqmpAuapnezqMilXBSDIfgk
   headerType: none
-- name: 🇸🇪 SE-3 | StarLink
+- name: 🇸🇪 SE-1 | StarLink
   type: vless
   server: 91.230.128.10
   port: 993
@@ -1062,43 +687,7 @@ proxies:
   flow: xtls-rprx-vision
   pbk: UvQ2HZFkQXrBiaprbcmks-aFo1dvnfPlHXcUKcl-i04
   headerType: none
-- name: 🇵🇱 PL-1 | StarLink
-  type: vless
-  server: 166.1.131.3
-  port: 443
-  uuid: 40730d97-ffa7-1108-2c53-761516eb5fda
-  encryption: none
-  network: tcp
-  security: reality
-  sni: speed.cloudflare.com
-  fp: chrome
-  reality-opts:
-    public-key: LthJBtl69pQPsGvMQNNe100a9YyqaTXdaIY8gzOF2HU
-    short-id: ''
-    server-name: speed.cloudflare.com
-  tls: true
-  flow: xtls-rprx-vision
-  pbk: LthJBtl69pQPsGvMQNNe100a9YyqaTXdaIY8gzOF2HU
-  headerType: none
-- name: 🇵🇱 PL-2 | StarLink
-  type: vless
-  server: 166.1.131.3
-  port: 993
-  uuid: 40730d97-ffa7-1108-2c53-761516eb5fda
-  encryption: none
-  network: tcp
-  security: reality
-  sni: speed.cloudflare.com
-  fp: chrome
-  reality-opts:
-    public-key: LthJBtl69pQPsGvMQNNe100a9YyqaTXdaIY8gzOF2HU
-    short-id: ''
-    server-name: speed.cloudflare.com
-  tls: true
-  flow: xtls-rprx-vision
-  pbk: LthJBtl69pQPsGvMQNNe100a9YyqaTXdaIY8gzOF2HU
-  headerType: none
-- name: 🇫🇷 FR-6 | StarLink
+- name: 🇫🇷 FR-9 | StarLink
   type: vless
   server: 155.212.110.2
   port: 443
@@ -1116,7 +705,7 @@ proxies:
   flow: xtls-rprx-vision
   pbk: GfTzhy59k9CXlAdF819OUVeBdrqIILaDIWa1bddjGnA
   headerType: none
-- name: 🇫🇷 FR-7 | StarLink
+- name: 🇫🇷 FR-10 | StarLink
   type: vless
   server: 155.212.110.2
   port: 993
@@ -1170,61 +759,7 @@ proxies:
   flow: xtls-rprx-vision
   pbk: DnnQOtWhilZ3rqlSip0spBkluYlPeydouSR3iklbPTs
   headerType: none
-- name: 🇪🇸 ES-1 | StarLink
-  type: vless
-  server: 166.1.131.6
-  port: 443
-  uuid: 40730d97-ffa7-1108-2c53-761516eb5fda
-  encryption: none
-  network: tcp
-  security: reality
-  sni: speed.cloudflare.com
-  fp: chrome
-  reality-opts:
-    public-key: _KiM4lu8Em0mJFmY8t2XRYGL-H2jbCtfKaFB0Io6JCE
-    short-id: ''
-    server-name: speed.cloudflare.com
-  tls: true
-  flow: xtls-rprx-vision
-  pbk: _KiM4lu8Em0mJFmY8t2XRYGL-H2jbCtfKaFB0Io6JCE
-  headerType: none
-- name: 🇪🇸 ES-2 | StarLink
-  type: vless
-  server: 166.1.131.6
-  port: 993
-  uuid: 40730d97-ffa7-1108-2c53-761516eb5fda
-  encryption: none
-  network: tcp
-  security: reality
-  sni: speed.cloudflare.com
-  fp: chrome
-  reality-opts:
-    public-key: _KiM4lu8Em0mJFmY8t2XRYGL-H2jbCtfKaFB0Io6JCE
-    short-id: ''
-    server-name: speed.cloudflare.com
-  tls: true
-  flow: xtls-rprx-vision
-  pbk: _KiM4lu8Em0mJFmY8t2XRYGL-H2jbCtfKaFB0Io6JCE
-  headerType: none
-- name: 🇹🇷 TR-1 | StarLink
-  type: vless
-  server: 166.1.131.7
-  port: 443
-  uuid: 40730d97-ffa7-1108-2c53-761516eb5fda
-  encryption: none
-  network: tcp
-  security: reality
-  sni: speed.cloudflare.com
-  fp: chrome
-  reality-opts:
-    public-key: 6h7z2IG6_BopO2tGTRAytfMOWbcXxRWghb2c9IILJkA
-    short-id: ''
-    server-name: speed.cloudflare.com
-  tls: true
-  flow: xtls-rprx-vision
-  pbk: 6h7z2IG6_BopO2tGTRAytfMOWbcXxRWghb2c9IILJkA
-  headerType: none
-- name: 🇬🇧 GB-3 | StarLink
+- name: 🇬🇧 GB-1 | StarLink
   type: vless
   server: 166.1.131.8
   port: 993
@@ -1278,27 +813,334 @@ proxies:
   flow: xtls-rprx-vision
   pbk: oS6X1GK-gYtOfvMbwhhxpRfXBJlgy2sO6MbblxYNsA4
   headerType: none
+- name: 🇺🇸 US-7 | StarLink
+  type: vless
+  server: 199.34.230.114
+  port: 2053
+  uuid: b27e35a7-51f4-468e-8921-56a4901dd923
+  encryption: none
+  network: ws
+  security: tls
+  sni: om1.omidsuccess.uk
+  servername: om1.omidsuccess.uk
+  skip-cert-verify: false
+  fp: chrome
+  client-fingerprint: chrome
+  path: /containers/de
+  ws-opts:
+    path: /containers/de
+    headers:
+      Host: om1.omidsuccess.uk
+  tls: true
+  host: om1.omidsuccess.uk
+- name: 🇨🇦 CA-1 | StarLink
+  type: vless
+  server: 140.238.145.43
+  port: 42557
+  uuid: 2429bee3-e0c1-47dd-b420-75e6512b184b
+  encryption: none
+  network: tcp
+  security: reality
+  sni: www.yahoo.com
+  fp: chrome
+  reality-opts:
+    public-key: LiHpb4jWrgHBSpi1mjKH3I8m2ahpVNexeNDh-sMW3Xo
+    short-id: f430927d
+    server-name: www.yahoo.com
+  tls: true
+  flow: xtls-rprx-vision
+  pbk: LiHpb4jWrgHBSpi1mjKH3I8m2ahpVNexeNDh-sMW3Xo
+  sid: f430927d
+  headerType: none
+- name: 🇫🇷 FR-11 | StarLink
+  type: vless
+  server: 94.232.247.208
+  port: 8880
+  uuid: df0680ca-e43c-498d-ed86-8e196eedd012
+  encryption: none
+  network: grpc
+  security: none
+  grpc-opts:
+    grpc-service-name: ''
+- name: 🇫🇷 FR-12 | StarLink
+  type: vless
+  server: 185.231.205.233
+  port: 8880
+  uuid: df0680ca-e43c-498d-ed86-8e196eedd012
+  encryption: none
+  network: grpc
+  security: none
+  grpc-opts:
+    grpc-service-name: ''
+- name: 🇺🇸 US-8 | StarLink
+  type: hysteria2
+  server: 98f4acfe-t4un40-tdini3-cdfn.la.shifen.uk
+  port: 1743
+  password: 94931862-1484-11f0-9ab7-f23c95b6f51d
+  sni: 98f4acfe-t4un40-tdini3-cdfn.la.shifen.uk
+  skip-cert-verify: true
+  tls:
+    enabled: true
+    server_name: 98f4acfe-t4un40-tdini3-cdfn.la.shifen.uk
+    insecure: false
+  insecure: '0'
+- name: 🇬🇧 GB-2 | StarLink
+  type: vless
+  server: 154.62.183.37
+  port: 10099
+  uuid: dbefc3bd-b10a-4550-b3d2-3d5d692715cb
+  encryption: none
+  network: tcp
+  security: reality
+  sni: images.apple.com
+  fp: random
+  reality-opts:
+    public-key: QoXF1U9XRPcdjuOzzSF6LWZsdE0Aj7WlOz1EFnuLYTo
+    short-id: '324120'
+    server-name: images.apple.com
+  tls: true
+  pbk: QoXF1U9XRPcdjuOzzSF6LWZsdE0Aj7WlOz1EFnuLYTo
+  sid: '324120'
+  spx: /
+  headerType: none
+- name: 🇺🇸 US-9 | StarLink
+  type: vless
+  server: 148.135.83.173
+  port: 28901
+  uuid: 15135ad9-eb14-4b1c-8ab0-6ca17b6f3301
+  encryption: none
+  network: tcp
+  security: reality
+  sni: images.apple.com
+  fp: random
+  reality-opts:
+    public-key: aiCXvan0Pyr593Kr55wJifchu1dpTBiOj9J7x2m9Hio
+    short-id: '84'
+    server-name: images.apple.com
+  tls: true
+  pbk: aiCXvan0Pyr593Kr55wJifchu1dpTBiOj9J7x2m9Hio
+  sid: '84'
+  spx: /
+  headerType: none
+- name: 🇮🇱 IL-1 | StarLink
+  type: vless
+  server: ilta-wzxrxkdhbjpnprhkkpplsjwawhssvollvxzdhqshiqckwdgrdm.orbnet.xyz
+  port: 443
+  uuid: 0e8a6896-ad90-4a3b-89a3-77d64aa409e2
+  encryption: none
+  network: tcp
+  security: reality
+  sni: i2pd.website
+  fp: chrome
+  reality-opts:
+    public-key: YVDo7U4O-AT2fa5H9E7hyYHKgfZd1vB6UdbAf2ggWQE
+    short-id: 55e6af1a35e64a98
+    server-name: i2pd.website
+  tls: true
+  flow: xtls-rprx-vision
+  pbk: YVDo7U4O-AT2fa5H9E7hyYHKgfZd1vB6UdbAf2ggWQE
+  sid: 55e6af1a35e64a98
+  headerType: none
+- name: 🇮🇷 IR-1 | StarLink
+  type: vless
+  server: 95.164.45.119
+  port: 8880
+  uuid: df0680ca-e43c-498d-ed86-8e196eedd012
+  encryption: none
+  network: grpc
+  security: none
+  grpc-opts:
+    grpc-service-name: ''
+- name: 🇫🇷 FR-13 | StarLink
+  type: vless
+  server: 95.164.6.183
+  port: 8880
+  uuid: df0680ca-e43c-498d-ed86-8e196eedd012
+  encryption: none
+  network: grpc
+  security: none
+  grpc-opts:
+    grpc-service-name: ''
+- name: 🇫🇷 FR-14 | StarLink
+  type: vless
+  server: 95.164.6.244
+  port: 8880
+  uuid: df0680ca-e43c-498d-ed86-8e196eedd012
+  encryption: none
+  network: grpc
+  security: none
+  grpc-opts:
+    grpc-service-name: ''
+- name: 🇷🇺 RU-3 | StarLink
+  type: vless
+  server: russia22.clearorbitllc.com
+  port: 443
+  uuid: 5c1bc547-6ed3-4234-873e-966d9eef5d27
+  encryption: none
+  network: tcp
+  security: reality
+  sni: russia22.clearorbitllc.com
+  fp: firefox
+  reality-opts:
+    public-key: fwyaXZJrcorp1BQM4O2SicK-n15VNO53GWvvFsecbhM
+    short-id: 10f76a02167e9b
+    server-name: russia22.clearorbitllc.com
+  tls: true
+  flow: xtls-rprx-vision
+  pbk: fwyaXZJrcorp1BQM4O2SicK-n15VNO53GWvvFsecbhM
+  sid: 10f76a02167e9b
+  spx: /
+  headerType: none
+  host: Join--B_T
+- name: 🇳🇱 NL-3 | StarLink
+  type: vless
+  server: netherlands85.clearorbitllc.com
+  port: 443
+  uuid: 935c3575-4b93-4c03-8399-62b2d0efe0d2
+  encryption: none
+  network: tcp
+  security: reality
+  sni: netherlands85.clearorbitllc.com
+  fp: firefox
+  reality-opts:
+    public-key: LnHe8OE64vocdz6Xk_d6iuEfj-HmimAkLPk1TeTGpxs
+    short-id: f5320ae817
+    server-name: netherlands85.clearorbitllc.com
+  tls: true
+  flow: xtls-rprx-vision
+  pbk: LnHe8OE64vocdz6Xk_d6iuEfj-HmimAkLPk1TeTGpxs
+  sid: f5320ae817
+  headerType: none
+- name: 🇫🇷 FR-15 | StarLink
+  type: vless
+  server: 95.164.6.22
+  port: 8880
+  uuid: df0680ca-e43c-498d-ed86-8e196eedd012
+  encryption: none
+  network: grpc
+  security: none
+  grpc-opts:
+    grpc-service-name: ''
+- name: 🇷🇺 RU-4 | StarLink
+  type: vless
+  server: russia22.clearorbitllc.com
+  port: 443
+  uuid: 5c1bc547-6ed3-4234-873e-966d9eef5d27
+  encryption: none
+  network: tcp
+  security: reality
+  sni: russia22.clearorbitllc.com
+  fp: firefox
+  reality-opts:
+    public-key: fwyaXZJrcorp1BQM4O2SicK-n15VNO53GWvvFsecbhM
+    short-id: 10f76a02167e9b
+    server-name: russia22.clearorbitllc.com
+  tls: true
+  flow: xtls-rprx-vision
+  pbk: fwyaXZJrcorp1BQM4O2SicK-n15VNO53GWvvFsecbhM
+  sid: 10f76a02167e9b
+  spx: /
+  headerType: none
+  host: '---_'
+- name: 🇩🇪 DE-1 | StarLink
+  type: vless
+  server: 95.164.45.27
+  port: 8880
+  uuid: df0680ca-e43c-498d-ed86-8e196eedd012
+  encryption: none
+  network: grpc
+  security: none
+  grpc-opts:
+    grpc-service-name: ''
+- name: 🇫🇮 FI-1 | StarLink
+  type: vless
+  server: 155.212.110.3
+  port: 993
+  uuid: 40730d97-ffa7-1108-2c53-761516eb5fda
+  encryption: none
+  network: tcp
+  security: reality
+  sni: speed.cloudflare.com
+  fp: chrome
+  reality-opts:
+    public-key: DnnQOtWhilZ3rqlSip0spBkluYlPeydouSR3iklbPTs
+    short-id: ''
+    server-name: speed.cloudflare.com
+  tls: true
+  flow: xtls-rprx-vision
+  pbk: DnnQOtWhilZ3rqlSip0spBkluYlPeydouSR3iklbPTs
+  headerType: none
+- name: 🇩🇪 DE-2 | StarLink
+  type: vless
+  server: 199.34.230.114
+  port: 2053
+  uuid: b27e35a7-51f4-468e-8921-56a4901dd923
+  encryption: none
+  network: ws
+  security: tls
+  sni: om1.omidsuccess.uk
+  servername: om1.omidsuccess.uk
+  skip-cert-verify: false
+  fp: chrome
+  client-fingerprint: chrome
+  path: /containers/de
+  ws-opts:
+    path: /containers/de
+    headers:
+      Host: om1.omidsuccess.uk
+  tls: true
+  host: om1.omidsuccess.uk
+- name: 🇫🇷 FR-16 | StarLink
+  type: vless
+  server: 95.164.6.97
+  port: 8880
+  uuid: df0680ca-e43c-498d-ed86-8e196eedd012
+  encryption: none
+  network: grpc
+  security: none
+  grpc-opts:
+    grpc-service-name: ''
+- name: 🇫🇷 FR-17 | StarLink
+  type: vless
+  server: 95.164.6.211
+  port: 8880
+  uuid: df0680ca-e43c-498d-ed86-8e196eedd012
+  encryption: none
+  network: grpc
+  security: none
+  grpc-opts:
+    grpc-service-name: ''
+- name: 🇫🇷 FR-18 | StarLink
+  type: vless
+  server: 185.234.64.12
+  port: 8880
+  uuid: df0680ca-e43c-498d-ed86-8e196eedd012
+  encryption: none
+  network: grpc
+  security: none
+  grpc-opts:
+    grpc-service-name: ''
 
 proxy-groups:
   - name: 选择线路
     type: select
     proxies:
       - 自动选择⚡️
-      - 🇺🇸 US-1 | StarLink
-      - 🇰🇷 KR-1 | StarLink
-      - 🇭🇰 HK-1 | StarLink
       - 🇫🇷 FR-1 | StarLink
+      - 🇫🇷 FR-2 | StarLink
+      - 🇫🇷 FR-3 | StarLink
+      - 🇭🇰 HK-1 | StarLink
+      - 🇫🇷 FR-4 | StarLink
       - 🇧🇬 BG-1 | StarLink
       - 🇧🇬 BG-2 | StarLink
       - 🇧🇬 BG-3 | StarLink
       - 🇧🇬 BG-4 | StarLink
       - 🇧🇬 BG-5 | StarLink
-      - 🇫🇷 FR-2 | StarLink
-      - 🇫🇷 FR-3 | StarLink
+      - 🇫🇷 FR-5 | StarLink
+      - 🇫🇷 FR-6 | StarLink
       - 🇧🇬 BG-6 | StarLink
       - 🇧🇬 BG-7 | StarLink
       - 🇲🇩 MD-1 | StarLink
-      - 🇳🇱 NL-1 | StarLink
       - 🇯🇵 JP-1 | StarLink
       - 🇲🇩 MD-2 | StarLink
       - 🇲🇩 MD-3 | StarLink
@@ -1313,71 +1155,67 @@ proxy-groups:
       - 🇲🇩 MD-12 | StarLink
       - 🇲🇩 MD-13 | StarLink
       - 🇲🇩 MD-14 | StarLink
-      - 🇸🇪 SE-1 | StarLink
+      - 🇺🇸 US-1 | StarLink
       - 🇺🇸 US-2 | StarLink
-      - 🇸🇪 SE-2 | StarLink
       - 🇺🇸 US-3 | StarLink
       - 🇺🇸 US-4 | StarLink
-      - 🇸🇬 SG-1 | StarLink
-      - 🇸🇬 SG-2 | StarLink
-      - 🇩🇪 DE-1 | StarLink
-      - 🇩🇪 DE-2 | StarLink
       - 🇺🇸 US-5 | StarLink
       - 🇺🇸 US-6 | StarLink
-      - 🇺🇸 US-7 | StarLink
-      - 🇺🇸 US-8 | StarLink
-      - 🇺🇸 US-9 | StarLink
-      - 🇺🇸 US-10 | StarLink
-      - 🇺🇸 US-11 | StarLink
       - 🇸🇨 SC-1 | StarLink
-      - 🇺🇸 US-12 | StarLink
-      - 🇺🇸 US-13 | StarLink
-      - 🇺🇸 US-14 | StarLink
-      - 🇦🇪 AE-1 | StarLink
-      - 🇦🇪 AE-2 | StarLink
-      - 🇬🇧 GB-1 | StarLink
-      - 🇬🇧 GB-2 | StarLink
       - 🇮🇳 IN-1 | StarLink
       - 🇮🇳 IN-2 | StarLink
+      - 🇳🇱 NL-1 | StarLink
       - 🇳🇱 NL-2 | StarLink
-      - 🇳🇱 NL-3 | StarLink
-      - 🇺🇦 UA-1 | StarLink
-      - 🇳🇱 NL-4 | StarLink
-      - 🇳🇱 NL-5 | StarLink
-      - 🇫🇷 FR-4 | StarLink
-      - 🇫🇷 FR-5 | StarLink
-      - 🇸🇪 SE-3 | StarLink
-      - 🇰🇿 KZ-1 | StarLink
-      - 🇵🇱 PL-1 | StarLink
-      - 🇵🇱 PL-2 | StarLink
-      - 🇫🇷 FR-6 | StarLink
       - 🇫🇷 FR-7 | StarLink
+      - 🇫🇷 FR-8 | StarLink
+      - 🇸🇪 SE-1 | StarLink
+      - 🇰🇿 KZ-1 | StarLink
+      - 🇫🇷 FR-9 | StarLink
+      - 🇫🇷 FR-10 | StarLink
       - 🇮🇳 IN-3 | StarLink
       - 🇮🇳 IN-4 | StarLink
-      - 🇪🇸 ES-1 | StarLink
-      - 🇪🇸 ES-2 | StarLink
-      - 🇹🇷 TR-1 | StarLink
-      - 🇬🇧 GB-3 | StarLink
+      - 🇬🇧 GB-1 | StarLink
       - 🇷🇺 RU-1 | StarLink
       - 🇷🇺 RU-2 | StarLink
+      - 🇺🇸 US-7 | StarLink
+      - 🇨🇦 CA-1 | StarLink
+      - 🇫🇷 FR-11 | StarLink
+      - 🇫🇷 FR-12 | StarLink
+      - 🇺🇸 US-8 | StarLink
+      - 🇬🇧 GB-2 | StarLink
+      - 🇺🇸 US-9 | StarLink
+      - 🇮🇱 IL-1 | StarLink
+      - 🇮🇷 IR-1 | StarLink
+      - 🇫🇷 FR-13 | StarLink
+      - 🇫🇷 FR-14 | StarLink
+      - 🇷🇺 RU-3 | StarLink
+      - 🇳🇱 NL-3 | StarLink
+      - 🇫🇷 FR-15 | StarLink
+      - 🇷🇺 RU-4 | StarLink
+      - 🇩🇪 DE-1 | StarLink
+      - 🇫🇮 FI-1 | StarLink
+      - 🇩🇪 DE-2 | StarLink
+      - 🇫🇷 FR-16 | StarLink
+      - 🇫🇷 FR-17 | StarLink
+      - 🇫🇷 FR-18 | StarLink
   - name: 自动选择⚡️
     type: url-test
     proxies:
-      - 🇺🇸 US-1 | StarLink
-      - 🇰🇷 KR-1 | StarLink
-      - 🇭🇰 HK-1 | StarLink
       - 🇫🇷 FR-1 | StarLink
+      - 🇫🇷 FR-2 | StarLink
+      - 🇫🇷 FR-3 | StarLink
+      - 🇭🇰 HK-1 | StarLink
+      - 🇫🇷 FR-4 | StarLink
       - 🇧🇬 BG-1 | StarLink
       - 🇧🇬 BG-2 | StarLink
       - 🇧🇬 BG-3 | StarLink
       - 🇧🇬 BG-4 | StarLink
       - 🇧🇬 BG-5 | StarLink
-      - 🇫🇷 FR-2 | StarLink
-      - 🇫🇷 FR-3 | StarLink
+      - 🇫🇷 FR-5 | StarLink
+      - 🇫🇷 FR-6 | StarLink
       - 🇧🇬 BG-6 | StarLink
       - 🇧🇬 BG-7 | StarLink
       - 🇲🇩 MD-1 | StarLink
-      - 🇳🇱 NL-1 | StarLink
       - 🇯🇵 JP-1 | StarLink
       - 🇲🇩 MD-2 | StarLink
       - 🇲🇩 MD-3 | StarLink
@@ -1392,53 +1230,49 @@ proxy-groups:
       - 🇲🇩 MD-12 | StarLink
       - 🇲🇩 MD-13 | StarLink
       - 🇲🇩 MD-14 | StarLink
-      - 🇸🇪 SE-1 | StarLink
+      - 🇺🇸 US-1 | StarLink
       - 🇺🇸 US-2 | StarLink
-      - 🇸🇪 SE-2 | StarLink
       - 🇺🇸 US-3 | StarLink
       - 🇺🇸 US-4 | StarLink
-      - 🇸🇬 SG-1 | StarLink
-      - 🇸🇬 SG-2 | StarLink
-      - 🇩🇪 DE-1 | StarLink
-      - 🇩🇪 DE-2 | StarLink
       - 🇺🇸 US-5 | StarLink
       - 🇺🇸 US-6 | StarLink
-      - 🇺🇸 US-7 | StarLink
-      - 🇺🇸 US-8 | StarLink
-      - 🇺🇸 US-9 | StarLink
-      - 🇺🇸 US-10 | StarLink
-      - 🇺🇸 US-11 | StarLink
       - 🇸🇨 SC-1 | StarLink
-      - 🇺🇸 US-12 | StarLink
-      - 🇺🇸 US-13 | StarLink
-      - 🇺🇸 US-14 | StarLink
-      - 🇦🇪 AE-1 | StarLink
-      - 🇦🇪 AE-2 | StarLink
-      - 🇬🇧 GB-1 | StarLink
-      - 🇬🇧 GB-2 | StarLink
       - 🇮🇳 IN-1 | StarLink
       - 🇮🇳 IN-2 | StarLink
+      - 🇳🇱 NL-1 | StarLink
       - 🇳🇱 NL-2 | StarLink
-      - 🇳🇱 NL-3 | StarLink
-      - 🇺🇦 UA-1 | StarLink
-      - 🇳🇱 NL-4 | StarLink
-      - 🇳🇱 NL-5 | StarLink
-      - 🇫🇷 FR-4 | StarLink
-      - 🇫🇷 FR-5 | StarLink
-      - 🇸🇪 SE-3 | StarLink
-      - 🇰🇿 KZ-1 | StarLink
-      - 🇵🇱 PL-1 | StarLink
-      - 🇵🇱 PL-2 | StarLink
-      - 🇫🇷 FR-6 | StarLink
       - 🇫🇷 FR-7 | StarLink
+      - 🇫🇷 FR-8 | StarLink
+      - 🇸🇪 SE-1 | StarLink
+      - 🇰🇿 KZ-1 | StarLink
+      - 🇫🇷 FR-9 | StarLink
+      - 🇫🇷 FR-10 | StarLink
       - 🇮🇳 IN-3 | StarLink
       - 🇮🇳 IN-4 | StarLink
-      - 🇪🇸 ES-1 | StarLink
-      - 🇪🇸 ES-2 | StarLink
-      - 🇹🇷 TR-1 | StarLink
-      - 🇬🇧 GB-3 | StarLink
+      - 🇬🇧 GB-1 | StarLink
       - 🇷🇺 RU-1 | StarLink
       - 🇷🇺 RU-2 | StarLink
+      - 🇺🇸 US-7 | StarLink
+      - 🇨🇦 CA-1 | StarLink
+      - 🇫🇷 FR-11 | StarLink
+      - 🇫🇷 FR-12 | StarLink
+      - 🇺🇸 US-8 | StarLink
+      - 🇬🇧 GB-2 | StarLink
+      - 🇺🇸 US-9 | StarLink
+      - 🇮🇱 IL-1 | StarLink
+      - 🇮🇷 IR-1 | StarLink
+      - 🇫🇷 FR-13 | StarLink
+      - 🇫🇷 FR-14 | StarLink
+      - 🇷🇺 RU-3 | StarLink
+      - 🇳🇱 NL-3 | StarLink
+      - 🇫🇷 FR-15 | StarLink
+      - 🇷🇺 RU-4 | StarLink
+      - 🇩🇪 DE-1 | StarLink
+      - 🇫🇮 FI-1 | StarLink
+      - 🇩🇪 DE-2 | StarLink
+      - 🇫🇷 FR-16 | StarLink
+      - 🇫🇷 FR-17 | StarLink
+      - 🇫🇷 FR-18 | StarLink
     url: https://www.gstatic.com/generate_204
     interval: 300
 rules:
