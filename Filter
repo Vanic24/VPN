@@ -1,4 +1,4 @@
-# Last update: 11.11.2025 18:07:18
+# Last update: 11.11.2025 19:05:24
 mixed-port: 7897
 allow-lan: false
 mode: rule
@@ -297,12 +297,6 @@ proxies:
   skip-cert-verify: true
   tfo: false
   udp: true
-- name: 🇰🇷 KR-2 | SHFX
-  type: ss
-  server: 221.139.79.57
-  port: 37008
-  password: qwerREWQ@@
-  cipher: aes-256-cfb
 - name: 🇬🇧 GB-2 | SHFX
   type: hysteria2
   server: 81.168.83.89
@@ -313,6 +307,12 @@ proxies:
   auth: YwuvGJk36B
   obfs: salamander
   obfs-password: khameniiko@smad@ret
+- name: 🇰🇷 KR-2 | SHFX
+  type: ss
+  server: 221.139.79.57
+  port: 37008
+  password: qwerREWQ@@
+  cipher: aes-256-cfb
 - name: 🇳🇱 NL-2 | SHFX
   type: hysteria2
   server: 206.71.158.37
@@ -337,33 +337,61 @@ proxies:
   cipher: aes-256-cfb
 - name: 🇳🇱 NL-3 | SHFX
   type: ss
-  server: switcher-nick-croquet.freesocks.work
-  port: 443
-  password: 9tqhMdIrTkgQ46PvhyAtMH
-  skip-cert-verify: true
-  alterId: 0
+  server: 45.87.175.188
+  port: 8080
+  password: cvII85TrW6n0OGyfpHVS1u
   cipher: chacha20-ietf-poly1305
-  tls: true
-- name: 🇺🇸 US-3 | SHFX
+- name: 🇸🇪 SE-1 | SHFX
+  type: ss
+  server: 121.127.46.147
+  port: 989
+  password: f8f7aCzcPKbsF8p3
+  cipher: aes-256-cfb
+  udp: true
+- name: 🇦🇺 AU-1 | SHFX
   type: trojan
-  server: 198.41.220.12
+  server: 194.195.123.173
   port: 443
-  password: 242a3d8eee5e4ed1a6bfa4141d549a25
-  client-fingerprint: chrome
-- name: 🇺🇸 US-4 | SHFX
-  type: trojan
-  server: 104.17.215.6
-  port: 443
-  password: b4e8771997c94732acbc9ec4d19c2589
-  sni: jobscareerfortoday.com
+  password: 4b1b3f03-6493-44a9-afcf-0ccf7c754154
   skip-cert-verify: true
   udp: true
-- name: 🇺🇸 US-5 | SHFX
+- name: 🇺🇸 US-3 | SHFX
   type: trojan
-  server: 45.56.79.156
+  server: 172.67.158.153
   port: 443
-  password: 8a6fc43e-b81b-4efc-ae38-4b9de1720ffe
+  password: 01a7ed92-3ff7-4872-84a8-fcb4757783c7
+  sni: rsfndc1.cpionline.us
   skip-cert-verify: true
+  udp: true
+- name: 🇪🇪 EE-1 | SHFX
+  type: ss
+  server: 193.228.128.143
+  port: 27981
+  password: 4pWVbIVIuw4LK9wvMgcHW5
+  cipher: chacha20-ietf-poly1305
+  udp: true
+- name: 🇨🇦 CA-1 | SHFX
+  type: trojan
+  server: 144.217.81.44
+  port: 443
+  password: 4c4dfa50-e321-11ee-9b28-1239d0255272
+  sni: chatbuzzteambhm.chatbuzzt7150.workers.dev
+  skip-cert-verify: true
+  udp: true
+- name: 🇺🇸 US-4 | SHFX
+  type: ss
+  server: 172.67.124.123
+  port: 443
+  password: a-wym4ovY4Yw
+  cipher: aes-128-gcm
+  plugin: v2ray-plugin
+  plugin-opts:
+    host: any.ktsfd.shop
+    mode: websocket
+    mux: false
+    path: ''
+    skip-cert-verify: true
+    tls: false
   udp: true
 
 proxy-groups:
@@ -389,15 +417,18 @@ proxy-groups:
       - 🇰🇷 KR-1 | SHFX
       - 🇹🇼 TW-1 | SHFX
       - 🇩🇪 DE-1 | SHFX
-      - 🇰🇷 KR-2 | SHFX
       - 🇬🇧 GB-2 | SHFX
+      - 🇰🇷 KR-2 | SHFX
       - 🇳🇱 NL-2 | SHFX
       - 🇻🇳 VN-1 | SHFX
       - 🇰🇷 KR-3 | SHFX
       - 🇳🇱 NL-3 | SHFX
+      - 🇸🇪 SE-1 | SHFX
+      - 🇦🇺 AU-1 | SHFX
       - 🇺🇸 US-3 | SHFX
+      - 🇪🇪 EE-1 | SHFX
+      - 🇨🇦 CA-1 | SHFX
       - 🇺🇸 US-4 | SHFX
-      - 🇺🇸 US-5 | SHFX
   - name: 自动选择⚡️
     type: url-test
     proxies:
@@ -419,15 +450,18 @@ proxy-groups:
       - 🇰🇷 KR-1 | SHFX
       - 🇹🇼 TW-1 | SHFX
       - 🇩🇪 DE-1 | SHFX
-      - 🇰🇷 KR-2 | SHFX
       - 🇬🇧 GB-2 | SHFX
+      - 🇰🇷 KR-2 | SHFX
       - 🇳🇱 NL-2 | SHFX
       - 🇻🇳 VN-1 | SHFX
       - 🇰🇷 KR-3 | SHFX
       - 🇳🇱 NL-3 | SHFX
+      - 🇸🇪 SE-1 | SHFX
+      - 🇦🇺 AU-1 | SHFX
       - 🇺🇸 US-3 | SHFX
+      - 🇪🇪 EE-1 | SHFX
+      - 🇨🇦 CA-1 | SHFX
       - 🇺🇸 US-4 | SHFX
-      - 🇺🇸 US-5 | SHFX
     url: https://www.gstatic.com/generate_204
     interval: 300
 rules:
