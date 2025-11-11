@@ -1,4 +1,4 @@
-# Last update: 11.11.2025 17:15:29
+# Last update: 11.11.2025 17:44:46
 mixed-port: 7897
 allow-lan: false
 mode: rule
@@ -335,71 +335,50 @@ proxies:
   port: 4652
   password: qwerREWQ@@
   cipher: aes-256-cfb
-- name: 🇺🇸 US-3 | SHFX
-  type: vmess
-  server: vc.fly.dev
-  port: 443
-  uuid: 35379219-6535-4f2e-a4fe-3e44f61e0eee
-  network: ws
-  skip-cert-verify: true
-  client-fingerprint: chrome
-  ws-opts:
-    headers:
-      host: vc.fly.dev
-    path: /vc
-  alterId: 32
-  cipher: auto
-  tls: true
 - name: 🇳🇱 NL-3 | SHFX
   type: ss
-  server: switcher-nick-croquet.freesocks.work
-  port: 443
-  password: 9tqhMdIrTkgQ46PvhyAtMH
-  skip-cert-verify: true
-  alterId: 0
+  server: 193.29.139.240
+  port: 8080
+  password: oZIoA69Q8yhcQV8ka3Pa3A
   cipher: chacha20-ietf-poly1305
-  tls: true
-- name: 🇨🇳 CN-1 | SHFX
+- name: 🇨🇦 CA-1 | SHFX
+  type: ssr
+  server: 79.127.233.170
+  port: 989
+  password: f8f7aCzcPKbsF8p3
+  cipher: aes-256-cfb
+  obfs: plain
+  protocol: origin
+- name: 🇰🇷 KR-4 | SHFX
   type: ss
-  server: 120.199.94.29
-  port: 27268
-  password: d3c7f55f-e2af-4114-b0a3-058d219e2992
-  cipher: chacha20-ietf-poly1305
+  server: p110.panda001.net
+  port: 54345
+  password: qwerREWQ@@
+  cipher: aes-256-cfb
   udp: true
-- name: 🇸🇬 SG-3 | SHFX
+- name: 🇺🇸 US-3 | SHFX
   type: trojan
-  server: sg006.421421.xyz
-  port: 20230
-  password: 1b26d982-fd68-44f4-bf6d-22fe17a9249a
-  network: ws
-  sni: www.alibaba.com
+  server: 104.17.215.6
+  port: 443
+  password: b4e8771997c94732acbc9ec4d19c2589
+  sni: jobscareerfortoday.com
   skip-cert-verify: true
-  ws-opts:
-    headers:
-      Host: www.alibaba.com
-    path: /
   udp: true
-- name: 🇷🇺 RU-1 | SHFX
+- name: 🇭🇰 HK-4 | SHFX
   type: ss
-  server: 78.153.149.211
-  port: 25365
-  password: Telegram-ZEDMODEON
+  server: 47.243.59.144
+  port: 443
+  password: a-wym4ovY4Yw
   cipher: aes-128-gcm
+  plugin: v2ray-plugin
+  plugin-opts:
+    host: ''
+    mode: websocket
+    mux: false
+    path: ''
+    skip-cert-verify: true
+    tls: false
   udp: true
-- name: 🇯🇵 JP-6 | SHFX
-  type: trojan
-  server: 185.212.56.168
-  port: 443
-  password: share.mjj-home.com
-  sni: share.softbank.mjj-home.com
-  skip-cert-verify: true
-  udp: true
-- name: 🇺🇸 US-4 | SHFX
-  type: ss
-  server: 104.167.197.25
-  port: 57456
-  password: 360e21d21977dc11
-  cipher: chacha20-ietf-poly1305
 
 proxy-groups:
   - name: 选择线路
@@ -429,13 +408,11 @@ proxy-groups:
       - 🇳🇱 NL-2 | SHFX
       - 🇻🇳 VN-1 | SHFX
       - 🇰🇷 KR-3 | SHFX
-      - 🇺🇸 US-3 | SHFX
       - 🇳🇱 NL-3 | SHFX
-      - 🇨🇳 CN-1 | SHFX
-      - 🇸🇬 SG-3 | SHFX
-      - 🇷🇺 RU-1 | SHFX
-      - 🇯🇵 JP-6 | SHFX
-      - 🇺🇸 US-4 | SHFX
+      - 🇨🇦 CA-1 | SHFX
+      - 🇰🇷 KR-4 | SHFX
+      - 🇺🇸 US-3 | SHFX
+      - 🇭🇰 HK-4 | SHFX
   - name: 自动选择⚡️
     type: url-test
     proxies:
@@ -462,13 +439,11 @@ proxy-groups:
       - 🇳🇱 NL-2 | SHFX
       - 🇻🇳 VN-1 | SHFX
       - 🇰🇷 KR-3 | SHFX
-      - 🇺🇸 US-3 | SHFX
       - 🇳🇱 NL-3 | SHFX
-      - 🇨🇳 CN-1 | SHFX
-      - 🇸🇬 SG-3 | SHFX
-      - 🇷🇺 RU-1 | SHFX
-      - 🇯🇵 JP-6 | SHFX
-      - 🇺🇸 US-4 | SHFX
+      - 🇨🇦 CA-1 | SHFX
+      - 🇰🇷 KR-4 | SHFX
+      - 🇺🇸 US-3 | SHFX
+      - 🇭🇰 HK-4 | SHFX
     url: https://www.gstatic.com/generate_204
     interval: 300
 rules:
