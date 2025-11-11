@@ -1,4 +1,4 @@
-# Last update: 11.11.2025 17:44:46
+# Last update: 11.11.2025 18:07:18
 mixed-port: 7897
 allow-lan: false
 mode: rule
@@ -297,6 +297,12 @@ proxies:
   skip-cert-verify: true
   tfo: false
   udp: true
+- name: 🇰🇷 KR-2 | SHFX
+  type: ss
+  server: 221.139.79.57
+  port: 37008
+  password: qwerREWQ@@
+  cipher: aes-256-cfb
 - name: 🇬🇧 GB-2 | SHFX
   type: hysteria2
   server: 81.168.83.89
@@ -307,12 +313,6 @@ proxies:
   auth: YwuvGJk36B
   obfs: salamander
   obfs-password: khameniiko@smad@ret
-- name: 🇰🇷 KR-2 | SHFX
-  type: ss
-  server: 221.139.79.57
-  port: 37008
-  password: qwerREWQ@@
-  cipher: aes-256-cfb
 - name: 🇳🇱 NL-2 | SHFX
   type: hysteria2
   server: 206.71.158.37
@@ -337,26 +337,20 @@ proxies:
   cipher: aes-256-cfb
 - name: 🇳🇱 NL-3 | SHFX
   type: ss
-  server: 193.29.139.240
-  port: 8080
-  password: oZIoA69Q8yhcQV8ka3Pa3A
+  server: switcher-nick-croquet.freesocks.work
+  port: 443
+  password: 9tqhMdIrTkgQ46PvhyAtMH
+  skip-cert-verify: true
+  alterId: 0
   cipher: chacha20-ietf-poly1305
-- name: 🇨🇦 CA-1 | SHFX
-  type: ssr
-  server: 79.127.233.170
-  port: 989
-  password: f8f7aCzcPKbsF8p3
-  cipher: aes-256-cfb
-  obfs: plain
-  protocol: origin
-- name: 🇰🇷 KR-4 | SHFX
-  type: ss
-  server: p110.panda001.net
-  port: 54345
-  password: qwerREWQ@@
-  cipher: aes-256-cfb
-  udp: true
+  tls: true
 - name: 🇺🇸 US-3 | SHFX
+  type: trojan
+  server: 198.41.220.12
+  port: 443
+  password: 242a3d8eee5e4ed1a6bfa4141d549a25
+  client-fingerprint: chrome
+- name: 🇺🇸 US-4 | SHFX
   type: trojan
   server: 104.17.215.6
   port: 443
@@ -364,20 +358,12 @@ proxies:
   sni: jobscareerfortoday.com
   skip-cert-verify: true
   udp: true
-- name: 🇭🇰 HK-4 | SHFX
-  type: ss
-  server: 47.243.59.144
+- name: 🇺🇸 US-5 | SHFX
+  type: trojan
+  server: 45.56.79.156
   port: 443
-  password: a-wym4ovY4Yw
-  cipher: aes-128-gcm
-  plugin: v2ray-plugin
-  plugin-opts:
-    host: ''
-    mode: websocket
-    mux: false
-    path: ''
-    skip-cert-verify: true
-    tls: false
+  password: 8a6fc43e-b81b-4efc-ae38-4b9de1720ffe
+  skip-cert-verify: true
   udp: true
 
 proxy-groups:
@@ -403,16 +389,15 @@ proxy-groups:
       - 🇰🇷 KR-1 | SHFX
       - 🇹🇼 TW-1 | SHFX
       - 🇩🇪 DE-1 | SHFX
-      - 🇬🇧 GB-2 | SHFX
       - 🇰🇷 KR-2 | SHFX
+      - 🇬🇧 GB-2 | SHFX
       - 🇳🇱 NL-2 | SHFX
       - 🇻🇳 VN-1 | SHFX
       - 🇰🇷 KR-3 | SHFX
       - 🇳🇱 NL-3 | SHFX
-      - 🇨🇦 CA-1 | SHFX
-      - 🇰🇷 KR-4 | SHFX
       - 🇺🇸 US-3 | SHFX
-      - 🇭🇰 HK-4 | SHFX
+      - 🇺🇸 US-4 | SHFX
+      - 🇺🇸 US-5 | SHFX
   - name: 自动选择⚡️
     type: url-test
     proxies:
@@ -434,16 +419,15 @@ proxy-groups:
       - 🇰🇷 KR-1 | SHFX
       - 🇹🇼 TW-1 | SHFX
       - 🇩🇪 DE-1 | SHFX
-      - 🇬🇧 GB-2 | SHFX
       - 🇰🇷 KR-2 | SHFX
+      - 🇬🇧 GB-2 | SHFX
       - 🇳🇱 NL-2 | SHFX
       - 🇻🇳 VN-1 | SHFX
       - 🇰🇷 KR-3 | SHFX
       - 🇳🇱 NL-3 | SHFX
-      - 🇨🇦 CA-1 | SHFX
-      - 🇰🇷 KR-4 | SHFX
       - 🇺🇸 US-3 | SHFX
-      - 🇭🇰 HK-4 | SHFX
+      - 🇺🇸 US-4 | SHFX
+      - 🇺🇸 US-5 | SHFX
     url: https://www.gstatic.com/generate_204
     interval: 300
 rules:
