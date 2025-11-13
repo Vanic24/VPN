@@ -1,4 +1,4 @@
-# Last update: 14.11.2025 01:43:28
+# Last update: 14.11.2025 02:06:11
 mixed-port: 7897
 allow-lan: false
 mode: rule
@@ -297,12 +297,16 @@ proxies:
   skip-cert-verify: true
   tfo: false
   udp: true
-- name: 🇰🇷 KR-2 | SHFX
-  type: ss
-  server: 221.139.79.57
-  port: 37008
-  password: qwerREWQ@@
-  cipher: aes-256-cfb
+- name: 🇨🇳 CN-1 | SHFX
+  type: trojan
+  server: oss-cn-shanghai.letssepub.com
+  port: 20021
+  password: adbac894-90b9-4913-b77e-a715a8d4ebc8
+  sni: dingding-doc.com
+  skip-cert-verify: true
+  alterId: 0
+  tls: true
+  udp: true
 - name: 🇧🇷 BR-1 | SHFX
   type: ss
   server: 213.159.66.206
@@ -310,21 +314,6 @@ proxies:
   password: pl2XtR0pzwknQOGwewbwXtPYDw1zn9Vu
   cipher: chacha20-ietf-poly1305
   udp: true
-- name: 🇺🇸 US-3 | SHFX
-  type: vmess
-  server: vc.fly.dev
-  port: 443
-  uuid: 35379219-6535-4f2e-a4fe-3e44f61e0eee
-  network: ws
-  skip-cert-verify: true
-  client-fingerprint: chrome
-  ws-opts:
-    headers:
-      host: vc.fly.dev
-    path: /vc
-  alterId: 32
-  cipher: auto
-  tls: true
 - name: 🇻🇳 VN-1 | SHFX
   type: ss
   server: arxfw2b78fi2q9hzylhn.freesocks.work
@@ -344,6 +333,18 @@ proxies:
       Host: joss.dus.biz.id
     path: /Free-VPN-CF-Geo-Project/45.144.48.158=8443
   udp: true
+- name: 🇷🇺 RU-1 | SHFX
+  type: trojan
+  server: 213.159.208.88
+  port: 2053
+  password: 14d6efcf-b0d3-4054-9d4e-e1347e3ceaa2
+  network: ws
+  sni: joss.dus.biz.id
+  skip-cert-verify: false
+  ws-opts:
+    headers:
+      Host: joss.dus.biz.id
+    path: /Free-VPN-CF-Geo-Project/213.159.208.88=2053
 - name: 🇳🇱 NL-2 | SHFX
   type: trojan
   server: 194.147.115.149
@@ -357,34 +358,30 @@ proxies:
       Host: joss.dus.biz.id
     path: /Free-VPN-CF-Geo-Project/194.147.115.149=443
   udp: true
-- name: 🇷🇺 RU-1 | SHFX
-  type: trojan
-  server: 213.159.208.88
-  port: 2053
-  password: 14d6efcf-b0d3-4054-9d4e-e1347e3ceaa2
-  network: ws
-  sni: joss.dus.biz.id
-  skip-cert-verify: false
-  ws-opts:
-    headers:
-      Host: joss.dus.biz.id
-    path: /Free-VPN-CF-Geo-Project/213.159.208.88=2053
-  udp: true
 - name: 🇳🇱 NL-3 | SHFX
+  type: ss
+  server: switcher-nick-croquet.freesocks.work
+  port: 443
+  password: RFK38Cg7APneSB5cWDcpbm
+  cipher: chacha20-ietf-poly1305
+- name: 🇳🇱 NL-4 | SHFX
   type: ss
   server: 45.87.175.197
   port: 8080
   password: k1dBOmOB4oqi7Ump37a1bQ
   cipher: chacha20-ietf-poly1305
-- name: 🇳🇱 NL-4 | SHFX
+- name: 🇰🇷 KR-2 | SHFX
   type: ss
-  server: switcher-nick-croquet.freesocks.work
-  port: 443
-  password: 9tqhMdIrTkgQ46PvhyAtMH
-  skip-cert-verify: true
-  alterId: 0
-  cipher: chacha20-ietf-poly1305
-  tls: true
+  server: p141.panda001.net
+  port: 4652
+  password: qwerREWQ@@
+  cipher: aes-256-cfb
+- name: 🇰🇷 KR-3 | SHFX
+  type: ss
+  server: 221.139.79.57
+  port: 37008
+  password: qwerREWQ@@
+  cipher: aes-256-cfb
 
 proxy-groups:
   - name: 选择线路
@@ -409,15 +406,16 @@ proxy-groups:
       - 🇰🇷 KR-1 | SHFX
       - 🇹🇼 TW-1 | SHFX
       - 🇩🇪 DE-1 | SHFX
-      - 🇰🇷 KR-2 | SHFX
+      - 🇨🇳 CN-1 | SHFX
       - 🇧🇷 BR-1 | SHFX
-      - 🇺🇸 US-3 | SHFX
       - 🇻🇳 VN-1 | SHFX
       - 🇵🇱 PL-1 | SHFX
-      - 🇳🇱 NL-2 | SHFX
       - 🇷🇺 RU-1 | SHFX
+      - 🇳🇱 NL-2 | SHFX
       - 🇳🇱 NL-3 | SHFX
       - 🇳🇱 NL-4 | SHFX
+      - 🇰🇷 KR-2 | SHFX
+      - 🇰🇷 KR-3 | SHFX
   - name: 自动选择⚡️
     type: url-test
     proxies:
@@ -439,15 +437,16 @@ proxy-groups:
       - 🇰🇷 KR-1 | SHFX
       - 🇹🇼 TW-1 | SHFX
       - 🇩🇪 DE-1 | SHFX
-      - 🇰🇷 KR-2 | SHFX
+      - 🇨🇳 CN-1 | SHFX
       - 🇧🇷 BR-1 | SHFX
-      - 🇺🇸 US-3 | SHFX
       - 🇻🇳 VN-1 | SHFX
       - 🇵🇱 PL-1 | SHFX
-      - 🇳🇱 NL-2 | SHFX
       - 🇷🇺 RU-1 | SHFX
+      - 🇳🇱 NL-2 | SHFX
       - 🇳🇱 NL-3 | SHFX
       - 🇳🇱 NL-4 | SHFX
+      - 🇰🇷 KR-2 | SHFX
+      - 🇰🇷 KR-3 | SHFX
     url: https://www.gstatic.com/generate_204
     interval: 300
 rules:
