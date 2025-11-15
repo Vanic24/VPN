@@ -1,4 +1,4 @@
-# Last update: 15.11.2025 23:11:53
+# Last update: 15.11.2025 23:42:52
 mixed-port: 7897
 allow-lan: false
 mode: rule
@@ -297,50 +297,7 @@ proxies:
   skip-cert-verify: true
   tfo: false
   udp: true
-- name: 🇧🇷 BR-1 | SHFX
-  type: ss
-  server: 213.159.66.206
-  port: 443
-  password: pl2XtR0pzwknQOGwewbwXtPYDw1zn9Vu
-  cipher: chacha20-ietf-poly1305
-  udp: true
-- name: 🇰🇷 KR-2 | SHFX
-  type: ss
-  server: 221.139.79.57
-  port: 37008
-  password: qwerREWQ@@
-  cipher: aes-256-cfb
-- name: 🇻🇳 VN-1 | SHFX
-  type: ss
-  server: arxfw2b78fi2q9hzylhn.freesocks.work
-  port: 443
-  password: Nk9asglDzHzjktVzTkvhaA
-  cipher: chacha20-ietf-poly1305
 - name: 🇳🇱 NL-2 | SHFX
-  type: ss
-  server: switcher-nick-croquet.freesocks.work
-  port: 443
-  password: RFK38Cg7APneSB5cWDcpbm
-  cipher: chacha20-ietf-poly1305
-- name: 🇰🇷 KR-3 | SHFX
-  type: ss
-  server: p141.panda001.net
-  port: 4652
-  password: qwerREWQ@@
-  cipher: aes-256-cfb
-- name: 🇺🇸 US-3 | SHFX
-  type: ss
-  server: 156.146.38.168
-  port: 443
-  password: shadowsocks
-  cipher: aes-128-gcm
-- name: 🇺🇸 US-4 | SHFX
-  type: ss
-  server: 156.146.38.170
-  port: 443
-  password: shadowsocks
-  cipher: aes-128-gcm
-- name: 🇳🇱 NL-3 | SHFX
   type: hysteria2
   server: 206.71.158.37
   port: 35000
@@ -350,14 +307,225 @@ proxies:
   auth: Yet-Another-Public-Config-1
   obfs: salamander
   obfs-password: Yet-Another-Public-Config-1
+- name: 🇳🇱 NL-3 | SHFX
+  type: hysteria2
+  server: yapc-1.adamhayward.co.uk
+  port: 36300
+  password: Yet-Another-Public-Config-1
+  sni: YAPC-1.afshin.ir
+  skip-cert-verify: false
+  auth: Yet-Another-Public-Config-1
+  obfs: salamander
+  obfs-password: Yet-Another-Public-Config-1
+- name: 🇺🇸 US-3 | SHFX
+  type: vmess
+  server: vc.fly.dev
+  port: 443
+  uuid: 35379219-6535-4f2e-a4fe-3e44f61e0eee
+  network: ws
+  skip-cert-verify: true
+  client-fingerprint: chrome
+  ws-opts:
+    headers:
+      host: vc.fly.dev
+    path: /vc
+  alterId: 32
+  cipher: auto
+  tls: true
+- name: 🇻🇳 VN-1 | SHFX
+  type: ss
+  server: arxfw2b78fi2q9hzylhn.freesocks.work
+  port: 443
+  password: Nk9asglDzHzjktVzTkvhaA
+  cipher: chacha20-ietf-poly1305
+- name: 🇧🇷 BR-1 | SHFX
+  type: ss
+  server: 213.159.66.206
+  port: 443
+  password: pl2XtR0pzwknQOGwewbwXtPYDw1zn9Vu
+  cipher: chacha20-ietf-poly1305
+- name: 🇰🇷 KR-2 | SHFX
+  type: ss
+  server: 221.139.79.57
+  port: 37008
+  password: qwerREWQ@@
+  cipher: aes-256-cfb
+- name: 🇰🇷 KR-3 | SHFX
+  type: ss
+  server: p141.panda001.net
+  port: 4652
+  password: qwerREWQ@@
+  cipher: aes-256-cfb
+- name: 🇳🇱 NL-4 | SHFX
+  type: ss
+  server: switcher-nick-croquet.freesocks.work
+  port: 443
+  password: 9tqhMdIrTkgQ46PvhyAtMH
+  skip-cert-verify: true
+  alterId: 0
+  cipher: chacha20-ietf-poly1305
+  tls: true
+- name: 🇺🇸 US-4 | SHFX
+  type: ss
+  server: 156.146.38.168
+  port: 443
+  password: shadowsocks
+  cipher: aes-128-gcm
+- name: 🇨🇳 CN-1 | SHFX
+  type: ss
+  server: 36.139.183.164
+  port: 10182
+  password: ad2114ca-1c75-4607-ad14-1a1824a6dde9
+  client-fingerprint: chrome
+  cipher: aes-256-gcm
+  tfo: false
+- name: 🇺🇸 US-5 | SHFX
+  type: ss
+  server: 172.67.192.20
+  port: 443
+  password: g12sQi#ss#&1
+  cipher: aes-128-gcm
+  plugin: v2ray-plugin
+  plugin-opts:
+    host: j3.pplo.online
+    mode: websocket
+    mux: false
+    path: ''
+    skip-cert-verify: true
+    tls: false
+  udp: true
+- name: 🇭🇰 HK-4 | SHFX
+  type: ss
+  server: 1.65.223.223
+  port: 443
+  password: a-wym4ovY4Yw
+  cipher: aes-128-gcm
+  plugin: v2ray-plugin
+  plugin-opts:
+    host: ''
+    mode: websocket
+    mux: false
+    path: ''
+    skip-cert-verify: true
+    tls: false
+  udp: true
+- name: 🇨🇦 CA-1 | SHFX
+  type: trojan
+  server: ca-full.privateip.net
+  port: 443
+  password: 71ab3866-4c8b-4a0b-a4bd-a64f110afe0b
+  skip-cert-verify: true
+  udp: true
+- name: 🇬🇧 GB-2 | SHFX
+  type: ss
+  server: 51.141.230.84
+  port: 32755
+  password: hS5KwcNlwufMFEScwyjVkz
+  cipher: chacha20-ietf-poly1305
+  udp: true
+- name: 🇺🇸 US-6 | SHFX
+  type: ss
+  server: 107.175.96.74
+  port: 16899
+  password: Yc2CtrIz8L
+  cipher: aes-128-gcm
+  udp: true
+- name: 🇸🇪 SE-1 | SHFX
+  type: trojan
+  server: 13.50.29.215
+  port: 22222
+  password: telegram-id-privatevpns
+  sni: trojan.burgerip.co.uk
+  skip-cert-verify: true
+  udp: true
+- name: 🇩🇪 DE-2 | SHFX
+  type: ss
+  server: wqfuinwqffq.dfcloud.xyz
+  port: 30818
+  password: 8e949d75-3510-4678-8593-3c5032dd931a
+  cipher: chacha20-ietf-poly1305
+  udp: true
 - name: 🇰🇷 KR-4 | SHFX
+  type: ss
+  server: 221.150.109.81
+  port: 42978
+  password: qwerREWQ@@
+  cipher: aes-256-cfb
+  udp: true
+- name: 🇨🇳 CN-2 | SHFX
+  type: ss
+  server: 120.238.122.208
+  port: 26667
+  password: 99301d55-a41f-4919-986b-1435996533aa
+  cipher: chacha20-ietf-poly1305
+  udp: true
+- name: 🇨🇳 CN-3 | SHFX
+  type: ss
+  server: 36.212.129.235
+  port: 27273
+  password: d3c7f55f-e2af-4114-b0a3-058d219e2992
+  cipher: chacha20-ietf-poly1305
+  udp: true
+- name: 🇩🇪 DE-3 | SHFX
+  type: ss
+  server: 193.108.119.230
+  port: 8080
+  password: 14fFPrbezE3HDZzsMOr6
+  cipher: rc4-md5
+- name: 🇳🇱 NL-5 | SHFX
+  type: ss
+  server: 45.87.175.174
+  port: 8080
+  password: k1dBOmOB4oqi7Ump37a1bQ
+  cipher: chacha20-ietf-poly1305
+- name: 🇺🇸 US-7 | SHFX
+  type: ss
+  server: 156.146.38.170
+  port: 443
+  password: shadowsocks
+  cipher: aes-128-gcm
+- name: 🇳🇱 NL-6 | SHFX
+  type: ss
+  server: 45.87.175.69
+  port: 8080
+  password: oZIoA69Q8yhcQV8ka3Pa3A
+  cipher: chacha20-ietf-poly1305
+- name: 🇳🇱 NL-7 | SHFX
+  type: ss
+  server: 193.29.139.240
+  port: 8080
+  password: oZIoA69Q8yhcQV8ka3Pa3A
+  cipher: chacha20-ietf-poly1305
+- name: 🇨🇦 CA-2 | SHFX
+  type: ss
+  server: 23.162.200.130
+  port: 2376
+  password: faBAoD54k87UJG7
+  cipher: aes-256-gcm
+  udp: true
+- name: 🇺🇸 US-8 | SHFX
+  type: trojan
+  server: 104.26.14.85
+  port: 2083
+  password: 5041df4c-b3ae-481d-adf9-79b39f4810f2
+  sni: taqboostan.zagros.top
+  skip-cert-verify: true
+  udp: true
+- name: 🇨🇳 CN-4 | SHFX
+  type: ss
+  server: gran.efnwgood.top
+  port: 28894
+  password: 9bc1eddf-1674-40f1-ad64-00a6fc5c2054
+  cipher: chacha20-ietf-poly1305
+  udp: true
+- name: 🇰🇷 KR-5 | SHFX
   type: ss
   server: 221.150.109.87
   port: 43926
   password: qwerREWQ@@
   cipher: aes-256-cfb
   udp: true
-- name: 🇬🇧 GB-2 | SHFX
+- name: 🇬🇧 GB-3 | SHFX
   type: ss
   server: 85.210.120.237
   port: 443
@@ -369,146 +537,6 @@ proxies:
   port: 28612
   password: R5vcCFayGJ8ZwKMSUfdyfF
   cipher: chacha20-ietf-poly1305
-  udp: true
-- name: 🇱🇻 LV-1 | SHFX
-  type: ss
-  server: 46.183.217.232
-  port: 989
-  password: f8f7aCzcPKbsF8p3
-  cipher: aes-256-cfb
-  udp: true
-- name: 🇳🇱 NL-4 | SHFX
-  type: ss
-  server: 45.87.175.177
-  port: 8080
-  password: cvII85TrW6n0OGyfpHVS1u
-  cipher: chacha20-ietf-poly1305
-- name: 🇨🇳 CN-1 | SHFX
-  type: ss
-  server: 120.199.94.29
-  port: 27268
-  password: d3c7f55f-e2af-4114-b0a3-058d219e2992
-  cipher: chacha20-ietf-poly1305
-  udp: true
-- name: 🇨🇾 CY-1 | SHFX
-  type: ss
-  server: 213.169.137.221
-  port: 989
-  password: f8f7aCzcPKbsF8p3
-  cipher: aes-256-cfb
-  udp: true
-- name: 🇳🇱 NL-5 | SHFX
-  type: ss
-  server: 45.58.148.66
-  port: 21763
-  password: 4XVeP1
-  cipher: aes-256-cfb
-  udp: true
-- name: 🇺🇸 US-5 | SHFX
-  type: trojan
-  server: 108.181.24.37
-  port: 443
-  password: 29ea82cf-f956-42b2-a5dc-35feea39e7ff
-  sni: glc-us1.windowsupdatea.com
-  skip-cert-verify: true
-  udp: true
-- name: 🇨🇦 CA-1 | SHFX
-  type: ss
-  server: 876.outline-vpn.cloud
-  port: 443
-  password: R9Xc4dHXGv3c
-  cipher: chacha20-ietf-poly1305
-  udp: true
-- name: 🇭🇰 HK-4 | SHFX
-  type: trojan
-  server: ip0axv1bbsu02k7-tw.1ytnode.com
-  port: 56329
-  password: cd7239af-77ad-4628-a871-00acfa219f02
-  skip-cert-verify: true
-  udp: true
-- name: 🇺🇸 US-6 | SHFX
-  type: trojan
-  server: 188.114.98.0
-  port: 443
-  password: 01596265-168b-46a7-bcb7-25662c7a9546
-  sni: hdfy7c1.foriran2.eu.org
-  skip-cert-verify: true
-  udp: true
-- name: 🇷🇺 RU-1 | SHFX
-  type: ss
-  server: 146.185.198.44
-  port: 51348
-  password: Zu5sVdhPITkII1Rf9bUTjt0ws1nks4vgBoHhe7QxwEk0j3Ai
-  cipher: chacha20-ietf-poly1305
-  udp: true
-- name: 🇳🇱 NL-6 | SHFX
-  type: hysteria2
-  server: hshl.huasuan666.top
-  port: 22157
-  password: 571ec94e-613c-430a-93de-397d3d237475
-  sni: hshl.huasuan666.top
-  skip-cert-verify: false
-  auth: 571ec94e-613c-430a-93de-397d3d237475
-- name: 🇰🇿 KZ-1 | SHFX
-  type: trojan
-  server: 95.164.114.43
-  port: 443
-  password: 17fdf23d-2cc4-48bb-a8d4-6d0cabda51f9
-  skip-cert-verify: true
-  udp: true
-- name: 🇳🇱 NL-7 | SHFX
-  type: ss
-  server: 45.87.175.28
-  port: 8080
-  password: oZIoA69Q8yhcQV8ka3Pa3A
-  cipher: chacha20-ietf-poly1305
-- name: 🇺🇸 US-7 | SHFX
-  type: ss
-  server: 74.121.191.53
-  port: 443
-  password: 83XvX4Vo%*3a
-  cipher: aes-128-gcm
-  plugin: v2ray-plugin
-  plugin-opts:
-    host: u1.kddns.xyz
-    mode: websocket
-    mux: false
-    path: ''
-    skip-cert-verify: true
-    tls: false
-  udp: true
-- name: 🇬🇧 GB-3 | SHFX
-  type: ss
-  server: 51.68.206.229
-  port: 8080
-  password: KixLvKzwjekG00rm
-  cipher: aes-256-gcm
-  udp: true
-- name: 🇳🇱 NL-8 | SHFX
-  type: ss
-  server: 45.87.175.178
-  port: 8080
-  password: cvII85TrW6n0OGyfpHVS1u
-  cipher: chacha20-ietf-poly1305
-- name: 🇳🇱 NL-9 | SHFX
-  type: ss
-  server: 45.87.175.22
-  port: 8080
-  password: oZIoA69Q8yhcQV8ka3Pa3A
-  cipher: chacha20-ietf-poly1305
-- name: 🇨🇦 CA-2 | SHFX
-  type: ss
-  server: 23.162.200.225
-  port: 8091
-  password: PCnnH6SQSnfoS27
-  cipher: aes-256-gcm
-  udp: true
-- name: 🇨🇳 CN-2 | SHFX
-  type: ss
-  server: 211.99.97.12
-  port: 24603
-  password: dbEcUJ
-  cipher: rc4-md5
   udp: true
 
 proxy-groups:
@@ -534,36 +562,37 @@ proxy-groups:
       - 🇰🇷 KR-1 | SHFX
       - 🇹🇼 TW-1 | SHFX
       - 🇩🇪 DE-1 | SHFX
+      - 🇳🇱 NL-2 | SHFX
+      - 🇳🇱 NL-3 | SHFX
+      - 🇺🇸 US-3 | SHFX
+      - 🇻🇳 VN-1 | SHFX
       - 🇧🇷 BR-1 | SHFX
       - 🇰🇷 KR-2 | SHFX
-      - 🇻🇳 VN-1 | SHFX
-      - 🇳🇱 NL-2 | SHFX
       - 🇰🇷 KR-3 | SHFX
-      - 🇺🇸 US-3 | SHFX
-      - 🇺🇸 US-4 | SHFX
-      - 🇳🇱 NL-3 | SHFX
-      - 🇰🇷 KR-4 | SHFX
-      - 🇬🇧 GB-2 | SHFX
-      - 🇮🇪 IE-1 | SHFX
-      - 🇱🇻 LV-1 | SHFX
       - 🇳🇱 NL-4 | SHFX
+      - 🇺🇸 US-4 | SHFX
       - 🇨🇳 CN-1 | SHFX
-      - 🇨🇾 CY-1 | SHFX
-      - 🇳🇱 NL-5 | SHFX
       - 🇺🇸 US-5 | SHFX
-      - 🇨🇦 CA-1 | SHFX
       - 🇭🇰 HK-4 | SHFX
+      - 🇨🇦 CA-1 | SHFX
+      - 🇬🇧 GB-2 | SHFX
       - 🇺🇸 US-6 | SHFX
-      - 🇷🇺 RU-1 | SHFX
-      - 🇳🇱 NL-6 | SHFX
-      - 🇰🇿 KZ-1 | SHFX
-      - 🇳🇱 NL-7 | SHFX
-      - 🇺🇸 US-7 | SHFX
-      - 🇬🇧 GB-3 | SHFX
-      - 🇳🇱 NL-8 | SHFX
-      - 🇳🇱 NL-9 | SHFX
-      - 🇨🇦 CA-2 | SHFX
+      - 🇸🇪 SE-1 | SHFX
+      - 🇩🇪 DE-2 | SHFX
+      - 🇰🇷 KR-4 | SHFX
       - 🇨🇳 CN-2 | SHFX
+      - 🇨🇳 CN-3 | SHFX
+      - 🇩🇪 DE-3 | SHFX
+      - 🇳🇱 NL-5 | SHFX
+      - 🇺🇸 US-7 | SHFX
+      - 🇳🇱 NL-6 | SHFX
+      - 🇳🇱 NL-7 | SHFX
+      - 🇨🇦 CA-2 | SHFX
+      - 🇺🇸 US-8 | SHFX
+      - 🇨🇳 CN-4 | SHFX
+      - 🇰🇷 KR-5 | SHFX
+      - 🇬🇧 GB-3 | SHFX
+      - 🇮🇪 IE-1 | SHFX
   - name: 自动选择⚡️
     type: url-test
     proxies:
@@ -585,36 +614,37 @@ proxy-groups:
       - 🇰🇷 KR-1 | SHFX
       - 🇹🇼 TW-1 | SHFX
       - 🇩🇪 DE-1 | SHFX
+      - 🇳🇱 NL-2 | SHFX
+      - 🇳🇱 NL-3 | SHFX
+      - 🇺🇸 US-3 | SHFX
+      - 🇻🇳 VN-1 | SHFX
       - 🇧🇷 BR-1 | SHFX
       - 🇰🇷 KR-2 | SHFX
-      - 🇻🇳 VN-1 | SHFX
-      - 🇳🇱 NL-2 | SHFX
       - 🇰🇷 KR-3 | SHFX
-      - 🇺🇸 US-3 | SHFX
-      - 🇺🇸 US-4 | SHFX
-      - 🇳🇱 NL-3 | SHFX
-      - 🇰🇷 KR-4 | SHFX
-      - 🇬🇧 GB-2 | SHFX
-      - 🇮🇪 IE-1 | SHFX
-      - 🇱🇻 LV-1 | SHFX
       - 🇳🇱 NL-4 | SHFX
+      - 🇺🇸 US-4 | SHFX
       - 🇨🇳 CN-1 | SHFX
-      - 🇨🇾 CY-1 | SHFX
-      - 🇳🇱 NL-5 | SHFX
       - 🇺🇸 US-5 | SHFX
-      - 🇨🇦 CA-1 | SHFX
       - 🇭🇰 HK-4 | SHFX
+      - 🇨🇦 CA-1 | SHFX
+      - 🇬🇧 GB-2 | SHFX
       - 🇺🇸 US-6 | SHFX
-      - 🇷🇺 RU-1 | SHFX
-      - 🇳🇱 NL-6 | SHFX
-      - 🇰🇿 KZ-1 | SHFX
-      - 🇳🇱 NL-7 | SHFX
-      - 🇺🇸 US-7 | SHFX
-      - 🇬🇧 GB-3 | SHFX
-      - 🇳🇱 NL-8 | SHFX
-      - 🇳🇱 NL-9 | SHFX
-      - 🇨🇦 CA-2 | SHFX
+      - 🇸🇪 SE-1 | SHFX
+      - 🇩🇪 DE-2 | SHFX
+      - 🇰🇷 KR-4 | SHFX
       - 🇨🇳 CN-2 | SHFX
+      - 🇨🇳 CN-3 | SHFX
+      - 🇩🇪 DE-3 | SHFX
+      - 🇳🇱 NL-5 | SHFX
+      - 🇺🇸 US-7 | SHFX
+      - 🇳🇱 NL-6 | SHFX
+      - 🇳🇱 NL-7 | SHFX
+      - 🇨🇦 CA-2 | SHFX
+      - 🇺🇸 US-8 | SHFX
+      - 🇨🇳 CN-4 | SHFX
+      - 🇰🇷 KR-5 | SHFX
+      - 🇬🇧 GB-3 | SHFX
+      - 🇮🇪 IE-1 | SHFX
     url: https://www.gstatic.com/generate_204
     interval: 300
 rules:
