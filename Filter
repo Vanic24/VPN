@@ -1,4 +1,4 @@
-# Last update: 17.11.2025 11:47:29
+# Last update: 17.11.2025 12:12:32
 mixed-port: 7897
 allow-lan: false
 mode: rule
@@ -297,19 +297,15 @@ proxies:
   skip-cert-verify: true
   tfo: false
   udp: true
-- name: 🇷🇺 RU-1 | SHFX
-  type: trojan
-  server: 95.182.120.208
-  port: 2053
-  password: 3b38715b-f08a-46dd-9904-7531ca4bb6e8
-  network: ws
-  sni: joss.gpj.web.id
-  skip-cert-verify: false
-  ws-opts:
-    headers:
-      Host: joss.gpj.web.id
-    path: /Free-VPN-CF-Geo-Project/95.182.120.208=2053
-  udp: true
+- name: 🇻🇳 VN-1 | SHFX
+  type: ss
+  server: arxfw2b78fi2q9hzylhn.freesocks.work
+  port: 443
+  password: Nk9asglDzHzjktVzTkvhaA
+  skip-cert-verify: true
+  alterId: 0
+  cipher: chacha20-ietf-poly1305
+  tls: true
 - name: 🇳🇱 NL-2 | SHFX
   type: trojan
   server: 89.110.116.141
@@ -323,32 +319,25 @@ proxies:
       Host: joss.gpj.web.id
     path: /Free-VPN-CF-Geo-Project/89.110.116.141=443
   udp: true
-- name: 🇯🇵 JP-6 | SHFX
+- name: 🇷🇺 RU-1 | SHFX
   type: trojan
-  server: 151.242.164.127
-  port: 3443
-  password: c2e3cdc0-bc72-3505-b2a9-ea5ed7bfa23f
-  sni: steampipe.akamaized.net
-  skip-cert-verify: true
-  alterId: 0
-  tls: true
-  udp: true
-- name: 🇺🇸 US-3 | SHFX
-  type: hysteria2
-  server: mg4.mutoujs.top
-  port: 20000
-  password: 7ae1a8a7-b025-4bac-8949-9b1e45926a9a
+  server: 95.182.120.208
+  port: 2053
+  password: 3b38715b-f08a-46dd-9904-7531ca4bb6e8
+  network: ws
+  sni: joss.gpj.web.id
   skip-cert-verify: false
-  auth: 7ae1a8a7-b025-4bac-8949-9b1e45926a9a
-  obfs: salamander
-  obfs-password: DAnBPK1GxOdklGbv
-- name: 🇬🇷 GR-1 | SHFX
-  type: ss
-  server: 192.71.166.102
-  port: 989
-  password: f8f7aCzcPKbsF8p3
-  cipher: aes-256-cfb
+  ws-opts:
+    headers:
+      Host: joss.gpj.web.id
+    path: /Free-VPN-CF-Geo-Project/95.182.120.208=2053
   udp: true
+- name: 🇧🇷 BR-1 | SHFX
+  type: ss
+  server: 213.159.66.206
+  port: 443
+  password: pl2XtR0pzwknQOGwewbwXtPYDw1zn9Vu
+  cipher: chacha20-ietf-poly1305
 
 proxy-groups:
   - name: 选择线路
@@ -373,11 +362,10 @@ proxy-groups:
       - 🇰🇷 KR-1 | SHFX
       - 🇹🇼 TW-1 | SHFX
       - 🇩🇪 DE-1 | SHFX
-      - 🇷🇺 RU-1 | SHFX
+      - 🇻🇳 VN-1 | SHFX
       - 🇳🇱 NL-2 | SHFX
-      - 🇯🇵 JP-6 | SHFX
-      - 🇺🇸 US-3 | SHFX
-      - 🇬🇷 GR-1 | SHFX
+      - 🇷🇺 RU-1 | SHFX
+      - 🇧🇷 BR-1 | SHFX
   - name: 自动选择⚡️
     type: url-test
     proxies:
@@ -399,11 +387,10 @@ proxy-groups:
       - 🇰🇷 KR-1 | SHFX
       - 🇹🇼 TW-1 | SHFX
       - 🇩🇪 DE-1 | SHFX
-      - 🇷🇺 RU-1 | SHFX
+      - 🇻🇳 VN-1 | SHFX
       - 🇳🇱 NL-2 | SHFX
-      - 🇯🇵 JP-6 | SHFX
-      - 🇺🇸 US-3 | SHFX
-      - 🇬🇷 GR-1 | SHFX
+      - 🇷🇺 RU-1 | SHFX
+      - 🇧🇷 BR-1 | SHFX
     url: https://www.gstatic.com/generate_204
     interval: 300
 rules:
