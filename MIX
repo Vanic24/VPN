@@ -1,4 +1,4 @@
-# Last update: 28.11.2025 15:44:25
+# Last update: 28.11.2025 18:56:30
 mixed-port: 7897
 allow-lan: false
 mode: rule
@@ -121,32 +121,6 @@ dns:
       - +.googleapis.com
       - +.gvt1.com
 proxies:
-- name: 🇺🇸 US-1 | MIX
-  type: hysteria2
-  server: phoenix-1.nezhasu.com
-  port: 443
-  password: 52d0cb21-56da-4f00-862f-be01b66446a8
-  sni: phoenix-1.nezhasu.com
-  skip-cert-verify: true
-  tls:
-    enabled: true
-    server_name: phoenix-1.nezhasu.com
-    insecure: true
-  insecure: '1'
-  mport: 50000-65535
-- name: 🇺🇸 US-2 | MIX
-  type: hysteria2
-  server: phoenix-2.nezhasu.com
-  port: 443
-  password: 52d0cb21-56da-4f00-862f-be01b66446a8
-  sni: phoenix-2.nezhasu.com
-  skip-cert-verify: true
-  tls:
-    enabled: true
-    server_name: phoenix-2.nezhasu.com
-    insecure: true
-  insecure: '1'
-  mport: 50000-65535
 - name: 🇹🇼 TW-1 | MIX
   type: vless
   server: 114.32.9.249
@@ -169,7 +143,7 @@ proxies:
   alpn:
   - h3
   host: s3.sni565.netlib.re
-- name: 🇺🇸 US-3 | MIX
+- name: 🇺🇸 US-1 | MIX
   type: hysteria2
   server: sanjose.nezhasu.com
   port: 443
@@ -219,7 +193,7 @@ proxies:
   alpn:
   - h3
   mode: packet-up
-- name: 🇺🇸 US-4 | MIX
+- name: 🇺🇸 US-2 | MIX
   type: vmess
   server: bCE5-3ebfED0a18F2.008880888.Xyz
   port: 80
@@ -241,7 +215,7 @@ proxies:
   host: bcE5-3EBFeD0A18F2.008880888.XYz
   alpn:
   - http/1.1
-- name: 🇺🇸 US-5 | MIX
+- name: 🇺🇸 US-3 | MIX
   type: hysteria2
   server: phoenix-4.nezhasu.com
   port: 443
@@ -254,7 +228,7 @@ proxies:
     insecure: true
   insecure: '1'
   mport: 50000-65535
-- name: 🇺🇸 US-6 | MIX
+- name: 🇺🇸 US-4 | MIX
   type: hysteria2
   server: ashburn.nezhasu.com
   port: 443
@@ -735,81 +709,13 @@ proxies:
     insecure: false
   insecure: '0'
   mport: 50000-65535
-- name: 🇺🇸 US-7 | MIX
-  type: hysteria2
-  server: gy9.nezhasu.com
-  port: 443
-  password: 52d0cb21-56da-4f00-862f-be01b66446a8
-  sni: gy9.nezhasu.com
-  skip-cert-verify: true
-  tls:
-    enabled: true
-    server_name: gy9.nezhasu.com
-    insecure: true
-  insecure: '1'
-  mport: 50000-65535
-- name: 🇷🇺 RU-1 | MIX
-  type: vless
-  server: wolfy.ufavpn.ru
-  port: 42275
-  uuid: ded39de0-6d5e-426b-90e8-b7dfeced29b2
-  encryption: none
-  network: tcp
-  security: reality
-  sni: eh.vk.com
-  fp: chrome
-  reality-opts:
-    public-key: 5Z8mktBAXgz88xCibv79NncelOS-3WAunfZNKnJRdUM
-    short-id: 08
-    server-name: eh.vk.com
-  tls: true
-  pbk: 5Z8mktBAXgz88xCibv79NncelOS-3WAunfZNKnJRdUM
-  sid: 08
-  headerType: none
-- name: 🇯🇵 JP-5 | MIX
-  type: vless
-  server: 150.230.4.210
-  port: 40721
-  uuid: e0aafde7-37e2-486b-eb30-efa71166bf7e
-  encryption: none
-  network: tcp
-  security: reality
-  sni: www.icloud.com
-  fp: chrome
-  reality-opts:
-    public-key: R2gKMF0Tetlnesc1pPkZH9NaOeehw-f5_U9JKG_cLjU
-    short-id: c588
-    server-name: www.icloud.com
-  tls: true
-  pbk: R2gKMF0Tetlnesc1pPkZH9NaOeehw-f5_U9JKG_cLjU
-  sid: c588
-  headerType: none
 - name: 🇳🇱 NL-2 | MIX
-  type: vless
-  server: 213.176.16.74
-  port: 443
-  uuid: d7fbe279896e40118c23d15fe537dddd
-  encryption: none
-  network: tcp
-  security: reality
-  sni: apple.com
-  fp: chrome
-  reality-opts:
-    public-key: XNL_xB1Spd09CQQQGnjeMPPK6_tPnFuYI_nLKk3EiWc
-    short-id: aabbccdd
-    server-name: apple.com
-  tls: true
-  flow: xtls-rprx-vision
-  pbk: XNL_xB1Spd09CQQQGnjeMPPK6_tPnFuYI_nLKk3EiWc
-  sid: aabbccdd
-  headerType: none
-- name: 🇳🇱 NL-3 | MIX
   type: ss
   server: 82.38.31.199
   port: 8080
   password: k1dBOmOB4oqi7Ump37a1bQ
   cipher: chacha20-ietf-poly1305
-- name: 🇳🇱 NL-4 | MIX
+- name: 🇳🇱 NL-3 | MIX
   type: ss
   server: 82.38.31.176
   port: 8080
@@ -831,7 +737,7 @@ proxies:
     headers:
       Host: joss.gpj1.web.id
   host: joss.gpj1.web.id
-- name: 🇺🇸 US-8 | MIX
+- name: 🇺🇸 US-5 | MIX
   type: vless
   server: 52.68.194.189
   port: 443
@@ -849,7 +755,7 @@ proxies:
       Host: kuangbao.xiejiang.dpdns.org
   tls: true
   host: kuangbao.xiejiang.dpdns.org
-- name: 🇺🇸 US-9 | MIX
+- name: 🇺🇸 US-6 | MIX
   type: vless
   server: 193.124.18.13
   port: 443
@@ -867,7 +773,7 @@ proxies:
       Host: kuangbao.xiejiang.dpdns.org
   tls: true
   host: kuangbao.xiejiang.dpdns.org
-- name: 🇺🇸 US-10 | MIX
+- name: 🇺🇸 US-7 | MIX
   type: vless
   server: 77.221.157.32
   port: 443
@@ -885,7 +791,7 @@ proxies:
       Host: kuangbao.xiejiang.dpdns.org
   tls: true
   host: kuangbao.xiejiang.dpdns.org
-- name: 🇺🇸 US-11 | MIX
+- name: 🇺🇸 US-8 | MIX
   type: vless
   server: 206.189.25.65
   port: 443
@@ -903,7 +809,7 @@ proxies:
       Host: kuangbao.xiejiang.dpdns.org
   tls: true
   host: kuangbao.xiejiang.dpdns.org
-- name: 🇺🇸 US-12 | MIX
+- name: 🇺🇸 US-9 | MIX
   type: vless
   server: 167.99.86.115
   port: 443
@@ -921,7 +827,7 @@ proxies:
       Host: kuangbao.xiejiang.dpdns.org
   tls: true
   host: kuangbao.xiejiang.dpdns.org
-- name: 🇺🇸 US-13 | MIX
+- name: 🇺🇸 US-10 | MIX
   type: vless
   server: 194.35.119.135
   port: 2053
@@ -939,7 +845,7 @@ proxies:
       Host: kuangbao.xiejiang.dpdns.org
   tls: true
   host: kuangbao.xiejiang.dpdns.org
-- name: 🇺🇸 US-14 | MIX
+- name: 🇺🇸 US-11 | MIX
   type: vless
   server: 89.19.211.109
   port: 8443
@@ -957,7 +863,7 @@ proxies:
       Host: kuangbao.xiejiang.dpdns.org
   tls: true
   host: kuangbao.xiejiang.dpdns.org
-- name: 🇳🇱 NL-5 | MIX
+- name: 🇳🇱 NL-4 | MIX
   type: vless
   server: www.speedtest.net
   port: 2083
@@ -997,7 +903,7 @@ proxies:
       Host: joss.gpj1.web.id
   tls: true
   host: joss.gpj1.web.id
-- name: 🇺🇸 US-15 | MIX
+- name: 🇺🇸 US-12 | MIX
   type: vless
   server: 77.110.119.225
   port: 443
@@ -1016,7 +922,7 @@ proxies:
   pbk: hnec5SxCD6Os-u0FNi_YS5CML1a_oWb0niZJ1mGuFBo
   sid: 07e904766d29b958
   headerType: none
-- name: 🇺🇸 US-16 | MIX
+- name: 🇺🇸 US-13 | MIX
   type: vless
   server: 85.193.95.23
   port: 8443
@@ -1036,7 +942,7 @@ proxies:
       Host: kuangbao.xiejiang.dpdns.org
   tls: true
   host: kuangbao.xiejiang.dpdns.org
-- name: 🇺🇸 US-17 | MIX
+- name: 🇺🇸 US-14 | MIX
   type: vless
   server: 90.156.228.74
   port: 2053
@@ -1056,7 +962,7 @@ proxies:
       Host: kuangbao.xiejiang.dpdns.org
   tls: true
   host: kuangbao.xiejiang.dpdns.org
-- name: 🇺🇸 US-18 | MIX
+- name: 🇺🇸 US-15 | MIX
   type: vless
   server: 202.85.53.160
   port: 7000
@@ -1076,7 +982,7 @@ proxies:
       Host: kuangbao.xiejiang.dpdns.org
   tls: true
   host: kuangbao.xiejiang.dpdns.org
-- name: 🇺🇸 US-19 | MIX
+- name: 🇺🇸 US-16 | MIX
   type: vless
   server: 5.34.222.200
   port: 443
@@ -1096,7 +1002,7 @@ proxies:
       Host: kuangbao.xiejiang.dpdns.org
   tls: true
   host: kuangbao.xiejiang.dpdns.org
-- name: 🇷🇺 RU-2 | MIX
+- name: 🇷🇺 RU-1 | MIX
   type: vless
   server: zcreat.ethervpn.fun
   port: 8443
@@ -1119,7 +1025,7 @@ proxies:
   - h2
   - http/1.1
   host: zcreat.ethervpn.fun
-- name: 🇺🇸 US-20 | MIX
+- name: 🇺🇸 US-17 | MIX
   type: vless
   server: 54.95.79.44
   port: 443
@@ -1137,7 +1043,7 @@ proxies:
       Host: kuangbao.xiejiang.dpdns.org
   tls: true
   host: kuangbao.xiejiang.dpdns.org
-- name: 🇺🇸 US-21 | MIX
+- name: 🇺🇸 US-18 | MIX
   type: vless
   server: 108.162.198.24
   port: 2096
@@ -1155,7 +1061,7 @@ proxies:
       Host: kuangbao.xiejiang.dpdns.org
   tls: true
   host: kuangbao.xiejiang.dpdns.org
-- name: 🇺🇸 US-22 | MIX
+- name: 🇺🇸 US-19 | MIX
   type: vless
   server: 95.140.157.183
   port: 8443
@@ -1173,7 +1079,7 @@ proxies:
       Host: kuangbao.xiejiang.dpdns.org
   tls: true
   host: kuangbao.xiejiang.dpdns.org
-- name: 🇺🇸 US-23 | MIX
+- name: 🇺🇸 US-20 | MIX
   type: vless
   server: 154.204.183.68
   port: 10001
@@ -1192,7 +1098,7 @@ proxies:
   pbk: 7qP6YKWx5CJXia1qjQoIcD7FRjUBbioaioioI729D34
   sid: 2afe4310
   headerType: none
-- name: 🇳🇱 NL-6 | MIX
+- name: 🇳🇱 NL-5 | MIX
   type: vless
   server: 5.61.50.192
   port: 34045
@@ -1232,7 +1138,7 @@ proxies:
   alpn:
   - h3
   host: s3.sni565.netlib.re
-- name: 🇷🇺 RU-3 | MIX
+- name: 🇷🇺 RU-2 | MIX
   type: vless
   server: ru01-blh04.tcp-reset-club.net
   port: 443
@@ -1268,7 +1174,7 @@ proxies:
   alpn:
   - http/1.1
   allowInsecure: '1'
-- name: 🇺🇸 US-24 | MIX
+- name: 🇺🇸 US-21 | MIX
   type: trojan
   server: 162.159.42.58
   port: 443
@@ -1302,7 +1208,7 @@ proxies:
   alpn:
   - http/1.1
   allowInsecure: '1'
-- name: 🇺🇸 US-25 | MIX
+- name: 🇺🇸 US-22 | MIX
   type: trojan
   server: freeyx.cloudflare88.eu.org
   port: 443
@@ -1319,7 +1225,7 @@ proxies:
   alpn:
   - http/1.1
   allowInsecure: '1'
-- name: 🇺🇸 US-26 | MIX
+- name: 🇺🇸 US-23 | MIX
   type: trojan
   server: 198.41.208.120
   port: 443
@@ -1336,7 +1242,7 @@ proxies:
   alpn:
   - http/1.1
   allowInsecure: '1'
-- name: 🇳🇱 NL-7 | MIX
+- name: 🇳🇱 NL-6 | MIX
   type: vless
   server: 46.8.231.189
   port: 80
@@ -1363,15 +1269,13 @@ proxy-groups:
     type: select
     proxies:
       - 自动选择⚡️
-      - 🇺🇸 US-1 | MIX
-      - 🇺🇸 US-2 | MIX
       - 🇹🇼 TW-1 | MIX
-      - 🇺🇸 US-3 | MIX
+      - 🇺🇸 US-1 | MIX
       - 🇱🇧 LB-1 | MIX
       - 🇩🇪 DE-1 | MIX
+      - 🇺🇸 US-2 | MIX
+      - 🇺🇸 US-3 | MIX
       - 🇺🇸 US-4 | MIX
-      - 🇺🇸 US-5 | MIX
-      - 🇺🇸 US-6 | MIX
       - 🇬🇧 GB-1 | MIX
       - 🇬🇧 GB-2 | MIX
       - 🇬🇧 GB-3 | MIX
@@ -1408,53 +1312,47 @@ proxy-groups:
       - 🇯🇵 JP-4 | MIX
       - 🇲🇽 MX-1 | MIX
       - 🇲🇽 MX-2 | MIX
-      - 🇺🇸 US-7 | MIX
-      - 🇷🇺 RU-1 | MIX
-      - 🇯🇵 JP-5 | MIX
       - 🇳🇱 NL-2 | MIX
       - 🇳🇱 NL-3 | MIX
-      - 🇳🇱 NL-4 | MIX
       - 🇨🇦 CA-1 | MIX
+      - 🇺🇸 US-5 | MIX
+      - 🇺🇸 US-6 | MIX
+      - 🇺🇸 US-7 | MIX
       - 🇺🇸 US-8 | MIX
       - 🇺🇸 US-9 | MIX
       - 🇺🇸 US-10 | MIX
       - 🇺🇸 US-11 | MIX
+      - 🇳🇱 NL-4 | MIX
+      - 🇨🇦 CA-2 | MIX
       - 🇺🇸 US-12 | MIX
       - 🇺🇸 US-13 | MIX
       - 🇺🇸 US-14 | MIX
-      - 🇳🇱 NL-5 | MIX
-      - 🇨🇦 CA-2 | MIX
       - 🇺🇸 US-15 | MIX
       - 🇺🇸 US-16 | MIX
+      - 🇷🇺 RU-1 | MIX
       - 🇺🇸 US-17 | MIX
       - 🇺🇸 US-18 | MIX
       - 🇺🇸 US-19 | MIX
-      - 🇷🇺 RU-2 | MIX
       - 🇺🇸 US-20 | MIX
+      - 🇳🇱 NL-5 | MIX
+      - 🇹🇼 TW-2 | MIX
+      - 🇷🇺 RU-2 | MIX
+      - 🇩🇪 DE-3 | MIX
       - 🇺🇸 US-21 | MIX
+      - 🇩🇪 DE-4 | MIX
       - 🇺🇸 US-22 | MIX
       - 🇺🇸 US-23 | MIX
       - 🇳🇱 NL-6 | MIX
-      - 🇹🇼 TW-2 | MIX
-      - 🇷🇺 RU-3 | MIX
-      - 🇩🇪 DE-3 | MIX
-      - 🇺🇸 US-24 | MIX
-      - 🇩🇪 DE-4 | MIX
-      - 🇺🇸 US-25 | MIX
-      - 🇺🇸 US-26 | MIX
-      - 🇳🇱 NL-7 | MIX
   - name: 自动选择⚡️
     type: url-test
     proxies:
-      - 🇺🇸 US-1 | MIX
-      - 🇺🇸 US-2 | MIX
       - 🇹🇼 TW-1 | MIX
-      - 🇺🇸 US-3 | MIX
+      - 🇺🇸 US-1 | MIX
       - 🇱🇧 LB-1 | MIX
       - 🇩🇪 DE-1 | MIX
+      - 🇺🇸 US-2 | MIX
+      - 🇺🇸 US-3 | MIX
       - 🇺🇸 US-4 | MIX
-      - 🇺🇸 US-5 | MIX
-      - 🇺🇸 US-6 | MIX
       - 🇬🇧 GB-1 | MIX
       - 🇬🇧 GB-2 | MIX
       - 🇬🇧 GB-3 | MIX
@@ -1491,41 +1389,37 @@ proxy-groups:
       - 🇯🇵 JP-4 | MIX
       - 🇲🇽 MX-1 | MIX
       - 🇲🇽 MX-2 | MIX
-      - 🇺🇸 US-7 | MIX
-      - 🇷🇺 RU-1 | MIX
-      - 🇯🇵 JP-5 | MIX
       - 🇳🇱 NL-2 | MIX
       - 🇳🇱 NL-3 | MIX
-      - 🇳🇱 NL-4 | MIX
       - 🇨🇦 CA-1 | MIX
+      - 🇺🇸 US-5 | MIX
+      - 🇺🇸 US-6 | MIX
+      - 🇺🇸 US-7 | MIX
       - 🇺🇸 US-8 | MIX
       - 🇺🇸 US-9 | MIX
       - 🇺🇸 US-10 | MIX
       - 🇺🇸 US-11 | MIX
+      - 🇳🇱 NL-4 | MIX
+      - 🇨🇦 CA-2 | MIX
       - 🇺🇸 US-12 | MIX
       - 🇺🇸 US-13 | MIX
       - 🇺🇸 US-14 | MIX
-      - 🇳🇱 NL-5 | MIX
-      - 🇨🇦 CA-2 | MIX
       - 🇺🇸 US-15 | MIX
       - 🇺🇸 US-16 | MIX
+      - 🇷🇺 RU-1 | MIX
       - 🇺🇸 US-17 | MIX
       - 🇺🇸 US-18 | MIX
       - 🇺🇸 US-19 | MIX
-      - 🇷🇺 RU-2 | MIX
       - 🇺🇸 US-20 | MIX
+      - 🇳🇱 NL-5 | MIX
+      - 🇹🇼 TW-2 | MIX
+      - 🇷🇺 RU-2 | MIX
+      - 🇩🇪 DE-3 | MIX
       - 🇺🇸 US-21 | MIX
+      - 🇩🇪 DE-4 | MIX
       - 🇺🇸 US-22 | MIX
       - 🇺🇸 US-23 | MIX
       - 🇳🇱 NL-6 | MIX
-      - 🇹🇼 TW-2 | MIX
-      - 🇷🇺 RU-3 | MIX
-      - 🇩🇪 DE-3 | MIX
-      - 🇺🇸 US-24 | MIX
-      - 🇩🇪 DE-4 | MIX
-      - 🇺🇸 US-25 | MIX
-      - 🇺🇸 US-26 | MIX
-      - 🇳🇱 NL-7 | MIX
     url: https://www.gstatic.com/generate_204
     interval: 300
 rules:
