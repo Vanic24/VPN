@@ -500,6 +500,11 @@ def rename_node(p, country_counter, CN_TO_CC):
     original_name = str(p.get("name", "") or "").strip()
     host = p.get("server") or p.get("add") or ""
 
+    # Detect ipv6 tag
+    ipv6_tag = False
+    if re.search(r'[\(\[\{]?\s*ipv6\s*[\)\]\}]?', original_name, flags=re.IGNORECASE):
+        ipv6_tag = True
+
     # Define forbidden emojis (any emoji you want to filter out)
     FORBIDDEN_EMOJIS = {"🔒", "❌", "⚠️", "🚀", "🎁"}
 
@@ -525,7 +530,10 @@ def rename_node(p, country_counter, CN_TO_CC):
             flag = country_to_flag(cc)
             country_counter[cc] += 1
             index = country_counter[cc]
-            p["name"] = f"{flag} {cc}-{index} | StarLink"
+            if ipv6_tag:
+                p["name"] = f"{flag} {cc}-{index} [ipv6] | Starlink"
+            else:
+                p["name"] = f"{flag} {cc}-{index} | Starlink"
             return p
         return None
 
@@ -537,9 +545,12 @@ def rename_node(p, country_counter, CN_TO_CC):
             country_counter[cc] += 1
             index = country_counter[cc]
             # Only update the name field
-            p["name"] = f"{flag} {cc}-{index} | StarLink"
+            if ipv6_tag:
+                p["name"] = f"{flag} {cc}-{index} [ipv6] | Starlink"
+            else:
+                p["name"] = f"{flag} {cc}-{index} | Starlink"
             return p
-
+            
     # 2️⃣ Emoji flag in name
     flag_match = re.search(r'[\U0001F1E6-\U0001F1FF]{2}', name_for_match)
     if flag_match:
@@ -549,7 +560,10 @@ def rename_node(p, country_counter, CN_TO_CC):
             cc = cc.upper()
             country_counter[cc] += 1
             index = country_counter[cc]
-            p["name"] = f"{flag} {cc}-{index} | StarLink"
+            if ipv6_tag:
+                p["name"] = f"{flag} {cc}-{index} [ipv6] | Starlink"
+            else:
+                p["name"] = f"{flag} {cc}-{index} | Starlink"
             return p
 
     # 3️⃣ Two-letter ISO code (UPPER CASE)
@@ -559,7 +573,10 @@ def rename_node(p, country_counter, CN_TO_CC):
         flag = country_to_flag(cc)
         country_counter[cc] += 1
         index = country_counter[cc]
-        p["name"] = f"{flag} {cc}-{index} | StarLink"
+        if ipv6_tag:
+            p["name"] = f"{flag} {cc}-{index} [ipv6] | Starlink"
+        else:
+            p["name"] = f"{flag} {cc}-{index} | Starlink"
         return p
 
     # 4️⃣ GeoIP fallback
@@ -570,7 +587,10 @@ def rename_node(p, country_counter, CN_TO_CC):
         flag = country_to_flag(cc)
         country_counter[cc] += 1
         index = country_counter[cc]
-        p["name"] = f"{flag} {cc}-{index} | StarLink"
+        if ipv6_tag:
+            p["name"] = f"{flag} {cc}-{index} [ipv6] | Starlink"
+        else:
+            p["name"] = f"{flag} {cc}-{index} | Starlink"
         return p
 
     # 5️⃣ Skip node entirely if no assignment possible
