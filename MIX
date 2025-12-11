@@ -1,1150 +1,1582 @@
-port: 7890
-socks-port: 7891
-allow-lan: true
+# Last update: 11.12.2025 10:32:33
+mixed-port: 7897
+allow-lan: false
 mode: rule
 log-level: info
-external-controller: 9090
-proxies:
-- name: 建议每次使用前都更新订阅
-  type: ss
-  server: zhuzhu01.sssyun.xyz
-  port: 29527
-  cipher: 2022-blake3-aes-128-gcm
-  password: MDhhMTdjZDI0MjI2ZWRlNg==:NjQzMzNlZGQtMDE4YS00ZA==
-  udp: true
-- name: 🇭🇰香港1-hy2
-  server: hk1.jueduibupao.top
-  port: 50001
-  sni: hk1.jueduibupao.top
-  up: 100
-  down: 100
-  skip-cert-verify: true
-  type: hysteria2
-  password: 64333edd-018a-4d81-aca3-709de14ae66d
-- name: 🇭🇰香港2-hy2
-  server: hk2.jueduibupao.top
-  port: 47167
-  sni: hk2.jueduibupao.top
-  up: 100
-  down: 100
-  skip-cert-verify: true
-  type: hysteria2
-  password: 64333edd-018a-4d81-aca3-709de14ae66d
-- name: 🇸🇬新加坡1-hy2
-  server: linsg1.jueduibupao.top
-  port: 40830
-  sni: linsg1.jueduibupao.top
-  up: 100
-  down: 100
-  skip-cert-verify: true
-  type: hysteria2
-  password: 64333edd-018a-4d81-aca3-709de14ae66d
-- name: 🇨🇳台湾1-流媒体解锁|AI-hy2
-  server: tw2.jueduibupao.top
-  port: 30078
-  sni: tw2.jueduibupao.top
-  up: 100
-  down: 100
-  skip-cert-verify: true
-  type: hysteria2
-  password: 64333edd-018a-4d81-aca3-709de14ae66d
-- name: 🇨🇳台湾2-流媒体解锁|AI-hy2
-  server: tw3.jueduibupao.top
-  port: 48817
-  sni: tw3.jueduibupao.top
-  up: 100
-  down: 100
-  skip-cert-verify: true
-  type: hysteria2
-  password: 64333edd-018a-4d81-aca3-709de14ae66d
-  ports: 40000-50000
-- name: 🇯🇵日本1-hy2
-  server: linjp1.jueduibupao.top
-  port: 42154
-  sni: linjp1.jueduibupao.top
-  up: 100
-  down: 100
-  skip-cert-verify: true
-  type: hysteria2
-  password: 64333edd-018a-4d81-aca3-709de14ae66d
-  ports: 40000-50000
-- name: 🇯🇵日本2-hy2
-  server: linjp2.jueduibupao.top
-  port: 30000
-  sni: linjp2.jueduibupao.top
-  up: 100
-  down: 100
-  skip-cert-verify: true
-  type: hysteria2
-  password: 64333edd-018a-4d81-aca3-709de14ae66d
-- name: 🇰🇷韩国-家宽-流媒体解锁|AI-hy2
-  server: 6bkr1.6bnw.top
-  port: 10100
-  sni: 6bkr1.6bnw.top
-  up: 100
-  down: 100
-  skip-cert-verify: true
-  type: hysteria2
-  password: 64333edd-018a-4d81-aca3-709de14ae66d
-- name: 🇰🇷韩国-hy2
-  server: kr2.jueduibupao.top
-  port: 30000
-  sni: kr2.jueduibupao.top
-  up: 100
-  down: 100
-  skip-cert-verify: true
-  type: hysteria2
-  password: 64333edd-018a-4d81-aca3-709de14ae66d
-- name: 🇹🇭曼谷-hy2
-  server: th1.jueduibupao.top
-  port: 30000
-  sni: th1.jueduibupao.top
-  up: 100
-  down: 100
-  skip-cert-verify: true
-  type: hysteria2
-  password: 64333edd-018a-4d81-aca3-709de14ae66d
-- name: 🇺🇸拉斯维加斯-hy2
-  server: lvs.jueduibupao.top
-  port: 50001
-  sni: lvs.jueduibupao.top
-  up: 100
-  down: 100
-  skip-cert-verify: true
-  type: hysteria2
-  password: 64333edd-018a-4d81-aca3-709de14ae66d
-- name: 🇺🇸凤凰城-hy2
-  server: ny.jueduibupao.top
-  port: 50001
-  sni: ny.jueduibupao.top
-  up: 100
-  down: 100
-  skip-cert-verify: true
-  type: hysteria2
-  password: 64333edd-018a-4d81-aca3-709de14ae66d
-- name: 🇺🇸纽约-hy2
-  server: azcus1.jueduibupao.top
-  port: 20101
-  sni: azcus1.jueduibupao.top
-  up: 100
-  down: 100
-  skip-cert-verify: true
-  type: hysteria2
-  password: 64333edd-018a-4d81-aca3-709de14ae66d
-- name: 🇩🇪德国-hy2
-  server: de1.jueduibupao.top
-  port: 40788
-  sni: de1.jueduibupao.top
-  up: 100
-  down: 100
-  skip-cert-verify: true
-  type: hysteria2
-  password: 64333edd-018a-4d81-aca3-709de14ae66d
-  ports: 40000-50000
-- name: 🇬🇧英国
-  server: uk1.jueduibupao.top
-  port: 49122
-  sni: uk1.jueduibupao.top
-  up: 100
-  down: 100
-  skip-cert-verify: true
-  type: hysteria2
-  password: 64333edd-018a-4d81-aca3-709de14ae66d
-  ports: 40000-50000
-- name: 🇭🇰香港01-IPv6
-  type: ss
-  server: dafeizhu.whtjdasha.com
-  port: 29527
-  cipher: 2022-blake3-aes-128-gcm
-  password: MDhhMTdjZDI0MjI2ZWRlNg==:NjQzMzNlZGQtMDE4YS00ZA==
-  udp: true
-- name: 🇭🇰香港02-IPv6
-  type: ss
-  server: xiaofeizhu.idsduf.com
-  port: 40010
-  cipher: 2022-blake3-aes-128-gcm
-  password: MDhhMTdjZDI0MjI2ZWRlNg==:NjQzMzNlZGQtMDE4YS00ZA==
-  udp: true
-- name: 🇭🇰香港03-IPv6
-  type: ss
-  server: dafeizhu.whtjdasha.com
-  port: 19527
-  cipher: 2022-blake3-aes-128-gcm
-  password: MDhhMTdjZDI0MjI2ZWRlNg==:NjQzMzNlZGQtMDE4YS00ZA==
-  udp: true
-- name: 🇭🇰香港04-IPv6
-  type: ss
-  server: xiaofeizhu.idsduf.com
-  port: 40023
-  cipher: 2022-blake3-aes-128-gcm
-  password: MDhhMTdjZDI0MjI2ZWRlNg==:NjQzMzNlZGQtMDE4YS00ZA==
-  udp: true
-- name: 🇭🇰香港05-流媒体解锁
-  type: ss
-  server: dafeizhu.whtjdasha.com
-  port: 39301
-  cipher: 2022-blake3-aes-128-gcm
-  password: MDhhMTdjZDI0MjI2ZWRlNg==:NjQzMzNlZGQtMDE4YS00ZA==
-  udp: true
-- name: 🇭🇰香港06-流媒体解锁
-  type: ss
-  server: xiaofeizhu.idsduf.com
-  port: 40011
-  cipher: 2022-blake3-aes-128-gcm
-  password: MDhhMTdjZDI0MjI2ZWRlNg==:NjQzMzNlZGQtMDE4YS00ZA==
-  udp: true
-- name: 🇸🇬新加坡01-流媒体解锁|AI
-  type: ss
-  server: dafeizhu.whtjdasha.com
-  port: 39204
-  cipher: 2022-blake3-aes-128-gcm
-  password: MDhhMTdjZDI0MjI2ZWRlNg==:NjQzMzNlZGQtMDE4YS00ZA==
-  udp: true
-- name: 🇸🇬新加坡02-流媒体解锁|AI
-  type: ss
-  server: xiaofeizhu.idsduf.com
-  port: 40013
-  cipher: 2022-blake3-aes-128-gcm
-  password: MDhhMTdjZDI0MjI2ZWRlNg==:NjQzMzNlZGQtMDE4YS00ZA==
-  udp: true
-- name: 🇸🇬新加坡03
-  type: ss
-  server: dafeizhu.whtjdasha.com
-  port: 39505
-  cipher: 2022-blake3-aes-128-gcm
-  password: MDhhMTdjZDI0MjI2ZWRlNg==:NjQzMzNlZGQtMDE4YS00ZA==
-  udp: true
-- name: 🇸🇬新加坡04
-  type: ss
-  server: xiaofeizhu.idsduf.com
-  port: 44014
-  cipher: 2022-blake3-aes-128-gcm
-  password: MDhhMTdjZDI0MjI2ZWRlNg==:NjQzMzNlZGQtMDE4YS00ZA==
-  udp: true
-- name: 🇰🇷韩国-家宽03-流媒体解锁|AI
-  type: ss
-  server: dafeizhu.whtjdasha.com
-  port: 39206
-  cipher: 2022-blake3-aes-128-gcm
-  password: NjVhMWE2YmVmNzg4MTcwMA==:NjQzMzNlZGQtMDE4YS00ZA==
-  udp: true
-- name: 🇰🇷韩国-家宽04-流媒体解锁|AI
-  type: ss
-  server: xiaofeizhu.idsduf.com
-  port: 20116
-  cipher: 2022-blake3-aes-128-gcm
-  password: NjVhMWE2YmVmNzg4MTcwMA==:NjQzMzNlZGQtMDE4YS00ZA==
-  udp: true
-- name: 🇨🇳台湾01-流媒体解锁|AI
-  type: ss
-  server: dafeizhu.whtjdasha.com
-  port: 32207
-  cipher: 2022-blake3-aes-128-gcm
-  password: NjVhMWE2YmVmNzg4MTcwMA==:NjQzMzNlZGQtMDE4YS00ZA==
-  udp: true
-- name: 🇨🇳台湾02-流媒体解锁|AI
-  type: ss
-  server: xiaofeizhu.idsduf.com
-  port: 40017
-  cipher: 2022-blake3-aes-128-gcm
-  password: NjVhMWE2YmVmNzg4MTcwMA==:NjQzMzNlZGQtMDE4YS00ZA==
-  udp: true
-- name: 🇯🇵日本01
-  type: ss
-  server: dafeizhu.whtjdasha.com
-  port: 19529
-  cipher: 2022-blake3-aes-128-gcm
-  password: MDhhMTdjZDI0MjI2ZWRlNg==:NjQzMzNlZGQtMDE4YS00ZA==
-  udp: true
-- name: 🇯🇵日本02
-  type: ss
-  server: xiaofeizhu.idsduf.com
-  port: 40019
-  cipher: 2022-blake3-aes-128-gcm
-  password: MDhhMTdjZDI0MjI2ZWRlNg==:NjQzMzNlZGQtMDE4YS00ZA==
-  udp: true
-- name: 🇯🇵日本03
-  type: ss
-  server: dafeizhu.whtjdasha.com
-  port: 49207
-  cipher: 2022-blake3-aes-256-gcm
-  password: MDhhMTdjZDI0MjI2ZWRlNjE5OWQyNDYxZjM1MjA0OTg=:NjQzMzNlZGQtMDE4YS00ZDgxLWFjYTMtNzA5ZGUxNGE=
-  udp: true
-- name: 🇯🇵日本04
-  type: ss
-  server: xiaofeizhu.idsduf.com
-  port: 40020
-  cipher: 2022-blake3-aes-256-gcm
-  password: MDhhMTdjZDI0MjI2ZWRlNjE5OWQyNDYxZjM1MjA0OTg=:NjQzMzNlZGQtMDE4YS00ZDgxLWFjYTMtNzA5ZGUxNGE=
-  udp: true
-- name: 🇬🇧英国01
-  type: ss
-  server: dafeizhu.whtjdasha.com
-  port: 39209
-  cipher: 2022-blake3-aes-128-gcm
-  password: MDhhMTdjZDI0MjI2ZWRlNg==:NjQzMzNlZGQtMDE4YS00ZA==
-  udp: true
-- name: 🇬🇧英国02
-  type: ss
-  server: xiaofeizhu.idsduf.com
-  port: 40021
-  cipher: 2022-blake3-aes-128-gcm
-  password: MDhhMTdjZDI0MjI2ZWRlNg==:NjQzMzNlZGQtMDE4YS00ZA==
-  udp: true
-- name: 🇺🇸美国凤凰城01
-  type: ss
-  server: dafeizhu.whtjdasha.com
-  port: 12980
-  cipher: 2022-blake3-aes-128-gcm
-  password: MDhhMTdjZDI0MjI2ZWRlNg==:NjQzMzNlZGQtMDE4YS00ZA==
-  udp: true
-- name: 🇺🇸美国凤凰城02
-  type: ss
-  server: xiaofeizhu.idsduf.com
-  port: 12981
-  cipher: 2022-blake3-aes-128-gcm
-  password: MDhhMTdjZDI0MjI2ZWRlNg==:NjQzMzNlZGQtMDE4YS00ZA==
-  udp: true
-- name: 🇺🇸美国拉斯维加斯01
-  type: ss
-  server: dafeizhu.whtjdasha.com
-  port: 12983
-  cipher: 2022-blake3-aes-128-gcm
-  password: MDhhMTdjZDI0MjI2ZWRlNg==:NjQzMzNlZGQtMDE4YS00ZA==
-  udp: true
-- name: 🇺🇸美国拉斯维加斯02
-  type: ss
-  server: xiaofeizhu.idsduf.com
-  port: 12984
-  cipher: 2022-blake3-aes-128-gcm
-  password: MDhhMTdjZDI0MjI2ZWRlNg==:NjQzMzNlZGQtMDE4YS00ZA==
-  udp: true
-- name: 🇺🇸美国纽约01
-  type: ss
-  server: dafeizhu.whtjdasha.com
-  port: 39203
-  cipher: 2022-blake3-aes-128-gcm
-  password: MDhhMTdjZDI0MjI2ZWRlNg==:NjQzMzNlZGQtMDE4YS00ZA==
-  udp: true
-- name: 🇺🇸美国纽约02
-  type: ss
-  server: xiaofeizhu.idsduf.com
-  port: 40022
-  cipher: 2022-blake3-aes-128-gcm
-  password: MDhhMTdjZDI0MjI2ZWRlNg==:NjQzMzNlZGQtMDE4YS00ZA==
-  udp: true
-- name: 🇨🇦加拿大01
-  type: ss
-  server: dafeizhu.whtjdasha.com
-  port: 39985
-  cipher: 2022-blake3-aes-128-gcm
-  password: MDhhMTdjZDI0MjI2ZWRlNg==:NjQzMzNlZGQtMDE4YS00ZA==
-  udp: true
-- name: 🇨🇦加拿大02
-  type: ss
-  server: xiaofeizhu.idsduf.com
-  port: 39986
-  cipher: 2022-blake3-aes-128-gcm
-  password: MDhhMTdjZDI0MjI2ZWRlNg==:NjQzMzNlZGQtMDE4YS00ZA==
-  udp: true
-- name: 🇩🇪德国01
-  type: ss
-  server: dafeizhu.whtjdasha.com
-  port: 39987
-  cipher: 2022-blake3-aes-128-gcm
-  password: MDhhMTdjZDI0MjI2ZWRlNg==:NjQzMzNlZGQtMDE4YS00ZA==
-  udp: true
-- name: 🇩🇪德国02
-  type: ss
-  server: xiaofeizhu.idsduf.com
-  port: 39981
-  cipher: 2022-blake3-aes-128-gcm
-  password: MDhhMTdjZDI0MjI2ZWRlNg==:NjQzMzNlZGQtMDE4YS00ZA==
-  udp: true
-- name: ❗如果只显示此节点|0.1x
-  type: vmess
-  server: best.cdn.sqeven.cn
-  port: 8080
-  uuid: 64333edd-018a-4d81-aca3-709de14ae66d
-  alterId: 0
-  cipher: auto
-  udp: true
-  network: ws
-  ws-opts:
-    path: /?ed=2560
-    headers:
-      Host: best.cdn.sqeven.cn
-  ws-path: /?ed=2560
-  ws-headers:
-    Host: best.cdn.sqeven.cn
-- name: ❗是客户端太旧导致|0.1x
-  type: vmess
-  server: bestcf.top
-  port: 8080
-  uuid: 64333edd-018a-4d81-aca3-709de14ae66d
-  alterId: 0
-  cipher: auto
-  udp: true
-  network: ws
-  ws-opts:
-    path: /?ed=2560
-    headers:
-      Host: buyvmus2.6bnw.top
-  ws-path: /?ed=2560
-  ws-headers:
-    Host: buyvmus2.6bnw.top
-- name: ❗请到网站使用教程|0.1x
-  type: vmess
-  server: mugen33.6bnw.top
-  port: 8080
-  uuid: 64333edd-018a-4d81-aca3-709de14ae66d
-  alterId: 0
-  cipher: auto
-  udp: true
-  network: ws
-  ws-opts:
-    path: /?ed=2560
-    headers:
-      Host: buyvmus2.6bnw.top
-  ws-path: /?ed=2560
-  ws-headers:
-    Host: buyvmus2.6bnw.top
-- name: ❗更新一下客户端|0.1x
-  type: vmess
-  server: mugen44.6bnw.top
-  port: 8080
-  uuid: 64333edd-018a-4d81-aca3-709de14ae66d
-  alterId: 0
-  cipher: auto
-  udp: true
-  network: ws
-  ws-opts:
-    path: /?ed=2560
-    headers:
-      Host: buyvmus2.6bnw.top
-  ws-path: /?ed=2560
-  ws-headers:
-    Host: buyvmus2.6bnw.top
-proxy-groups:
-- name: 🚀 手动切换
-  type: select
-  proxies:
-  - ♻️ 自动选择
-  - ChatGPT、Claude、Gemini、微软AI、GROK
-  - DIRECT
-  - 建议每次使用前都更新订阅
-  - 🇭🇰香港1-hy2
-  - 🇭🇰香港2-hy2
-  - 🇸🇬新加坡1-hy2
-  - 🇨🇳台湾1-流媒体解锁|AI-hy2
-  - 🇨🇳台湾2-流媒体解锁|AI-hy2
-  - 🇯🇵日本1-hy2
-  - 🇯🇵日本2-hy2
-  - 🇰🇷韩国-家宽-流媒体解锁|AI-hy2
-  - 🇰🇷韩国-hy2
-  - 🇹🇭曼谷-hy2
-  - 🇺🇸拉斯维加斯-hy2
-  - 🇺🇸凤凰城-hy2
-  - 🇺🇸纽约-hy2
-  - 🇩🇪德国-hy2
-  - 🇬🇧英国
-  - 🇭🇰香港01-IPv6
-  - 🇭🇰香港02-IPv6
-  - 🇭🇰香港03-IPv6
-  - 🇭🇰香港04-IPv6
-  - 🇭🇰香港05-流媒体解锁
-  - 🇭🇰香港06-流媒体解锁
-  - 🇸🇬新加坡01-流媒体解锁|AI
-  - 🇸🇬新加坡02-流媒体解锁|AI
-  - 🇸🇬新加坡03
-  - 🇸🇬新加坡04
-  - 🇰🇷韩国-家宽03-流媒体解锁|AI
-  - 🇰🇷韩国-家宽04-流媒体解锁|AI
-  - 🇨🇳台湾01-流媒体解锁|AI
-  - 🇨🇳台湾02-流媒体解锁|AI
-  - 🇯🇵日本01
-  - 🇯🇵日本02
-  - 🇯🇵日本03
-  - 🇯🇵日本04
-  - 🇬🇧英国01
-  - 🇬🇧英国02
-  - 🇺🇸美国凤凰城01
-  - 🇺🇸美国凤凰城02
-  - 🇺🇸美国拉斯维加斯01
-  - 🇺🇸美国拉斯维加斯02
-  - 🇺🇸美国纽约01
-  - 🇺🇸美国纽约02
-  - 🇨🇦加拿大01
-  - 🇨🇦加拿大02
-  - 🇩🇪德国01
-  - 🇩🇪德国02
-  - ❗如果只显示此节点|0.1x
-  - ❗是客户端太旧导致|0.1x
-  - ❗请到网站使用教程|0.1x
-  - ❗更新一下客户端|0.1x
-- name: ♻️ 自动选择
-  type: url-test
-  url: http://www.gstatic.com/generate_204
-  interval: 300
-  tolerance: 50
-  proxies:
-  - 建议每次使用前都更新订阅
-  - 🇭🇰香港1-hy2
-  - 🇭🇰香港2-hy2
-  - 🇸🇬新加坡1-hy2
-  - 🇨🇳台湾1-流媒体解锁|AI-hy2
-  - 🇨🇳台湾2-流媒体解锁|AI-hy2
-  - 🇯🇵日本1-hy2
-  - 🇯🇵日本2-hy2
-  - 🇰🇷韩国-家宽-流媒体解锁|AI-hy2
-  - 🇰🇷韩国-hy2
-  - 🇹🇭曼谷-hy2
-  - 🇺🇸拉斯维加斯-hy2
-  - 🇺🇸凤凰城-hy2
-  - 🇺🇸纽约-hy2
-  - 🇩🇪德国-hy2
-  - 🇬🇧英国
-  - 🇭🇰香港01-IPv6
-  - 🇭🇰香港02-IPv6
-  - 🇭🇰香港03-IPv6
-  - 🇭🇰香港04-IPv6
-  - 🇭🇰香港05-流媒体解锁
-  - 🇭🇰香港06-流媒体解锁
-  - 🇸🇬新加坡01-流媒体解锁|AI
-  - 🇸🇬新加坡02-流媒体解锁|AI
-  - 🇸🇬新加坡03
-  - 🇸🇬新加坡04
-  - 🇰🇷韩国-家宽03-流媒体解锁|AI
-  - 🇰🇷韩国-家宽04-流媒体解锁|AI
-  - 🇨🇳台湾01-流媒体解锁|AI
-  - 🇨🇳台湾02-流媒体解锁|AI
-  - 🇯🇵日本01
-  - 🇯🇵日本02
-  - 🇯🇵日本03
-  - 🇯🇵日本04
-  - 🇬🇧英国01
-  - 🇬🇧英国02
-  - 🇺🇸美国凤凰城01
-  - 🇺🇸美国凤凰城02
-  - 🇺🇸美国拉斯维加斯01
-  - 🇺🇸美国拉斯维加斯02
-  - 🇺🇸美国纽约01
-  - 🇺🇸美国纽约02
-  - 🇨🇦加拿大01
-  - 🇨🇦加拿大02
-  - 🇩🇪德国01
-  - 🇩🇪德国02
-  - ❗如果只显示此节点|0.1x
-  - ❗是客户端太旧导致|0.1x
-  - ❗请到网站使用教程|0.1x
-  - ❗更新一下客户端|0.1x
-- name: 📹 YouTube
-  type: select
-  proxies:
-  - 🚀 手动切换
-  - 建议每次使用前都更新订阅
-  - 🇭🇰香港1-hy2
-  - 🇭🇰香港2-hy2
-  - 🇸🇬新加坡1-hy2
-  - 🇨🇳台湾1-流媒体解锁|AI-hy2
-  - 🇨🇳台湾2-流媒体解锁|AI-hy2
-  - 🇯🇵日本1-hy2
-  - 🇯🇵日本2-hy2
-  - 🇰🇷韩国-家宽-流媒体解锁|AI-hy2
-  - 🇰🇷韩国-hy2
-  - 🇹🇭曼谷-hy2
-  - 🇺🇸拉斯维加斯-hy2
-  - 🇺🇸凤凰城-hy2
-  - 🇺🇸纽约-hy2
-  - 🇩🇪德国-hy2
-  - 🇬🇧英国
-  - 🇭🇰香港01-IPv6
-  - 🇭🇰香港02-IPv6
-  - 🇭🇰香港03-IPv6
-  - 🇭🇰香港04-IPv6
-  - 🇭🇰香港05-流媒体解锁
-  - 🇭🇰香港06-流媒体解锁
-  - 🇸🇬新加坡01-流媒体解锁|AI
-  - 🇸🇬新加坡02-流媒体解锁|AI
-  - 🇸🇬新加坡03
-  - 🇸🇬新加坡04
-  - 🇰🇷韩国-家宽03-流媒体解锁|AI
-  - 🇰🇷韩国-家宽04-流媒体解锁|AI
-  - 🇨🇳台湾01-流媒体解锁|AI
-  - 🇨🇳台湾02-流媒体解锁|AI
-  - 🇯🇵日本01
-  - 🇯🇵日本02
-  - 🇯🇵日本03
-  - 🇯🇵日本04
-  - 🇬🇧英国01
-  - 🇬🇧英国02
-  - 🇺🇸美国凤凰城01
-  - 🇺🇸美国凤凰城02
-  - 🇺🇸美国拉斯维加斯01
-  - 🇺🇸美国拉斯维加斯02
-  - 🇺🇸美国纽约01
-  - 🇺🇸美国纽约02
-  - 🇨🇦加拿大01
-  - 🇨🇦加拿大02
-  - 🇩🇪德国01
-  - 🇩🇪德国02
-  - ❗如果只显示此节点|0.1x
-  - ❗是客户端太旧导致|0.1x
-  - ❗请到网站使用教程|0.1x
-  - ❗更新一下客户端|0.1x
-- name: 🎥 NETFLIX
-  type: select
-  proxies:
-  - 🚀 手动切换
-  - 建议每次使用前都更新订阅
-  - 🇭🇰香港1-hy2
-  - 🇭🇰香港2-hy2
-  - 🇸🇬新加坡1-hy2
-  - 🇨🇳台湾1-流媒体解锁|AI-hy2
-  - 🇨🇳台湾2-流媒体解锁|AI-hy2
-  - 🇯🇵日本1-hy2
-  - 🇯🇵日本2-hy2
-  - 🇰🇷韩国-家宽-流媒体解锁|AI-hy2
-  - 🇰🇷韩国-hy2
-  - 🇹🇭曼谷-hy2
-  - 🇺🇸拉斯维加斯-hy2
-  - 🇺🇸凤凰城-hy2
-  - 🇺🇸纽约-hy2
-  - 🇩🇪德国-hy2
-  - 🇬🇧英国
-  - 🇭🇰香港01-IPv6
-  - 🇭🇰香港02-IPv6
-  - 🇭🇰香港03-IPv6
-  - 🇭🇰香港04-IPv6
-  - 🇭🇰香港05-流媒体解锁
-  - 🇭🇰香港06-流媒体解锁
-  - 🇸🇬新加坡01-流媒体解锁|AI
-  - 🇸🇬新加坡02-流媒体解锁|AI
-  - 🇸🇬新加坡03
-  - 🇸🇬新加坡04
-  - 🇰🇷韩国-家宽03-流媒体解锁|AI
-  - 🇰🇷韩国-家宽04-流媒体解锁|AI
-  - 🇨🇳台湾01-流媒体解锁|AI
-  - 🇨🇳台湾02-流媒体解锁|AI
-  - 🇯🇵日本01
-  - 🇯🇵日本02
-  - 🇯🇵日本03
-  - 🇯🇵日本04
-  - 🇬🇧英国01
-  - 🇬🇧英国02
-  - 🇺🇸美国凤凰城01
-  - 🇺🇸美国凤凰城02
-  - 🇺🇸美国拉斯维加斯01
-  - 🇺🇸美国拉斯维加斯02
-  - 🇺🇸美国纽约01
-  - 🇺🇸美国纽约02
-  - 🇨🇦加拿大01
-  - 🇨🇦加拿大02
-  - 🇩🇪德国01
-  - 🇩🇪德国02
-  - ❗如果只显示此节点|0.1x
-  - ❗是客户端太旧导致|0.1x
-  - ❗请到网站使用教程|0.1x
-  - ❗更新一下客户端|0.1x
-- name: 🎮️ 游戏平台
-  type: select
-  proxies:
-  - 🎯 国内直连
-  - 🚀 手动切换
-  - 建议每次使用前都更新订阅
-  - 🇭🇰香港1-hy2
-  - 🇭🇰香港2-hy2
-  - 🇸🇬新加坡1-hy2
-  - 🇨🇳台湾1-流媒体解锁|AI-hy2
-  - 🇨🇳台湾2-流媒体解锁|AI-hy2
-  - 🇯🇵日本1-hy2
-  - 🇯🇵日本2-hy2
-  - 🇰🇷韩国-家宽-流媒体解锁|AI-hy2
-  - 🇰🇷韩国-hy2
-  - 🇹🇭曼谷-hy2
-  - 🇺🇸拉斯维加斯-hy2
-  - 🇺🇸凤凰城-hy2
-  - 🇺🇸纽约-hy2
-  - 🇩🇪德国-hy2
-  - 🇬🇧英国
-  - 🇭🇰香港01-IPv6
-  - 🇭🇰香港02-IPv6
-  - 🇭🇰香港03-IPv6
-  - 🇭🇰香港04-IPv6
-  - 🇭🇰香港05-流媒体解锁
-  - 🇭🇰香港06-流媒体解锁
-  - 🇸🇬新加坡01-流媒体解锁|AI
-  - 🇸🇬新加坡02-流媒体解锁|AI
-  - 🇸🇬新加坡03
-  - 🇸🇬新加坡04
-  - 🇰🇷韩国-家宽03-流媒体解锁|AI
-  - 🇰🇷韩国-家宽04-流媒体解锁|AI
-  - 🇨🇳台湾01-流媒体解锁|AI
-  - 🇨🇳台湾02-流媒体解锁|AI
-  - 🇯🇵日本01
-  - 🇯🇵日本02
-  - 🇯🇵日本03
-  - 🇯🇵日本04
-  - 🇬🇧英国01
-  - 🇬🇧英国02
-  - 🇺🇸美国凤凰城01
-  - 🇺🇸美国凤凰城02
-  - 🇺🇸美国拉斯维加斯01
-  - 🇺🇸美国拉斯维加斯02
-  - 🇺🇸美国纽约01
-  - 🇺🇸美国纽约02
-  - 🇨🇦加拿大01
-  - 🇨🇦加拿大02
-  - 🇩🇪德国01
-  - 🇩🇪德国02
-  - ❗如果只显示此节点|0.1x
-  - ❗是客户端太旧导致|0.1x
-  - ❗请到网站使用教程|0.1x
-  - ❗更新一下客户端|0.1x
-- name: ChatGPT、Claude、Gemini、微软AI、GROK
-  type: select
-  proxies:
-  - 建议每次使用前都更新订阅
-  - 🇭🇰香港1-hy2
-  - 🇭🇰香港2-hy2
-  - 🇸🇬新加坡1-hy2
-  - 🇨🇳台湾1-流媒体解锁|AI-hy2
-  - 🇨🇳台湾2-流媒体解锁|AI-hy2
-  - 🇯🇵日本1-hy2
-  - 🇯🇵日本2-hy2
-  - 🇰🇷韩国-家宽-流媒体解锁|AI-hy2
-  - 🇰🇷韩国-hy2
-  - 🇹🇭曼谷-hy2
-  - 🇺🇸拉斯维加斯-hy2
-  - 🇺🇸凤凰城-hy2
-  - 🇺🇸纽约-hy2
-  - 🇩🇪德国-hy2
-  - 🇬🇧英国
-  - 🇭🇰香港01-IPv6
-  - 🇭🇰香港02-IPv6
-  - 🇭🇰香港03-IPv6
-  - 🇭🇰香港04-IPv6
-  - 🇭🇰香港05-流媒体解锁
-  - 🇭🇰香港06-流媒体解锁
-  - 🇸🇬新加坡01-流媒体解锁|AI
-  - 🇸🇬新加坡02-流媒体解锁|AI
-  - 🇸🇬新加坡03
-  - 🇸🇬新加坡04
-  - 🇰🇷韩国-家宽03-流媒体解锁|AI
-  - 🇰🇷韩国-家宽04-流媒体解锁|AI
-  - 🇨🇳台湾01-流媒体解锁|AI
-  - 🇨🇳台湾02-流媒体解锁|AI
-  - 🇯🇵日本01
-  - 🇯🇵日本02
-  - 🇯🇵日本03
-  - 🇯🇵日本04
-  - 🇬🇧英国01
-  - 🇬🇧英国02
-  - 🇺🇸美国凤凰城01
-  - 🇺🇸美国凤凰城02
-  - 🇺🇸美国拉斯维加斯01
-  - 🇺🇸美国拉斯维加斯02
-  - 🇺🇸美国纽约01
-  - 🇺🇸美国纽约02
-  - 🇨🇦加拿大01
-  - 🇨🇦加拿大02
-  - 🇩🇪德国01
-  - 🇩🇪德国02
-  - ❗如果只显示此节点|0.1x
-  - ❗是客户端太旧导致|0.1x
-  - ❗请到网站使用教程|0.1x
-  - ❗更新一下客户端|0.1x
-- name: Ⓜ️ 微软服务
-  type: select
-  proxies:
-  - 🎯 国内直连
-  - 🚀 手动切换
-  - 建议每次使用前都更新订阅
-  - 🇭🇰香港1-hy2
-  - 🇭🇰香港2-hy2
-  - 🇸🇬新加坡1-hy2
-  - 🇨🇳台湾1-流媒体解锁|AI-hy2
-  - 🇨🇳台湾2-流媒体解锁|AI-hy2
-  - 🇯🇵日本1-hy2
-  - 🇯🇵日本2-hy2
-  - 🇰🇷韩国-家宽-流媒体解锁|AI-hy2
-  - 🇰🇷韩国-hy2
-  - 🇹🇭曼谷-hy2
-  - 🇺🇸拉斯维加斯-hy2
-  - 🇺🇸凤凰城-hy2
-  - 🇺🇸纽约-hy2
-  - 🇩🇪德国-hy2
-  - 🇬🇧英国
-  - 🇭🇰香港01-IPv6
-  - 🇭🇰香港02-IPv6
-  - 🇭🇰香港03-IPv6
-  - 🇭🇰香港04-IPv6
-  - 🇭🇰香港05-流媒体解锁
-  - 🇭🇰香港06-流媒体解锁
-  - 🇸🇬新加坡01-流媒体解锁|AI
-  - 🇸🇬新加坡02-流媒体解锁|AI
-  - 🇸🇬新加坡03
-  - 🇸🇬新加坡04
-  - 🇰🇷韩国-家宽03-流媒体解锁|AI
-  - 🇰🇷韩国-家宽04-流媒体解锁|AI
-  - 🇨🇳台湾01-流媒体解锁|AI
-  - 🇨🇳台湾02-流媒体解锁|AI
-  - 🇯🇵日本01
-  - 🇯🇵日本02
-  - 🇯🇵日本03
-  - 🇯🇵日本04
-  - 🇬🇧英国01
-  - 🇬🇧英国02
-  - 🇺🇸美国凤凰城01
-  - 🇺🇸美国凤凰城02
-  - 🇺🇸美国拉斯维加斯01
-  - 🇺🇸美国拉斯维加斯02
-  - 🇺🇸美国纽约01
-  - 🇺🇸美国纽约02
-  - 🇨🇦加拿大01
-  - 🇨🇦加拿大02
-  - 🇩🇪德国01
-  - 🇩🇪德国02
-  - ❗如果只显示此节点|0.1x
-  - ❗是客户端太旧导致|0.1x
-  - ❗请到网站使用教程|0.1x
-  - ❗更新一下客户端|0.1x
-- name: 📲 电报信息
-  type: select
-  proxies:
-  - 🚀 手动切换
-  - ♻️ 自动选择
-  - 建议每次使用前都更新订阅
-  - 🇭🇰香港1-hy2
-  - 🇭🇰香港2-hy2
-  - 🇸🇬新加坡1-hy2
-  - 🇨🇳台湾1-流媒体解锁|AI-hy2
-  - 🇨🇳台湾2-流媒体解锁|AI-hy2
-  - 🇯🇵日本1-hy2
-  - 🇯🇵日本2-hy2
-  - 🇰🇷韩国-家宽-流媒体解锁|AI-hy2
-  - 🇰🇷韩国-hy2
-  - 🇹🇭曼谷-hy2
-  - 🇺🇸拉斯维加斯-hy2
-  - 🇺🇸凤凰城-hy2
-  - 🇺🇸纽约-hy2
-  - 🇩🇪德国-hy2
-  - 🇬🇧英国
-  - 🇭🇰香港01-IPv6
-  - 🇭🇰香港02-IPv6
-  - 🇭🇰香港03-IPv6
-  - 🇭🇰香港04-IPv6
-  - 🇭🇰香港05-流媒体解锁
-  - 🇭🇰香港06-流媒体解锁
-  - 🇸🇬新加坡01-流媒体解锁|AI
-  - 🇸🇬新加坡02-流媒体解锁|AI
-  - 🇸🇬新加坡03
-  - 🇸🇬新加坡04
-  - 🇰🇷韩国-家宽03-流媒体解锁|AI
-  - 🇰🇷韩国-家宽04-流媒体解锁|AI
-  - 🇨🇳台湾01-流媒体解锁|AI
-  - 🇨🇳台湾02-流媒体解锁|AI
-  - 🇯🇵日本01
-  - 🇯🇵日本02
-  - 🇯🇵日本03
-  - 🇯🇵日本04
-  - 🇬🇧英国01
-  - 🇬🇧英国02
-  - 🇺🇸美国凤凰城01
-  - 🇺🇸美国凤凰城02
-  - 🇺🇸美国拉斯维加斯01
-  - 🇺🇸美国拉斯维加斯02
-  - 🇺🇸美国纽约01
-  - 🇺🇸美国纽约02
-  - 🇨🇦加拿大01
-  - 🇨🇦加拿大02
-  - 🇩🇪德国01
-  - 🇩🇪德国02
-  - ❗如果只显示此节点|0.1x
-  - ❗是客户端太旧导致|0.1x
-  - ❗请到网站使用教程|0.1x
-  - ❗更新一下客户端|0.1x
-- name: 🍎 苹果服务
-  type: select
-  proxies:
-  - 🎯 国内直连
-  - 🚀 手动切换
-  - 建议每次使用前都更新订阅
-  - 🇭🇰香港1-hy2
-  - 🇭🇰香港2-hy2
-  - 🇸🇬新加坡1-hy2
-  - 🇨🇳台湾1-流媒体解锁|AI-hy2
-  - 🇨🇳台湾2-流媒体解锁|AI-hy2
-  - 🇯🇵日本1-hy2
-  - 🇯🇵日本2-hy2
-  - 🇰🇷韩国-家宽-流媒体解锁|AI-hy2
-  - 🇰🇷韩国-hy2
-  - 🇹🇭曼谷-hy2
-  - 🇺🇸拉斯维加斯-hy2
-  - 🇺🇸凤凰城-hy2
-  - 🇺🇸纽约-hy2
-  - 🇩🇪德国-hy2
-  - 🇬🇧英国
-  - 🇭🇰香港01-IPv6
-  - 🇭🇰香港02-IPv6
-  - 🇭🇰香港03-IPv6
-  - 🇭🇰香港04-IPv6
-  - 🇭🇰香港05-流媒体解锁
-  - 🇭🇰香港06-流媒体解锁
-  - 🇸🇬新加坡01-流媒体解锁|AI
-  - 🇸🇬新加坡02-流媒体解锁|AI
-  - 🇸🇬新加坡03
-  - 🇸🇬新加坡04
-  - 🇰🇷韩国-家宽03-流媒体解锁|AI
-  - 🇰🇷韩国-家宽04-流媒体解锁|AI
-  - 🇨🇳台湾01-流媒体解锁|AI
-  - 🇨🇳台湾02-流媒体解锁|AI
-  - 🇯🇵日本01
-  - 🇯🇵日本02
-  - 🇯🇵日本03
-  - 🇯🇵日本04
-  - 🇬🇧英国01
-  - 🇬🇧英国02
-  - 🇺🇸美国凤凰城01
-  - 🇺🇸美国凤凰城02
-  - 🇺🇸美国拉斯维加斯01
-  - 🇺🇸美国拉斯维加斯02
-  - 🇺🇸美国纽约01
-  - 🇺🇸美国纽约02
-  - 🇨🇦加拿大01
-  - 🇨🇦加拿大02
-  - 🇩🇪德国01
-  - 🇩🇪德国02
-  - ❗如果只显示此节点|0.1x
-  - ❗是客户端太旧导致|0.1x
-  - ❗请到网站使用教程|0.1x
-  - ❗更新一下客户端|0.1x
-- name: 🎯 国内直连
-  type: select
-  proxies:
-  - DIRECT
-  - 🚀 手动切换
-  - 建议每次使用前都更新订阅
-  - 🇭🇰香港1-hy2
-  - 🇭🇰香港2-hy2
-  - 🇸🇬新加坡1-hy2
-  - 🇨🇳台湾1-流媒体解锁|AI-hy2
-  - 🇨🇳台湾2-流媒体解锁|AI-hy2
-  - 🇯🇵日本1-hy2
-  - 🇯🇵日本2-hy2
-  - 🇰🇷韩国-家宽-流媒体解锁|AI-hy2
-  - 🇰🇷韩国-hy2
-  - 🇹🇭曼谷-hy2
-  - 🇺🇸拉斯维加斯-hy2
-  - 🇺🇸凤凰城-hy2
-  - 🇺🇸纽约-hy2
-  - 🇩🇪德国-hy2
-  - 🇬🇧英国
-  - 🇭🇰香港01-IPv6
-  - 🇭🇰香港02-IPv6
-  - 🇭🇰香港03-IPv6
-  - 🇭🇰香港04-IPv6
-  - 🇭🇰香港05-流媒体解锁
-  - 🇭🇰香港06-流媒体解锁
-  - 🇸🇬新加坡01-流媒体解锁|AI
-  - 🇸🇬新加坡02-流媒体解锁|AI
-  - 🇸🇬新加坡03
-  - 🇸🇬新加坡04
-  - 🇰🇷韩国-家宽03-流媒体解锁|AI
-  - 🇰🇷韩国-家宽04-流媒体解锁|AI
-  - 🇨🇳台湾01-流媒体解锁|AI
-  - 🇨🇳台湾02-流媒体解锁|AI
-  - 🇯🇵日本01
-  - 🇯🇵日本02
-  - 🇯🇵日本03
-  - 🇯🇵日本04
-  - 🇬🇧英国01
-  - 🇬🇧英国02
-  - 🇺🇸美国凤凰城01
-  - 🇺🇸美国凤凰城02
-  - 🇺🇸美国拉斯维加斯01
-  - 🇺🇸美国拉斯维加斯02
-  - 🇺🇸美国纽约01
-  - 🇺🇸美国纽约02
-  - 🇨🇦加拿大01
-  - 🇨🇦加拿大02
-  - 🇩🇪德国01
-  - 🇩🇪德国02
-  - ❗如果只显示此节点|0.1x
-  - ❗是客户端太旧导致|0.1x
-  - ❗请到网站使用教程|0.1x
-  - ❗更新一下客户端|0.1x
-- name: 🐟 漏网之鱼
-  type: select
-  proxies:
-  - 🚀 手动切换
-  - 🎯 国内直连
-  - 建议每次使用前都更新订阅
-  - 🇭🇰香港1-hy2
-  - 🇭🇰香港2-hy2
-  - 🇸🇬新加坡1-hy2
-  - 🇨🇳台湾1-流媒体解锁|AI-hy2
-  - 🇨🇳台湾2-流媒体解锁|AI-hy2
-  - 🇯🇵日本1-hy2
-  - 🇯🇵日本2-hy2
-  - 🇰🇷韩国-家宽-流媒体解锁|AI-hy2
-  - 🇰🇷韩国-hy2
-  - 🇹🇭曼谷-hy2
-  - 🇺🇸拉斯维加斯-hy2
-  - 🇺🇸凤凰城-hy2
-  - 🇺🇸纽约-hy2
-  - 🇩🇪德国-hy2
-  - 🇬🇧英国
-  - 🇭🇰香港01-IPv6
-  - 🇭🇰香港02-IPv6
-  - 🇭🇰香港03-IPv6
-  - 🇭🇰香港04-IPv6
-  - 🇭🇰香港05-流媒体解锁
-  - 🇭🇰香港06-流媒体解锁
-  - 🇸🇬新加坡01-流媒体解锁|AI
-  - 🇸🇬新加坡02-流媒体解锁|AI
-  - 🇸🇬新加坡03
-  - 🇸🇬新加坡04
-  - 🇰🇷韩国-家宽03-流媒体解锁|AI
-  - 🇰🇷韩国-家宽04-流媒体解锁|AI
-  - 🇨🇳台湾01-流媒体解锁|AI
-  - 🇨🇳台湾02-流媒体解锁|AI
-  - 🇯🇵日本01
-  - 🇯🇵日本02
-  - 🇯🇵日本03
-  - 🇯🇵日本04
-  - 🇬🇧英国01
-  - 🇬🇧英国02
-  - 🇺🇸美国凤凰城01
-  - 🇺🇸美国凤凰城02
-  - 🇺🇸美国拉斯维加斯01
-  - 🇺🇸美国拉斯维加斯02
-  - 🇺🇸美国纽约01
-  - 🇺🇸美国纽约02
-  - 🇨🇦加拿大01
-  - 🇨🇦加拿大02
-  - 🇩🇪德国01
-  - 🇩🇪德国02
-  - ❗如果只显示此节点|0.1x
-  - ❗是客户端太旧导致|0.1x
-  - ❗请到网站使用教程|0.1x
-  - ❗更新一下客户端|0.1x
-rule-providers:
-  Proxy:
-    type: http
-    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/meta/geo/geosite/classical/geolocation-!cn.yaml
-    path: ./ruleset/geolocation-!cn.yaml
-    interval: 86400
-    proxy: DIRECT
-    behavior: classical
-    format: yaml
-    size-limit: 0
-  YouTube:
-    type: http
-    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/meta/geo/geosite/classical/youtube.yaml
-    path: ./ruleset/YouTube.yaml
-    interval: 86400
-    proxy: DIRECT
-    behavior: classical
-    format: yaml
-    size-limit: 0
-  NETFLIXip:
-    type: http
-    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/meta/geo/geoip/classical/netflix.yaml
-    path: ./ruleset/NETFLIXip.yaml
-    interval: 86400
-    proxy: DIRECT
-    behavior: classical
-    format: yaml
-    size-limit: 0
-  NETFLIX:
-    type: http
-    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/meta/geo/geosite/classical/netflix.yaml
-    path: ./ruleset/NETFLIX.yaml
-    interval: 86400
-    proxy: DIRECT
-    behavior: classical
-    format: yaml
-    size-limit: 0
-  游戏平台:
-    type: http
-    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/meta/geo/geosite/classical/category-games-!cn.yaml
-    path: ./ruleset/category-games-!cn.yaml
-    interval: 86400
-    proxy: DIRECT
-    behavior: classical
-    format: yaml
-    size-limit: 0
-  微软服务:
-    type: http
-    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Microsoft/Microsoft.yaml
-    path: ./ruleset/微软服务.yaml
-    interval: 86400
-    proxy: DIRECT
-    behavior: classical
-    format: yaml
-    size-limit: 0
-  TELEGRAM:
-    type: http
-    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Telegram/Telegram.yaml
-    path: ./ruleset/TELEGRAM.yaml
-    interval: 86400
-    proxy: DIRECT
-    behavior: classical
-    format: yaml
-    size-limit: 0
-  苹果服务:
-    type: http
-    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Apple/Apple.yaml
-    path: ./ruleset/苹果服务.yaml
-    interval: 86400
-    proxy: DIRECT
-    behavior: classical
-    format: yaml
-    size-limit: 0
-  ChatGPT、Claude、Gemini、微软AI、GROK:
-    type: http
-    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/meta/geo/geosite/classical/category-ai-!cn.yaml
-    path: ./ruleset/category-ai-!cn.yaml
-    interval: 86400
-    proxy: DIRECT
-    behavior: classical
-    format: yaml
-    size-limit: 0
-rules:
-- RULE-SET,YouTube,📹 YouTube
-- RULE-SET,NETFLIX,🎥 NETFLIX
-- RULE-SET,NETFLIXip,🎥 NETFLIX
-- RULE-SET,游戏平台,🎮️ 游戏平台
-- RULE-SET,TELEGRAM,📲 电报信息
-- RULE-SET,苹果服务,🍎 苹果服务
-- RULE-SET,ChatGPT、Claude、Gemini、微软AI、GROK,ChatGPT、Claude、Gemini、微软AI、GROK
-- DOMAIN,copilot.microsoft.com,ChatGPT、Claude、Gemini、微软AI、GROK
-- DOMAIN,bat.bing.com,ChatGPT、Claude、Gemini、微软AI、GROK
-- DOMAIN,eu-mobile.events.data.microsoft.com,ChatGPT、Claude、Gemini、微软AI、GROK
-- DOMAIN,browser.events.data.microsoft.com,ChatGPT、Claude、Gemini、微软AI、GROK
-- DOMAIN,login.microsoftonline.com,ChatGPT、Claude、Gemini、微软AI、GROK
-- RULE-SET,微软服务,Ⓜ️ 微软服务
-- GEOSITE,geolocation-cn,🎯 国内直连
-- GEOIP,CN,🎯 国内直连
-- RULE-SET,Proxy,🚀 手动切换
-- MATCH,🐟 漏网之鱼
+external-controller: 127.0.0.1:9097
+unified-delay: true
+ipv6: true
+profile:
+  store-selected: true
+tun:
+  mtu: 1500
 dns:
   enable: true
   ipv6: true
-  listen: :53
-  prefer-h3: false
-  respect-rules: true
-  nameserver:
-  - https://1.1.1.1/dns-query
-  - https://dns.google/dns-query
+  use-system-hosts: false
+  listen: 127.0.0.1:5335
   default-nameserver:
-  - tls://223.5.5.5
-  - tls://119.29.29.29
-  proxy-server-nameserver:
-  - https://dns.alidns.com/dns-query
-  - tcp://119.29.29.29
-  - tcp://114.114.114.114
-  - https://doh.pub/dns-query
-  direct-nameserver:
-  - https://dns.alidns.com/dns-query
+    - 180.76.76.76
+    - 182.254.118.118
+    - 8.8.8.8
+    - 180.184.2.2
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
+  fake-ip-filter:
+    - '*.lan'
+    - stun.*.*.*
+    - stun.*.*
+    - time.windows.com
+    - time.nist.gov
+    - time.apple.com
+    - time.asia.apple.com
+    - '*.ntp.org.cn'
+    - '*.openwrt.pool.ntp.org'
+    - time1.cloud.tencent.com
+    - time.ustc.edu.cn
+    - pool.ntp.org
+    - ntp.ubuntu.com
+    - ntp.aliyun.com
+    - ntp1.aliyun.com
+    - ntp2.aliyun.com
+    - ntp3.aliyun.com
+    - ntp4.aliyun.com
+    - ntp5.aliyun.com
+    - ntp6.aliyun.com
+    - ntp7.aliyun.com
+    - time1.aliyun.com
+    - time2.aliyun.com
+    - time3.aliyun.com
+    - time4.aliyun.com
+    - time5.aliyun.com
+    - time6.aliyun.com
+    - time7.aliyun.com
+    - '*.time.edu.cn'
+    - time1.apple.com
+    - time2.apple.com
+    - time3.apple.com
+    - time4.apple.com
+    - time5.apple.com
+    - time6.apple.com
+    - time7.apple.com
+    - time1.google.com
+    - time2.google.com
+    - time3.google.com
+    - time4.google.com
+    - music.163.com
+    - '*.music.163.com'
+    - '*.126.net'
+    - musicapi.taihe.com
+    - music.taihe.com
+    - songsearch.kugou.com
+    - trackercdn.kugou.com
+    - '*.kuwo.cn'
+    - api-jooxtt.sanook.com
+    - api.joox.com
+    - joox.com
+    - y.qq.com
+    - '*.y.qq.com'
+    - streamoc.music.tc.qq.com
+    - mobileoc.music.tc.qq.com
+    - isure.stream.qqmusic.qq.com
+    - dl.stream.qqmusic.qq.com
+    - aqqmusic.tc.qq.com
+    - amobile.music.tc.qq.com
+    - '*.xiami.com'
+    - '*.music.migu.cn'
+    - music.migu.cn
+    - '*.msftconnecttest.com'
+    - '*.msftncsi.com'
+    - localhost.ptlogin2.qq.com
+    - '*.*.*.srv.nintendo.net'
+    - '*.*.stun.playstation.net'
+    - xbox.*.*.microsoft.com
+    - '*.ipv6.microsoft.com'
+    - '*.*.xboxlive.com'
+    - speedtest.cros.wr.pvp.net
+  nameserver:
+    - 180.76.76.76
+    - 119.29.29.29
+    - 180.184.1.1
+    - 223.5.5.5
+    - 8.8.8.8
+    - https://223.6.6.6/dns-query#h3=true
+    - https://dns.alidns.com/dns-query
+    - https://cloudflare-dns.com/dns-query
+    - https://doh.pub/dns-query
+  fallback-filter:
+    geoip: true
+    ipcidr:
+      - 240.0.0.0/4
+      - 0.0.0.0/32
+      - 127.0.0.1/32
+    domain:
+      - +.google.com
+      - +.facebook.com
+      - +.twitter.com
+      - +.youtube.com
+      - +.xn--ngstr-lra8j.com
+      - +.google.cn
+      - +.googleapis.cn
+      - +.googleapis.com
+      - +.gvt1.com
+proxies:
+- name: 🇷🇺 RU-1 | Mix
+  type: vless
+  server: plr.strelkavpn.ru
+  port: 8443
+  uuid: 0e0df131-29f5-4725-b9a3-7b1a6cac4c95
+  encryption: none
+  network: tcp
+  security: reality
+  sni: plr.strelkavpn.ru
+  fp: chrome
+  reality-opts:
+    public-key: i1XUXx_YHZJ8LiZG7yGYG-jXr1JHASvat25lf9SmnzM
+    short-id: 5626dfc4162fd4f2
+    server-name: plr.strelkavpn.ru
+  tls: true
+  flow: xtls-rprx-vision
+  pbk: i1XUXx_YHZJ8LiZG7yGYG-jXr1JHASvat25lf9SmnzM
+  sid: 5626dfc4162fd4f2
+  headerType: none
+- name: 🇷🇺 RU-2 | Mix
+  type: vless
+  server: wolfy.ufavpn.ru
+  port: 42275
+  uuid: ded39de0-6d5e-426b-90e8-b7dfeced29b2
+  encryption: none
+  network: tcp
+  security: reality
+  sni: eh.vk.com
+  fp: chrome
+  reality-opts:
+    public-key: 5Z8mktBAXgz88xCibv79NncelOS-3WAunfZNKnJRdUM
+    short-id: 08
+    server-name: eh.vk.com
+  tls: true
+  pbk: 5Z8mktBAXgz88xCibv79NncelOS-3WAunfZNKnJRdUM
+  sid: 08
+  headerType: none
+- name: 🇧🇬 BG-1 | Mix
+  type: vless
+  server: bg.fasssst.ru
+  port: 443
+  uuid: c1853115-eb6b-4592-b01f-05037d33505d
+  encryption: none
+  network: tcp
+  security: reality
+  sni: bg.fasssst.ru
+  fp: chrome
+  reality-opts:
+    public-key: v5phvruLtbRahHL0xJtl77s4sXHiuSHzUTPq2znyCF4
+    short-id: f5b76860a3c9c3f5
+    server-name: bg.fasssst.ru
+  tls: true
+  flow: xtls-rprx-vision
+  pbk: v5phvruLtbRahHL0xJtl77s4sXHiuSHzUTPq2znyCF4
+  sid: f5b76860a3c9c3f5
+  headerType: none
+- name: 🇩🇪 DE-1 | Mix
+  type: vless
+  server: node2.svoy.run
+  port: 443
+  uuid: 7e281f58-63b0-4e9a-a3fe-537e33e374b9
+  encryption: none
+  network: tcp
+  security: reality
+  sni: www.cloudflare.com
+  fp: chrome
+  reality-opts:
+    public-key: 0_FWbcTe6tvBuSZ7_7PrMaNmg44a8VxYRXPKjZuERwQ
+    short-id: a150dff4
+    server-name: www.cloudflare.com
+  tls: true
+  flow: xtls-rprx-vision
+  pbk: 0_FWbcTe6tvBuSZ7_7PrMaNmg44a8VxYRXPKjZuERwQ
+  sid: a150dff4
+  spx: /
+  headerType: none
+- name: 🇧🇬 BG-2 | Mix
+  type: vless
+  server: 141.227.178.242
+  port: 29803
+  uuid: aa4f8c93-e4ec-48fe-8043-2f8e4f1c006d
+  encryption: none
+  network: grpc
+  security: none
+  grpc-opts:
+    grpc-service-name: ZEDMODEON-ZEDMODEON-bia-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON
+  serviceName: ZEDMODEON-ZEDMODEON-bia-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON-ZEDMODEON
+  mode: gun
+- name: 🇵🇱 PL-1 | Mix
+  type: vless
+  server: plr.strelkavpn.ru
+  port: 8443
+  uuid: 0e0df131-29f5-4725-b9a3-7b1a6cac4c95
+  encryption: none
+  network: tcp
+  security: reality
+  sni: plr.strelkavpn.ru
+  fp: chrome
+  reality-opts:
+    public-key: i1XUXx_YHZJ8LiZG7yGYG-jXr1JHASvat25lf9SmnzM
+    short-id: 5626dfc4162fd4f2
+    server-name: plr.strelkavpn.ru
+  tls: true
+  flow: xtls-rprx-vision
+  pbk: i1XUXx_YHZJ8LiZG7yGYG-jXr1JHASvat25lf9SmnzM
+  sid: 5626dfc4162fd4f2
+  headerType: none
+- name: 🇧🇬 BG-3 | Mix
+  type: vless
+  server: bg.fasssst.ru
+  port: 443
+  uuid: c1853115-eb6b-4592-b01f-05037d33505d
+  encryption: none
+  network: tcp
+  security: reality
+  sni: bg.fasssst.ru
+  fp: chrome
+  reality-opts:
+    public-key: v5phvruLtbRahHL0xJtl77s4sXHiuSHzUTPq2znyCF4
+    short-id: f5b76860a3c9c3f5
+    server-name: bg.fasssst.ru
+  tls: true
+  flow: xtls-rprx-vision
+  pbk: v5phvruLtbRahHL0xJtl77s4sXHiuSHzUTPq2znyCF4
+  sid: f5b76860a3c9c3f5
+  headerType: none
+- name: 🇭🇰 HK-1 | Mix
+  type: trojan
+  server: 219.79.186.107
+  port: 443
+  password: BxceQaOe
+  network: tcp
+  security: tls
+  sni: t.me/ripaojiedian
+  servername: t.me/ripaojiedian
+  skip-cert-verify: true
+  allowInsecure: '1'
+  headerType: none
+- name: 🇧🇪 BE-1 | Mix
+  type: vless
+  server: www.visa.com
+  port: 80
+  uuid: a7e84660-8f5c-43ba-b635-cc394c5be4b9
+  encryption: none
+  network: ws
+  security: none
+  sni: amita-b17wejf6-v2.amita.workers.dev
+  path: /
+  ws-opts:
+    path: /
+    headers:
+      Host: amita-b17wejf6-v2.amita.workers.dev
+  host: amita-b17wejf6-v2.amita.workers.dev
+- name: 🇨🇿 CZ-1 | Mix
+  type: vless
+  server: 194.87.76.147
+  port: 8443
+  uuid: fdc3a9ca-1b77-4b06-869c-43982db07c9f
+  encryption: none
+  network: tcp
+  security: reality
+  sni: shiftline.xyz
+  fp: chrome
+  reality-opts:
+    public-key: QjcIcRxF6rLpMImGD9wUYmeftFwpkuwLKm9nChbD50A
+    short-id: 60a0c1f0f4c9ca63
+    server-name: shiftline.xyz
+  tls: true
+  flow: xtls-rprx-vision
+  pbk: QjcIcRxF6rLpMImGD9wUYmeftFwpkuwLKm9nChbD50A
+  sid: 60a0c1f0f4c9ca63
+  headerType: none
+- name: 🇷🇺 RU-3 | Mix
+  type: vless
+  server: wolfy.ufavpn.ru
+  port: 42275
+  uuid: ded39de0-6d5e-426b-90e8-b7dfeced29b2
+  encryption: none
+  network: tcp
+  security: reality
+  sni: eh.vk.com
+  fp: chrome
+  reality-opts:
+    public-key: 5Z8mktBAXgz88xCibv79NncelOS-3WAunfZNKnJRdUM
+    short-id: 08
+    server-name: eh.vk.com
+  tls: true
+  pbk: 5Z8mktBAXgz88xCibv79NncelOS-3WAunfZNKnJRdUM
+  sid: 08
+  headerType: none
+- name: 🇱🇧 LB-1 | Mix
+  type: vless
+  server: plr.strelkavpn.ru
+  port: 8443
+  uuid: 0e0df131-29f5-4725-b9a3-7b1a6cac4c95
+  encryption: none
+  network: tcp
+  security: reality
+  sni: plr.strelkavpn.ru
+  fp: chrome
+  reality-opts:
+    public-key: i1XUXx_YHZJ8LiZG7yGYG-jXr1JHASvat25lf9SmnzM
+    short-id: 5626dfc4162fd4f2
+    server-name: plr.strelkavpn.ru
+  tls: true
+  flow: xtls-rprx-vision
+  pbk: i1XUXx_YHZJ8LiZG7yGYG-jXr1JHASvat25lf9SmnzM
+  sid: 5626dfc4162fd4f2
+  headerType: none
+- name: 🇷🇺 RU-4 | Mix
+  type: vless
+  server: 62.113.42.65
+  port: 52900
+  uuid: 97e7c83c-9346-49b4-85a5-1e3bbf7488b9
+  encryption: none
+  network: tcp
+  security: reality
+  sni: ozon.ru
+  fp: chrome
+  reality-opts:
+    public-key: AjYSCSFHfqOg-NbP_ngiRvJkKNKZXuHNDa1sJd4TRRQ
+    short-id: 1fbc
+    server-name: ozon.ru
+  tls: true
+  pbk: AjYSCSFHfqOg-NbP_ngiRvJkKNKZXuHNDa1sJd4TRRQ
+  sid: 1fbc
+  headerType: none
+- name: 🇦🇹 AT-1 | Mix
+  type: vless
+  server: lifestealer.fonixapp.org
+  port: 443
+  uuid: e3af49ba-6a41-4fa1-8f21-f40d1f154c68
+  encryption: none
+  network: tcp
+  security: reality
+  sni: configuration.apple.com
+  fp: chrome
+  reality-opts:
+    public-key: DJ1l1bgvwpj-SoHuC6eLVfzd3rp1zQmCV76fdVazMgc
+    short-id: 173c58
+    server-name: configuration.apple.com
+  tls: true
+  flow: xtls-rprx-vision
+  pbk: DJ1l1bgvwpj-SoHuC6eLVfzd3rp1zQmCV76fdVazMgc
+  sid: 173c58
+  spx: /
+  headerType: none
+- name: 🇺🇸 US-1 | Mix
+  type: vless
+  server: 172.234.130.82
+  port: 10001
+  uuid: 53cd8178-2ee6-43d9-a2a7-881f287fd408
+  encryption: none
+  network: tcp
+  security: reality
+  sni: yahoo.com
+  fp: firefox
+  reality-opts:
+    public-key: kKX1o7FhJLyDaVE6sqXUcYpUIuFUgij_ueRYc_E4JhM
+    short-id: 1a24af87
+    server-name: yahoo.com
+  tls: true
+  pbk: kKX1o7FhJLyDaVE6sqXUcYpUIuFUgij_ueRYc_E4JhM
+  sid: 1a24af87
+  headerType: none
+- name: 🇦🇹 AT-2 | Mix
+  type: vless
+  server: greenwolf.fonixapp.org
+  port: 443
+  uuid: 9fe667f5-ffea-4272-a0b6-3abd73941c52
+  encryption: none
+  network: tcp
+  security: reality
+  sni: fonts.gstatic.com
+  fp: chrome
+  reality-opts:
+    public-key: MrCEmqtF6MdAfyvwu7VWipCvi_8P0RjI8TF571XT6l0
+    short-id: 209f
+    server-name: fonts.gstatic.com
+  tls: true
+  flow: xtls-rprx-vision
+  pbk: MrCEmqtF6MdAfyvwu7VWipCvi_8P0RjI8TF571XT6l0
+  sid: 209f
+  spx: /
+  headerType: none
+- name: 🇷🇺 RU-5 | Mix
+  type: vless
+  server: wolfy.ufavpn.ru
+  port: 52900
+  uuid: 97e7c83c-9346-49b4-85a5-1e3bbf7488b9
+  encryption: none
+  network: tcp
+  security: reality
+  sni: ozon.ru
+  fp: chrome
+  reality-opts:
+    public-key: AjYSCSFHfqOg-NbP_ngiRvJkKNKZXuHNDa1sJd4TRRQ
+    short-id: 1fbc
+    server-name: ozon.ru
+  tls: true
+  pbk: AjYSCSFHfqOg-NbP_ngiRvJkKNKZXuHNDa1sJd4TRRQ
+  sid: 1fbc
+  headerType: none
+- name: 🇷🇺 RU-6 | Mix
+  type: vless
+  server: bg.fasssst.ru
+  port: 443
+  uuid: c1853115-eb6b-4592-b01f-05037d33505d
+  encryption: none
+  network: tcp
+  security: reality
+  sni: bg.fasssst.ru
+  fp: chrome
+  reality-opts:
+    public-key: v5phvruLtbRahHL0xJtl77s4sXHiuSHzUTPq2znyCF4
+    short-id: f5b76860a3c9c3f5
+    server-name: bg.fasssst.ru
+  tls: true
+  flow: xtls-rprx-vision
+  pbk: v5phvruLtbRahHL0xJtl77s4sXHiuSHzUTPq2znyCF4
+  sid: f5b76860a3c9c3f5
+  headerType: none
+- name: 🇷🇺 RU-7 | Mix
+  type: vless
+  server: yt.connect-iskra.ru
+  port: 8443
+  uuid: fdc3a9ca-1b77-4b06-869c-43982db07c9f
+  encryption: none
+  network: tcp
+  security: reality
+  sni: shiftline.xyz
+  fp: qq
+  reality-opts:
+    public-key: QjcIcRxF6rLpMImGD9wUYmeftFwpkuwLKm9nChbD50A
+    short-id: 60a0c1f0f4c9ca63
+    server-name: shiftline.xyz
+  tls: true
+  flow: xtls-rprx-vision
+  pbk: QjcIcRxF6rLpMImGD9wUYmeftFwpkuwLKm9nChbD50A
+  sid: 60a0c1f0f4c9ca63
+  headerType: none
+- name: 🇳🇱 NL-1 | Mix
+  type: vless
+  server: msk.stat-ozon.ru
+  port: 8443
+  uuid: 09a8d899-6f08-4379-8270-f3834d91e358
+  encryption: none
+  network: tcp
+  security: reality
+  sni: www.ozon.ru
+  fp: random
+  reality-opts:
+    public-key: CmG1fB3Ztbyt2-CpJkL1hQmPk9ywpMFnIVT5L08GOT4
+    short-id: 6a3fcffa50bffa
+    server-name: www.ozon.ru
+  tls: true
+  flow: xtls-rprx-vision
+  pbk: CmG1fB3Ztbyt2-CpJkL1hQmPk9ywpMFnIVT5L08GOT4
+  sid: 6a3fcffa50bffa
+  headerType: none
+- name: 🇱🇧 LB-2 | Mix
+  type: vless
+  server: plr.strelkavpn.ru
+  port: 8443
+  uuid: 267d94c8-2fe6-4216-9ff1-4461b4e3b793
+  encryption: none
+  network: tcp
+  security: reality
+  sni: plr.strelkavpn.ru
+  fp: chrome
+  reality-opts:
+    public-key: i1XUXx_YHZJ8LiZG7yGYG-jXr1JHASvat25lf9SmnzM
+    short-id: 34966c9aff53ec89
+    server-name: plr.strelkavpn.ru
+  tls: true
+  flow: xtls-rprx-vision
+  pbk: i1XUXx_YHZJ8LiZG7yGYG-jXr1JHASvat25lf9SmnzM
+  sid: 34966c9aff53ec89
+  headerType: none
+- name: 🇷🇺 RU-8 | Mix
+  type: vless
+  server: yt.connect-iskra.ru
+  port: 8443
+  uuid: fdc3a9ca-1b77-4b06-869c-43982db07c9f
+  encryption: none
+  network: tcp
+  security: reality
+  sni: shiftline.xyz
+  fp: chrome
+  reality-opts:
+    public-key: QjcIcRxF6rLpMImGD9wUYmeftFwpkuwLKm9nChbD50A
+    short-id: 60a0c1f0f4c9ca63
+    server-name: shiftline.xyz
+  tls: true
+  flow: xtls-rprx-vision
+  pbk: QjcIcRxF6rLpMImGD9wUYmeftFwpkuwLKm9nChbD50A
+  sid: 60a0c1f0f4c9ca63
+  headerType: none
+- name: 🇨🇦 CA-1 | Mix
+  type: vless
+  server: ca.griffon-guard.com
+  port: 8443
+  uuid: 6a753f74-b279-44d7-a442-b5cbc425569f
+  encryption: none
+  network: tcp
+  security: reality
+  sni: apple.com
+  fp: chrome
+  reality-opts:
+    public-key: IBvNLerjNLpF4OpUX-wGJp8YDZrnKoh-gEItUDNT_Bg
+    short-id: ''
+    server-name: apple.com
+  tls: true
+  flow: xtls-rprx-vision
+  pbk: IBvNLerjNLpF4OpUX-wGJp8YDZrnKoh-gEItUDNT_Bg
+  headerType: none
+- name: 🇹🇷 TR-1 | Mix
+  type: vless
+  server: istanbul.fonixapp.org
+  port: 443
+  uuid: cb7188cf-2c3a-43a5-af90-d893922e4917
+  encryption: none
+  network: tcp
+  security: reality
+  sni: fonts.gstatic.com
+  fp: chrome
+  reality-opts:
+    public-key: eS0NqJCAo6Jn4PuU3nU4A5D7RyNbn3WyhipXViddnzI
+    short-id: '5457'
+    server-name: fonts.gstatic.com
+  tls: true
+  flow: xtls-rprx-vision
+  pbk: eS0NqJCAo6Jn4PuU3nU4A5D7RyNbn3WyhipXViddnzI
+  sid: '5457'
+  spx: /
+  headerType: none
+- name: 🇮🇱 IL-1 | Mix
+  type: vless
+  server: 185.136.132.171
+  port: 24170
+  uuid: fe21e399-ec6f-4cb5-8441-e911178665b1
+  encryption: none
+  network: tcp
+  security: reality
+  sni: speedtest.net
+  fp: chrome
+  reality-opts:
+    public-key: VsmNi1ZMXVOwhCWpbCp51w-D_DzrxWX4jgfpcU0S9G4
+    short-id: 2fb2106a629b
+    server-name: speedtest.net
+  tls: true
+  pbk: VsmNi1ZMXVOwhCWpbCp51w-D_DzrxWX4jgfpcU0S9G4
+  sid: 2fb2106a629b
+  spx: /
+  headerType: none
+- name: 🇦🇹 AT-3 | Mix
+  type: vless
+  server: antimage.fonixapp.org
+  port: 443
+  uuid: f81d5b9b-c5b7-46cb-8710-0cf41ab33570
+  encryption: none
+  network: tcp
+  security: reality
+  sni: ajax.cloudflare.com
+  fp: chrome
+  reality-opts:
+    public-key: WeNlf_hPscBLSwtg1PgOmurK1f7VyQSNPmOYeG0wIQw
+    short-id: 6590cb
+    server-name: ajax.cloudflare.com
+  tls: true
+  flow: xtls-rprx-vision
+  pbk: WeNlf_hPscBLSwtg1PgOmurK1f7VyQSNPmOYeG0wIQw
+  sid: 6590cb
+  spx: /
+  headerType: none
+- name: 🇩🇪 DE-2 | Mix
+  type: vless
+  server: tidehunter.fonixapp.org
+  port: 443
+  uuid: bbb7f486-84f9-477e-a6ae-80bff136e59d
+  encryption: none
+  network: tcp
+  security: reality
+  sni: update.googleapis.com
+  fp: chrome
+  reality-opts:
+    public-key: bzcnjzOZCB5YwZnRVwYxaixLwFe_ENWZZeXSXckazg8
+    short-id: 2cd1
+    server-name: update.googleapis.com
+  tls: true
+  flow: xtls-rprx-vision
+  pbk: bzcnjzOZCB5YwZnRVwYxaixLwFe_ENWZZeXSXckazg8
+  sid: 2cd1
+  spx: /
+  headerType: none
+- name: 🇪🇸 ES-1 | Mix
+  type: vless
+  server: bountyhunter.fonixapp.org
+  port: 443
+  uuid: 7392bb3b-7b2c-4eba-b399-b5e9534c12b0
+  encryption: none
+  network: tcp
+  security: reality
+  sni: fonts.gstatic.com
+  fp: chrome
+  reality-opts:
+    public-key: HO6w1kV0-nVwjEbAsPFfzRc_plvZjIXB9Ut11owI3Ec
+    short-id: 066b
+    server-name: fonts.gstatic.com
+  tls: true
+  flow: xtls-rprx-vision
+  pbk: HO6w1kV0-nVwjEbAsPFfzRc_plvZjIXB9Ut11owI3Ec
+  sid: 066b
+  spx: /
+  headerType: none
+- name: 🇨🇿 CZ-2 | Mix
+  type: vless
+  server: 194.87.76.23
+  port: 8443
+  uuid: fdc3a9ca-1b77-4b06-869c-43982db07c9f
+  encryption: none
+  network: tcp
+  security: reality
+  sni: shiftline.xyz
+  fp: qq
+  reality-opts:
+    public-key: QjcIcRxF6rLpMImGD9wUYmeftFwpkuwLKm9nChbD50A
+    short-id: 60a0c1f0f4c9ca63
+    server-name: shiftline.xyz
+  tls: true
+  flow: xtls-rprx-vision
+  pbk: QjcIcRxF6rLpMImGD9wUYmeftFwpkuwLKm9nChbD50A
+  sid: 60a0c1f0f4c9ca63
+  headerType: none
+- name: 🇺🇸 US-2 | Mix
+  type: vless
+  server: nl.griffon-guard.com
+  port: 8443
+  uuid: 6a753f74-b279-44d7-a442-b5cbc425569f
+  encryption: none
+  network: tcp
+  security: reality
+  sni: apple.com
+  fp: chrome
+  reality-opts:
+    public-key: IBvNLerjNLpF4OpUX-wGJp8YDZrnKoh-gEItUDNT_Bg
+    short-id: ''
+    server-name: apple.com
+  tls: true
+  flow: xtls-rprx-vision
+  pbk: IBvNLerjNLpF4OpUX-wGJp8YDZrnKoh-gEItUDNT_Bg
+  headerType: none
+- name: 🇰🇷 KR-1 | Mix
+  type: vmess
+  server: 152.70.92.69
+  port: 80
+  uuid: bb9c3993-a4b9-4dad-aeb9-ac86371ae68b
+  network: tcp
+  path: /
+  alterId: 0
+  cipher: auto
+  tls: false
+  v: '2'
+  ps: ⚡韩国
+  add: 152.70.92.69
+  id: bb9c3993-a4b9-4dad-aeb9-ac86371ae68b
+  aid: '0'
+  scy: auto
+  net: tcp
+- name: 🇬🇧 GB-1 | Mix
+  type: vmess
+  server: 82.198.246.97
+  port: 180
+  uuid: d13fc2f5-3e05-4795-81eb-44143a09e552
+  network: tcp
+  path: /
+  alterId: 0
+  cipher: auto
+  tls: false
+  v: '2'
+  ps: ⚡英国
+  add: 82.198.246.97
+  id: d13fc2f5-3e05-4795-81eb-44143a09e552
+  aid: '0'
+  scy: auto
+  net: tcp
+  host: n1744454498.lie5d.cyou
+- name: 🇹🇷 TR-2 | Mix
+  type: vless
+  server: 45.252.181.100
+  port: 4432
+  uuid: d35b1f7a-08d6-47ca-9501-5f6c8d35d89e
+  encryption: none
+  network: tcp
+  security: none
+  headerType: http
+  host: divarcdn.com
+- name: 🇰🇷 KR-2 | Mix
+  type: vmess
+  server: 152.70.92.69
+  port: 80
+  uuid: bb9c3993-a4b9-4dad-aeb9-ac86371ae68b
+  network: tcp
+  path: /
+  alterId: 0
+  cipher: auto
+  tls: false
+  v: '2'
+  ps: ⚡韩国
+  add: 152.70.92.69
+  id: bb9c3993-a4b9-4dad-aeb9-ac86371ae68b
+  aid: '0'
+  scy: auto
+  net: tcp
+  host: 152.70.92.69
+- name: 🇫🇮 FI-1 | Mix
+  type: vless
+  server: soft95.fastzeronet.fun
+  port: 31059
+  uuid: 48c06be0-91da-4eec-aae3-9e099aa79d5e
+  encryption: none
+  network: tcp
+  security: reality
+  sni: sw.fastzero.ir
+  fp: chrome
+  reality-opts:
+    public-key: E3mBvyOYAP-ZbRGTMq4zEIqjjvs-kmoKE0IHNOivxXU
+    short-id: dcdc0de6347dfe07
+    server-name: sw.fastzero.ir
+  tls: true
+  flow: xtls-rprx-vision
+  pbk: E3mBvyOYAP-ZbRGTMq4zEIqjjvs-kmoKE0IHNOivxXU
+  sid: dcdc0de6347dfe07
+  headerType: none
+- name: 🇺🇸 US-3 | Mix
+  type: vmess
+  server: 82.198.246.97
+  port: 180
+  uuid: d13fc2f5-3e05-4795-81eb-44143a09e552
+  network: tcp
+  path: /
+  alterId: 0
+  cipher: auto
+  tls: false
+  v: '2'
+  ps: ⚡美国
+  add: 82.198.246.97
+  id: d13fc2f5-3e05-4795-81eb-44143a09e552
+  aid: '0'
+  scy: auto
+  net: tcp
+  host: joss.gpj1.web.id
+- name: 🇬🇧 GB-2 | Mix
+  type: vmess
+  server: 82.198.246.97
+  port: 180
+  uuid: d13fc2f5-3e05-4795-81eb-44143a09e552
+  network: tcp
+  path: /
+  alterId: 0
+  cipher: auto
+  tls: false
+  v: '2'
+  ps: ⚡英国
+  add: 82.198.246.97
+  id: d13fc2f5-3e05-4795-81eb-44143a09e552
+  aid: '0'
+  scy: auto
+  net: tcp
+  host: trojan.burgerip.co.uk
+- name: 🇨🇳 CN-1 | Mix
+  type: vmess
+  server: v12.hdacd.com
+  port: 30812
+  uuid: cbb3f877-d1fb-344c-87a9-d153bffd5484
+  network: tcp
+  path: /
+  alterId: 0
+  cipher: auto
+  tls: false
+  v: '2'
+  ps: ⚡中国
+  add: v12.hdacd.com
+  id: cbb3f877-d1fb-344c-87a9-d153bffd5484
+  aid: '0'
+  scy: auto
+  net: tcp
+  host: v12.hdacd.com
+- name: 🇨🇦 CA-2 | Mix
+  type: trojan
+  server: 209.200.246.53
+  port: 36774
+  password: Fv7ogJ6vfz
+  network: grpc
+  security: reality
+  sni: cloudflare.com
+  servername: cloudflare.com
+  skip-cert-verify: false
+  fp: chrome
+  grpc-opts:
+    grpc-service-name: ''
+  pbk: QX1ITiHw0tTKi5ouMn-6mE2-Hb0-gk25N67gP2sQ-nU
+  sid: 3e
+  spx: /
+- name: 🇩🇪 DE-3 | Mix
+  type: vless
+  server: visa.com
+  port: 443
+  uuid: 495c0dad-3268-4470-ac57-887c5089db0d
+  encryption: none
+  network: ws
+  security: tls
+  sni: ziyong.boringdad.netlib.re
+  servername: ziyong.boringdad.netlib.re
+  skip-cert-verify: false
+  path: /
+  ws-opts:
+    path: /
+    headers:
+      Host: ziyong.boringdad.netlib.re
+  tls: true
+  host: ziyong.boringdad.netlib.re
+- name: 🇭🇰 HK-2 | Mix
+  type: trojan
+  server: 58.152.25.242
+  port: 443
+  password: BxceQaOe
+  network: tcp
+  security: tls
+  skip-cert-verify: true
+  allowInsecure: '1'
+  headerType: none
+- name: 🇭🇰 HK-3 | Mix
+  type: trojan
+  server: 58.152.25.242
+  port: 443
+  password: BxceQaOe
+  network: tcp
+  security: tls
+  sni: t.me/ripaojiedian
+  servername: t.me/ripaojiedian
+  skip-cert-verify: true
+  allowInsecure: '1'
+  headerType: none
+- name: 🇭🇰 HK-4 | Mix
+  type: trojan
+  server: 58.152.25.20
+  port: 443
+  password: BxceQaOe
+  network: tcp
+  security: tls
+  sni: t.me/ripaojiedian
+  servername: t.me/ripaojiedian
+  skip-cert-verify: true
+  allowInsecure: '1'
+  headerType: none
+- name: 🇺🇸 US-4 | Mix
+  type: trojan
+  server: 180.131.145.161
+  port: 23274
+  password: FodSUXysuS
+  network: grpc
+  security: reality
+  sni: cloudflare.com
+  servername: cloudflare.com
+  skip-cert-verify: false
+  fp: chrome
+  grpc-opts:
+    grpc-service-name: ''
+  pbk: iX_s_-F07vtmJa8t81J6OBiVksCy0ZHRmXUMyw3l4Vw
+  sid: '14'
+  spx: /
+- name: 🇵🇱 PL-2 | Mix
+  type: vless
+  server: plr.strelkavpn.ru
+  port: 8443
+  uuid: 0e0df131-29f5-4725-b9a3-7b1a6cac4c95
+  encryption: none
+  network: tcp
+  security: reality
+  sni: plr.strelkavpn.ru
+  fp: chrome
+  reality-opts:
+    public-key: i1XUXx_YHZJ8LiZG7yGYG-jXr1JHASvat25lf9SmnzM
+    short-id: 5626dfc4162fd4f2
+    server-name: plr.strelkavpn.ru
+  tls: true
+  flow: xtls-rprx-vision
+  pbk: i1XUXx_YHZJ8LiZG7yGYG-jXr1JHASvat25lf9SmnzM
+  sid: 5626dfc4162fd4f2
+  headerType: none
+- name: 🇫🇷 FR-1 | Mix
+  type: vless
+  server: 62.60.148.21
+  port: 443
+  uuid: 39e5cc2f-1294-4a42-bb58-306a8be785e1
+  encryption: none
+  network: tcp
+  security: reality
+  sni: st.ozone.ru
+  fp: chrome
+  reality-opts:
+    public-key: BkAG_uWeUj7BCHqYjrz1JyH0TMvO_KywubV7WJN17ho
+    short-id: ee6f3e8f44b1f0b6
+    server-name: st.ozone.ru
+  tls: true
+  flow: xtls-rprx-vision
+  pbk: BkAG_uWeUj7BCHqYjrz1JyH0TMvO_KywubV7WJN17ho
+  sid: ee6f3e8f44b1f0b6
+  headerType: none
+- name: 🇨🇳 CN-2 | Mix
+  type: vmess
+  server: v30.hdacd.com
+  port: 30830
+  uuid: cbb3f877-d1fb-344c-87a9-d153bffd5484
+  network: tcp
+  alterId: 0
+  cipher: auto
+  tls: false
+  v: '2'
+  ps: ⚡中国
+  add: v30.hdacd.com
+  id: cbb3f877-d1fb-344c-87a9-d153bffd5484
+  aid: '0'
+  scy: auto
+  net: tcp
+- name: 🇭🇰 HK-5 | Mix
+  type: trojan
+  server: 58.152.53.8
+  port: 443
+  password: BxceQaOe
+  network: tcp
+  security: tls
+  sni: t.me/ripaojiedian
+  servername: t.me/ripaojiedian
+  skip-cert-verify: true
+  allowInsecure: '1'
+  headerType: none
+
+proxy-groups:
+  - name: 选择线路
+    type: select
+    proxies:
+      - 自动选择⚡️
+      - 🇷🇺 RU-1 | Mix
+      - 🇷🇺 RU-2 | Mix
+      - 🇧🇬 BG-1 | Mix
+      - 🇩🇪 DE-1 | Mix
+      - 🇧🇬 BG-2 | Mix
+      - 🇵🇱 PL-1 | Mix
+      - 🇧🇬 BG-3 | Mix
+      - 🇭🇰 HK-1 | Mix
+      - 🇧🇪 BE-1 | Mix
+      - 🇨🇿 CZ-1 | Mix
+      - 🇷🇺 RU-3 | Mix
+      - 🇱🇧 LB-1 | Mix
+      - 🇷🇺 RU-4 | Mix
+      - 🇦🇹 AT-1 | Mix
+      - 🇺🇸 US-1 | Mix
+      - 🇦🇹 AT-2 | Mix
+      - 🇷🇺 RU-5 | Mix
+      - 🇷🇺 RU-6 | Mix
+      - 🇷🇺 RU-7 | Mix
+      - 🇳🇱 NL-1 | Mix
+      - 🇱🇧 LB-2 | Mix
+      - 🇷🇺 RU-8 | Mix
+      - 🇨🇦 CA-1 | Mix
+      - 🇹🇷 TR-1 | Mix
+      - 🇮🇱 IL-1 | Mix
+      - 🇦🇹 AT-3 | Mix
+      - 🇩🇪 DE-2 | Mix
+      - 🇪🇸 ES-1 | Mix
+      - 🇨🇿 CZ-2 | Mix
+      - 🇺🇸 US-2 | Mix
+      - 🇰🇷 KR-1 | Mix
+      - 🇬🇧 GB-1 | Mix
+      - 🇹🇷 TR-2 | Mix
+      - 🇰🇷 KR-2 | Mix
+      - 🇫🇮 FI-1 | Mix
+      - 🇺🇸 US-3 | Mix
+      - 🇬🇧 GB-2 | Mix
+      - 🇨🇳 CN-1 | Mix
+      - 🇨🇦 CA-2 | Mix
+      - 🇩🇪 DE-3 | Mix
+      - 🇭🇰 HK-2 | Mix
+      - 🇭🇰 HK-3 | Mix
+      - 🇭🇰 HK-4 | Mix
+      - 🇺🇸 US-4 | Mix
+      - 🇵🇱 PL-2 | Mix
+      - 🇫🇷 FR-1 | Mix
+      - 🇨🇳 CN-2 | Mix
+      - 🇭🇰 HK-5 | Mix
+  - name: 自动选择⚡️
+    type: url-test
+    proxies:
+      - 🇷🇺 RU-1 | Mix
+      - 🇷🇺 RU-2 | Mix
+      - 🇧🇬 BG-1 | Mix
+      - 🇩🇪 DE-1 | Mix
+      - 🇧🇬 BG-2 | Mix
+      - 🇵🇱 PL-1 | Mix
+      - 🇧🇬 BG-3 | Mix
+      - 🇭🇰 HK-1 | Mix
+      - 🇧🇪 BE-1 | Mix
+      - 🇨🇿 CZ-1 | Mix
+      - 🇷🇺 RU-3 | Mix
+      - 🇱🇧 LB-1 | Mix
+      - 🇷🇺 RU-4 | Mix
+      - 🇦🇹 AT-1 | Mix
+      - 🇺🇸 US-1 | Mix
+      - 🇦🇹 AT-2 | Mix
+      - 🇷🇺 RU-5 | Mix
+      - 🇷🇺 RU-6 | Mix
+      - 🇷🇺 RU-7 | Mix
+      - 🇳🇱 NL-1 | Mix
+      - 🇱🇧 LB-2 | Mix
+      - 🇷🇺 RU-8 | Mix
+      - 🇨🇦 CA-1 | Mix
+      - 🇹🇷 TR-1 | Mix
+      - 🇮🇱 IL-1 | Mix
+      - 🇦🇹 AT-3 | Mix
+      - 🇩🇪 DE-2 | Mix
+      - 🇪🇸 ES-1 | Mix
+      - 🇨🇿 CZ-2 | Mix
+      - 🇺🇸 US-2 | Mix
+      - 🇰🇷 KR-1 | Mix
+      - 🇬🇧 GB-1 | Mix
+      - 🇹🇷 TR-2 | Mix
+      - 🇰🇷 KR-2 | Mix
+      - 🇫🇮 FI-1 | Mix
+      - 🇺🇸 US-3 | Mix
+      - 🇬🇧 GB-2 | Mix
+      - 🇨🇳 CN-1 | Mix
+      - 🇨🇦 CA-2 | Mix
+      - 🇩🇪 DE-3 | Mix
+      - 🇭🇰 HK-2 | Mix
+      - 🇭🇰 HK-3 | Mix
+      - 🇭🇰 HK-4 | Mix
+      - 🇺🇸 US-4 | Mix
+      - 🇵🇱 PL-2 | Mix
+      - 🇫🇷 FR-1 | Mix
+      - 🇨🇳 CN-2 | Mix
+      - 🇭🇰 HK-5 | Mix
+    url: https://www.gstatic.com/generate_204
+    interval: 300
+rules:
+  - DOMAIN-SUFFIX,services.googleapis.cn,选择线路
+  - DOMAIN-SUFFIX,xn--ngstr-lra8j.com,选择线路
+  - DOMAIN,safebrowsing.urlsec.qq.com,DIRECT
+  - DOMAIN,safebrowsing.googleapis.com,DIRECT
+  - DOMAIN,developer.apple.com,选择线路
+  - DOMAIN-SUFFIX,digicert.com,选择线路
+  - DOMAIN,ocsp.apple.com,选择线路
+  - DOMAIN,ocsp.comodoca.com,选择线路
+  - DOMAIN,ocsp.usertrust.com,选择线路
+  - DOMAIN,ocsp.sectigo.com,选择线路
+  - DOMAIN,ocsp.verisign.net,选择线路
+  - DOMAIN-SUFFIX,apple-dns.net,选择线路
+  - DOMAIN,testflight.apple.com,选择线路
+  - DOMAIN,sandbox.itunes.apple.com,选择线路
+  - DOMAIN,itunes.apple.com,选择线路
+  - DOMAIN-SUFFIX,apps.apple.com,选择线路
+  - DOMAIN-SUFFIX,blobstore.apple.com,选择线路
+  - DOMAIN,cvws.icloud-content.com,选择线路
+  - DOMAIN-SUFFIX,mzstatic.com,DIRECT
+  - DOMAIN-SUFFIX,itunes.apple.com,DIRECT
+  - DOMAIN-SUFFIX,icloud.com,DIRECT
+  - DOMAIN-SUFFIX,icloud-content.com,DIRECT
+  - DOMAIN-SUFFIX,me.com,DIRECT
+  - DOMAIN-SUFFIX,aaplimg.com,DIRECT
+  - DOMAIN-SUFFIX,cdn20.com,DIRECT
+  - DOMAIN-SUFFIX,cdn-apple.com,DIRECT
+  - DOMAIN-SUFFIX,akadns.net,DIRECT
+  - DOMAIN-SUFFIX,akamaiedge.net,DIRECT
+  - DOMAIN-SUFFIX,edgekey.net,DIRECT
+  - DOMAIN-SUFFIX,mwcloudcdn.com,DIRECT
+  - DOMAIN-SUFFIX,mwcname.com,DIRECT
+  - DOMAIN-SUFFIX,apple.com,DIRECT
+  - DOMAIN-SUFFIX,apple-cloudkit.com,DIRECT
+  - DOMAIN-SUFFIX,apple-mapkit.com,DIRECT
+  - DOMAIN-SUFFIX,126.com,DIRECT
+  - DOMAIN-SUFFIX,126.net,DIRECT
+  - DOMAIN-SUFFIX,127.net,DIRECT
+  - DOMAIN-SUFFIX,163.com,DIRECT
+  - DOMAIN-SUFFIX,360buyimg.com,DIRECT
+  - DOMAIN-SUFFIX,36kr.com,DIRECT
+  - DOMAIN-SUFFIX,acfun.tv,DIRECT
+  - DOMAIN-SUFFIX,air-matters.com,DIRECT
+  - DOMAIN-SUFFIX,aixifan.com,DIRECT
+  - DOMAIN-KEYWORD,alicdn,DIRECT
+  - DOMAIN-KEYWORD,alipay,DIRECT
+  - DOMAIN-KEYWORD,taobao,DIRECT
+  - DOMAIN-SUFFIX,amap.com,DIRECT
+  - DOMAIN-SUFFIX,autonavi.com,DIRECT
+  - DOMAIN-KEYWORD,baidu,DIRECT
+  - DOMAIN-SUFFIX,bdimg.com,DIRECT
+  - DOMAIN-SUFFIX,bdstatic.com,DIRECT
+  - DOMAIN-SUFFIX,bilibili.com,DIRECT
+  - DOMAIN-SUFFIX,bilivideo.com,DIRECT
+  - DOMAIN-SUFFIX,caiyunapp.com,DIRECT
+  - DOMAIN-SUFFIX,clouddn.com,DIRECT
+  - DOMAIN-SUFFIX,cnbeta.com,DIRECT
+  - DOMAIN-SUFFIX,cnbetacdn.com,DIRECT
+  - DOMAIN-SUFFIX,cootekservice.com,DIRECT
+  - DOMAIN-SUFFIX,csdn.net,DIRECT
+  - DOMAIN-SUFFIX,ctrip.com,DIRECT
+  - DOMAIN-SUFFIX,dgtle.com,DIRECT
+  - DOMAIN-SUFFIX,dianping.com,DIRECT
+  - DOMAIN-SUFFIX,douban.com,DIRECT
+  - DOMAIN-SUFFIX,doubanio.com,DIRECT
+  - DOMAIN-SUFFIX,duokan.com,DIRECT
+  - DOMAIN-SUFFIX,easou.com,DIRECT
+  - DOMAIN-SUFFIX,ele.me,DIRECT
+  - DOMAIN-SUFFIX,feng.com,DIRECT
+  - DOMAIN-SUFFIX,fir.im,DIRECT
+  - DOMAIN-SUFFIX,frdic.com,DIRECT
+  - DOMAIN-SUFFIX,g-cores.com,DIRECT
+  - DOMAIN-SUFFIX,godic.net,DIRECT
+  - DOMAIN-SUFFIX,gtimg.com,DIRECT
+  - DOMAIN,cdn.hockeyapp.net,DIRECT
+  - DOMAIN-SUFFIX,hongxiu.com,DIRECT
+  - DOMAIN-SUFFIX,hxcdn.net,DIRECT
+  - DOMAIN-SUFFIX,iciba.com,DIRECT
+  - DOMAIN-SUFFIX,ifeng.com,DIRECT
+  - DOMAIN-SUFFIX,ifengimg.com,DIRECT
+  - DOMAIN-SUFFIX,ipip.net,DIRECT
+  - DOMAIN-SUFFIX,iqiyi.com,DIRECT
+  - DOMAIN-SUFFIX,jd.com,DIRECT
+  - DOMAIN-SUFFIX,jianshu.com,DIRECT
+  - DOMAIN-SUFFIX,knewone.com,DIRECT
+  - DOMAIN-SUFFIX,le.com,DIRECT
+  - DOMAIN-SUFFIX,lecloud.com,DIRECT
+  - DOMAIN-SUFFIX,lemicp.com,DIRECT
+  - DOMAIN-SUFFIX,licdn.com,DIRECT
+  - DOMAIN-SUFFIX,luoo.net,DIRECT
+  - DOMAIN-SUFFIX,meituan.com,DIRECT
+  - DOMAIN-SUFFIX,meituan.net,DIRECT
+  - DOMAIN-SUFFIX,mi.com,DIRECT
+  - DOMAIN-SUFFIX,miaopai.com,DIRECT
+  - DOMAIN-SUFFIX,microsoft.com,DIRECT
+  - DOMAIN-SUFFIX,microsoftonline.com,DIRECT
+  - DOMAIN-SUFFIX,miui.com,DIRECT
+  - DOMAIN-SUFFIX,miwifi.com,DIRECT
+  - DOMAIN-SUFFIX,mob.com,DIRECT
+  - DOMAIN-SUFFIX,netease.com,DIRECT
+  - DOMAIN-SUFFIX,office.com,DIRECT
+  - DOMAIN-SUFFIX,office365.com,DIRECT
+  - DOMAIN-KEYWORD,officecdn,DIRECT
+  - DOMAIN-SUFFIX,oschina.net,DIRECT
+  - DOMAIN-SUFFIX,ppsimg.com,DIRECT
+  - DOMAIN-SUFFIX,pstatp.com,DIRECT
+  - DOMAIN-SUFFIX,qcloud.com,DIRECT
+  - DOMAIN-SUFFIX,qdaily.com,DIRECT
+  - DOMAIN-SUFFIX,qdmm.com,DIRECT
+  - DOMAIN-SUFFIX,qhimg.com,DIRECT
+  - DOMAIN-SUFFIX,qhres.com,DIRECT
+  - DOMAIN-SUFFIX,qidian.com,DIRECT
+  - DOMAIN-SUFFIX,qihucdn.com,DIRECT
+  - DOMAIN-SUFFIX,qiniu.com,DIRECT
+  - DOMAIN-SUFFIX,qiniucdn.com,DIRECT
+  - DOMAIN-SUFFIX,qiyipic.com,DIRECT
+  - DOMAIN-SUFFIX,qq.com,DIRECT
+  - DOMAIN-SUFFIX,qqurl.com,DIRECT
+  - DOMAIN-SUFFIX,rarbg.to,DIRECT
+  - DOMAIN-SUFFIX,ruguoapp.com,DIRECT
+  - DOMAIN-SUFFIX,segmentfault.com,DIRECT
+  - DOMAIN-SUFFIX,sinaapp.com,DIRECT
+  - DOMAIN-SUFFIX,smzdm.com,DIRECT
+  - DOMAIN-SUFFIX,snapdrop.net,DIRECT
+  - DOMAIN-SUFFIX,sogou.com,DIRECT
+  - DOMAIN-SUFFIX,sogoucdn.com,DIRECT
+  - DOMAIN-SUFFIX,sohu.com,DIRECT
+  - DOMAIN-SUFFIX,soku.com,DIRECT
+  - DOMAIN-SUFFIX,speedtest.net,DIRECT
+  - DOMAIN-SUFFIX,sspai.com,DIRECT
+  - DOMAIN-SUFFIX,suning.com,DIRECT
+  - DOMAIN-SUFFIX,taobao.com,DIRECT
+  - DOMAIN-SUFFIX,tencent.com,DIRECT
+  - DOMAIN-SUFFIX,tenpay.com,DIRECT
+  - DOMAIN-SUFFIX,tianyancha.com,DIRECT
+  - DOMAIN-SUFFIX,tmall.com,DIRECT
+  - DOMAIN-SUFFIX,tudou.com,DIRECT
+  - DOMAIN-SUFFIX,umetrip.com,DIRECT
+  - DOMAIN-SUFFIX,upaiyun.com,DIRECT
+  - DOMAIN-SUFFIX,upyun.com,DIRECT
+  - DOMAIN-SUFFIX,veryzhun.com,DIRECT
+  - DOMAIN-SUFFIX,weather.com,DIRECT
+  - DOMAIN-SUFFIX,weibo.com,DIRECT
+  - DOMAIN-SUFFIX,xiami.com,DIRECT
+  - DOMAIN-SUFFIX,xiami.net,DIRECT
+  - DOMAIN-SUFFIX,xiaomicp.com,DIRECT
+  - DOMAIN-SUFFIX,ximalaya.com,DIRECT
+  - DOMAIN-SUFFIX,xmcdn.com,DIRECT
+  - DOMAIN-SUFFIX,xunlei.com,DIRECT
+  - DOMAIN-SUFFIX,yhd.com,DIRECT
+  - DOMAIN-SUFFIX,yihaodianimg.com,DIRECT
+  - DOMAIN-SUFFIX,yinxiang.com,DIRECT
+  - DOMAIN-SUFFIX,ykimg.com,DIRECT
+  - DOMAIN-SUFFIX,youdao.com,DIRECT
+  - DOMAIN-SUFFIX,youku.com,DIRECT
+  - DOMAIN-SUFFIX,zealer.com,DIRECT
+  - DOMAIN-SUFFIX,zhihu.com,DIRECT
+  - DOMAIN-SUFFIX,zhimg.com,DIRECT
+  - DOMAIN-SUFFIX,zimuzu.tv,DIRECT
+  - DOMAIN-SUFFIX,zoho.com,DIRECT
+  - DOMAIN-KEYWORD,amazon,选择线路
+  - DOMAIN-KEYWORD,google,选择线路
+  - DOMAIN-KEYWORD,gmail,选择线路
+  - DOMAIN-KEYWORD,youtube,选择线路
+  - DOMAIN-KEYWORD,facebook,选择线路
+  - DOMAIN-SUFFIX,fb.me,选择线路
+  - DOMAIN-SUFFIX,fbcdn.net,选择线路
+  - DOMAIN-KEYWORD,twitter,选择线路
+  - DOMAIN-KEYWORD,instagram,选择线路
+  - DOMAIN-KEYWORD,dropbox,选择线路
+  - DOMAIN-SUFFIX,twimg.com,选择线路
+  - DOMAIN-KEYWORD,blogspot,选择线路
+  - DOMAIN-SUFFIX,youtu.be,选择线路
+  - DOMAIN-KEYWORD,whatsapp,选择线路
+  - DOMAIN-KEYWORD,admarvel,REJECT
+  - DOMAIN-KEYWORD,admaster,REJECT
+  - DOMAIN-KEYWORD,adsage,REJECT
+  - DOMAIN-KEYWORD,adsmogo,REJECT
+  - DOMAIN-KEYWORD,adsrvmedia,REJECT
+  - DOMAIN-KEYWORD,adwords,REJECT
+  - DOMAIN-KEYWORD,adservice,REJECT
+  - DOMAIN-SUFFIX,appsflyer.com,REJECT
+  - DOMAIN-KEYWORD,domob,REJECT
+  - DOMAIN-SUFFIX,doubleclick.net,REJECT
+  - DOMAIN-KEYWORD,duomeng,REJECT
+  - DOMAIN-KEYWORD,dwtrack,REJECT
+  - DOMAIN-KEYWORD,guanggao,REJECT
+  - DOMAIN-KEYWORD,lianmeng,REJECT
+  - DOMAIN-SUFFIX,mmstat.com,REJECT
+  - DOMAIN-KEYWORD,mopub,REJECT
+  - DOMAIN-KEYWORD,omgmta,REJECT
+  - DOMAIN-KEYWORD,openx,REJECT
+  - DOMAIN-KEYWORD,partnerad,REJECT
+  - DOMAIN-KEYWORD,pingfore,REJECT
+  - DOMAIN-KEYWORD,supersonicads,REJECT
+  - DOMAIN-KEYWORD,uedas,REJECT
+  - DOMAIN-KEYWORD,umeng,REJECT
+  - DOMAIN-KEYWORD,usage,REJECT
+  - DOMAIN-SUFFIX,vungle.com,REJECT
+  - DOMAIN-KEYWORD,wlmonitor,REJECT
+  - DOMAIN-KEYWORD,zjtoolbar,REJECT
+  - DOMAIN-SUFFIX,9to5mac.com,选择线路
+  - DOMAIN-SUFFIX,abpchina.org,选择线路
+  - DOMAIN-SUFFIX,adblockplus.org,选择线路
+  - DOMAIN-SUFFIX,adobe.com,选择线路
+  - DOMAIN-SUFFIX,akamaized.net,选择线路
+  - DOMAIN-SUFFIX,alfredapp.com,选择线路
+  - DOMAIN-SUFFIX,amplitude.com,选择线路
+  - DOMAIN-SUFFIX,ampproject.org,选择线路
+  - DOMAIN-SUFFIX,android.com,选择线路
+  - DOMAIN-SUFFIX,angularjs.org,选择线路
+  - DOMAIN-SUFFIX,aolcdn.com,选择线路
+  - DOMAIN-SUFFIX,apkpure.com,选择线路
+  - DOMAIN-SUFFIX,appledaily.com,选择线路
+  - DOMAIN-SUFFIX,appshopper.com,选择线路
+  - DOMAIN-SUFFIX,appspot.com,选择线路
+  - DOMAIN-SUFFIX,arcgis.com,选择线路
+  - DOMAIN-SUFFIX,archive.org,选择线路
+  - DOMAIN-SUFFIX,armorgames.com,选择线路
+  - DOMAIN-SUFFIX,aspnetcdn.com,选择线路
+  - DOMAIN-SUFFIX,att.com,选择线路
+  - DOMAIN-SUFFIX,awsstatic.com,选择线路
+  - DOMAIN-SUFFIX,azureedge.net,选择线路
+  - DOMAIN-SUFFIX,azurewebsites.net,选择线路
+  - DOMAIN-SUFFIX,bing.com,选择线路
+  - DOMAIN-SUFFIX,bintray.com,选择线路
+  - DOMAIN-SUFFIX,bit.com,选择线路
+  - DOMAIN-SUFFIX,bit.ly,选择线路
+  - DOMAIN-SUFFIX,bitbucket.org,选择线路
+  - DOMAIN-SUFFIX,bjango.com,选择线路
+  - DOMAIN-SUFFIX,bkrtx.com,选择线路
+  - DOMAIN-SUFFIX,blog.com,选择线路
+  - DOMAIN-SUFFIX,blogcdn.com,选择线路
+  - DOMAIN-SUFFIX,blogger.com,选择线路
+  - DOMAIN-SUFFIX,blogsmithmedia.com,选择线路
+  - DOMAIN-SUFFIX,blogspot.com,选择线路
+  - DOMAIN-SUFFIX,blogspot.hk,选择线路
+  - DOMAIN-SUFFIX,bloomberg.com,选择线路
+  - DOMAIN-SUFFIX,box.com,选择线路
+  - DOMAIN-SUFFIX,box.net,选择线路
+  - DOMAIN-SUFFIX,cachefly.net,选择线路
+  - DOMAIN-SUFFIX,chromium.org,选择线路
+  - DOMAIN-SUFFIX,cl.ly,选择线路
+  - DOMAIN-SUFFIX,cloudflare.com,选择线路
+  - DOMAIN-SUFFIX,cloudfront.net,选择线路
+  - DOMAIN-SUFFIX,cloudmagic.com,选择线路
+  - DOMAIN-SUFFIX,cmail19.com,选择线路
+  - DOMAIN-SUFFIX,cnet.com,选择线路
+  - DOMAIN-SUFFIX,cocoapods.org,选择线路
+  - DOMAIN-SUFFIX,comodoca.com,选择线路
+  - DOMAIN-SUFFIX,crashlytics.com,选择线路
+  - DOMAIN-SUFFIX,culturedcode.com,选择线路
+  - DOMAIN-SUFFIX,d.pr,选择线路
+  - DOMAIN-SUFFIX,danilo.to,选择线路
+  - DOMAIN-SUFFIX,dayone.me,选择线路
+  - DOMAIN-SUFFIX,db.tt,选择线路
+  - DOMAIN-SUFFIX,deskconnect.com,选择线路
+  - DOMAIN-SUFFIX,disq.us,选择线路
+  - DOMAIN-SUFFIX,disqus.com,选择线路
+  - DOMAIN-SUFFIX,disquscdn.com,选择线路
+  - DOMAIN-SUFFIX,dnsimple.com,选择线路
+  - DOMAIN-SUFFIX,docker.com,选择线路
+  - DOMAIN-SUFFIX,dribbble.com,选择线路
+  - DOMAIN-SUFFIX,droplr.com,选择线路
+  - DOMAIN-SUFFIX,duckduckgo.com,选择线路
+  - DOMAIN-SUFFIX,dueapp.com,选择线路
+  - DOMAIN-SUFFIX,dytt8.net,选择线路
+  - DOMAIN-SUFFIX,edgecastcdn.net,选择线路
+  - DOMAIN-SUFFIX,edgekey.net,选择线路
+  - DOMAIN-SUFFIX,edgesuite.net,选择线路
+  - DOMAIN-SUFFIX,engadget.com,选择线路
+  - DOMAIN-SUFFIX,entrust.net,选择线路
+  - DOMAIN-SUFFIX,eurekavpt.com,选择线路
+  - DOMAIN-SUFFIX,evernote.com,选择线路
+  - DOMAIN-SUFFIX,fabric.io,选择线路
+  - DOMAIN-SUFFIX,fast.com,选择线路
+  - DOMAIN-SUFFIX,fastly.net,选择线路
+  - DOMAIN-SUFFIX,fc2.com,选择线路
+  - DOMAIN-SUFFIX,feedburner.com,选择线路
+  - DOMAIN-SUFFIX,feedly.com,选择线路
+  - DOMAIN-SUFFIX,feedsportal.com,选择线路
+  - DOMAIN-SUFFIX,fiftythree.com,选择线路
+  - DOMAIN-SUFFIX,firebaseio.com,选择线路
+  - DOMAIN-SUFFIX,flexibits.com,选择线路
+  - DOMAIN-SUFFIX,flickr.com,选择线路
+  - DOMAIN-SUFFIX,flipboard.com,选择线路
+  - DOMAIN-SUFFIX,g.co,选择线路
+  - DOMAIN-SUFFIX,gabia.net,选择线路
+  - DOMAIN-SUFFIX,geni.us,选择线路
+  - DOMAIN-SUFFIX,gfx.ms,选择线路
+  - DOMAIN-SUFFIX,ggpht.com,选择线路
+  - DOMAIN-SUFFIX,ghostnoteapp.com,选择线路
+  - DOMAIN-SUFFIX,git.io,选择线路
+  - DOMAIN-KEYWORD,github,选择线路
+  - DOMAIN-SUFFIX,globalsign.com,选择线路
+  - DOMAIN-SUFFIX,gmodules.com,选择线路
+  - DOMAIN-SUFFIX,godaddy.com,选择线路
+  - DOMAIN-SUFFIX,golang.org,选择线路
+  - DOMAIN-SUFFIX,gongm.in,选择线路
+  - DOMAIN-SUFFIX,goo.gl,选择线路
+  - DOMAIN-SUFFIX,goodreaders.com,选择线路
+  - DOMAIN-SUFFIX,goodreads.com,选择线路
+  - DOMAIN-SUFFIX,gravatar.com,选择线路
+  - DOMAIN-SUFFIX,gstatic.com,选择线路
+  - DOMAIN-SUFFIX,gvt0.com,选择线路
+  - DOMAIN-SUFFIX,hockeyapp.net,选择线路
+  - DOMAIN-SUFFIX,hotmail.com,选择线路
+  - DOMAIN-SUFFIX,icons8.com,选择线路
+  - DOMAIN-SUFFIX,ifixit.com,选择线路
+  - DOMAIN-SUFFIX,ift.tt,选择线路
+  - DOMAIN-SUFFIX,ifttt.com,选择线路
+  - DOMAIN-SUFFIX,iherb.com,选择线路
+  - DOMAIN-SUFFIX,imageshack.us,选择线路
+  - DOMAIN-SUFFIX,img.ly,选择线路
+  - DOMAIN-SUFFIX,imgur.com,选择线路
+  - DOMAIN-SUFFIX,imore.com,选择线路
+  - DOMAIN-SUFFIX,instapaper.com,选择线路
+  - DOMAIN-SUFFIX,ipn.li,选择线路
+  - DOMAIN-SUFFIX,is.gd,选择线路
+  - DOMAIN-SUFFIX,issuu.com,选择线路
+  - DOMAIN-SUFFIX,itgonglun.com,选择线路
+  - DOMAIN-SUFFIX,itun.es,选择线路
+  - DOMAIN-SUFFIX,ixquick.com,选择线路
+  - DOMAIN-SUFFIX,j.mp,选择线路
+  - DOMAIN-SUFFIX,js.revsci.net,选择线路
+  - DOMAIN-SUFFIX,jshint.com,选择线路
+  - DOMAIN-SUFFIX,jtvnw.net,选择线路
+  - DOMAIN-SUFFIX,justgetflux.com,选择线路
+  - DOMAIN-SUFFIX,kat.cr,选择线路
+  - DOMAIN-SUFFIX,klip.me,选择线路
+  - DOMAIN-SUFFIX,libsyn.com,选择线路
+  - DOMAIN-SUFFIX,linkedin.com,选择线路
+  - DOMAIN-SUFFIX,line-apps.com,选择线路
+  - DOMAIN-SUFFIX,linode.com,选择线路
+  - DOMAIN-SUFFIX,lithium.com,选择线路
+  - DOMAIN-SUFFIX,littlehj.com,选择线路
+  - DOMAIN-SUFFIX,live.com,选择线路
+  - DOMAIN-SUFFIX,live.net,选择线路
+  - DOMAIN-SUFFIX,livefilestore.com,选择线路
+  - DOMAIN-SUFFIX,llnwd.net,选择线路
+  - DOMAIN-SUFFIX,macid.co,选择线路
+  - DOMAIN-SUFFIX,macromedia.com,选择线路
+  - DOMAIN-SUFFIX,macrumors.com,选择线路
+  - DOMAIN-SUFFIX,mashable.com,选择线路
+  - DOMAIN-SUFFIX,mathjax.org,选择线路
+  - DOMAIN-SUFFIX,medium.com,选择线路
+  - DOMAIN-SUFFIX,mega.co.nz,选择线路
+  - DOMAIN-SUFFIX,mega.nz,选择线路
+  - DOMAIN-SUFFIX,megaupload.com,选择线路
+  - DOMAIN-SUFFIX,microsofttranslator.com,选择线路
+  - DOMAIN-SUFFIX,mindnode.com,选择线路
+  - DOMAIN-SUFFIX,mobile01.com,选择线路
+  - DOMAIN-SUFFIX,modmyi.com,选择线路
+  - DOMAIN-SUFFIX,msedge.net,选择线路
+  - DOMAIN-SUFFIX,myfontastic.com,选择线路
+  - DOMAIN-SUFFIX,name.com,选择线路
+  - DOMAIN-SUFFIX,nextmedia.com,选择线路
+  - DOMAIN-SUFFIX,nsstatic.net,选择线路
+  - DOMAIN-SUFFIX,nssurge.com,选择线路
+  - DOMAIN-SUFFIX,nyt.com,选择线路
+  - DOMAIN-SUFFIX,nytimes.com,选择线路
+  - DOMAIN-SUFFIX,omnigroup.com,选择线路
+  - DOMAIN-SUFFIX,onedrive.com,选择线路
+  - DOMAIN-SUFFIX,onenote.com,选择线路
+  - DOMAIN-SUFFIX,ooyala.com,选择线路
+  - DOMAIN-SUFFIX,openvpn.net,选择线路
+  - DOMAIN-SUFFIX,openwrt.org,选择线路
+  - DOMAIN-SUFFIX,orkut.com,选择线路
+  - DOMAIN-SUFFIX,osxdaily.com,选择线路
+  - DOMAIN-SUFFIX,outlook.com,选择线路
+  - DOMAIN-SUFFIX,ow.ly,选择线路
+  - DOMAIN-SUFFIX,paddleapi.com,选择线路
+  - DOMAIN-SUFFIX,parallels.com,选择线路
+  - DOMAIN-SUFFIX,parse.com,选择线路
+  - DOMAIN-SUFFIX,pdfexpert.com,选择线路
+  - DOMAIN-SUFFIX,periscope.tv,选择线路
+  - DOMAIN-SUFFIX,pinboard.in,选择线路
+  - DOMAIN-SUFFIX,pinterest.com,选择线路
+  - DOMAIN-SUFFIX,pixelmator.com,选择线路
+  - DOMAIN-SUFFIX,pixiv.net,选择线路
+  - DOMAIN-SUFFIX,playpcesor.com,选择线路
+  - DOMAIN-SUFFIX,playstation.com,选择线路
+  - DOMAIN-SUFFIX,playstation.com.hk,选择线路
+  - DOMAIN-SUFFIX,playstation.net,选择线路
+  - DOMAIN-SUFFIX,playstationnetwork.com,选择线路
+  - DOMAIN-SUFFIX,pushwoosh.com,选择线路
+  - DOMAIN-SUFFIX,rime.im,选择线路
+  - DOMAIN-SUFFIX,servebom.com,选择线路
+  - DOMAIN-SUFFIX,sfx.ms,选择线路
+  - DOMAIN-SUFFIX,shadowsocks.org,选择线路
+  - DOMAIN-SUFFIX,sharethis.com,选择线路
+  - DOMAIN-SUFFIX,shazam.com,选择线路
+  - DOMAIN-SUFFIX,skype.com,选择线路
+  - DOMAIN-SUFFIX,smartdns选择线路.com,选择线路
+  - DOMAIN-SUFFIX,smartmailcloud.com,选择线路
+  - DOMAIN-SUFFIX,sndcdn.com,选择线路
+  - DOMAIN-SUFFIX,sony.com,选择线路
+  - DOMAIN-SUFFIX,soundcloud.com,选择线路
+  - DOMAIN-SUFFIX,sourceforge.net,选择线路
+  - DOMAIN-SUFFIX,spotify.com,选择线路
+  - DOMAIN-SUFFIX,squarespace.com,选择线路
+  - DOMAIN-SUFFIX,sstatic.net,选择线路
+  - DOMAIN-SUFFIX,st.luluku.pw,选择线路
+  - DOMAIN-SUFFIX,stackoverflow.com,选择线路
+  - DOMAIN-SUFFIX,startpage.com,选择线路
+  - DOMAIN-SUFFIX,staticflickr.com,选择线路
+  - DOMAIN-SUFFIX,steamcommunity.com,选择线路
+  - DOMAIN-SUFFIX,symauth.com,选择线路
+  - DOMAIN-SUFFIX,symcb.com,选择线路
+  - DOMAIN-SUFFIX,symcd.com,选择线路
+  - DOMAIN-SUFFIX,tapbots.com,选择线路
+  - DOMAIN-SUFFIX,tapbots.net,选择线路
+  - DOMAIN-SUFFIX,tdesktop.com,选择线路
+  - DOMAIN-SUFFIX,techcrunch.com,选择线路
+  - DOMAIN-SUFFIX,techsmith.com,选择线路
+  - DOMAIN-SUFFIX,thepiratebay.org,选择线路
+  - DOMAIN-SUFFIX,theverge.com,选择线路
+  - DOMAIN-SUFFIX,time.com,选择线路
+  - DOMAIN-SUFFIX,timeinc.net,选择线路
+  - DOMAIN-SUFFIX,tiny.cc,选择线路
+  - DOMAIN-SUFFIX,tinypic.com,选择线路
+  - DOMAIN-SUFFIX,tmblr.co,选择线路
+  - DOMAIN-SUFFIX,todoist.com,选择线路
+  - DOMAIN-SUFFIX,trello.com,选择线路
+  - DOMAIN-SUFFIX,trustasiassl.com,选择线路
+  - DOMAIN-SUFFIX,tumblr.co,选择线路
+  - DOMAIN-SUFFIX,tumblr.com,选择线路
+  - DOMAIN-SUFFIX,tweetdeck.com,选择线路
+  - DOMAIN-SUFFIX,tweetmarker.net,选择线路
+  - DOMAIN-SUFFIX,twitch.tv,选择线路
+  - DOMAIN-SUFFIX,txmblr.com,选择线路
+  - DOMAIN-SUFFIX,typekit.net,选择线路
+  - DOMAIN-SUFFIX,ubertags.com,选择线路
+  - DOMAIN-SUFFIX,ublock.org,选择线路
+  - DOMAIN-SUFFIX,ubnt.com,选择线路
+  - DOMAIN-SUFFIX,ulyssesapp.com,选择线路
+  - DOMAIN-SUFFIX,urchin.com,选择线路
+  - DOMAIN-SUFFIX,usertrust.com,选择线路
+  - DOMAIN-SUFFIX,v.gd,选择线路
+  - DOMAIN-SUFFIX,v2ex.com,选择线路
+  - DOMAIN-SUFFIX,vimeo.com,选择线路
+  - DOMAIN-SUFFIX,vimeocdn.com,选择线路
+  - DOMAIN-SUFFIX,vine.co,选择线路
+  - DOMAIN-SUFFIX,vivaldi.com,选择线路
+  - DOMAIN-SUFFIX,vox-cdn.com,选择线路
+  - DOMAIN-SUFFIX,vsco.co,选择线路
+  - DOMAIN-SUFFIX,vultr.com,选择线路
+  - DOMAIN-SUFFIX,w.org,选择线路
+  - DOMAIN-SUFFIX,w3schools.com,选择线路
+  - DOMAIN-SUFFIX,webtype.com,选择线路
+  - DOMAIN-SUFFIX,wikiwand.com,选择线路
+  - DOMAIN-SUFFIX,wikileaks.org,选择线路
+  - DOMAIN-SUFFIX,wikimedia.org,选择线路
+  - DOMAIN-SUFFIX,wikipedia.com,选择线路
+  - DOMAIN-SUFFIX,wikipedia.org,选择线路
+  - DOMAIN-SUFFIX,windows.com,选择线路
+  - DOMAIN-SUFFIX,windows.net,选择线路
+  - DOMAIN-SUFFIX,wire.com,选择线路
+  - DOMAIN-SUFFIX,wordpress.com,选择线路
+  - DOMAIN-SUFFIX,workflowy.com,选择线路
+  - DOMAIN-SUFFIX,wp.com,选择线路
+  - DOMAIN-SUFFIX,wsj.com,选择线路
+  - DOMAIN-SUFFIX,wsj.net,选择线路
+  - DOMAIN-SUFFIX,xda-developers.com,选择线路
+  - DOMAIN-SUFFIX,xeeno.com,选择线路
+  - DOMAIN-SUFFIX,xiti.com,选择线路
+  - DOMAIN-SUFFIX,yahoo.com,选择线路
+  - DOMAIN-SUFFIX,yimg.com,选择线路
+  - DOMAIN-SUFFIX,ying.com,选择线路
+  - DOMAIN-SUFFIX,yoyo.org,选择线路
+  - DOMAIN-SUFFIX,ytimg.com,选择线路
+  - DOMAIN-SUFFIX,telegra.ph,选择线路
+  - DOMAIN-SUFFIX,telegram.org,选择线路
+  - IP-CIDR,91.108.4.0/22,选择线路,no-resolve
+  - IP-CIDR,91.108.8.0/21,选择线路,no-resolve
+  - IP-CIDR,91.108.16.0/22,选择线路,no-resolve
+  - IP-CIDR,91.108.56.0/22,选择线路,no-resolve
+  - IP-CIDR,149.154.160.0/20,选择线路,no-resolve
+  - IP-CIDR6,2001:67c:4e8::/48,选择线路,no-resolve
+  - IP-CIDR6,2001:b28:f23d::/48,选择线路,no-resolve
+  - IP-CIDR6,2001:b28:f23f::/48,选择线路,no-resolve
+  - IP-CIDR,120.232.181.162/32,选择线路,no-resolve
+  - IP-CIDR,120.241.147.226/32,选择线路,no-resolve
+  - IP-CIDR,120.253.253.226/32,选择线路,no-resolve
+  - IP-CIDR,120.253.255.162/32,选择线路,no-resolve
+  - IP-CIDR,120.253.255.34/32,选择线路,no-resolve
+  - IP-CIDR,120.253.255.98/32,选择线路,no-resolve
+  - IP-CIDR,180.163.150.162/32,选择线路,no-resolve
+  - IP-CIDR,180.163.150.34/32,选择线路,no-resolve
+  - IP-CIDR,180.163.151.162/32,选择线路,no-resolve
+  - IP-CIDR,180.163.151.34/32,选择线路,no-resolve
+  - IP-CIDR,203.208.39.0/24,选择线路,no-resolve
+  - IP-CIDR,203.208.40.0/24,选择线路,no-resolve
+  - IP-CIDR,203.208.41.0/24,选择线路,no-resolve
+  - IP-CIDR,203.208.43.0/24,选择线路,no-resolve
+  - IP-CIDR,203.208.50.0/24,选择线路,no-resolve
+  - IP-CIDR,220.181.174.162/32,选择线路,no-resolve
+  - IP-CIDR,220.181.174.226/32,选择线路,no-resolve
+  - IP-CIDR,220.181.174.34/32,选择线路,no-resolve
+  - DOMAIN,injections.adguard.org,DIRECT
+  - DOMAIN,local.adguard.org,DIRECT
+  - DOMAIN-SUFFIX,local,DIRECT
+  - IP-CIDR,127.0.0.0/8,DIRECT
+  - IP-CIDR,172.16.0.0/12,DIRECT
+  - IP-CIDR,192.168.0.0/16,DIRECT
+  - IP-CIDR,10.0.0.0/8,DIRECT
+  - IP-CIDR,17.0.0.0/8,DIRECT
+  - IP-CIDR,100.64.0.0/10,DIRECT
+  - IP-CIDR,224.0.0.0/4,DIRECT
+  - IP-CIDR6,fe80::/10,DIRECT
+  - DOMAIN-SUFFIX,cn,DIRECT
+  - DOMAIN-KEYWORD,-cn,DIRECT
+  - GEOIP,CN,DIRECT
+  - MATCH,选择线路
