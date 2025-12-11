@@ -17,7 +17,7 @@ from urllib.parse import unquote, urlparse, parse_qs
 # ---------------- Config ----------------
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 OUTPUT_FILE = os.path.join(REPO_ROOT, "8EB")
-SOURCES_FILE = os.path.join(REPO_ROOT, "SOURCES_8EB")
+SOURCES_FILE = os.path.join(REPO_ROOT, "SUB_8EB")
 TEMPLATE_URL = "https://raw.githubusercontent.com/Vanic24/VPN/refs/heads/main/ClashTemplate.ini"
 TEXTDB_API = "https://textdb.online/update/?key=8EB_SHFX&value={}"
 URL_8EB = "https://raw.githubusercontent.com/Vanic24/VPN/refs/heads/main/8EB"
@@ -531,9 +531,9 @@ def rename_node(p, country_counter, CN_TO_CC):
             country_counter[cc] += 1
             index = country_counter[cc]
             if ipv6_tag:
-                p["name"] = f"{flag} {cc}-{index} [ipv6] | Starlink"
+                p["name"] = f"{flag} {cc}-{index} [ipv6] | 8EB"
             else:
-                p["name"] = f"{flag} {cc}-{index} | Starlink"
+                p["name"] = f"{flag} {cc}-{index} | 8EB"
             return p
         return None
 
@@ -546,9 +546,9 @@ def rename_node(p, country_counter, CN_TO_CC):
             index = country_counter[cc]
             # Only update the name field
             if ipv6_tag:
-                p["name"] = f"{flag} {cc}-{index} [ipv6] | Starlink"
+                p["name"] = f"{flag} {cc}-{index} [ipv6] | 8EB"
             else:
-                p["name"] = f"{flag} {cc}-{index} | Starlink"
+                p["name"] = f"{flag} {cc}-{index} | 8EB"
             return p
             
     # 2️⃣ Emoji flag in name
@@ -561,9 +561,9 @@ def rename_node(p, country_counter, CN_TO_CC):
             country_counter[cc] += 1
             index = country_counter[cc]
             if ipv6_tag:
-                p["name"] = f"{flag} {cc}-{index} [ipv6] | Starlink"
+                p["name"] = f"{flag} {cc}-{index} [ipv6] | 8EB"
             else:
-                p["name"] = f"{flag} {cc}-{index} | Starlink"
+                p["name"] = f"{flag} {cc}-{index} | 8EB"
             return p
 
     # 3️⃣ Two-letter ISO code (UPPER CASE)
@@ -574,9 +574,9 @@ def rename_node(p, country_counter, CN_TO_CC):
         country_counter[cc] += 1
         index = country_counter[cc]
         if ipv6_tag:
-            p["name"] = f"{flag} {cc}-{index} [ipv6] | Starlink"
+            p["name"] = f"{flag} {cc}-{index} [ipv6] | 8EB"
         else:
-            p["name"] = f"{flag} {cc}-{index} | Starlink"
+            p["name"] = f"{flag} {cc}-{index} | 8EB"
         return p
 
     # 4️⃣ GeoIP fallback
@@ -588,9 +588,9 @@ def rename_node(p, country_counter, CN_TO_CC):
         country_counter[cc] += 1
         index = country_counter[cc]
         if ipv6_tag:
-            p["name"] = f"{flag} {cc}-{index} [ipv6] | Starlink"
+            p["name"] = f"{flag} {cc}-{index} [ipv6] | 8EB"
         else:
-            p["name"] = f"{flag} {cc}-{index} | Starlink"
+            p["name"] = f"{flag} {cc}-{index} | 8EB"
         return p
 
     # 5️⃣ Skip node entirely if no assignment possible
