@@ -597,7 +597,7 @@ def rename_node(p, country_counter, CN_TO_CC):
     return None
 
 # ---------------- Load proxies ----------------
-def load_proxies(url, retries=3):
+def load_proxies(url, retries=10):
     attempt = 0
     while attempt < retries:
         try:
