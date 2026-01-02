@@ -69,10 +69,10 @@ jobs:
         run: python src/Lifetime.py
         env:
           CN_TO_CC: ${{ secrets.CN_TO_CC }}
-          LATENCY_FILTER: ${{ env.LATENCY_FILTER }}
-          LATENCY_THRESHOLD: ${{ env.LATENCY_THRESHOLD }}
-          DUPLICATE_FILTER: ${{ inputs.use_duplicate_filter }}
-          USE_ONLY_GEOIP: ${{ env.USE_ONLY_GEOIP }}
+          LATENCY_FILTER: ${{ inputs.use_latency_filter || 'false' }}
+          LATENCY_THRESHOLD: ${{ inputs.latency_threshold || '100' }}
+          DUPLICATE_FILTER: ${{ inputs.use_duplicate_filter || 'true' }}
+          USE_ONLY_GEOIP: ${{ inputs.use_only_geoip || 'false' }}
 
       - name: Generate GMT+6:30 timestamp
         id: timestamp
