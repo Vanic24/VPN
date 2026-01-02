@@ -19,7 +19,7 @@ REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file_
 OUTPUT_FILE = os.path.join(REPO_ROOT, "Lifetime")
 SOURCES_FILE = os.path.join(REPO_ROOT, "SUB_LIFETIME")
 TEMPLATE_URL = "https://raw.githubusercontent.com/Vanic24/VPN/refs/heads/main/ClashTemplate.ini"
-TEXTDB_API = "https://textdb.online/update/?key=Lifetime_SHFX&value={}"
+TEXTDB_API = "https://textdb.online/update/?key=Lifetime2_SHFX&value={}"
 URL_8EB = "https://raw.githubusercontent.com/Vanic24/VPN/refs/heads/main/Lifetime"
 CN_TO_CC = json.loads(os.getenv("CN_TO_CC", "{}"))
 USE_ONLY_GEOIP = os.getenv("USE_ONLY_GEOIP", "false").lower() == "true"
@@ -32,6 +32,9 @@ try:
     LATENCY_THRESHOLD = int(os.environ.get("LATENCY_THRESHOLD", "100"))
 except ValueError:
     LATENCY_THRESHOLD = 100
+
+use_dup_env = os.environ.get("DUPLICATE_FILTER", "false").lower()
+USE_DUPLICATE_FILTER = use_dup_env == "true"
 
 # ---------------- Helper ----------------
 def resolve_ip(host):
@@ -48,6 +51,43 @@ def tcp_latency_ms(host, port, timeout=2.0):
         return int((time.time() - start) * 1000)
     except:
         return 9999
+
+def deduplicate_nodes(nodes):
+    """
+    Remove duplicate nodes based on:
+    - (server, port, uuid) OR
+    - (server, port, password)
+
+    Server string must match EXACTLY.
+    """
+    seen = set()
+    unique_nodes = []
+    removed = 0
+
+    for n in nodes:
+        server = str(n.get("server", "")).strip()
+        port = int(n.get("port", 0))
+        uuid = str(n.get("uuid", "")).strip()
+        password = str(n.get("password", "")).strip()
+
+        # Build key
+        if uuid:
+            key = ("uuid", server, port, uuid)
+        elif password:
+            key = ("password", server, port, password)
+        else:
+            # No dedup key → keep it
+            unique_nodes.append(n)
+            continue
+
+        if key in seen:
+            removed += 1
+            continue
+
+        seen.add(key)
+        unique_nodes.append(n)
+
+    return unique_nodes, removed
 
 def geo_ip(ip):
     try:
@@ -605,35 +645,32 @@ def load_proxies(url, retries=10):
             r.raise_for_status()
             text = r.text.strip()
 
-            print(f"[fetch] 📥 {len(text.splitlines())} lines fetched from subscription link")
+            print(f"[fetch] 📥 {len(text.splitlines())} lines fetched from subscription link", flush=True)
             for line in text.splitlines()[:5]:
-                print("       ", line[:80])
+                print("       ", line[:80], flush=True)
 
             nodes = []
 
-            # Base64 decode if single line and looks like Base64
             if len(text.splitlines()) == 1 and re.match(r'^[A-Za-z0-9+/=]+$', text):
                 try:
                     decoded = base64.b64decode(text + "=" * (-len(text) % 4)).decode("utf-8")
                     text = decoded
-                    print(f"[decode] 🔓 Base64 decoded -> {len(text.splitlines())} lines")
+                    print(f"[decode] 🔓 Base64 decoded -> {len(text.splitlines())} lines", flush=True)
                 except Exception as e:
-                    print(f"[warn] 😭 Base64 decode failed for {url}: {e}")
+                    print(f"[warn] 😭 Base64 decode failed: {e}", flush=True)
 
-            # Parse as YAML (Clash format)
             if text.startswith("proxies:") or "proxies:" in text:
                 try:
                     data = yaml.safe_load(text)
                     if data and "proxies" in data:
                         for p in data["proxies"]:
                             nodes.append(p)
-                            print(f"[parse] 🔎 YAML node: {p.get('name', '')}")
+                            print(f"[parse] 🔎 YAML node: {p.get('name', '')}", flush=True)
                     else:
-                        print(f"[warn] 😭 YAML structure invalid or empty: {url}")
+                        print("[warn] 😭 YAML structure invalid or empty", flush=True)
                 except Exception as e:
-                    print(f"[warn] 😭 YAML parsing failed for {url}: {e}")
+                    print(f"[warn] 😭 YAML parsing failed: {e}", flush=True)
             else:
-                # Parse as individual subscription lines (Vmess/Vless/Trojan/etc.)
                 for line in text.splitlines():
                     line = line.strip()
                     if not line:
@@ -641,21 +678,22 @@ def load_proxies(url, retries=10):
                     try:
                         node = parse_node_line(line)
                         if node:
-                            print(f"[parsed] 🔎 {json.dumps(node, ensure_ascii=False)}")
+                            print(f"[parsed] 🔎 {json.dumps(node, ensure_ascii=False)}", flush=True)
                             nodes.append(node)
                         else:
-                            print(f"[skip] ⛔ Invalid or unsupported line -> {line[:60]}...")
+                            print(f"[skip] ⛔ Invalid or unsupported line -> {line[:60]}...", flush=True)
                     except Exception as e:
-                        print(f"[warn] 😭 Error parsing line: {e}")
+                        print(f"[warn] 😭 Error parsing line: {e}", flush=True)
 
             return nodes
 
         except Exception as e:
             attempt += 1
-            print(f"[warn] 😭 Failed to fetch from current subscription link")
-            print(f"[attempt] 🔄️ Try to fetch again (attempt {attempt}/{retries}) -> {e}")
+            print("[warn] 😭 Failed to fetch from current subscription link", flush=True)
+            print(f"[attempt] 🔄️ Try to fetch again (attempt {attempt}/{retries})", flush=True)
+
             if attempt >= retries:
-                print("[abort] 🚫 Max retries reached. Aborting process.")
+                print("[abort] 🚫 Max retries reached. Aborting process.", flush=True)
                 exit(1)
 
 # ---------------- Main ----------------
@@ -691,6 +729,17 @@ def main():
             filtered_nodes = all_nodes
             country_counter = defaultdict(int)
             print(f"[latency] 🚀 Latency filtering 🚫, {len(filtered_nodes)} nodes remain")
+
+        # ---------------- Duplicate filter ----------------
+        if USE_DUPLICATE_FILTER:
+            print("[dedup] 🧹 Removing duplicate nodes (server + port + uuid/password)")
+            before = len(filtered_nodes)
+            filtered_nodes, removed = deduplicate_nodes(filtered_nodes)
+            after = len(filtered_nodes)
+            print(f"[dedup] ❗Removed {removed} duplicate nodes")
+            print(f"[dedup] 🖨️ Total {after} nodes remain after deduplication")
+        else:
+            print("[dedup] 🚫 Duplicate filtering disabled")
 
         # ---------------- Renamed nodes ----------------
         renamed_nodes = []
