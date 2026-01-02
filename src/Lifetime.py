@@ -19,7 +19,7 @@ REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file_
 OUTPUT_FILE = os.path.join(REPO_ROOT, "Lifetime")
 SOURCES_FILE = os.path.join(REPO_ROOT, "SUB_LIFETIME")
 TEMPLATE_URL = "https://raw.githubusercontent.com/Vanic24/VPN/refs/heads/main/ClashTemplate.ini"
-TEXTDB_API = "https://textdb.online/update/?key=Lifetime2_SHFX&value={}"
+TEXTDB_API = "https://textdb.online/update/?key=Lifetime_SHFX&value={}"
 URL_8EB = "https://raw.githubusercontent.com/Vanic24/VPN/refs/heads/main/Lifetime"
 CN_TO_CC = json.loads(os.getenv("CN_TO_CC", "{}"))
 USE_ONLY_GEOIP = os.getenv("USE_ONLY_GEOIP", "false").lower() == "true"
