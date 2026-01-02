@@ -15,6 +15,10 @@ on:
         description: "Latency threshold in ms (only used if filter is true)"
         required: true
         default: "100"
+      use_duplicate_filter:
+        description: "Enable duplicate node filter? (true/false)"
+        required: true
+        default: "true"    
       use_only_geoip:
         description: "Use only GeoIP for naming? (true/false)"
         required: false
@@ -67,6 +71,7 @@ jobs:
           CN_TO_CC: ${{ secrets.CN_TO_CC }}
           LATENCY_FILTER: ${{ env.LATENCY_FILTER }}
           LATENCY_THRESHOLD: ${{ env.LATENCY_THRESHOLD }}
+          DUPLICATE_FILTER: ${{ inputs.use_duplicate_filter }}
           USE_ONLY_GEOIP: ${{ env.USE_ONLY_GEOIP }}
 
       - name: Generate GMT+6:30 timestamp
