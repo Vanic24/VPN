@@ -567,8 +567,11 @@ def rename_node(p, country_counter, CN_TO_CC):
         if cc_upper and cc_upper != "UN":
             cc = cc_upper
             flag = country_to_flag(cc)
+        else:
+        cc = None  # allow fallback
             
         # 2️⃣ Chinese mapping (cn_name)
+        if not cc:
         name_for_match = unquote(original_name)
         cc = flag =None
         for cn_name, code in CN_TO_CC.items():
