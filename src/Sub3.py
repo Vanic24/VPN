@@ -581,7 +581,7 @@ def rename_node(p, country_counter, CN_TO_CC):
                     flag = country_to_flag(cc)
                     break
     
-        # 3️⃣ Emoji flag in name
+        # 3️⃣ Emoji flag in name (flag_match)
         if not cc:
             flag_match = re.search(r'[\U0001F1E6-\U0001F1FF]{2}', name_for_match)
             if flag_match:
@@ -592,15 +592,16 @@ def rename_node(p, country_counter, CN_TO_CC):
     
         # 4️⃣ Two-letter ISO code (context-aware, unit-safe)
         if not cc:
-            for m in re.finditer(r'\b([A-Z]{2})\b', original_name):
-                iso = m.group(1)
+            iso_match = re.search(r'\b([A-Z]{2})\b', original_name)
+            if iso_match:
+                cc = iso_match.group(1)
         
                 # Reject units like "100GB" or "100 GB"
-                before = original_name[:m.start()]
+                before = original_name[:iso_match.start()]
                 if re.search(r'\d\s*$', before):
                     continue  # looks like a unit → skip
         
-                cc = iso
+                cc = iso_match
                 flag = country_to_flag(cc)
                 break
     
