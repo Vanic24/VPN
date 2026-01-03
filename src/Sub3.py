@@ -592,13 +592,16 @@ def rename_node(p, country_counter, CN_TO_CC):
     
         # 4️⃣ Two-letter ISO code (context-aware, unit-safe)
         if not cc:
-            for m in re.finditer(r'\b([A-Z]{2})\b', original_name):
-                iso = m.group(1)
+            iso_iter = re.finditer(r'\b([A-Z]{2})\b', original_name)
+        
+            for iso_match in iso_iter:
+                iso = iso_match.group(1)
+        
+                before = original_name[:iso_match.start()]
         
                 # Reject units like "100GB" or "100 GB"
-                before = original_name[:m.start()]
                 if re.search(r'\d\s*$', before):
-                    continue  # looks like a unit → skip
+                    continue
         
                 cc = iso
                 flag = country_to_flag(cc)
@@ -629,13 +632,16 @@ def rename_node(p, country_counter, CN_TO_CC):
     
         # 3️⃣ Two-letter ISO code (unit-safe)
         if not cc:
-            for m in re.finditer(r'\b([A-Z]{2})\b', original_name):
-                iso = m.group(1)
+            iso_iter = re.finditer(r'\b([A-Z]{2})\b', original_name)
+        
+            for iso_match in iso_iter:
+                iso = iso_match.group(1)
+        
+                before = original_name[:iso_match.start()]
         
                 # Reject units like "100GB" or "100 GB"
-                before = original_name[:m.start()]
                 if re.search(r'\d\s*$', before):
-                    continue  # looks like a unit → skip
+                    continue
         
                 cc = iso
                 flag = country_to_flag(cc)
