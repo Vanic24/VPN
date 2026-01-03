@@ -2,7 +2,7 @@ name: Update VPN Subscription (SUB_Lifetime)
 
 on:
   schedule:
-    - cron: '0 */5 * * *' # every 5 hours
+    - cron: '0 */4 * * *' # every 4 hours
     
   # Manual trigger with inputs
   workflow_dispatch:
@@ -18,7 +18,7 @@ on:
       use_duplicate_filter:
         description: "Enable duplicate node filter? (true/false)"
         required: true
-        default: "true"  
+        default: "false"
       use_only_geoip:
         description: "Use only GeoIP for naming? (true/false)"
         required: false
@@ -45,7 +45,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests pyyaml babel pycountry
 
-      - name: Fail if SUB_LIFETIME is missing
+      - name: Abort if SUB_LIFETIME is missing
         run: |
           if [ -z "${{ secrets.SUB_LIFETIME }}" ]; then
             echo "❌ ERROR: SUB_LIFETIME secret is not set in repository secrets."
@@ -56,15 +56,6 @@ jobs:
         run: |
           echo "${{ secrets.SUB_LIFETIME }}" > SUB_LIFETIME
 
-      - name: Set latency filter environment for scheduled/manual runs
-        run: |
-          # If manual run, use workflow inputs; if scheduled, default to false
-          echo "LATENCY_FILTER=${{ github.event.inputs.use_latency_filter || 'false' }}" >> $GITHUB_ENV
-          echo "LATENCY_THRESHOLD=${{ github.event.inputs.latency_threshold || '100' }}" >> $GITHUB_ENV
-          
-          # GeoIP-only filter (default true if scheduled)
-          echo "USE_ONLY_GEOIP=${{ github.event.inputs.use_only_geoip || 'false' }}" >> $GITHUB_ENV
-          
       - name: Run Python script
         run: python src/Lifetime.py
         env:
