@@ -82,7 +82,7 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
       
-          git add Mix
+          git add MIX
       
           if git diff --cached --quiet; then
             echo "No changes to commit"
@@ -110,14 +110,14 @@ jobs:
             fi
           fi
 
-      - name: Copy Mix with .yaml extension
+      - name: Copy MIX with .yaml extension
         run: cp MIX Mix.yaml
 
-      - name: Upload Mix artifact
+      - name: Upload MIX artifact
         id: upload_artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Mix
+          name: MIX
           path: Mix.yaml
           retention-days: 30
       
