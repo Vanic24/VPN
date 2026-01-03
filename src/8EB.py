@@ -52,6 +52,43 @@ def tcp_latency_ms(host, port, timeout=2.0):
     except:
         return 9999
 
+def deduplicate_nodes(nodes):
+    """
+    Remove duplicate nodes based on:
+    - (server, port, uuid) OR
+    - (server, port, password)
+
+    Server string must match EXACTLY.
+    """
+    seen = set()
+    unique_nodes = []
+    removed = 0
+
+    for n in nodes:
+        server = str(n.get("server", "")).strip()
+        port = int(n.get("port", 0))
+        uuid = str(n.get("uuid", "")).strip()
+        password = str(n.get("password", "")).strip()
+
+        # Build key
+        if uuid:
+            key = ("uuid", server, port, uuid)
+        elif password:
+            key = ("password", server, port, password)
+        else:
+            # No dedup key → keep it
+            unique_nodes.append(n)
+            continue
+
+        if key in seen:
+            removed += 1
+            continue
+
+        seen.add(key)
+        unique_nodes.append(n)
+
+    return unique_nodes, removed
+
 def geo_ip(ip):
     try:
         r = requests.get(f"https://ipinfo.io/{ip}/json", timeout=5)
