@@ -2,7 +2,7 @@ name: Update VPN Subscription (SUB_8EB)
 
 on:
   schedule:
-    - cron: '0 */4 * * *' # every 4 hours
+    - cron: '0 */8 * * *' # every 8 hours
     
   # Manual trigger with inputs
   workflow_dispatch:
@@ -15,6 +15,10 @@ on:
         description: "Latency threshold in ms (only used if filter is true)"
         required: true
         default: "100"
+      use_duplicate_filter:
+        description: "Enable duplicate node filter? (true/false)"
+        required: true
+        default: "false"
       use_only_geoip:
         description: "Use only GeoIP for naming? (true/false)"
         required: false
@@ -52,23 +56,15 @@ jobs:
         run: |
           echo "${{ secrets.SUB_8EB }}" > SUB_8EB
 
-      - name: Set latency filter environment for scheduled/manual runs
-        run: |
-          # If manual run, use workflow inputs; if scheduled, default to false
-          echo "LATENCY_FILTER=${{ github.event.inputs.use_latency_filter || 'false' }}" >> $GITHUB_ENV
-          echo "LATENCY_THRESHOLD=${{ github.event.inputs.latency_threshold || '100' }}" >> $GITHUB_ENV
-          
-          # GeoIP-only filter (default true if scheduled)
-          echo "USE_ONLY_GEOIP=${{ github.event.inputs.use_only_geoip || 'false' }}" >> $GITHUB_ENV
-          
       - name: Run Python script
         run: python src/8EB.py
         env:
           CN_TO_CC: ${{ secrets.CN_TO_CC }}
-          LATENCY_FILTER: ${{ env.LATENCY_FILTER }}
-          LATENCY_THRESHOLD: ${{ env.LATENCY_THRESHOLD }}
-          USE_ONLY_GEOIP: ${{ env.USE_ONLY_GEOIP }}
-
+          LATENCY_FILTER: ${{ inputs.use_latency_filter || 'false' }}
+          LATENCY_THRESHOLD: ${{ inputs.latency_threshold || '100' }}
+          DUPLICATE_FILTER: ${{ inputs.use_duplicate_filter || 'false' }}
+          USE_ONLY_GEOIP: ${{ inputs.use_only_geoip || 'false' }}
+          
       - name: Generate GMT+6:30 timestamp
         id: timestamp
         run: |
