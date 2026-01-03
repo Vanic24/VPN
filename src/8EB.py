@@ -33,6 +33,9 @@ try:
 except ValueError:
     LATENCY_THRESHOLD = 100
 
+use_dup_env = os.environ.get("DUPLICATE_FILTER", "false").lower()
+USE_DUPLICATE_FILTER = use_dup_env == "true"
+
 # ---------------- Helper ----------------
 def resolve_ip(host):
     try:
@@ -84,6 +87,10 @@ def load_cn_to_cc():
     except Exception as e:
         print(f"[error] 😭 Failed to parse CN_TO_CC secret: {e}")
         return {}
+
+def build_name(flag, cc, index, ipv6_tag=False):
+    suffix = " [ipv6]" if ipv6_tag else ""
+    return f"{flag} {cc}-{index}{suffix} | 8EB"
 
 # ---------------- Load sources ----------------
 def load_sources():
@@ -512,89 +519,89 @@ def rename_node(p, country_counter, CN_TO_CC):
     graphemes = list(original_name)
 
     # Skip nodes with empty names or containing any forbidden emoji
-    if not original_name or any(g in FORBIDDEN_EMOJIS for g in graphemes):
+    if any(g in FORBIDDEN_EMOJIS for g in graphemes):
         return None
 
-    # Decode %xx escapes in case node name came from URL fragment
-    name_for_match = unquote(original_name)
-
-    cc = None
-    flag = None
-
-    # 🚨 If option is set, only do GeoIP
+    # ----------If GEOIP-ONLY Mode Is Set----------
     if USE_ONLY_GEOIP:
+        
+        # 1️⃣ GeoIP first
         ip = resolve_ip(host) or host
         cc_lower, cc_upper = geo_ip(ip)
         if cc_upper and cc_upper != "UN":
             cc = cc_upper
             flag = country_to_flag(cc)
-            country_counter[cc] += 1
-            index = country_counter[cc]
-            if ipv6_tag:
-                p["name"] = f"{flag} {cc}-{index} [ipv6] | 8EB"
-            else:
-                p["name"] = f"{flag} {cc}-{index} | 8EB"
-            return p
-        return None
-
-    # 1️⃣ Chinese mapping (substring match)
-    for cn_name, code in CN_TO_CC.items():
-        if cn_name and cn_name in name_for_match:
-            cc = code.upper()
-            flag = country_to_flag(cc)
-            country_counter[cc] += 1
-            index = country_counter[cc]
-            # Only update the name field
-            if ipv6_tag:
-                p["name"] = f"{flag} {cc}-{index} [ipv6] | 8EB"
-            else:
-                p["name"] = f"{flag} {cc}-{index} | 8EB"
-            return p
             
-    # 2️⃣ Emoji flag in name
-    flag_match = re.search(r'[\U0001F1E6-\U0001F1FF]{2}', name_for_match)
-    if flag_match:
-        flag = flag_match.group(0)
-        cc = flag_to_country_code(flag)
-        if cc:
-            cc = cc.upper()
-            country_counter[cc] += 1
-            index = country_counter[cc]
-            if ipv6_tag:
-                p["name"] = f"{flag} {cc}-{index} [ipv6] | 8EB"
-            else:
-                p["name"] = f"{flag} {cc}-{index} | 8EB"
-            return p
+        # 2️⃣ Chinese mapping (cn_name)
+        name_for_match = unquote(original_name)
+        cc = flag =None
+        for cn_name, code in CN_TO_CC.items():
+            if cn_name and cn_name in name_for_match:
+                cc = code.upper()
+                flag = country_to_flag(cc)
+                break
 
-    # 3️⃣ Two-letter ISO code (UPPER CASE)
-    iso_match = re.search(r'\b([A-Z]{2})\b', original_name)
-    if iso_match:
-        cc = iso_match.group(1).upper()
-        flag = country_to_flag(cc)
-        country_counter[cc] += 1
-        index = country_counter[cc]
-        if ipv6_tag:
-            p["name"] = f"{flag} {cc}-{index} [ipv6] | 8EB"
-        else:
-            p["name"] = f"{flag} {cc}-{index} | 8EB"
-        return p
+        # 3️⃣ Emoji flag in name (flag_match)
+        if not cc:
+            flag_match = re.search(r'[\U0001F1E6-\U0001F1FF]{2}', name_for_match)
+            if flag_match:
+                flag = flag_match.group(0)
+                cc = flag_to_country_code(flag)
+                if cc:
+                    cc = cc.upper()
 
-    # 4️⃣ GeoIP fallback
-    ip = resolve_ip(host) or host
-    cc_lower, cc_upper = geo_ip(ip)
-    if cc_upper and cc_upper != "UN":
-        cc = cc_upper
-        flag = country_to_flag(cc)
-        country_counter[cc] += 1
-        index = country_counter[cc]
-        if ipv6_tag:
-            p["name"] = f"{flag} {cc}-{index} [ipv6] | 8EB"
-        else:
-            p["name"] = f"{flag} {cc}-{index} | 8EB"
-        return p
+        # 4️⃣ Two-letter ISO code (iso_match))
+        if not cc:
+            iso_match = re.search(r'\b([A-Z]{2})\b', original_name)
+            if iso_match:
+                cc = iso_match.group(1).upper()
+                flag = country_to_flag(cc)
 
-    # 5️⃣ Skip node entirely if no assignment possible
-    return None
+        if not cc:
+            return None    # ❌ truly unnameable → skip
+
+    # ----------If GEOIP-ONLY Mode Is Not Set----------
+    else:
+        # 1️⃣ Chinese mapping (cn_name)
+        name_for_match = unquote(original_name)
+        cc = flag =None
+        for cn_name, code in CN_TO_CC.items():
+            if cn_name and cn_name in name_for_match:
+                cc = code.upper()
+                flag = country_to_flag(cc)
+                break
+    
+        # 2️⃣ Emoji flag in name (flag_match)
+        if not cc:
+            flag_match = re.search(r'[\U0001F1E6-\U0001F1FF]{2}', name_for_match)
+            if flag_match:
+                flag = flag_match.group(0)
+                cc = flag_to_country_code(flag)
+                if cc:
+                    cc = cc.upper()
+                
+        # 3️⃣ Two-letter ISO code (iso_match))
+        if not cc:
+            iso_match = re.search(r'\b([A-Z]{2})\b', original_name)
+            if iso_match:
+                cc = iso_match.group(1).upper()
+                flag = country_to_flag(cc)
+            
+        # 4️⃣ GeoIP fallback
+        if not cc:
+            ip = resolve_ip(host) or host
+            cc_lower, cc_upper = geo_ip(ip)
+            if cc_upper and cc_upper != "UN":
+                cc = cc_upper
+                flag = country_to_flag(cc)
+
+        if not cc:
+            return None    # ❌ truly unnameable → skip
+
+    country_counter[cc] += 1
+    index = country_counter[cc]
+    p["name"] = build_name(flag, cc, index, ipv6_tag)
+    return p
 
 # ---------------- Load proxies ----------------
 def load_proxies(url, retries=3):
@@ -690,7 +697,18 @@ def main():
         else:
             filtered_nodes = all_nodes
             country_counter = defaultdict(int)
-            print(f"[latency] 🚀 Latency filtering 🚫, {len(filtered_nodes)} nodes remain")
+            print(f"[latency] 🚀 Latency filtering disabled, {len(filtered_nodes)} nodes remain")
+
+        # ---------------- Duplicate filter ----------------
+        if USE_DUPLICATE_FILTER:
+            print("[dedup] 🧹 Removing duplicate nodes (server + port + uuid/password)")
+            before = len(filtered_nodes)
+            filtered_nodes, removed = deduplicate_nodes(filtered_nodes)
+            after = len(filtered_nodes)
+            print(f"[dedup] ®️emoved {removed} duplicate nodes")
+            print(f"[dedup] 🖨️ Total {after} nodes remain after deduplication")
+        else:
+            print("[dedup] 🈁 Duplicate filtering disabled")
 
         # ---------------- Renamed nodes ----------------
         renamed_nodes = []
