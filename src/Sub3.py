@@ -590,19 +590,18 @@ def rename_node(p, country_counter, CN_TO_CC):
                 if cc:
                     cc = cc.upper()
     
-        # 4️⃣ Two-letter ISO code (unit-safe)
+        # 4️⃣ Two-letter ISO code (context-aware, unit-safe)
         if not cc:
-            iso_match = re.search(r'\b([A-Z]{2})\b', original_name)
-            if iso_match:
-                iso = iso_match.group(1)
-        
-                # text before the ISO token
-                before = original_name[:iso_match.start()]
+            for m in re.finditer(r'\b([A-Z]{2})\b', original_name):
+                iso = m.group(1)
         
                 # Reject units like "100GB" or "100 GB"
-                if not re.search(r'\d\s*$', before):
-                    cc = iso
-                    flag = country_to_flag(cc)
+                before = original_name[:m.start()]
+                if re.search(r'\d\s*$', before):
+                    continue  # looks like a unit → skip
+        
+                cc = iso
+                flag = country_to_flag(cc)
     
         if not cc:
             return None    # ❌ truly unnameable → skip
@@ -630,17 +629,16 @@ def rename_node(p, country_counter, CN_TO_CC):
     
         # 3️⃣ Two-letter ISO code (unit-safe)
         if not cc:
-            iso_match = re.search(r'\b([A-Z]{2})\b', original_name)
-            if iso_match:
-                iso = iso_match.group(1)
-        
-                # text before the ISO token
-                before = original_name[:iso_match.start()]
+            for m in re.finditer(r'\b([A-Z]{2})\b', original_name):
+                iso = m.group(1)
         
                 # Reject units like "100GB" or "100 GB"
-                if not re.search(r'\d\s*$', before):
-                    cc = iso
-                    flag = country_to_flag(cc)
+                before = original_name[:m.start()]
+                if re.search(r'\d\s*$', before):
+                    continue  # looks like a unit → skip
+        
+                cc = iso
+                flag = country_to_flag(cc)
     
         # 4️⃣ GeoIP fallback
         if not cc:
