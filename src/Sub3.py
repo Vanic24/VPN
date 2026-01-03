@@ -590,18 +590,16 @@ def rename_node(p, country_counter, CN_TO_CC):
                 if cc:
                     cc = cc.upper()
     
-        # 4️⃣ Two-letter ISO code (context-aware)
+        # 4️⃣ Two-letter ISO code (context-aware, unit-safe)
         if not cc:
             for m in re.finditer(r'\b([A-Z]{2})\b', original_name):
                 iso = m.group(1)
-    
-                # reject units like "9387.65 GB"
-                start = m.start()
-                end = m.end()
-                if (start > 0 and original_name[start - 1].isdigit()) or \
-                   (end < len(original_name) and original_name[end].isdigit()):
-                    continue
-    
+        
+                # Reject units like "100GB" or "100 GB"
+                before = original_name[:m.start()]
+                if re.search(r'\d\s*$', before):
+                    continue  # looks like a unit → skip
+        
                 cc = iso
                 flag = country_to_flag(cc)
                 break
@@ -630,18 +628,16 @@ def rename_node(p, country_counter, CN_TO_CC):
                 if cc:
                     cc = cc.upper()
     
-        # 3️⃣ Two-letter ISO code (context-aware)
+        # 3️⃣ Two-letter ISO code (context-aware, unit-safe)
         if not cc:
             for m in re.finditer(r'\b([A-Z]{2})\b', original_name):
                 iso = m.group(1)
-    
-                # reject units like "9387.65 GB"
-                start = m.start()
-                end = m.end()
-                if (start > 0 and original_name[start - 1].isdigit()) or \
-                   (end < len(original_name) and original_name[end].isdigit()):
-                    continue
-    
+        
+                # Reject units like "100GB" or "100 GB"
+                before = original_name[:m.start()]
+                if re.search(r'\d\s*$', before):
+                    continue  # looks like a unit → skip
+        
                 cc = iso
                 flag = country_to_flag(cc)
                 break
