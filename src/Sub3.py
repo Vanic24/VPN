@@ -90,7 +90,7 @@ def deduplicate_nodes(nodes):
 
 def geo_ip(ip):
     try:
-        r = requests.get(f"https://ipinfo.io/{ip}/json", timeout=5)
+        r = requests.get(f"http://ip-api.com/json/{ip}", timeout=5)
         if r.status_code == 200:
             data = r.json()
             cc = data.get("country")
