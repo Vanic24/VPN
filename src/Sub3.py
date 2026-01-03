@@ -594,16 +594,17 @@ def rename_node(p, country_counter, CN_TO_CC):
         if not cc:
             iso_match = re.search(r'\b([A-Z]{2})\b', original_name)
             if iso_match:
-                cc = iso_match.group(1)
+                iso = iso_match.group(1)
+        
+                # text before the ISO token
+                before = original_name[:iso_match.start()]
         
                 # Reject units like "100GB" or "100 GB"
-                before = original_name[:iso_match.start()]
-                if re.search(r'\d\s*$', before):
-                    continue  # looks like a unit → skip
+                if not re.search(r'\d\s*$', before):
+                    cc = iso
+                    flag = country_to_flag(cc)
         
-                cc = iso_match
-                flag = country_to_flag(cc)
-                break
+                        break
     
         if not cc:
             return None  # ❌ truly unnameable → skip
