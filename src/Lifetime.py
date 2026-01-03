@@ -88,17 +88,31 @@ def deduplicate_nodes(nodes):
 
     return unique_nodes, removed
 
-def geo_ip(ip):
+def geo_ip(host):
     try:
+        # If host is a domain name, resolve it to an IP address (IPv4 by default)
+        ip = socket.gethostbyname(host)
+        
+        # Query the geo-IP service with the resolved IP
         r = requests.get(f"http://ip-api.com/json/{ip}", timeout=5)
+        
         if r.status_code == 200:
             data = r.json()
-            cc = data.get("country")
+            if data.get("status") == "fail":
+                return "unknown", "UN"  # Fallback if the API fails
+            
+            # Handling both IPv4 and IPv6
+            cc = data.get("countryCode")
             if cc:
                 return cc.lower(), cc.upper()
-    except:
+            
+            # If countryCode is missing or there is an issue, fallback
+            return "unknown", "UN"
+    except (requests.RequestException, socket.gaierror) as e:
+        print(f"Error resolving IP: {e}")
         pass
-    return "unknown", "UN"
+    
+    return "unknown", "UN"  # Default fallback
     
 def country_to_flag(cc):
     """Convert ISO 3166 two-letter code to emoji flag"""
