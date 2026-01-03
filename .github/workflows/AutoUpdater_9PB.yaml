@@ -45,7 +45,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests pyyaml babel pycountry
 
-      - name: Fail if SUB_9PB is missing
+      - name: Abort if SUB_9PB is missing
         run: |
           if [ -z "${{ secrets.SUB_9PB }}" ]; then
             echo "❌ ERROR: SUB_9PB secret is not set in repository secrets."
@@ -56,15 +56,6 @@ jobs:
         run: |
           echo "${{ secrets.SUB_9PB }}" > SUB_9PB
 
-      - name: Set latency filter environment for scheduled/manual runs
-        run: |
-          # If manual run, use workflow inputs; if scheduled, default to false
-          echo "LATENCY_FILTER=${{ github.event.inputs.use_latency_filter || 'false' }}" >> $GITHUB_ENV
-          echo "LATENCY_THRESHOLD=${{ github.event.inputs.latency_threshold || '100' }}" >> $GITHUB_ENV
-          
-          # GeoIP-only filter (default true if scheduled)
-          echo "USE_ONLY_GEOIP=${{ github.event.inputs.use_only_geoip || 'false' }}" >> $GITHUB_ENV
-          
       - name: Run Python script
         run: python src/9PB.py
         env:
