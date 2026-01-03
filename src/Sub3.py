@@ -572,13 +572,13 @@ def rename_node(p, country_counter, CN_TO_CC):
             
         # 2️⃣ Chinese mapping (cn_name)
         if not cc:
-        name_for_match = unquote(original_name)
-        cc = flag =None
-        for cn_name, code in CN_TO_CC.items():
-            if cn_name and cn_name in name_for_match:
-                cc = code.upper()
-                flag = country_to_flag(cc)
-                break
+            name_for_match = unquote(original_name)
+            cc = flag =None
+            for cn_name, code in CN_TO_CC.items():
+                if cn_name and cn_name in name_for_match:
+                    cc = code.upper()
+                    flag = country_to_flag(cc)
+                    break
 
         # 3️⃣ Emoji flag in name (flag_match)
         if not cc:
