@@ -602,7 +602,7 @@ def rename_node(p, country_counter, CN_TO_CC):
                 # Reject units like "100GB" or "100 GB"
                 if not re.search(r'\d\s*$', before):
                     cc = iso
-                    flag = country_to_flag(cc
+                    flag = country_to_flag(cc)
     
         if not cc:
             return None    # ❌ truly unnameable → skip
