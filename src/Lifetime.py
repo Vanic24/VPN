@@ -88,42 +88,18 @@ def deduplicate_nodes(nodes):
 
     return unique_nodes, removed
 
-import socket
-import requests
-
-def geo_ip(host):
+def geo_ip(ip):
     try:
-        # Force IPv4 resolution using socket.getaddrinfo()
-        addr_info = socket.getaddrinfo(host, None, socket.AF_INET)
-        ip = addr_info[0][4][0]  # Get the IPv4 address
-        
-        # Query the geo-IP service with the resolved IPv4 address
-        r = requests.get(f"http://ip-api.com/json/{ip}", timeout=5)
-        
+        r = requests.get(f"https://ipinfo.io/{ip}/json", timeout=5)
         if r.status_code == 200:
             data = r.json()
-            if data.get("status") == "fail":
-                return "unknown", "UN"  # Fallback if the API fails
-            
-            cc = data.get("countryCode")
+            cc = data.get("country")
             if cc:
                 return cc.lower(), cc.upper()
-            
-            return "unknown", "UN"  # Default fallback if no country code found
-    except (requests.RequestException, socket.gaierror) as e:
-        print(f"Error resolving IP: {e}")
+    except:
         pass
-    
-    return "unknown", "UN"  # Default fallback
+    return "unknown", "UN"
 
-# Example usage
-host = "v1.dabache.top"
-cc_lower, cc_upper = geo_ip(host)
-
-print(cc_lower)  # Example output: "ca"
-print(cc_upper)  # Example output: "CA"
-
-    
 def country_to_flag(cc):
     """Convert ISO 3166 two-letter code to emoji flag"""
     if not cc or len(cc) != 2:
