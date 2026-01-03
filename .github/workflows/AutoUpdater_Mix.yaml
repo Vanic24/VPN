@@ -57,7 +57,7 @@ jobs:
           echo "${{ secrets.SUB_MIX }}" > SUB_MIX
           
       - name: Run Python script
-        run: python src/MIX.py
+        run: python src/Mix.py
         env:
           CN_TO_CC: ${{ secrets.CN_TO_CC }}
           LATENCY_FILTER: ${{ inputs.use_latency_filter || 'false' }}
@@ -76,13 +76,13 @@ jobs:
           TIMESTAMP=$(date -u -d "@$local_seconds" +"%d.%m.%Y %H:%M:%S")
           echo "TIMESTAMP=$TIMESTAMP" >> $GITHUB_ENV
 
-      - name: Commit and Push MIX
+      - name: Commit and Push Mix
         shell: bash
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
       
-          git add MIX
+          git add Mix
       
           if git diff --cached --quiet; then
             echo "No changes to commit"
@@ -110,15 +110,15 @@ jobs:
             fi
           fi
 
-      - name: Copy MIX with .yaml extension
-        run: cp MIX MIX.yaml
+      - name: Copy Mix with .yaml extension
+        run: cp MIX Mix.yaml
 
-      - name: Upload MIX artifact
+      - name: Upload Mix artifact
         id: upload_artifact
         uses: actions/upload-artifact@v4
         with:
-          name: MIX
-          path: MIX.yaml
+          name: Mix
+          path: Mix.yaml
           retention-days: 30
       
       - name: Cleanup old artifacts (keep latest 30)
