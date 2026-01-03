@@ -573,7 +573,7 @@ def rename_node(p, country_counter, CN_TO_CC):
         # Prepare name once
         name_for_match = unquote(original_name)
     
-        # 2️⃣ Chinese mapping (cn_name)
+        # 2️⃣ Chinese mapping
         if not cc:
             for cn_name, code in CN_TO_CC.items():
                 if cn_name and cn_name in name_for_match:
@@ -581,7 +581,7 @@ def rename_node(p, country_counter, CN_TO_CC):
                     flag = country_to_flag(cc)
                     break
     
-        # 3️⃣ Emoji flag in name (flag_match)
+        # 3️⃣ Emoji flag
         if not cc:
             flag_match = re.search(r'[\U0001F1E6-\U0001F1FF]{2}', name_for_match)
             if flag_match:
@@ -590,24 +590,20 @@ def rename_node(p, country_counter, CN_TO_CC):
                 if cc:
                     cc = cc.upper()
     
-        # 4️⃣ Two-letter ISO code (context-aware, unit-safe)
+        # 4️⃣ Two-letter ISO code (unit-safe)
         if not cc:
             iso_match = re.search(r'\b([A-Z]{2})\b', original_name)
             if iso_match:
                 iso = iso_match.group(1)
-        
-                # text before the ISO token
                 before = original_name[:iso_match.start()]
-        
+    
                 # Reject units like "100GB" or "100 GB"
                 if not re.search(r'\d\s*$', before):
                     cc = iso
                     flag = country_to_flag(cc)
-        
-                        break
     
         if not cc:
-            return None  # ❌ truly unnameable → skip
+            return None    # ❌ truly unnameable → skip
     
     # ----------If GEOIP-ONLY Mode Is Not Set----------
     else:
@@ -630,19 +626,17 @@ def rename_node(p, country_counter, CN_TO_CC):
                 if cc:
                     cc = cc.upper()
     
-        # 3️⃣ Two-letter ISO code (context-aware, unit-safe)
+        # 3️⃣ Two-letter ISO code (unit-safe)
         if not cc:
-            for m in re.finditer(r'\b([A-Z]{2})\b', original_name):
-                iso = m.group(1)
-        
+            iso_match = re.search(r'\b([A-Z]{2})\b', original_name)
+            if iso_match:
+                iso = iso_match.group(1)
+                before = original_name[:iso_match.start()]
+    
                 # Reject units like "100GB" or "100 GB"
-                before = original_name[:m.start()]
-                if re.search(r'\d\s*$', before):
-                    continue  # looks like a unit → skip
-        
-                cc = iso
-                flag = country_to_flag(cc)
-                break
+                if not re.search(r'\d\s*$', before):
+                    cc = iso
+                    flag = country_to_flag(cc)
     
         # 4️⃣ GeoIP fallback
         if not cc:
@@ -653,13 +647,13 @@ def rename_node(p, country_counter, CN_TO_CC):
                 flag = country_to_flag(cc)
     
         if not cc:
-            return None  # ❌ truly unnameable → skip
-
-    # ----------Final naming----------
-    country_counter[cc] += 1
-    index = country_counter[cc]
-    p["name"] = build_name(flag, cc, index, ipv6_tag)
-    return p
+            return None    # ❌ truly unnameable → skip
+    
+        # ----------Final naming----------
+        country_counter[cc] += 1
+        index = country_counter[cc]
+        p["name"] = build_name(flag, cc, index, ipv6_tag)
+        return p
 
 # ---------------- Load proxies ----------------
 def load_proxies(url, retries=10):
