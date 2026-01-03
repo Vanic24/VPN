@@ -568,7 +568,7 @@ def rename_node(p, country_counter, CN_TO_CC):
             cc = cc_upper
             flag = country_to_flag(cc)
         else:
-        cc = None  # allow fallback
+            cc = None  # allow fallback
             
         # 2️⃣ Chinese mapping (cn_name)
         if not cc:
