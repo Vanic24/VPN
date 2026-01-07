@@ -545,8 +545,9 @@ def rename_node(p, country_counter, CN_TO_CC):
 
     # Detect ipv6 tag
     ipv6_tag = False
-    if re.search(r'[\(\[\{]?\s*ipv6\s*[\)\]\}]?', original_name, flags=re.IGNORECASE):
+    if re.search(r'[\(\[\{]?\s*(ipv6|ip6|v6)\s*[\)\]\}]?', original_name, flags=re.IGNORECASE):
         ipv6_tag = True
+
 
     # Define forbidden emojis (any emoji you want to filter out)
     FORBIDDEN_EMOJIS = {"🔒", "❌", "⚠️", "🚀", "🎁"}
