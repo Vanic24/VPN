@@ -2,7 +2,7 @@ name: Update VPN Subscription (SUB_Mix)
 
 on:
   schedule:
-    - cron: '0 */3 * * *' # every 3 hours
+    - cron: '0 */7 * * *' # every 7 hours
     
   # Manual trigger with inputs
   workflow_dispatch:
@@ -63,7 +63,7 @@ jobs:
           LATENCY_FILTER: ${{ inputs.use_latency_filter || 'false' }}
           LATENCY_THRESHOLD: ${{ inputs.latency_threshold || '100' }}
           DUPLICATE_FILTER: ${{ inputs.use_duplicate_filter || 'false' }}
-          USE_ONLY_GEOIP: ${{ inputs.use_only_geoip || 'true' }}
+          USE_ONLY_GEOIP: ${{ inputs.use_only_geoip || 'false' }}
 
       - name: Generate GMT+6:30 timestamp
         id: timestamp
