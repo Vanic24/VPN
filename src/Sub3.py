@@ -532,6 +532,7 @@ def parse_node_line(line):
 
 # ---------------- Rename node ----------------
 def rename_node(p, country_counter, CN_TO_CC):
+    global geoip_primary_fail, name_primary_fail
     """
     Assign a standardized name to the node without changing any other fields.
     Skip nodes with forbidden emojis or empty names.
@@ -609,6 +610,10 @@ def rename_node(p, country_counter, CN_TO_CC):
         if not cc:
             return None    # ❌ truly unnameable → skip
 
+        # 📊 GeoIP fallback success count
+        if geoip_failed:
+            geoip_primary_fail += 1
+
         # ----------Final naming----------
         country_counter[cc] += 1
         index = country_counter[cc]
@@ -662,6 +667,10 @@ def rename_node(p, country_counter, CN_TO_CC):
     
         if not cc:
             return None    # ❌ truly unnameable → skip
+
+        # 📊 Name-based fallback success count
+        if name_failed:
+            name_primary_fail += 1
     
         # ----------Final naming----------
         country_counter[cc] += 1
@@ -790,6 +799,15 @@ def main():
         if skipped_nodes > 0:
             print(f"[rename] ⚠️ Skipped {skipped_nodes} nodes that could not be assigned a name or include forbidden emoji")
         print(f"[rename] 🖨️ Final {len(renamed_nodes)} nodes remain after name correction")
+
+        if USE_ONLY_GEOIP:
+            print(
+                f"[rename] 🌍 GeoIP-only mode: Failed to rename {geoip_primary_fail} nodes and fallback to Name-based detection"
+            )
+        else:
+            print(
+                f"[rename] 🏷️ Name-based mode: Failed to rename {name_primary_fail} nodes and fallback to GeoIP detection"
+            )
 
         if not renamed_nodes:
             print("[FATAL] 🅾️ valid nodes after processing. Abort upload.")
