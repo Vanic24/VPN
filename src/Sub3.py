@@ -804,10 +804,6 @@ def main():
             else:
                 skipped_nodes += 1
 
-        if skipped_nodes > 0:
-            print(f"[rename] ⚠️ Skipped {skipped_nodes} nodes that could not be assigned a name or include forbidden emoji")
-        print(f"[rename] 🖨️ Final {len(renamed_nodes)} nodes remain after name correction")
-
         if USE_ONLY_GEOIP:
             print(
                 f"[rename] 🌍 GeoIP-only mode: Failed to rename {geoip_primary_fail} nodes and fallback to Name-based detection"
@@ -816,6 +812,10 @@ def main():
             print(
                 f"[rename] 🏷️ Name-based mode: Failed to rename {name_primary_fail} nodes and fallback to GeoIP detection"
             )
+
+        if skipped_nodes > 0:
+            print(f"[rename] ⚠️ Skipped {skipped_nodes} nodes that could not be assigned a name or include forbidden emoji")
+        print(f"[rename] 🖨️ Final {len(renamed_nodes)} nodes remain after name correction")
 
         if not renamed_nodes:
             print("[FATAL] 🅾️ valid nodes after processing. Abort upload.")
