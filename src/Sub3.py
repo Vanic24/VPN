@@ -608,6 +608,12 @@ def rename_node(p, country_counter, CN_TO_CC):
     
         if not cc:
             return None    # ❌ truly unnameable → skip
+
+        # ----------Final naming----------
+        country_counter[cc] += 1
+        index = country_counter[cc]
+        p["name"] = build_name(flag, cc, index, ipv6_tag)
+        return p
     
     # ----------If GEOIP-ONLY Mode Is Not Set----------
     else:
