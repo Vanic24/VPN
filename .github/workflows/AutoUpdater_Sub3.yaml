@@ -22,7 +22,7 @@ on:
       use_only_geoip:
         description: "Use only GeoIP for naming? (true/false)"
         required: false
-        default: "true"
+        default: "false"
 jobs:
   update:
     runs-on: ubuntu-latest
@@ -45,7 +45,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests pyyaml babel pycountry
 
-      - name: Fail if SUB_SUB3 is missing
+      - name: Abort if SUB_SUB3 is missing
         run: |
           if [ -z "${{ secrets.SUB_SUB3 }}" ]; then
             echo "❌ ERROR: SUB_SUB3 secret is not set in repository secrets."
@@ -63,7 +63,7 @@ jobs:
           LATENCY_FILTER: ${{ inputs.use_latency_filter || 'false' }}
           LATENCY_THRESHOLD: ${{ inputs.latency_threshold || '100' }}
           DUPLICATE_FILTER: ${{ inputs.use_duplicate_filter || 'false' }}
-          USE_ONLY_GEOIP: ${{ inputs.use_only_geoip || 'true' }}
+          USE_ONLY_GEOIP: ${{ inputs.use_only_geoip || 'false' }}
 
       - name: Generate GMT+6:30 timestamp
         id: timestamp
