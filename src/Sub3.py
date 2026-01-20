@@ -678,6 +678,12 @@ def rename_node(p, country_counter, CN_TO_CC):
         p["name"] = build_name(flag, cc, index, ipv6_tag)
         return p
 
+# ----------------------------
+# Global counters for rename fallback
+# ----------------------------
+geoip_primary_fail = 0   # counts nodes where GeoIP mode failed but fallback succeeded
+name_primary_fail = 0    # counts nodes where name-based mode failed but fallback succeeded
+
 # ---------------- Load proxies ----------------
 def load_proxies(url, retries=10):
     attempt = 0
