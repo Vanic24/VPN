@@ -530,8 +530,15 @@ def parse_node_line(line):
             return node
     return None
 
+# ----------------------------
+# Global counters for rename fallback
+# ----------------------------
+geoip_primary_fail = 0   # counts nodes where GeoIP mode failed but fallback succeeded
+name_primary_fail = 0    # counts nodes where name-based mode failed but fallback succeeded
+
 # ---------------- Rename node ----------------
 def rename_node(p, country_counter, CN_TO_CC):
+    global geoip_primary_fail, name_primary_fail
     """
     Assign a standardized name to the node without changing any other fields.
     Skip nodes with forbidden emojis or empty names.
@@ -558,21 +565,27 @@ def rename_node(p, country_counter, CN_TO_CC):
     if any(g in FORBIDDEN_EMOJIS for g in graphemes):
         return None
 
+    # Initialize fallback flags for counters
+    geoip_failed = False
+    name_failed = False
+
     # ----------If GEOIP-ONLY Mode Is Set----------
     if USE_ONLY_GEOIP:
-    
+
         # 1️⃣ GeoIP first
         ip = resolve_ip(host) or host
         cc = flag = None
+
         cc_lower, cc_upper = geo_ip(ip)
-    
         if cc_upper and cc_upper != "UN":
             cc = cc_upper
             flag = country_to_flag(cc)
-    
+        else:
+            geoip_failed = True
+
         # Prepare name once
         name_for_match = unquote(original_name)
-    
+
         # 2️⃣ Chinese mapping
         if not cc:
             for cn_name, code in CN_TO_CC.items():
@@ -580,7 +593,7 @@ def rename_node(p, country_counter, CN_TO_CC):
                     cc = code.upper()
                     flag = country_to_flag(cc)
                     break
-    
+
         # 3️⃣ Emoji flag
         if not cc:
             flag_match = re.search(r'[\U0001F1E6-\U0001F1FF]{2}', name_for_match)
@@ -589,38 +602,44 @@ def rename_node(p, country_counter, CN_TO_CC):
                 cc = flag_to_country_code(flag)
                 if cc:
                     cc = cc.upper()
-    
+
         # 4️⃣ Two-letter ISO code (context-aware, unit-safe)
         if not cc:
             iso_iter = re.finditer(r'\b([A-Z]{2})\b', original_name)
-        
             for iso_match in iso_iter:
                 iso = iso_match.group(1)
-        
                 before = original_name[:iso_match.start()]
-        
-                # Reject units like "100GB" or "100 GB"
                 if re.search(r'\d\s*$', before):
                     continue
-        
                 cc = iso
                 flag = country_to_flag(cc)
-    
+                break
+
         if not cc:
             return None    # ❌ truly unnameable → skip
-    
+
+        # 📊 GeoIP fallback success count
+        if geoip_failed:
+            geoip_primary_fail += 1
+
+        # ----------Final naming----------
+        country_counter[cc] += 1
+        index = country_counter[cc]
+        p["name"] = build_name(flag, cc, index, ipv6_tag)
+        return p
+
     # ----------If GEOIP-ONLY Mode Is Not Set----------
     else:
         name_for_match = unquote(original_name)
         cc = flag = None
-    
+
         # 1️⃣ Chinese mapping
         for cn_name, code in CN_TO_CC.items():
             if cn_name and cn_name in name_for_match:
                 cc = code.upper()
                 flag = country_to_flag(cc)
                 break
-    
+
         # 2️⃣ Emoji flag
         if not cc:
             flag_match = re.search(r'[\U0001F1E6-\U0001F1FF]{2}', name_for_match)
@@ -629,23 +648,23 @@ def rename_node(p, country_counter, CN_TO_CC):
                 cc = flag_to_country_code(flag)
                 if cc:
                     cc = cc.upper()
-    
+
         # 3️⃣ Two-letter ISO code (unit-safe)
         if not cc:
             iso_iter = re.finditer(r'\b([A-Z]{2})\b', original_name)
-        
             for iso_match in iso_iter:
                 iso = iso_match.group(1)
-        
                 before = original_name[:iso_match.start()]
-        
-                # Reject units like "100GB" or "100 GB"
                 if re.search(r'\d\s*$', before):
                     continue
-        
                 cc = iso
                 flag = country_to_flag(cc)
-    
+                break
+
+        # Mark name-based failure BEFORE GeoIP
+        if not cc:
+            name_failed = True
+
         # 4️⃣ GeoIP fallback
         if not cc:
             ip = resolve_ip(host) or host
@@ -653,15 +672,20 @@ def rename_node(p, country_counter, CN_TO_CC):
             if cc_upper and cc_upper != "UN":
                 cc = cc_upper
                 flag = country_to_flag(cc)
-    
+
         if not cc:
             return None    # ❌ truly unnameable → skip
-    
+
+        # 📊 Name-based fallback success count
+        if name_failed:
+            name_primary_fail += 1
+
         # ----------Final naming----------
         country_counter[cc] += 1
         index = country_counter[cc]
         p["name"] = build_name(flag, cc, index, ipv6_tag)
         return p
+
 # ---------------- Load proxies ----------------
 def load_proxies(url, retries=10):
     attempt = 0
@@ -779,6 +803,15 @@ def main():
                 renamed_nodes.append(res)
             else:
                 skipped_nodes += 1
+
+        if USE_ONLY_GEOIP:
+            print(
+                f"[rename] 🌍 GeoIP-only mode: Failed to rename {geoip_primary_fail} nodes and fallback to Name-based detection"
+            )
+        else:
+            print(
+                f"[rename] 🏷️ Name-based mode: Failed to rename {name_primary_fail} nodes and fallback to GeoIP detection"
+            )
 
         if skipped_nodes > 0:
             print(f"[rename] ⚠️ Skipped {skipped_nodes} nodes that could not be assigned a name or include forbidden emoji")
