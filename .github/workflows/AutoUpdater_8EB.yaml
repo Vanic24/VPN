@@ -121,7 +121,7 @@ jobs:
           path: 8EB.yaml
           retention-days: 30
       
-      - name: Cleanup old artifacts (keep latest 60)
+      - name: Cleanup old artifacts (keep latest 10)
         if: success() && steps.upload_artifact.outcome == 'success'
         uses: actions/github-script@v8
         with:
@@ -136,7 +136,7 @@ jobs:
               .filter(a => a.name.startsWith("8EB"))
               .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
             
-            const toDelete = sorted.slice(60);
+            const toDelete = sorted.slice(10);
             
             for (const artifact of toDelete) {
               console.log(`Deleting artifact: ${artifact.name} (${artifact.id})`);
