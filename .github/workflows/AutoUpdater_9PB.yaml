@@ -126,24 +126,22 @@ jobs:
           retention-days: 30
       
       - name: Cleanup old artifacts (keep latest 60)
-        if: success() && steps.upload_artifact.outcome == 'success'
         uses: actions/github-script@v8
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const ARTIFACT_PREFIX = "9PB";
+            const PREFIX = "9PB";
             const MAX_KEEP = 60;
-            const FETCH_LIMIT = MAX_KEEP + 40; // small buffer
       
             let page = 1;
-            let matchedArtifacts = [];
+            let matched = [];
       
             while (true) {
               const response = await github.rest.actions.listArtifactsForRepo({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 per_page: 100,
-                page: page
+                page
               });
       
               const artifacts = response.data.artifacts;
@@ -151,44 +149,37 @@ jobs:
               if (artifacts.length === 0) break;
       
               const filtered = artifacts.filter(a =>
-                a.name.startsWith(ARTIFACT_PREFIX) && !a.expired
+                a.name.startsWith(PREFIX) && !a.expired
               );
       
-              matchedArtifacts = matchedArtifacts.concat(filtered);
+              matched = matched.concat(filtered);
       
-              console.log(
-                `Page ${page}: found ${filtered.length}, total matched ${matchedArtifacts.length}`
-              );
-      
-              // Stop early if enough artifacts collected
-              if (matchedArtifacts.length >= FETCH_LIMIT) {
-                console.log("Enough artifacts collected, stopping pagination.");
-                break;
-              }
+              console.log(`Page ${page}: found ${filtered.length}, total ${matched.length}`);
       
               page++;
+      
+              // stop when page contains no matching artifacts
+              if (filtered.length === 0 && matched.length > MAX_KEEP) {
+                console.log("Reached older pages, stopping pagination.");
+                break;
+              }
             }
       
-            console.log(`Total matched active artifacts: ${matchedArtifacts.length}`);
-      
-            const sorted = matchedArtifacts.sort(
-              (a, b) => new Date(b.created_at) - new Date(a.created_at)
+            matched.sort((a, b) =>
+              new Date(b.created_at) - new Date(a.created_at)
             );
       
-            const toDelete = sorted.slice(MAX_KEEP);
+            const toDelete = matched.slice(MAX_KEEP);
       
-            if (toDelete.length === 0) {
-              console.log(`No artifacts to delete. Kept latest ${MAX_KEEP}.`);
-            } else {
-              for (const artifact of toDelete) {
-                console.log(`Deleting: ${artifact.name} (${artifact.id})`);
-                await github.rest.actions.deleteArtifact({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  artifact_id: artifact.id
-                });
-              }
+            console.log(`Total matched: ${matched.length}`);
+            console.log(`Will delete: ${toDelete.length}`);
       
-              console.log(`Deleted ${toDelete.length} artifacts.`);
+            for (const artifact of toDelete) {
+              console.log(`Deleting ${artifact.name} (${artifact.id})`);
+              await github.rest.actions.deleteArtifact({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                artifact_id: artifact.id
+              });
             }
-            
+      
