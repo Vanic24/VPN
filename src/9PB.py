@@ -978,6 +978,7 @@ def load_proxies(url, retries=10):
 
             nodes = []
 
+            # Base64 decode if single line and looks like Base64
             if len(text.splitlines()) == 1 and re.match(r'^[A-Za-z0-9+/=]+$', text):
                 try:
                     decoded = base64.b64decode(text + "=" * (-len(text) % 4)).decode("utf-8")
@@ -986,18 +987,20 @@ def load_proxies(url, retries=10):
                 except Exception as e:
                     print(f"[warn] 😭 Base64 decode failed: {e}", flush=True)
 
+            # Parse as YAML (Clash format)
             if text.startswith("proxies:") or "proxies:" in text:
                 try:
                     data = yaml.safe_load(text)
                     if data and "proxies" in data:
-                        for p in data["proxies"]:
+                        for idx, p in enumerate(data["proxies"], start=1):
                             nodes.append(p)
-                            print(f"[parse] 🔎 YAML node: {p.get('name', '')}", flush=True)
+                            print(f"[parse] 🔎 YAML node: {idx} parsing...")
                     else:
-                        print("[warn] 😭 YAML structure invalid or empty", flush=True)
+                        print(f"[warn] 😭 YAML structure invalid or empty: {url}")
                 except Exception as e:
-                    print(f"[warn] 😭 YAML parsing failed: {e}", flush=True)
+                    print(f"[warn] 😭 YAML parsing failed for {url}: {e}")
             else:
+                # Parse as individual subscription lines (Vmess/Vless/Trojan/etc.)
                 for line in text.splitlines():
                     line = line.strip()
                     if not line:
@@ -1005,12 +1008,12 @@ def load_proxies(url, retries=10):
                     try:
                         node = parse_node_line(line)
                         if node:
-                            print(f"[parsed] 🔎 {json.dumps(node, ensure_ascii=False)}", flush=True)
+                            print(f"[parsed] 🔎 {json.dumps(node, ensure_ascii=False)}")
                             nodes.append(node)
                         else:
-                            print(f"[skip] ⛔ Invalid or unsupported line -> {line[:60]}...", flush=True)
+                            print(f"[skip] ⛔ Invalid or unsupported line -> {line[:60]}...")
                     except Exception as e:
-                        print(f"[warn] 😭 Error parsing line: {e}", flush=True)
+                        print(f"[warn] 😭 Error parsing line: {e}")
 
             return nodes
 
@@ -1018,7 +1021,6 @@ def load_proxies(url, retries=10):
             attempt += 1
             print("[warn] 😭 Failed to fetch from current subscription link", flush=True)
             print(f"[attempt] 🔄️ Try to fetch again (attempt {attempt}/{retries})", flush=True)
-
             if attempt >= retries:
                 print("[abort] 🚫 Max retries reached. Aborting process.", flush=True)
                 exit(1)
