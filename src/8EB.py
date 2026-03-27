@@ -992,9 +992,9 @@ def load_proxies(url, retries=3):
                 try:
                     data = yaml.safe_load(text)
                     if data and "proxies" in data:
-                        for p in data["proxies"]:
+                        for idx, p in enumerate(data["proxies"], start=1):
                             nodes.append(p)
-                            print(f"[parse] 🔎 YAML node: {p.get('name', '')}")
+                            print(f"[parse] 🔎 YAML node: {idx} parsing...")
                     else:
                         print(f"[warn] 😭 YAML structure invalid or empty: {url}")
                 except Exception as e:
