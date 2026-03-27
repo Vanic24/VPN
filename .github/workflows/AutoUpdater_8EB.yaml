@@ -135,10 +135,12 @@ jobs:
               per_page: 100
             });
       
+            // Filter active artifacts only and sort newest first
             const sorted = artifacts.data.artifacts
               .filter(a => a.name.startsWith("8EB") && !a.expired)
               .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
       
+            // Keep latest MAX_KEEP, delete the rest
             const toDelete = sorted.slice(MAX_KEEP);
       
             for (const artifact of toDelete) {
