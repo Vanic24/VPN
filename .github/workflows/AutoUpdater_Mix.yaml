@@ -134,31 +134,49 @@ jobs:
             const ARTIFACT_PREFIX = "MIX";
             const MAX_KEEP = 60;
       
-            const artifacts = await github.rest.actions.listArtifactsForRepo({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              per_page: 100
-            });
+            let allArtifacts = [];
+            let page = 1;
       
-            // Filter active artifacts only and sort newest first
-            const sorted = artifacts.data.artifacts
-              .filter(a => a.name.startsWith(ARTIFACT_PREFIX) && !a.expired)
-              .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+            while (true) {
+              const response = await github.rest.actions.listArtifactsForRepo({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                per_page: 100,
+                page: page
+              });
       
-            // Keep latest MAX_KEEP, delete the rest
+              if (response.data.artifacts.length === 0) break;
+      
+              allArtifacts = allArtifacts.concat(response.data.artifacts);
+              page++;
+            }
+      
+            console.log(`Total artifacts fetched: ${allArtifacts.length}`);
+      
+            const filtered = allArtifacts.filter(a =>
+              a.name.startsWith(ARTIFACT_PREFIX) && !a.expired
+            );
+      
+            console.log(`Matching active artifacts: ${filtered.length}`);
+      
+            const sorted = filtered.sort(
+              (a, b) => new Date(b.created_at) - new Date(a.created_at)
+            );
+      
             const toDelete = sorted.slice(MAX_KEEP);
       
             if (toDelete.length === 0) {
-              console.log(`No artifacts to delete. Kept latest ${MAX_KEEP} artifacts.`);
+              console.log(`No artifacts to delete. Kept latest ${MAX_KEEP}.`);
             } else {
               for (const artifact of toDelete) {
-                console.log(`Deleting artifact: ${artifact.name} (${artifact.id})`);
+                console.log(`Deleting: ${artifact.name} (${artifact.id})`);
                 await github.rest.actions.deleteArtifact({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   artifact_id: artifact.id
                 });
               }
-              console.log(`Cleanup complete. Kept latest ${MAX_KEEP} artifacts.`);
+      
+              console.log(`Deleted ${toDelete.length} artifacts.`);
             }
             
