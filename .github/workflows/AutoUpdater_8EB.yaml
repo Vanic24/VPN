@@ -136,7 +136,7 @@ jobs:
               .filter(a => a.name.startsWith("8EB"))
               .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
             
-            const toDelete = sorted.slice(60);  # (keep latest 60)
+            const toDelete = sorted.slice(60);  // keep latest 60
             
             for (const artifact of toDelete) {
               console.log(`Deleting artifact: ${artifact.name} (${artifact.id})`);
