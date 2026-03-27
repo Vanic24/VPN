@@ -963,7 +963,7 @@ def rename_node(p, country_counter, CN_TO_CC):
         p["name"] = build_name(flag, cc, index, ipv6_tag)
         return p
 
-# ---------------- Load proxies ----------------
+## ---------------- Load proxies ----------------
 def load_proxies(url, retries=10):
     attempt = 0
     while attempt < retries:
@@ -974,7 +974,7 @@ def load_proxies(url, retries=10):
 
             print(f"[fetch] 📥 {len(text.splitlines())} lines fetched from subscription link", flush=True)
             for line in text.splitlines()[:5]:
-                print("       ", line[:80], flush=True)
+                print("       ", line[:30], flush=True)
 
             nodes = []
 
@@ -1011,7 +1011,7 @@ def load_proxies(url, retries=10):
                             print(f"[parsed] 🔎 {json.dumps(node, ensure_ascii=False)}")
                             nodes.append(node)
                         else:
-                            print(f"[skip] ⛔ Invalid or unsupported line -> {line[:60]}...")
+                            print(f"[skip] ⛔ Invalid or unsupported line -> {line[:20]}...")
                     except Exception as e:
                         print(f"[warn] 😭 Error parsing line: {e}")
 
