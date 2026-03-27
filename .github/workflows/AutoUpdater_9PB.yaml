@@ -133,9 +133,10 @@ jobs:
           script: |
             const ARTIFACT_PREFIX = "9PB";
             const MAX_KEEP = 60;
+            const FETCH_LIMIT = MAX_KEEP + 40; // small buffer
       
-            let allArtifacts = [];
             let page = 1;
+            let matchedArtifacts = [];
       
             while (true) {
               const response = await github.rest.actions.listArtifactsForRepo({
@@ -145,21 +146,32 @@ jobs:
                 page: page
               });
       
-              if (response.data.artifacts.length === 0) break;
+              const artifacts = response.data.artifacts;
       
-              allArtifacts = allArtifacts.concat(response.data.artifacts);
+              if (artifacts.length === 0) break;
+      
+              const filtered = artifacts.filter(a =>
+                a.name.startsWith(ARTIFACT_PREFIX) && !a.expired
+              );
+      
+              matchedArtifacts = matchedArtifacts.concat(filtered);
+      
+              console.log(
+                `Page ${page}: found ${filtered.length}, total matched ${matchedArtifacts.length}`
+              );
+      
+              // Stop early if enough artifacts collected
+              if (matchedArtifacts.length >= FETCH_LIMIT) {
+                console.log("Enough artifacts collected, stopping pagination.");
+                break;
+              }
+      
               page++;
             }
       
-            console.log(`Total artifacts fetched: ${allArtifacts.length}`);
+            console.log(`Total matched active artifacts: ${matchedArtifacts.length}`);
       
-            const filtered = allArtifacts.filter(a =>
-              a.name.startsWith(ARTIFACT_PREFIX) && !a.expired
-            );
-      
-            console.log(`Matching active artifacts: ${filtered.length}`);
-      
-            const sorted = filtered.sort(
+            const sorted = matchedArtifacts.sort(
               (a, b) => new Date(b.created_at) - new Date(a.created_at)
             );
       
@@ -179,3 +191,4 @@ jobs:
       
               console.log(`Deleted ${toDelete.length} artifacts.`);
             }
+            
