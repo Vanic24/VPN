@@ -121,23 +121,26 @@ jobs:
           path: 8EB.yaml
           retention-days: 30
       
-      - name: Cleanup old artifacts
+      - name: Cleanup old artifacts (keep latest 60)
         if: success() && steps.upload_artifact.outcome == 'success'
         uses: actions/github-script@v8
         with:
           script: |
+            // Get all artifacts
             const artifacts = await github.rest.actions.listArtifactsForRepo({
               owner: context.repo.owner,
               repo: context.repo.repo,
               per_page: 100
             });
-            
+      
+            // Filter only matched artifacts and sort newest first
             const sorted = artifacts.data.artifacts
-              .filter(a => a.name.startsWith("8EB"))
+              .filter(a => a.name.startsWith("8EB") && !a.expired)
               .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-            
-            const toDelete = sorted.slice(60);  // keep latest 60
-            
+      
+            // Keep latest 60, delete the rest
+            const toDelete = sorted.slice(60);
+      
             for (const artifact of toDelete) {
               console.log(`Deleting artifact: ${artifact.name} (${artifact.id})`);
               await github.rest.actions.deleteArtifact({
@@ -146,3 +149,5 @@ jobs:
                 artifact_id: artifact.id
               });
             }
+      
+            console.log(`Cleanup complete. Kept latest 60 artifacts.`);
