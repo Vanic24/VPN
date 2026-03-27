@@ -964,7 +964,7 @@ def rename_node(p, country_counter, CN_TO_CC):
         return p
 
 # ---------------- Load proxies ----------------
-def load_proxies(url, retries=3):
+def load_proxies(url, retries=10):
     attempt = 0
     while attempt < retries:
         try:
@@ -972,9 +972,9 @@ def load_proxies(url, retries=3):
             r.raise_for_status()
             text = r.text.strip()
 
-            print(f"[fetch] 📥 {len(text.splitlines())} lines fetched from subscription link")
+            print(f"[fetch] 📥 {len(text.splitlines())} lines fetched from subscription link", flush=True)
             for line in text.splitlines()[:5]:
-                print("       ", line[:80])
+                print("       ", line[:30], flush=True)
 
             nodes = []
 
@@ -983,9 +983,9 @@ def load_proxies(url, retries=3):
                 try:
                     decoded = base64.b64decode(text + "=" * (-len(text) % 4)).decode("utf-8")
                     text = decoded
-                    print(f"[decode] 🔓 Base64 decoded -> {len(text.splitlines())} lines")
+                    print(f"[decode] 🔓 Base64 decoded -> {len(text.splitlines())} lines", flush=True)
                 except Exception as e:
-                    print(f"[warn] 😭 Base64 decode failed for {url}: {e}")
+                    print(f"[warn] 😭 Base64 decode failed: {e}", flush=True)
 
             # Parse as YAML (Clash format)
             if text.startswith("proxies:") or "proxies:" in text:
@@ -1011,7 +1011,7 @@ def load_proxies(url, retries=3):
                             print(f"[parsed] 🔎 {json.dumps(node, ensure_ascii=False)}")
                             nodes.append(node)
                         else:
-                            print(f"[skip] ⛔ Invalid or unsupported line -> {line[:60]}...")
+                            print(f"[skip] ⛔ Invalid or unsupported line -> {line[:20]}...")
                     except Exception as e:
                         print(f"[warn] 😭 Error parsing line: {e}")
 
@@ -1019,10 +1019,10 @@ def load_proxies(url, retries=3):
 
         except Exception as e:
             attempt += 1
-            print(f"[warn] 😭 Failed to fetch from current subscription link")
-            print(f"[attempt] 🔄️ Try to fetch again (attempt {attempt}/{retries}) -> {e}")
+            print("[warn] 😭 Failed to fetch from current subscription link", flush=True)
+            print(f"[attempt] 🔄️ Try to fetch again (attempt {attempt}/{retries})", flush=True)
             if attempt >= retries:
-                print("[abort] 🚫 Max retries reached. Aborting process.")
+                print("[abort] 🚫 Max retries reached. Aborting process.", flush=True)
                 exit(1)
 
 # ---------------- Main ----------------
