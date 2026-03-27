@@ -121,13 +121,14 @@ jobs:
           path: 8EB.yaml
           retention-days: 30
       
-      - name: Cleanup old Starlink artifacts (keep latest 60)
+      - name: Cleanup old artifacts (keep latest 30)
         if: success() && steps.upload_artifact.outcome == 'success'
         uses: actions/github-script@v8
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const maxKeep = 60;
+            const MAX_KEEP = 30;
+      
             const artifacts = await github.rest.actions.listArtifactsForRepo({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -135,10 +136,10 @@ jobs:
             });
       
             const sorted = artifacts.data.artifacts
-              .filter(a => a.name.startsWith("8EB-") && !a.expired)
+              .filter(a => a.name.startsWith("8EB") && !a.expired)
               .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
       
-            const toDelete = sorted.slice(maxKeep);
+            const toDelete = sorted.slice(MAX_KEEP);
       
             for (const artifact of toDelete) {
               console.log(`Deleting artifact: ${artifact.name} (${artifact.id})`);
@@ -149,4 +150,4 @@ jobs:
               });
             }
       
-            console.log(`Cleanup complete. Kept latest ${maxKeep} artifacts.`);
+            console.log(`Cleanup complete. Kept latest ${MAX_KEEP} artifacts.`);
