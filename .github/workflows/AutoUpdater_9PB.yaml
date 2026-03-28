@@ -131,22 +131,10 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
+            const PREFIX = "9PB";
             const MAX_KEEP = 60;
             const PER_PAGE = 30;
             const EMPTY_PAGE_LIMIT = 5;
-      
-            // Detect artifact prefix automatically from uploaded artifact name
-            const uploadedArtifactName = "${{ steps.upload_artifact.outputs.artifact-name }}";
-      
-            if (!uploadedArtifactName) {
-              console.log("Cannot detect artifact name. Skipping cleanup.");
-              return;
-            }
-      
-            // Example: 8EB_27.03.2026_22-23 → prefix = 8EB
-            const PREFIX = uploadedArtifactName.split("_")[0];
-      
-            console.log(`Detected artifact prefix: ${PREFIX}`);
       
             let page = 1;
             let matched = [];
@@ -183,6 +171,7 @@ jobs:
                 emptyPages = 0;
               }
       
+              // stop only when 5 consecutive pages have no matches
               if (emptyPages >= EMPTY_PAGE_LIMIT) {
                 console.log("No matching artifacts for 5 consecutive pages, stopping.");
                 break;
@@ -201,17 +190,16 @@ jobs:
       
             if (toDelete.length === 0) {
               console.log(`No artifacts to delete. Kept latest ${MAX_KEEP}.`);
-              return;
-            }
+            } else {
+              for (const artifact of toDelete) {
+                console.log(`Deleting: ${artifact.name} (${artifact.id})`);
+                await github.rest.actions.deleteArtifact({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  artifact_id: artifact.id
+                });
+              }
       
-            for (const artifact of toDelete) {
-              console.log(`Deleting: ${artifact.name} (${artifact.id})`);
-              await github.rest.actions.deleteArtifact({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                artifact_id: artifact.id
-              });
+              console.log(`Deleted ${toDelete.length} artifacts.`);
             }
-      
-            console.log(`Deleted ${toDelete.length} artifacts.`);
             
