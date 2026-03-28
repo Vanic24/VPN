@@ -927,11 +927,12 @@ def rename_node(p, country_counter, CN_TO_CC):
                     cc = cc.upper()
 
         # 2️⃣ Chinese name mapping
-        for cn_name, code in CN_TO_CC.items():
-            if cn_name and cn_name in name_for_match:
-                cc = code.upper()
-                flag = country_to_flag(cc)
-                break
+        if not cc:
+            for cn_name, code in CN_TO_CC.items():
+                if cn_name and cn_name in name_for_match:
+                    cc = code.upper()
+                    flag = country_to_flag(cc)
+                    break
 
         # 3️⃣ Two-letter ISO code (unit-safe)
         if not cc:
