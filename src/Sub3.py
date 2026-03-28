@@ -860,9 +860,7 @@ def rename_node(p, country_counter, CN_TO_CC):
 
         # 1️⃣ GeoIP first
         ip = resolve_ip(host) or host
-
         cc_lower, cc_upper = geo_ip(ip)
-
         if cc_upper and cc_upper != "UN":
             cc = cc_upper
             flag = country_to_flag(cc)
@@ -874,7 +872,6 @@ def rename_node(p, country_counter, CN_TO_CC):
             for cn_name, code in CN_TO_CC.items():
                 if not cn_name:
                     continue
-
                 if cn_name in name_for_match:
                     cc = code.upper()
                     flag = country_to_flag(cc)
@@ -929,7 +926,9 @@ def rename_node(p, country_counter, CN_TO_CC):
         # 2️⃣ Chinese name mapping
         if not cc:
             for cn_name, code in CN_TO_CC.items():
-                if cn_name and cn_name in name_for_match:
+                if not cn_name:
+                    continue
+                if cn_name in name_for_match:
                     cc = code.upper()
                     flag = country_to_flag(cc)
                     break
