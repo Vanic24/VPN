@@ -867,7 +867,16 @@ def rename_node(p, country_counter, CN_TO_CC):
         else:
             geoip_failed = True
 
-        # 2️⃣ Chinese name mapping
+        # 2️⃣ Emoji flag mapping
+        if not cc:
+            flag_match = re.search(r'[\U0001F1E6-\U0001F1FF]{2}', name_for_match)
+            if flag_match:
+                flag = flag_match.group(0)
+                cc = flag_to_country_code(flag)
+                if cc:
+                    cc = cc.upper()
+
+        # 3️⃣ Chinese name mapping
         if not cc:
             for cn_name, code in CN_TO_CC.items():
                 if not cn_name:
@@ -876,15 +885,6 @@ def rename_node(p, country_counter, CN_TO_CC):
                     cc = code.upper()
                     flag = country_to_flag(cc)
                     break
-
-        # 3️⃣ Emoji flag mapping
-        if not cc:
-            flag_match = re.search(r'[\U0001F1E6-\U0001F1FF]{2}', name_for_match)
-            if flag_match:
-                flag = flag_match.group(0)
-                cc = flag_to_country_code(flag)
-                if cc:
-                    cc = cc.upper()
 
         # 4️⃣ Two-letter ISO code (context-aware, unit-safe)
         if not cc:
@@ -948,22 +948,17 @@ def rename_node(p, country_counter, CN_TO_CC):
 
         # ---------- GeoIP fallback ----------
         if not cc:
-            name_failed = True
-        
             ip = resolve_ip(host) or host
             if ip:
                 cc_lower, cc_upper = geo_ip(ip)
                 if cc_upper and cc_upper != "UN":
                     cc = cc_upper
                     flag = country_to_flag(cc)
+                    name_primary_fail += 1
         
         # ---------- Final validation ----------
         if not cc or not flag:
             return None    # ❌ truly unnameable → skip
-
-        # 📊 Name-based fallback success count
-        if name_failed:
-            name_primary_fail += 1
 
         # ----------Final naming----------
         country_counter[cc] += 1
