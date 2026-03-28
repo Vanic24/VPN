@@ -126,6 +126,7 @@ jobs:
           retention-days: 30
       
       - name: Cleanup old artifacts (keep latest 60)
+        if: success() && steps.upload_artifact.outcome == 'success'
         uses: actions/github-script@v8
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -150,7 +151,7 @@ jobs:
               const artifacts = response.data.artifacts;
       
               if (artifacts.length === 0) {
-                console.log("No more artifacts pages.");
+                console.log("No more artifact pages.");
                 break;
               }
       
@@ -170,15 +171,9 @@ jobs:
                 emptyPages = 0;
               }
       
-              // stop if no matching artifacts for several pages
+              // stop only when 5 consecutive pages have no matches
               if (emptyPages >= EMPTY_PAGE_LIMIT) {
-                console.log("No matching artifacts for several pages, stopping.");
-                break;
-              }
-      
-              // stop if already collected enough artifacts and next pages likely older
-              if (matched.length >= MAX_KEEP && filtered.length < 5) {
-                console.log("Enough artifacts collected, stopping pagination.");
+                console.log("No matching artifacts for 5 consecutive pages, stopping.");
                 break;
               }
       
