@@ -914,14 +914,14 @@ def rename_node(p, country_counter, CN_TO_CC):
         return p
 
     # ----------If GEOIP-ONLY Mode Is Not Set----------
-     else:
+    else:
         # 1️⃣ Emoji flag mapping
-            flag_match = re.search(r'[\U0001F1E6-\U0001F1FF]{2}', name_for_match)
-            if flag_match:
-                flag = flag_match.group(0)
-                cc = flag_to_country_code(flag)
-                if cc:
-                    cc = cc.upper()
+        flag_match = re.search(r'[\U0001F1E6-\U0001F1FF]{2}', name_for_match)
+        if flag_match:
+            flag = flag_match.group(0)
+            cc = flag_to_country_code(flag)
+            if cc:
+                cc = cc.upper()
 
         # 2️⃣ Chinese name mapping
         if not cc:
