@@ -917,6 +917,7 @@ def rename_node(p, country_counter, CN_TO_CC):
         return p
 
     # ----------If GEOIP-ONLY Mode Is Not Set----------
+    else:
         # 1️⃣ Emoji flag mapping
             flag_match = re.search(r'[\U0001F1E6-\U0001F1FF]{2}', name_for_match)
             if flag_match:
