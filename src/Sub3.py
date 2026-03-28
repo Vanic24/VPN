@@ -845,6 +845,12 @@ def rename_node(p, country_counter, CN_TO_CC):
     if any(g in FORBIDDEN_EMOJIS for g in graphemes):
         return None
 
+    # ---------- Prepare ----------
+    name_for_match = unquote(original_name)
+
+    cc = None
+    flag = None
+
     # Initialize fallback flags for counters
     geoip_failed = False
     name_failed = False
@@ -854,27 +860,27 @@ def rename_node(p, country_counter, CN_TO_CC):
 
         # 1️⃣ GeoIP first
         ip = resolve_ip(host) or host
-        cc = flag = None
 
         cc_lower, cc_upper = geo_ip(ip)
+
         if cc_upper and cc_upper != "UN":
             cc = cc_upper
             flag = country_to_flag(cc)
         else:
             geoip_failed = True
 
-        # Prepare name once
-        name_for_match = unquote(original_name)
-
-        # 2️⃣ Chinese mapping
+        # 2️⃣ Chinese name mapping
         if not cc:
             for cn_name, code in CN_TO_CC.items():
-                if cn_name and cn_name in name_for_match:
+                if not cn_name:
+                    continue
+
+                if cn_name in name_for_match:
                     cc = code.upper()
                     flag = country_to_flag(cc)
                     break
 
-        # 3️⃣ Emoji flag
+        # 3️⃣ Emoji flag mapping
         if not cc:
             flag_match = re.search(r'[\U0001F1E6-\U0001F1FF]{2}', name_for_match)
             if flag_match:
@@ -889,13 +895,15 @@ def rename_node(p, country_counter, CN_TO_CC):
             for iso_match in iso_iter:
                 iso = iso_match.group(1)
                 before = original_name[:iso_match.start()]
+                # Avoid some two letters which are identical to two-letters ISO code
                 if re.search(r'\d\s*$', before):
                     continue
                 cc = iso
                 flag = country_to_flag(cc)
                 break
 
-        if not cc:
+        # Final validation
+        if not cc or not flag:
             return None    # ❌ truly unnameable → skip
 
         # 📊 GeoIP fallback success count
@@ -909,19 +917,7 @@ def rename_node(p, country_counter, CN_TO_CC):
         return p
 
     # ----------If GEOIP-ONLY Mode Is Not Set----------
-    else:
-        name_for_match = unquote(original_name)
-        cc = flag = None
-
-        # 1️⃣ Chinese mapping
-        for cn_name, code in CN_TO_CC.items():
-            if cn_name and cn_name in name_for_match:
-                cc = code.upper()
-                flag = country_to_flag(cc)
-                break
-
-        # 2️⃣ Emoji flag
-        if not cc:
+        # 1️⃣ Emoji flag mapping
             flag_match = re.search(r'[\U0001F1E6-\U0001F1FF]{2}', name_for_match)
             if flag_match:
                 flag = flag_match.group(0)
@@ -929,31 +925,39 @@ def rename_node(p, country_counter, CN_TO_CC):
                 if cc:
                     cc = cc.upper()
 
+        # 2️⃣ Chinese name mapping
+        for cn_name, code in CN_TO_CC.items():
+            if cn_name and cn_name in name_for_match:
+                cc = code.upper()
+                flag = country_to_flag(cc)
+                break
+
         # 3️⃣ Two-letter ISO code (unit-safe)
         if not cc:
             iso_iter = re.finditer(r'\b([A-Z]{2})\b', original_name)
             for iso_match in iso_iter:
                 iso = iso_match.group(1)
                 before = original_name[:iso_match.start()]
+                # Avoid some two letters which are identical to two-letters ISO code
                 if re.search(r'\d\s*$', before):
                     continue
                 cc = iso
                 flag = country_to_flag(cc)
                 break
 
-        # Mark name-based failure BEFORE GeoIP
+        # ---------- GeoIP fallback ----------
         if not cc:
             name_failed = True
-
-        # 4️⃣ GeoIP fallback
-        if not cc:
+        
             ip = resolve_ip(host) or host
-            cc_lower, cc_upper = geo_ip(ip)
-            if cc_upper and cc_upper != "UN":
-                cc = cc_upper
-                flag = country_to_flag(cc)
-
-        if not cc:
+            if ip:
+                cc_lower, cc_upper = geo_ip(ip)
+                if cc_upper and cc_upper != "UN":
+                    cc = cc_upper
+                    flag = country_to_flag(cc)
+        
+        # ---------- Final validation ----------
+        if not cc or not flag:
             return None    # ❌ truly unnameable → skip
 
         # 📊 Name-based fallback success count
