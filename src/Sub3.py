@@ -838,16 +838,12 @@ def rename_node(p, country_counter, CN_TO_CC):
     # Define forbidden emojis (any emoji you want to filter out)
     FORBIDDEN_EMOJIS = {"🔒", "❌", "⚠️", "🚀", "🎁"}
 
-    # Extract grapheme clusters (so multi-codepoint emojis like ⚠️ are kept together)
-    graphemes = list(original_name)
-
     # Skip nodes with empty names or containing any forbidden emoji
-    if any(g in FORBIDDEN_EMOJIS for g in graphemes):
+    if any(g in original_name for g in FORBIDDEN_EMOJIS) or not original_name:
         return None
 
     # ---------- Prepare ----------
     name_for_match = unquote(original_name)
-
     cc = None
     flag = None
 
@@ -911,6 +907,8 @@ def rename_node(p, country_counter, CN_TO_CC):
         country_counter[cc] += 1
         index = country_counter[cc]
         p["name"] = build_name(flag, cc, index, ipv6_tag)
+        # ✅ Only log safe renamed node
+        print(f"[rename] 🏷️ Assigned new name: {p['name']}")
         return p
 
     # ----------If GEOIP-ONLY Mode Is Not Set----------
@@ -964,6 +962,9 @@ def rename_node(p, country_counter, CN_TO_CC):
         country_counter[cc] += 1
         index = country_counter[cc]
         p["name"] = build_name(flag, cc, index, ipv6_tag)
+
+        # ✅ Only log safe renamed node
+        print(f"[rename] 🏷️ Assigned new name: {p['name']}")
         return p
 
 # ---------------- Load proxies ----------------
