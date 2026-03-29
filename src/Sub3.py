@@ -907,8 +907,6 @@ def rename_node(p, country_counter, CN_TO_CC):
         country_counter[cc] += 1
         index = country_counter[cc]
         p["name"] = build_name(flag, cc, index, ipv6_tag)
-        # ✅ Only log safe renamed node
-        print(f"[rename] 🏷️ Assigned new name: {p['name']}")
         return p
 
     # ----------If GEOIP-ONLY Mode Is Not Set----------
@@ -962,9 +960,6 @@ def rename_node(p, country_counter, CN_TO_CC):
         country_counter[cc] += 1
         index = country_counter[cc]
         p["name"] = build_name(flag, cc, index, ipv6_tag)
-
-        # ✅ Only log safe renamed node
-        print(f"[rename] 🏷️ Assigned new name: {p['name']}")
         return p
 
 # ---------------- Load proxies ----------------
@@ -988,8 +983,8 @@ def load_proxies(url, retries=10):
                     decoded = base64.b64decode(text + "=" * (-len(text) % 4)).decode("utf-8")
                     text = decoded
                     print(f"[decode] 🔓 Base64 decoded -> {len(text.splitlines())} lines", flush=True)
-                except Exception as e:
-                    print(f"[warn] 😭 Base64 decode failed: {e}", flush=True)
+                except Exception:
+                    print(f"[warn] 😭 Base64 decode failed", flush=True)
 
             # Parse as YAML (Clash format)
             if text.startswith("proxies:") or "proxies:" in text:
@@ -997,13 +992,15 @@ def load_proxies(url, retries=10):
                     data = yaml.safe_load(text)
                     if data and "proxies" in data:
                         for idx, p in enumerate(data["proxies"], start=1):
-                            p["name"] = str(idx)
+                            original_name = str(p.get("name", "") or "").strip()
+                            if not original_name:
+                                p["name"] = f"Node-{idx}"
                             nodes.append(p)
-                            print(f"[parse] 🔎 YAML node: {idx} parsing...")
+                            print(f"[parse] 🔎 YAML node: {idx} parsed", flush=True)
                     else:
-                        print(f"[warn] 😭 YAML structure invalid or empty: {url}")
-                except Exception as e:
-                    print(f"[warn] 😭 YAML parsing failed for {url}: {e}")
+                        print(f"[warn] 😭 YAML structure invalid or empty", flush=True)
+                except Exception:
+                    print(f"[warn] 😭 YAML parsing failed", flush=True)
             else:
                 # Parse as individual subscription lines (Vmess/Vless/Trojan/etc.)
                 for idx, line in enumerate(text.splitlines(), start=1):
@@ -1014,15 +1011,15 @@ def load_proxies(url, retries=10):
                         node = parse_node_line(line, idx)
                         if node:
                             nodes.append(node)
-                            print(f"[parsed] 🔎 Base64 node: {idx} parsing...", flush=True)
+                            print(f"[parsed] 🔎 Base64 node: {idx} parsed", flush=True)
                         else:
-                            print(f"[skip] ⛔ Invalid or unsupported line -> Check line {idx}")
-                    except Exception as e:
-                        print(f"[warn] 😭 Error parsing line: {idx}")
+                            print(f"[skip] ⛔ Invalid or unsupported line -> Check line {idx}", flush=True)
+                    except Exception:
+                        print(f"[warn] 😭 Error parsing line: {idx}", flush=True)
 
             return nodes
 
-        except Exception as e:
+        except Exception:
             attempt += 1
             print("[warn] 😭 Failed to fetch from current subscription link", flush=True)
             print(f"[attempt] 🔄️ Try to fetch again (attempt {attempt}/{retries})", flush=True)
