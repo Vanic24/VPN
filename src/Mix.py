@@ -970,52 +970,98 @@ def load_proxies(url, retries=10):
             r = requests.get(url, timeout=15)
             r.raise_for_status()
             text = r.text.strip()
-
-            print(f"[fetch] 📥 {len(text.splitlines())} lines fetched from subscription link", flush=True)
-            for line in text.splitlines()[:5]:
-                print("       ", line[:30], flush=True)
-
             nodes = []
+            sub_type = None
 
-            # Base64 decode if single line and looks like Base64
-            if len(text.splitlines()) == 1 and re.match(r'^[A-Za-z0-9+/=]+$', text):
+            # ---------- For Base64 (single-line subscription) decode ----------
+            lines = text.splitlines()
+
+            if len(lines) == 1 and re.match(r'^[A-Za-z0-9+/=]+$', text.strip()):
                 try:
-                    decoded = base64.b64decode(text + "=" * (-len(text) % 4)).decode("utf-8")
-                    text = decoded
-                    print(f"[decode] 🔓 Base64 decoded -> {len(text.splitlines())} lines", flush=True)
-                except Exception:
-                    print(f"[warn] 😭 Base64 decode failed", flush=True)
+                    decoded = base64.b64decode(
+                        text.strip() + "=" * (-len(text.strip()) % 4)
+                    ).decode("utf-8", errors="ignore")
 
-            # Parse as YAML (Clash format)
-            if text.startswith("proxies:") or "proxies:" in text:
+                    decoded_lines = decoded.splitlines()
+
+                    if len(decoded_lines) > 3 and "://" in decoded:
+                        text = decoded
+                        sub_type = "BASE64"
+
+                        print("[fetch] 📥 Base64 subscription detected", flush=True)
+
+                    else:
+                        print("[warn] 😭 Not valid Base64 subscription", flush=True)
+
+                except Exception:
+                    print("[warn] 😭 Base64 decode failed", flush=True)
+
+            # ---------- For YAML decode ----------
+            if not sub_type and ("proxies:" in text or text.startswith("proxies:")):
+                sub_type = "YAML"
+                print("[fetch] 📥 YAML subscription detected", flush=True)
+
+            # ---------- For V2Ray decode ----------
+            if not sub_type:
+                sub_type = "V2RAY"
+                print("[fetch] 📥 V2Ray subscription detected", flush=True)
+
+            # ---------- Parse YAML ----------
+            if sub_type == "YAML":
                 try:
                     data = yaml.safe_load(text)
+
                     if data and "proxies" in data:
                         for idx, p in enumerate(data["proxies"], start=1):
                             original_name = str(p.get("name", "") or "").strip()
+
                             if not original_name:
                                 p["name"] = f"Node-{idx}"
                             nodes.append(p)
-                            print(f"[parse] 🔎 YAML node: {idx} parsed", flush=True)
+                            protocol = str(p.get("type", "NODE")).upper()
+
+                            print(
+                                f"[parse] 🔎 YAML to {protocol} node: {idx} parsed",
+                                flush=True
+                            )
+
                     else:
-                        print(f"[warn] 😭 YAML structure invalid or empty", flush=True)
+                        print("[warn] 😭 YAML structure invalid or empty", flush=True)
+
                 except Exception:
-                    print(f"[warn] 😭 YAML parsing failed", flush=True)
+                    print("[warn] 😭 YAML parsing failed", flush=True)
+
+            # ---------- Parse Base64 or V2Ray ----------
             else:
-                # Parse as individual subscription lines (Vmess/Vless/Trojan/etc.)
                 for idx, line in enumerate(text.splitlines(), start=1):
                     line = line.strip()
+
                     if not line:
                         continue
+
                     try:
                         node = parse_node_line(line, idx)
+
                         if node:
                             nodes.append(node)
-                            print(f"[parsed] 🔎 Base64 node: {idx} parsed", flush=True)
+                            protocol = (
+                                line.split("://")[0].upper()
+                                if "://" in line
+                                else "NODE"
+                            )
+
+                            if sub_type == "BASE64":
+                                print(
+                                    f"[parse] 🔎 Base64 to {protocol} node: {idx} parsed", flush=True )
+                            else:
+                                print(f"[parse] 🔎 {protocol} node: {idx} parsed", flush=True )
+
                         else:
-                            print(f"[skip] ⛔ Invalid or unsupported line -> Check line {idx}", flush=True)
+                            print(f"[skip] ⛔ Invalid or unsupported line ({idx})", flush=True)
+
                     except Exception:
-                        print(f"[warn] 😭 Error parsing line: {idx}", flush=True)
+                        print(
+                            f"[warn] 😭 Error parsing line ({idx})", flush=True)
 
             return nodes
 
@@ -1031,15 +1077,15 @@ def load_proxies(url, retries=10):
 def main():
     try:
         sources = load_sources()
-        print(f"[start] 🖥️ Loaded {len(sources)} subscription links from source")
+        print(f"[start] 🖥️ Loaded ({len(sources)}) subscription links from source")
 
         all_nodes = []
         for url in sources:
             nodes = load_proxies(url)
-            print(f"[source] 📝 {len(nodes)} nodes parsed from current subscription")
+            print(f"[source] 📝 [{len(nodes)}] nodes parsed from current subscription")
             all_nodes.extend(nodes)
 
-        print(f"[collect] 📋 Total {len(all_nodes)} nodes successfully parsed from all subscriptions")
+        print(f"[collect] 📋 Total [{len(all_nodes)}] nodes successfully parsed and collected from all subscriptions")
 
         # ---------------- Latency filter ----------------
         if USE_LATENCY:
@@ -1055,11 +1101,11 @@ def main():
 
             num_filtered = len(all_nodes) - len(filtered_nodes)
             print(f"[latency] ❗Filtered {num_filtered} nodes due to latency")
-            print(f"[latency]  🖨️ Total {len(filtered_nodes)} nodes remain after latency filtering")
+            print(f"[latency]  🖨️ Total [{len(filtered_nodes)}] nodes remain after latency filtering")
         else:
             filtered_nodes = all_nodes
             country_counter = defaultdict(int)
-            print(f"[latency] 🚀 Latency filtering disabled, {len(filtered_nodes)} nodes remain")
+            print(f"[latency] 🚀 Latency filtering disabled, ({len(filtered_nodes)}) nodes remain")
 
         # ---------------- Duplicate filter ----------------
         if USE_DUPLICATE_FILTER:
@@ -1067,8 +1113,8 @@ def main():
             before = len(filtered_nodes)
             filtered_nodes, removed = deduplicate_nodes(filtered_nodes)
             after = len(filtered_nodes)
-            print(f"[dedup] ®️emoved {removed} duplicate nodes")
-            print(f"[dedup] 🖨️ Total {after} nodes remain after deduplication")
+            print(f"[dedup] ®️emoved ({removed}) duplicate nodes")
+            print(f"[dedup] 🖨️ Total [{after}] nodes remain after deduplication")
         else:
             print("[dedup] 🈁 Duplicate filtering disabled")
 
@@ -1089,12 +1135,12 @@ def main():
             )
         else:
             print(
-                f"[rename] 🏷️ Name-based mode: Failed to rename {name_primary_fail} nodes and fallback to GeoIP detection"
+                f"[rename] 🏷️ Name-based mode: Failed to rename ({name_primary_fail}) nodes and fallback to GeoIP detection"
             )
 
         if skipped_nodes > 0:
-            print(f"[rename] ⚠️ Skipped {skipped_nodes} nodes that could not be assigned a name or include forbidden emoji")
-        print(f"[rename] 🖨️ Final {len(renamed_nodes)} nodes remain after name correction")
+            print(f"[rename] ⚠️ Skipped ({skipped_nodes}) nodes that could not be assigned a name or include forbidden emoji")
+        print(f"[rename] 🖨️ Final [{len(renamed_nodes)}] nodes remain after name correction")
 
         if not renamed_nodes:
             print("[FATAL] 🅾️ valid nodes after processing. Abort upload.")
