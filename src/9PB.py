@@ -838,12 +838,14 @@ def rename_node(p, country_counter, CN_TO_CC):
     # Define forbidden emojis (any emoji you want to filter out)
     FORBIDDEN_EMOJIS = {"🔒", "❌", "⚠️", "🚀", "🎁"}
 
-    # Extract grapheme clusters (so multi-codepoint emojis like ⚠️ are kept together)
-    graphemes = list(original_name)
-
     # Skip nodes with empty names or containing any forbidden emoji
-    if any(g in FORBIDDEN_EMOJIS for g in graphemes):
+    if any(g in original_name for g in FORBIDDEN_EMOJIS) or not original_name:
         return None
+
+    # ---------- Prepare ----------
+    name_for_match = unquote(original_name)
+    cc = None
+    flag = None
 
     # Initialize fallback flags for counters
     geoip_failed = False
@@ -854,8 +856,6 @@ def rename_node(p, country_counter, CN_TO_CC):
 
         # 1️⃣ GeoIP first
         ip = resolve_ip(host) or host
-        cc = flag = None
-
         cc_lower, cc_upper = geo_ip(ip)
         if cc_upper and cc_upper != "UN":
             cc = cc_upper
@@ -863,18 +863,7 @@ def rename_node(p, country_counter, CN_TO_CC):
         else:
             geoip_failed = True
 
-        # Prepare name once
-        name_for_match = unquote(original_name)
-
-        # 2️⃣ Chinese mapping
-        if not cc:
-            for cn_name, code in CN_TO_CC.items():
-                if cn_name and cn_name in name_for_match:
-                    cc = code.upper()
-                    flag = country_to_flag(cc)
-                    break
-
-        # 3️⃣ Emoji flag
+        # 2️⃣ Emoji flag mapping
         if not cc:
             flag_match = re.search(r'[\U0001F1E6-\U0001F1FF]{2}', name_for_match)
             if flag_match:
@@ -883,19 +872,31 @@ def rename_node(p, country_counter, CN_TO_CC):
                 if cc:
                     cc = cc.upper()
 
+        # 3️⃣ Chinese name mapping
+        if not cc:
+            for cn_name, code in CN_TO_CC.items():
+                if not cn_name:
+                    continue
+                if cn_name in name_for_match:
+                    cc = code.upper()
+                    flag = country_to_flag(cc)
+                    break
+
         # 4️⃣ Two-letter ISO code (context-aware, unit-safe)
         if not cc:
             iso_iter = re.finditer(r'\b([A-Z]{2})\b', original_name)
             for iso_match in iso_iter:
                 iso = iso_match.group(1)
                 before = original_name[:iso_match.start()]
+                # Avoid some two letters which are identical to two-letters ISO code
                 if re.search(r'\d\s*$', before):
                     continue
                 cc = iso
                 flag = country_to_flag(cc)
                 break
 
-        if not cc:
+        # Final validation
+        if not cc or not flag:
             return None    # ❌ truly unnameable → skip
 
         # 📊 GeoIP fallback success count
@@ -910,24 +911,23 @@ def rename_node(p, country_counter, CN_TO_CC):
 
     # ----------If GEOIP-ONLY Mode Is Not Set----------
     else:
-        name_for_match = unquote(original_name)
-        cc = flag = None
+        # 1️⃣ Emoji flag mapping
+        flag_match = re.search(r'[\U0001F1E6-\U0001F1FF]{2}', name_for_match)
+        if flag_match:
+            flag = flag_match.group(0)
+            cc = flag_to_country_code(flag)
+            if cc:
+                cc = cc.upper()
 
-        # 1️⃣ Chinese mapping
-        for cn_name, code in CN_TO_CC.items():
-            if cn_name and cn_name in name_for_match:
-                cc = code.upper()
-                flag = country_to_flag(cc)
-                break
-
-        # 2️⃣ Emoji flag
+        # 2️⃣ Chinese name mapping
         if not cc:
-            flag_match = re.search(r'[\U0001F1E6-\U0001F1FF]{2}', name_for_match)
-            if flag_match:
-                flag = flag_match.group(0)
-                cc = flag_to_country_code(flag)
-                if cc:
-                    cc = cc.upper()
+            for cn_name, code in CN_TO_CC.items():
+                if not cn_name:
+                    continue
+                if cn_name in name_for_match:
+                    cc = code.upper()
+                    flag = country_to_flag(cc)
+                    break
 
         # 3️⃣ Two-letter ISO code (unit-safe)
         if not cc:
@@ -935,30 +935,26 @@ def rename_node(p, country_counter, CN_TO_CC):
             for iso_match in iso_iter:
                 iso = iso_match.group(1)
                 before = original_name[:iso_match.start()]
+                # Avoid some two letters which are identical to two-letters ISO code
                 if re.search(r'\d\s*$', before):
                     continue
                 cc = iso
                 flag = country_to_flag(cc)
                 break
 
-        # Mark name-based failure BEFORE GeoIP
-        if not cc:
-            name_failed = True
-
-        # 4️⃣ GeoIP fallback
+        # ---------- GeoIP fallback ----------
         if not cc:
             ip = resolve_ip(host) or host
-            cc_lower, cc_upper = geo_ip(ip)
-            if cc_upper and cc_upper != "UN":
-                cc = cc_upper
-                flag = country_to_flag(cc)
-
-        if not cc:
+            if ip:
+                cc_lower, cc_upper = geo_ip(ip)
+                if cc_upper and cc_upper != "UN":
+                    cc = cc_upper
+                    flag = country_to_flag(cc)
+                    name_primary_fail += 1
+        
+        # ---------- Final validation ----------
+        if not cc or not flag:
             return None    # ❌ truly unnameable → skip
-
-        # 📊 Name-based fallback success count
-        if name_failed:
-            name_primary_fail += 1
 
         # ----------Final naming----------
         country_counter[cc] += 1
@@ -987,8 +983,8 @@ def load_proxies(url, retries=10):
                     decoded = base64.b64decode(text + "=" * (-len(text) % 4)).decode("utf-8")
                     text = decoded
                     print(f"[decode] 🔓 Base64 decoded -> {len(text.splitlines())} lines", flush=True)
-                except Exception as e:
-                    print(f"[warn] 😭 Base64 decode failed: {e}", flush=True)
+                except Exception:
+                    print(f"[warn] 😭 Base64 decode failed", flush=True)
 
             # Parse as YAML (Clash format)
             if text.startswith("proxies:") or "proxies:" in text:
@@ -996,13 +992,15 @@ def load_proxies(url, retries=10):
                     data = yaml.safe_load(text)
                     if data and "proxies" in data:
                         for idx, p in enumerate(data["proxies"], start=1):
-                            p["name"] = str(idx)
+                            original_name = str(p.get("name", "") or "").strip()
+                            if not original_name:
+                                p["name"] = f"Node-{idx}"
                             nodes.append(p)
-                            print(f"[parse] 🔎 YAML node: {idx} parsing...")
+                            print(f"[parse] 🔎 YAML node: {idx} parsed", flush=True)
                     else:
-                        print(f"[warn] 😭 YAML structure invalid or empty: {url}")
-                except Exception as e:
-                    print(f"[warn] 😭 YAML parsing failed for {url}: {e}")
+                        print(f"[warn] 😭 YAML structure invalid or empty", flush=True)
+                except Exception:
+                    print(f"[warn] 😭 YAML parsing failed", flush=True)
             else:
                 # Parse as individual subscription lines (Vmess/Vless/Trojan/etc.)
                 for idx, line in enumerate(text.splitlines(), start=1):
@@ -1013,15 +1011,15 @@ def load_proxies(url, retries=10):
                         node = parse_node_line(line, idx)
                         if node:
                             nodes.append(node)
-                            print(f"[parsed] 🔎 Base64 node: {idx} parsing...", flush=True)
+                            print(f"[parsed] 🔎 Base64 node: {idx} parsed", flush=True)
                         else:
-                            print(f"[skip] ⛔ Invalid or unsupported line -> Check line {idx}")
-                    except Exception as e:
-                        print(f"[warn] 😭 Error parsing line: {idx}")
+                            print(f"[skip] ⛔ Invalid or unsupported line -> Check line {idx}", flush=True)
+                    except Exception:
+                        print(f"[warn] 😭 Error parsing line: {idx}", flush=True)
 
             return nodes
 
-        except Exception as e:
+        except Exception:
             attempt += 1
             print("[warn] 😭 Failed to fetch from current subscription link", flush=True)
             print(f"[attempt] 🔄️ Try to fetch again (attempt {attempt}/{retries})", flush=True)
