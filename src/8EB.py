@@ -1085,7 +1085,7 @@ def main():
             print(f"[source] 📝 [{len(nodes)}] nodes parsed from current subscription")
             all_nodes.extend(nodes)
 
-        print(f"[collect] 📋 Total [{len(all_nodes)}] nodes successfully parsed from all subscriptions")
+        print(f"[collect] 📋 Total [{len(all_nodes)}] nodes successfully parsed and collected from all subscriptions")
 
         # ---------------- Latency filter ----------------
         if USE_LATENCY:
