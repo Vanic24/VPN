@@ -39,7 +39,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Setup Python
+      - name: Prepare to start
         uses: actions/setup-python@v4
         with:
           python-version: "3.x"
@@ -49,18 +49,18 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests pyyaml babel pycountry
 
-      - name: Abort if SUB_MIX is missing
+      - name: Checking source from secret
         run: |
           if [ -z "${{ secrets.SUB_MIX }}" ]; then
             echo "❌ ERROR: SUB_MIX secret is not set in repository secrets."
             exit 1
           fi
 
-      - name: Restore SUB_MIX from secret
+      - name: Load source from secret
         run: |
           echo "${{ secrets.SUB_MIX }}" > SUB_MIX
           
-      - name: Run Python script
+      - name: Start fetching, decoding and rename processes
         run: python src/Mix.py
         env:
           CN_TO_CC: ${{ secrets.CN_TO_CC }}
@@ -69,7 +69,7 @@ jobs:
           DUPLICATE_FILTER: ${{ inputs.use_duplicate_filter || 'false' }}
           USE_ONLY_GEOIP: ${{ inputs.use_only_geoip || 'false' }}
 
-      - name: Generate GMT+6:30 timestamp
+      - name: Generate local timestamp
         id: timestamp
         run: |
           # Get UTC time in seconds since epoch
@@ -80,7 +80,7 @@ jobs:
           TIMESTAMP=$(date -u -d "@$local_seconds" +"%d.%m.%Y %H:%M:%S")
           echo "TIMESTAMP=$TIMESTAMP" >> $GITHUB_ENV
 
-      - name: Commit and Push Mix
+      - name: Commit and Push subscription
         shell: bash
         run: |
           git config --global user.name "github-actions[bot]"
@@ -114,10 +114,10 @@ jobs:
             fi
           fi
 
-      - name: Copy MIX with .yaml extension
+      - name: Set subscription extension
         run: cp MIX Mix.yaml
 
-      - name: Upload Mix artifact
+      - name: Upload subscription artifact for backup
         id: upload_artifact
         uses: actions/upload-artifact@v4
         with:
