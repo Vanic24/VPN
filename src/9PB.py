@@ -4,6 +4,7 @@ import time
 import yaml
 import requests
 import socket
+import threading
 import concurrent.futures
 import traceback
 from collections import defaultdict, OrderedDict
@@ -18,9 +19,8 @@ from urllib.parse import unquote, urlparse, parse_qs
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 OUTPUT_FILE = os.path.join(REPO_ROOT, "9PB")
 SOURCES_FILE = os.path.join(REPO_ROOT, "SUB_9PB")
-TEMPLATE_URL = "https://raw.githubusercontent.com/Vanic24/VPN/refs/heads/main/ClashTemplate.ini"
+CLASH_TEMPLATE = os.path.join(REPO_ROOT, "ClashTemplate.ini")
 TEXTDB_API = "https://textdb.online/update/?key=9PB_SHFX&value={}"
-CN_TO_CC = json.loads(os.getenv("CN_TO_CC", "{}"))
 USE_ONLY_GEOIP = os.getenv("USE_ONLY_GEOIP", "false").lower() == "true"
 
 # ---------------- Inputs ----------------
@@ -35,20 +35,49 @@ except ValueError:
 use_dup_env = os.environ.get("DUPLICATE_FILTER", "false").lower()
 USE_DUPLICATE_FILTER = use_dup_env == "true"
 
+# ---------------- Requests session ----------------
+session = requests.Session()
+session.headers.update({"User-Agent": "Subscription-Updater/1.0"})
+
 # ---------------- Helper ----------------
+geoip_lock = threading.Lock()
+counter_lock = threading.Lock()
+
+geoip_cache = {}
+country_counter = defaultdict(int)
+
 def resolve_ip(host):
     try:
-        return socket.gethostbyname(host)
-    except:
+        infos = socket.getaddrinfo(host, None)
+
+        # Prefer IPv4
+        for info in infos:
+            ip = info[4][0]
+            if ":" not in ip:
+                return ip
+
+        # fallback to IPv6
+        if infos:
+            return infos[0][4][0]
+
+        return None
+
+    except Exception:
         return None
 
 def tcp_latency_ms(host, port, timeout=2.0):
     try:
+        ip = resolve_ip(host)
+        if not ip:
+            return 9999
+
         start = time.time()
-        sock = socket.create_connection((host, port), timeout=timeout)
+        sock = socket.create_connection((ip, port), timeout=timeout)
+        sock.settimeout(timeout)
         sock.close()
         return int((time.time() - start) * 1000)
-    except:
+
+    except Exception:
         return 9999
 
 def deduplicate_nodes(nodes):
@@ -88,17 +117,69 @@ def deduplicate_nodes(nodes):
 
     return unique_nodes, removed
 
-def geo_ip(ip):
+def geo_ip(host_or_ip):
+    ip = None
+
     try:
-        r = requests.get(f"https://ipinfo.io/{ip}/json", timeout=5)
-        if r.status_code == 200:
-            data = r.json()
-            cc = data.get("country")
-            if cc:
-                return cc.lower(), cc.upper()
-    except:
-        pass
-    return "unknown", "UN"
+        if not host_or_ip:
+            return None, None
+
+        # check cache by hostname
+        with geoip_lock:
+            if host_or_ip in geoip_cache:
+                return geoip_cache[host_or_ip]
+
+        import ipaddress
+        try:
+            ipaddress.ip_address(host_or_ip)
+            ip = host_or_ip
+        except:
+            ip = resolve_ip(host_or_ip)
+
+        if not ip:
+            with geoip_lock:
+                geoip_cache[host_or_ip] = ("unknown", "UN")
+            return "unknown", "UN"
+
+        # check cache by IP
+        with geoip_lock:
+            if ip in geoip_cache:
+                geoip_cache[host_or_ip] = geoip_cache[ip]
+                return geoip_cache[ip]
+
+        r = session.get(f"https://ipinfo.io/{ip}/json", timeout=5)
+
+        if r.status_code != 200:
+            with geoip_lock:
+                geoip_cache[host_or_ip] = ("unknown", "UN")
+                geoip_cache[ip] = ("unknown", "UN")
+            return "unknown", "UN"
+
+        data = r.json()
+        country = data.get("country", "")
+
+        if not country:
+            with geoip_lock:
+                geoip_cache[host_or_ip] = ("unknown", "UN")
+                geoip_cache[ip] = ("unknown", "UN")
+            return "unknown", "UN"
+
+        cc_lower = country.lower()
+        cc_upper = country.upper()
+
+        with geoip_lock:
+            geoip_cache[host_or_ip] = (cc_lower, cc_upper)
+            geoip_cache[ip] = (cc_lower, cc_upper)
+
+        return cc_lower, cc_upper
+
+    except Exception:
+        with geoip_lock:
+            geoip_cache[host_or_ip] = ("unknown", "UN")
+            if ip:
+                geoip_cache[ip] = ("unknown", "UN")
+
+        return "unknown", "UN"
     
 def country_to_flag(cc):
     """Convert ISO 3166 two-letter code to emoji flag"""
@@ -174,18 +255,12 @@ def parse_vmess(line, line_number=None):
     try:
         if not line.startswith("vmess://"):
             return None
-
-        raw = line[8:].strip()
-        raw = raw.replace("\n", "").replace(" ", "")
-
-        # fix base64 padding
+        raw = line[8:].strip().replace("\n", "").replace(" ", "")
         missing_padding = len(raw) % 4
         if missing_padding:
             raw += "=" * (4 - missing_padding)
-
         decoded = base64.b64decode(raw).decode("utf-8")
         data = json.loads(decoded)
-
         tls_value = str(data.get("tls", "")).lower()
 
         node = {
@@ -202,23 +277,15 @@ def parse_vmess(line, line_number=None):
 
         # ---------------- WS ----------------
         if node["network"] == "ws":
-            node["ws-opts"] = {
-                "path": data.get("path", "/"),
-                "headers": {"Host": data.get("host", "")}
-            }
+            node["ws-opts"] = {"path": data.get("path", "/"), "headers": {"Host": data.get("host", "")}}
 
         # ---------------- gRPC ----------------
         if node["network"] == "grpc":
-            node["grpc-opts"] = {
-                "grpc-service-name": data.get("path", "")
-            }
+            node["grpc-opts"] = {"grpc-service-name": data.get("path", "")}
 
         # ---------------- HTTP/2 ----------------
         if node["network"] == "h2":
-            node["h2-opts"] = {
-                "path": data.get("path", "/"),
-                "host": [data.get("host", "")]
-            }
+            node["h2-opts"] = {"path": data.get("path", "/"), "host": [data.get("host", "")]}
 
         # ---------------- TLS Server Name ----------------
         if node["tls"]:
@@ -246,12 +313,10 @@ def parse_vless(line, line_number=None):
         if "#" in line:
             line, name = line.split("#", 1)
             name = urllib.parse.unquote(name)
-
         core = line[len("vless://"):]
         if "@" not in core:
             return None
         uuid, rest = core.split("@", 1)
-
         query = {}
         if "?" in rest:
             host_port, q = rest.split("?", 1)
@@ -266,7 +331,6 @@ def parse_vless(line, line_number=None):
                 return None
         
             host = host_port[1:end]
-        
             if len(host_port) <= end + 2:
                 return None
         
@@ -294,11 +358,7 @@ def parse_vless(line, line_number=None):
             if "fp" in query:
                 node["client-fingerprint"] = query["fp"]
         elif query.get("security") == "reality":
-            node["reality-opts"] = {
-                "public-key": query.get("pbk", ""),
-                "short-id": query.get("sid", ""),
-                "server-name": query.get("sni", "")
-            }
+            node["reality-opts"] = {"public-key": query.get("pbk", ""), "short-id": query.get("sid", ""), "server-name": query.get("sni", "")}
             node["tls"] = True
 
         # Network
@@ -318,8 +378,8 @@ def parse_vless(line, line_number=None):
         return node
 
     except Exception as e:
-        if line_no:
-            print(f"[warn] ❗VLESS parse error -> Line {line_no}")
+        if line_number:
+            print(f"[warn] ❗VLESS parse error -> Line {line_number}")
         else:
             print(f"[warn] ❗VLESS parse error -> {e}")
         return None
@@ -772,11 +832,7 @@ def parse_ssr(line, line_number=None):
 # -----------------------------------------------------------
 def parse_node_line(line, line_number=None):
     line = line.strip()
-
-    if not line:
-        return None
-
-    if line.startswith("#"):
+    if not line or line.startswith("#"):
         return None
 
     try:
@@ -904,10 +960,11 @@ def rename_node(p, country_counter, CN_TO_CC):
             geoip_primary_fail += 1
 
         # ----------Final naming----------
-        country_counter[cc] += 1
-        index = country_counter[cc]
-        p["name"] = build_name(flag, cc, index, ipv6_tag)
-        return p
+        with counter_lock:
+            country_counter[cc] += 1
+            index = country_counter[cc]
+            p["name"] = build_name(flag, cc, index, ipv6_tag)
+            return p
 
     # ----------If GEOIP-ONLY Mode Is Not Set----------
     else:
@@ -957,17 +1014,18 @@ def rename_node(p, country_counter, CN_TO_CC):
             return None    # ❌ truly unnameable → skip
 
         # ----------Final naming----------
-        country_counter[cc] += 1
-        index = country_counter[cc]
-        p["name"] = build_name(flag, cc, index, ipv6_tag)
-        return p
+        with counter_lock:
+            country_counter[cc] += 1
+            index = country_counter[cc]
+            p["name"] = build_name(flag, cc, index, ipv6_tag)
+            return p
 
 # ---------------- Load proxies ----------------
-def load_proxies(url, retries=10):
+def load_proxies(url, retries=5):
     attempt = 0
     while attempt < retries:
         try:
-            r = requests.get(url, timeout=15)
+            r = session.get(url, timeout=10)
             r.raise_for_status()
             text = r.text.strip()
             nodes = []
@@ -1076,6 +1134,7 @@ def load_proxies(url, retries=10):
 # ---------------- Main ----------------
 def main():
     try:
+        CN_TO_CC = load_cn_to_cc()
         sources = load_sources()
         print(f"[start] 🖥️ Loaded ({len(sources)}) subscription links from source")
 
@@ -1090,7 +1149,6 @@ def main():
         # ---------------- Latency filter ----------------
         if USE_LATENCY:
             print(f"[latency] 🚫 Filtering nodes > {LATENCY_THRESHOLD} ms")
-            country_counter = defaultdict(int)
             filtered_nodes = []
             with concurrent.futures.ThreadPoolExecutor(max_workers=50) as ex:
                 futures = [ex.submit(tcp_latency_ms, n.get("server"), n.get("port")) for n in all_nodes]
@@ -1104,7 +1162,6 @@ def main():
             print(f"[latency]  🖨️ Total [{len(filtered_nodes)}] nodes remain after latency filtering")
         else:
             filtered_nodes = all_nodes
-            country_counter = defaultdict(int)
             print(f"[latency] 🚀 Latency filtering disabled, ({len(filtered_nodes)}) nodes remain")
 
         # ---------------- Duplicate filter ----------------
@@ -1148,11 +1205,11 @@ def main():
 
         # ---------------- Load template ----------------
         try:
-            r = requests.get(TEMPLATE_URL, timeout=15)
-            r.raise_for_status()
-            template_text = r.text
-        except Exception as e:
-            print(f"[FATAL] ⚠️ Failed to fetch ClashTemplate -> {e}")
+            with open(CLASH_TEMPLATE, "r", encoding="utf-8") as f:
+                template_text = f.read()
+            print("[INFO] Loaded ClashTemplate from local file")
+        except Exception as e_local:
+            print(f"[FATAL] ⚠️ Failed to load ClashTemplate -> {e_local}")
             sys.exit(1)
 
         # ---------------- Preferred key order ----------------
@@ -1238,14 +1295,14 @@ def main():
 # ---------------- Upload to TextDB ----------------
 def upload_to_textdb():
     try:
-        # Step 1: Read freshly generated Filter file (local, not GitHub raw)
-        with open("9PB", "r", encoding="utf-8") as f:
+        # Step 1: Read freshly generated subscription file (local, not GitHub raw)
+        with open(OUTPUT_FILE, "r", encoding="utf-8") as f:
             output_text = f.read()
 
         # Step 2: Delete old data
-        delete_resp = requests.post(TEXTDB_API, data={"value": ""})
+        delete_resp = session.post(TEXTDB_API, data={"value": ""})
         if delete_resp.status_code == 200:
-            print("[info] 🗑️ Successfully deleteded old data on textdb")
+            print("[info] 🗑️ Successfully deleted old data on textdb")
         else:
             print(f"[warn] ❌ Failed to delete old data on textdb: {delete_resp.status_code}")
             print(f"[warn] ❗Response: {delete_resp.text}")
@@ -1254,7 +1311,7 @@ def upload_to_textdb():
         time.sleep(3)
 
         # Step 3: Upload new data
-        upload_resp = requests.post(TEXTDB_API, data={"value": output_text})
+        upload_resp = session.post(TEXTDB_API, data={"value": output_text})
         if upload_resp.status_code == 200:
             print("[info] 📤 Successfully uploaded new data on textdb")
         else:
