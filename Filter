@@ -1,4 +1,4 @@
-# Last update: 15.04.2026 11:18:42
+# Last update: 15.04.2026 11:40:02
 mixed-port: 7897
 allow-lan: false
 mode: rule
@@ -121,47 +121,161 @@ dns:
       - +.googleapis.com
       - +.gvt1.com
 proxies:
-- {name: "🇺🇸 US-1 | Filter", type: "vmess", server: "82.198.246.46", port: 180, uuid: "d13fc2f5-3e05-4795-81eb-44143a09e552", network: "tcp", path: "/", alterId: 0, cipher: "auto", tls: false, v: "2", ps: "节点日期：2026-04-15", add: "82.198.246.46", id: "d13fc2f5-3e05-4795-81eb-44143a09e552", aid: "0", net: "tcp"}
-- {name: "🇲🇾 MY-1 | Filter", type: "vmess", server: "v12.hdacd.com", port: 30812, uuid: "cbb3f877-d1fb-344c-87a9-d153bffd5484", network: "tcp", path: "/", alterId: 0, cipher: "auto", tls: false, v: "2", ps: "MY【机场推荐：https://a9a.xyz】1", add: "v12.hdacd.com", id: "cbb3f877-d1fb-344c-87a9-d153bffd5484", aid: "0", net: "tcp", host: "4bbf82ea-t0bog0-ta64ri-1qzi1.hk3.p5pv.com"}
-- {name: "🇮🇩 ID-1 | Filter", type: "vmess", server: "v30.hdacd.com", port: 30830, uuid: "cbb3f877-d1fb-344c-87a9-d153bffd5484", network: "tcp", path: "/", alterId: 0, cipher: "auto", tls: false, v: "2", ps: "ID【机场推荐：https://a9a.xyz】2", add: "v30.hdacd.com", id: "cbb3f877-d1fb-344c-87a9-d153bffd5484", aid: "0", net: "tcp", host: "mfyousheng.nl.eu.org"}
-- {name: "🇭🇰 HK-1 | Filter", type: "vmess", server: "103.181.164.145", port: 51556, uuid: "418048af-a293-4b99-9b0c-98ca3580dd24", network: "tcp", path: "/", alterId: 0, cipher: "auto", tls: false, v: "2", ps: "HK【机场推荐：https://a9a.xyz】3", add: "103.181.164.145", id: "418048af-a293-4b99-9b0c-98ca3580dd24", aid: "0", net: "tcp"}
-- {name: "🇺🇸 US-2 | Filter", type: "vmess", server: "82.198.246.97", port: 180, uuid: "d13fc2f5-3e05-4795-81eb-44143a09e552", network: "tcp", alterId: 0, cipher: "auto", tls: false, v: "2", ps: "US【机场推荐：https://a9a.xyz】4", add: "82.198.246.97", id: "d13fc2f5-3e05-4795-81eb-44143a09e552", aid: "0", scy: "auto", net: "tcp"}
-- {name: "🇭🇰 HK-2 | Filter", type: "vmess", server: "103.181.164.145", port: 54022, uuid: "418048af-a293-4b99-9b0c-98ca3580dd24", network: "tcp", alterId: 64, cipher: "auto", tls: false, v: "2", ps: "HK【机场推荐：https://a9a.xyz】5", add: "103.181.164.145", id: "418048af-a293-4b99-9b0c-98ca3580dd24", aid: "64", scy: "auto", net: "tcp"}
-- {name: "🇺🇳 UN-1 | Filter", type: "ss", server: "usgpt.slianrk.com", port: 13012, password: "e777513e-9df5-4dc3-bc84-74e564345a81", cipher: "chacha20-ietf-poly1305"}
-- {name: "🇺🇸 US-3 | Filter", type: "vmess", server: "82.198.246.250", port: 180, uuid: "d13fc2f5-3e05-4795-81eb-44143a09e552", network: "tcp", alterId: 0, cipher: "auto", tls: false, v: "2", ps: "US【机场推荐：https://a9a.xyz】7", add: "82.198.246.250", id: "d13fc2f5-3e05-4795-81eb-44143a09e552", aid: "0", scy: "auto", net: "tcp"}
-- {name: "🇯🇵 JP-1 | Filter", type: "ss", server: "pre1.uops.rtx.al", port: 6582, password: "413fdb10-a596-4e7c-b081-54243d252894", cipher: "aes-128-gcm"}
-- {name: "🇨🇦 CA-1 | Filter", type: "vless", server: "fm3.pages.dev", port: 443, uuid: "873914f7-1b3d-481d-9a34-69bc85f64aac", encryption: "none", network: "ws", security: "tls", sni: "fm3.pages.dev", servername: "fm3.pages.dev", skip-cert-verify: false, fp: "randomized", client-fingerprint: "randomized", path: "/?ed=2560", ws-opts: {path: "/?ed=2560", headers: {"Host": "fm3.pages.dev"}}, tls: true, headerType: "none", host: "fm3.pages.dev"}
-- {name: "🇹🇼 TW-1 | Filter", type: "ss", server: "r3mrcg001286ek2.cybervena.com", port: 50099, password: "7e731ec3-f8e1-43f6-92cf-3978d14705c4", cipher: "chacha20-ietf-poly1305"}
+- {name: "🇺🇸 US-1 | Filter", type: "ss", server: "cf.008500.xyz", port: 443, password: "79960b0b-7d31-4263-8915-6511b0e137a8", cipher: "none", plugin: "v2ray-plugin", plugin-opts: {mode: "websocket", host: "woshinidie-et3.pages.dev", path: "/79960b0b-7d31-4263-8915-6511b0e137a8/?ed\\=2560", tls: true, mux: "0"}}
+- {name: "🇳🇱 NL-1 | Filter", type: "ss", server: "5.253.189.215", port: 443, password: "3e96ef7d-8637-42c2-ac73-75182196e755", cipher: "none", plugin: "v2ray-plugin", plugin-opts: {mode: "websocket", host: "mfvpn.fuchen.indevs.in", path: "3e96ef7d-8637-42c2-ac73-75182196e755/?ed\\=2560", tls: true, mux: "0"}}
+- {name: "🇺🇸 US-2 | Filter", type: "vless", server: "192.200.160.19", port: 443, uuid: "6202b230-417c-4d8e-b624-0f71afa9c75d", network: "ws", servername: "sni.111000.v6.navy", skip-cert-verify: true, ws-opts: {path: "/?ed=2560", headers: {"host": "sni.111000.v6.navy"}}, tls: true, tfo: false}
+- {name: "🇺🇸 US-3 | Filter", type: "ss", server: "160.153.137.16", port: 443, password: "14b02e2a-8930-4afb-8412-ea4a4954ca5b", cipher: "none", plugin: "v2ray-plugin", plugin-opts: {mode: "websocket", host: "ylnhh.us.ci", path: "/14b02e2a-8930-4afb-8412-ea4a4954ca5b/?ed\\=2560", tls: true, mux: "0"}}
+- {name: "🇻🇳 VN-1 | Filter", type: "ss", server: "103.15.90.134", port: 49678, password: "14b02e2a-8930-4afb-8412-ea4a4954ca5b", cipher: "none", plugin: "v2ray-plugin", plugin-opts: {mode: "websocket", host: "ylnhh.us.ci", path: "/14b02e2a-8930-4afb-8412-ea4a4954ca5b/?ed\\=2560", tls: true, mux: "0"}}
+- {name: "🇯🇵 JP-1 | Filter", type: "ss", server: "store.ubi.com", port: 443, password: "3e96ef7d-8637-42c2-ac73-75182196e755", cipher: "none", plugin: "v2ray-plugin", plugin-opts: {mode: "websocket", host: "mfvpn.fuchen.indevs.in", path: "/3e96ef7d-8637-42c2-ac73-75182196e755/?ed\\=2560", tls: true, mux: "0"}}
+- {name: "🇰🇷 KR-1 | Filter", type: "ss", server: "116.93.199.28", port: 22140, password: "14b02e2a-8930-4afb-8412-ea4a4954ca5b", cipher: "none", plugin: "v2ray-plugin", plugin-opts: {mode: "websocket", host: "ylnhh.us.ci", path: "14b02e2a-8930-4afb-8412-ea4a4954ca5b/?ed\\=2560", tls: true, mux: "0"}}
+- {name: "🇰🇷 KR-2 | Filter", type: "ss", server: "116.93.199.28", port: 10296, password: "3e96ef7d-8637-42c2-ac73-75182196e755", cipher: "none", plugin: "v2ray-plugin", plugin-opts: {mode: "websocket", host: "mfvpn.fuchen.indevs.in", path: "3e96ef7d-8637-42c2-ac73-75182196e755/?ed\\=2560", tls: true, mux: "0"}}
+- {name: "🇺🇸 US-4 | Filter", type: "vless", server: "135.84.74.43", port: 443, uuid: "6202b230-417c-4d8e-b624-0f71afa9c75d", network: "ws", servername: "sni.111000.v6.navy", skip-cert-verify: true, ws-opts: {path: "/", headers: {"host": "sni.111000.v6.navy"}}, tls: true, tfo: false}
+- {name: "🇺🇸 US-5 | Filter", type: "vless", server: "209.102.207.120", port: 443, uuid: "6202b230-417c-4d8e-b624-0f71afa9c75d", network: "ws", servername: "sni.111000.v6.navy", skip-cert-verify: true, ws-opts: {path: "/", headers: {"host": "sni.111000.v6.navy"}}, tls: true, tfo: false}
+- {name: "🇯🇵 JP-2 | Filter", type: "ss", server: "3.112.89.102", port: 8443, password: "3e96ef7d-8637-42c2-ac73-75182196e755", cipher: "none", plugin: "v2ray-plugin", plugin-opts: {mode: "websocket", host: "mfvpn.fuchen.indevs.in", path: "3e96ef7d-8637-42c2-ac73-75182196e755/?ed\\=2560", tls: true, mux: "0"}}
+- {name: "🇯🇵 JP-3 | Filter", type: "ss", server: "199.181.197.38", port: 443, password: "3e96ef7d-8637-42c2-ac73-75182196e755", cipher: "none", plugin: "v2ray-plugin", plugin-opts: {mode: "websocket", host: "mfvpn.fuchen.indevs.in", path: "3e96ef7d-8637-42c2-ac73-75182196e755/?ed\\=2560", tls: true, mux: "0"}}
+- {name: "🇳🇱 NL-2 | Filter", type: "ss", server: "51.15.23.63", port: 989, password: "f8f7aCzcPKbsF8p3", cipher: "aes-256-cfb"}
+- {name: "🇯🇵 JP-4 | Filter", type: "ss", server: "103.133.1.38", port: 443, password: "3e96ef7d-8637-42c2-ac73-75182196e755", cipher: "none", plugin: "v2ray-plugin", plugin-opts: {mode: "websocket", host: "mfvpn.fuchen.indevs.in", path: "3e96ef7d-8637-42c2-ac73-75182196e755/?ed\\=2560", tls: true, mux: "0"}}
+- {name: "🇪🇸 ES-1 | Filter", type: "vless", server: "185.231.204.21", port: 8443, uuid: "fb9d7f81-0520-48e1-b7be-e5678ccf1b92", network: "tcp", servername: "api-maps.yandex.ru", skip-cert-verify: false, client-fingerprint: "chrome", tls: true, reality-opts: {public-key: "S49a5-vW8qiWXvd7uaYkd2Y-dPRIYw91KO3urkfk-U0", short-id: "fedcba9876543210"}, tfo: false, flow: "xtls-rprx-vision"}
+- {name: "🇸🇬 SG-1 | Filter", type: "vmess", server: "151.242.180.91", port: 30812, uuid: "cbb3f877-d1fb-344c-87a9-d153bffd5484", network: "tcp", servername: "", skip-cert-verify: false, alterId: 0, cipher: "auto", tls: false}
+- {name: "🇳🇱 NL-3 | Filter", type: "ss", server: "51.15.17.169", port: 989, password: "f8f7aCzcPKbsF8p3", cipher: "aes-256-cfb"}
+- {name: "🇩🇪 DE-1 | Filter", type: "vmess", server: "82.198.246.97", port: 180, uuid: "d13fc2f5-3e05-4795-81eb-44143a09e552", network: "tcp", servername: "", skip-cert-verify: false, alterId: 0, cipher: "auto", tls: false}
+- {name: "🇭🇰 HK-1 | Filter", type: "vless", server: "222.167.202.15", port: 7443, uuid: "06ef598c-1555-4887-b3f9-08214a2f6792", network: "ws", servername: "2026.hhhhh.eu.org", skip-cert-verify: true, ws-opts: {path: "/222.167.202.15:7443", headers: {"host": "2026.hhhhh.eu.org"}}, tls: true, tfo: false}
+- {name: "🇩🇪 DE-2 | Filter", type: "vmess", server: "82.198.246.250", port: 180, uuid: "d13fc2f5-3e05-4795-81eb-44143a09e552", network: "tcp", servername: "", skip-cert-verify: false, alterId: 0, cipher: "auto", tls: false}
+- {name: "🇫🇷 FR-1 | Filter", type: "vless", server: "77.221.152.21", port: 443, uuid: "6202b230-417c-4d8e-b624-0f71afa9c75d", network: "ws", servername: "sni.111000.v6.navy", skip-cert-verify: true, ws-opts: {path: "/?ed=2560", headers: {"host": "sni.111000.v6.navy"}}, tls: true, tfo: false}
+- {name: "🇭🇰 HK-2 | Filter", type: "vless", server: "222.167.202.4", port: 7443, uuid: "06ef598c-1555-4887-b3f9-08214a2f6792", network: "ws", servername: "2026.hhhhh.eu.org", skip-cert-verify: true, ws-opts: {path: "/222.167.202.4:7443", headers: {"host": "2026.hhhhh.eu.org"}}, tls: true, tfo: false}
+- {name: "🇯🇵 JP-5 | Filter", type: "ss", server: "sub.danfeng.eu.org", port: 443, password: "79960b0b-7d31-4263-8915-6511b0e137a8", cipher: "none", plugin: "v2ray-plugin", plugin-opts: {mode: "websocket", host: "woshinidie-et3.pages.dev", path: "/79960b0b-7d31-4263-8915-6511b0e137a8/?ed\\=2560", tls: true, mux: "0"}}
+- {name: "🇭🇰 HK-3 | Filter", type: "vless", server: "222.167.202.50", port: 7443, uuid: "06ef598c-1555-4887-b3f9-08214a2f6792", network: "ws", servername: "2026.hhhhh.eu.org", skip-cert-verify: true, ws-opts: {path: "/222.167.202.50:7443", headers: {"host": "2026.hhhhh.eu.org"}}, tls: true, tfo: false}
+- {name: "🇭🇰 HK-4 | Filter", type: "vless", server: "222.167.202.14", port: 7443, uuid: "06ef598c-1555-4887-b3f9-08214a2f6792", network: "ws", servername: "2026.hhhhh.eu.org", skip-cert-verify: true, ws-opts: {path: "/222.167.202.14:7443", headers: {"host": "2026.hhhhh.eu.org"}}, tls: true, tfo: false}
+- {name: "🇯🇵 JP-6 | Filter", type: "hysteria2", server: "151.241.130.90", port: 55000, password: "9d9519a0-7df0-42a4-a765-29512ab65f5c", sni: "www.bing.com", skip-cert-verify: true}
+- {name: "🇯🇵 JP-7 | Filter", type: "vless", server: "dongjing3.zqjsqapi.com", port: 443, uuid: "8d5e7f2a-3c1b-4d9e-a6f8-2b5c0e7d4a19", network: "ws", servername: "dongjing3.zqjsqapi.com", skip-cert-verify: true, ws-opts: {path: "/proxy", headers: {"host": "dongjing3.zqjsqapi.com"}}, tls: true, tfo: false}
+- {name: "🇭🇰 HK-5 | Filter", type: "vless", server: "222.167.202.47", port: 7443, uuid: "06ef598c-1555-4887-b3f9-08214a2f6792", network: "ws", servername: "2026.hhhhh.eu.org", skip-cert-verify: true, ws-opts: {path: "/222.167.202.47:7443", headers: {"host": "2026.hhhhh.eu.org"}}, tls: true, tfo: false}
+- {name: "🇭🇰 HK-6 | Filter", type: "vless", server: "222.167.202.31", port: 7443, uuid: "06ef598c-1555-4887-b3f9-08214a2f6792", network: "ws", servername: "2026.hhhhh.eu.org", skip-cert-verify: true, ws-opts: {path: "/222.167.202.31:7443", headers: {"host": "2026.hhhhh.eu.org"}}, tls: true, tfo: false}
+- {name: "🇭🇰 HK-7 | Filter", type: "vless", server: "222.167.202.33", port: 7443, uuid: "06ef598c-1555-4887-b3f9-08214a2f6792", network: "ws", servername: "2026.hhhhh.eu.org", skip-cert-verify: true, ws-opts: {path: "/222.167.202.33:7443", headers: {"host": "2026.hhhhh.eu.org"}}, tls: true, tfo: false}
+- {name: "🇫🇷 FR-2 | Filter", type: "vless", server: "94.183.186.27", port: 443, uuid: "6202b230-417c-4d8e-b624-0f71afa9c75d", network: "ws", servername: "sni.111000.v6.navy", skip-cert-verify: true, ws-opts: {path: "/?ed=2560&telegram🇨🇳@wangcai2", headers: {"host": "sni.111000.v6.navy"}}, tls: true, tfo: false}
+- {name: "🇭🇰 HK-8 | Filter", type: "vless", server: "222.167.202.26", port: 7443, uuid: "06ef598c-1555-4887-b3f9-08214a2f6792", network: "ws", servername: "2026.hhhhh.eu.org", skip-cert-verify: true, ws-opts: {path: "/222.167.202.26:7443", headers: {"host": "2026.hhhhh.eu.org"}}, tls: true, tfo: false}
+- {name: "🇭🇰 HK-9 | Filter", type: "vless", server: "222.167.202.36", port: 7443, uuid: "06ef598c-1555-4887-b3f9-08214a2f6792", network: "ws", servername: "2026.hhhhh.eu.org", skip-cert-verify: true, ws-opts: {path: "/222.167.202.36:7443", headers: {"host": "2026.hhhhh.eu.org"}}, tls: true, tfo: false}
+- {name: "🇭🇰 HK-10 | Filter", type: "vless", server: "222.167.202.6", port: 7443, uuid: "06ef598c-1555-4887-b3f9-08214a2f6792", network: "ws", servername: "2026.hhhhh.eu.org", skip-cert-verify: true, ws-opts: {path: "/222.167.202.6:7443", headers: {"host": "2026.hhhhh.eu.org"}}, tls: true, tfo: false}
+- {name: "🇭🇰 HK-11 | Filter", type: "vless", server: "222.167.202.45", port: 7443, uuid: "06ef598c-1555-4887-b3f9-08214a2f6792", network: "ws", servername: "2026.hhhhh.eu.org", skip-cert-verify: true, ws-opts: {path: "/222.167.202.45:7443", headers: {"host": "2026.hhhhh.eu.org"}}, tls: true, tfo: false}
+- {name: "🇭🇰 HK-12 | Filter", type: "vless", server: "222.167.202.32", port: 7443, uuid: "06ef598c-1555-4887-b3f9-08214a2f6792", network: "ws", servername: "2026.hhhhh.eu.org", skip-cert-verify: true, ws-opts: {path: "/222.167.202.32:7443", headers: {"host": "2026.hhhhh.eu.org"}}, tls: true, tfo: false}
+- {name: "🇭🇰 HK-13 | Filter", type: "vless", server: "222.167.202.23", port: 7443, uuid: "06ef598c-1555-4887-b3f9-08214a2f6792", network: "ws", servername: "2026.hhhhh.eu.org", skip-cert-verify: true, ws-opts: {path: "/222.167.202.23:7443", headers: {"host": "2026.hhhhh.eu.org"}}, tls: true, tfo: false}
+- {name: "🇬🇧 GB-1 | Filter", type: "ss", server: "57.129.137.51", port: 8443, password: "3e96ef7d-8637-42c2-ac73-75182196e755", cipher: "none", plugin: "v2ray-plugin", plugin-opts: {mode: "websocket", host: "mfvpn.fuchen.indevs.in", path: "3e96ef7d-8637-42c2-ac73-75182196e755/?ed\\=2560", tls: true, mux: "0"}}
+- {name: "🇬🇧 GB-2 | Filter", type: "ss", server: "45.14.247.168", port: 2053, password: "14b02e2a-8930-4afb-8412-ea4a4954ca5b", cipher: "none", plugin: "v2ray-plugin", plugin-opts: {mode: "websocket", host: "ylnhh.us.ci", path: "/14b02e2a-8930-4afb-8412-ea4a4954ca5b/?ed\\=2560", tls: true, mux: "0"}}
+- {name: "🇭🇰 HK-14 | Filter", type: "vless", server: "222.167.202.10", port: 7443, uuid: "06ef598c-1555-4887-b3f9-08214a2f6792", network: "ws", servername: "2026.hhhhh.eu.org", skip-cert-verify: true, ws-opts: {path: "/222.167.202.10:7443", headers: {"host": "2026.hhhhh.eu.org"}}, tls: true, tfo: false}
+- {name: "🇭🇰 HK-15 | Filter", type: "vless", server: "222.167.202.3", port: 7443, uuid: "06ef598c-1555-4887-b3f9-08214a2f6792", network: "ws", servername: "2026.hhhhh.eu.org", skip-cert-verify: true, ws-opts: {path: "/222.167.202.3:7443", headers: {"host": "2026.hhhhh.eu.org"}}, tls: true, tfo: false}
+- {name: "🇺🇸 US-6 | Filter", type: "vless", server: "135.84.74.155", port: 443, uuid: "6202b230-417c-4d8e-b624-0f71afa9c75d", network: "ws", servername: "sni.111000.v6.navy", skip-cert-verify: true, ws-opts: {path: "/?Telegram🇨🇳 @WangCai2=", headers: {"host": "sni.111000.v6.navy"}}, tls: true, tfo: false}
+- {name: "🇩🇪 DE-3 | Filter", type: "ss", server: "194.233.167.228", port: 443, password: "14b02e2a-8930-4afb-8412-ea4a4954ca5b", cipher: "none", plugin: "v2ray-plugin", plugin-opts: {mode: "websocket", host: "ylnhh.us.ci", path: "/14b02e2a-8930-4afb-8412-ea4a4954ca5b/?ed\\=2560", tls: true, mux: "0"}}
+- {name: "🇩🇪 DE-4 | Filter", type: "vless", server: "144.31.94.4", port: 42428, uuid: "27d0c642-693c-4070-83b4-0e9803ba71b3", network: "tcp", servername: "eh.vk.com", skip-cert-verify: false, client-fingerprint: "chrome", tls: true, reality-opts: {public-key: "ccICtTNR2BXmdCzazGcyci16c7O1kJIv6ugDM6xY2XY", short-id: "24adcebe"}, tfo: false, flow: "xtls-rprx-vision"}
+- {name: "🇭🇰 HK-16 | Filter", type: "vless", server: "222.167.202.52", port: 7443, uuid: "06ef598c-1555-4887-b3f9-08214a2f6792", network: "ws", servername: "2026.hhhhh.eu.org", skip-cert-verify: true, ws-opts: {path: "/222.167.202.52:7443", headers: {"host": "2026.hhhhh.eu.org"}}, tls: true, tfo: false}
+- {name: "🇫🇷 FR-3 | Filter", type: "ss", server: "135.125.191.9", port: 8443, password: "14b02e2a-8930-4afb-8412-ea4a4954ca5b", cipher: "none", plugin: "v2ray-plugin", plugin-opts: {mode: "websocket", host: "ylnhh.us.ci", path: "/14b02e2a-8930-4afb-8412-ea4a4954ca5b/?ed\\=2560", tls: true, mux: "0"}}
+- {name: "🇭🇰 HK-17 | Filter", type: "vless", server: "222.167.202.2", port: 7443, uuid: "06ef598c-1555-4887-b3f9-08214a2f6792", network: "ws", servername: "2026.hhhhh.eu.org", skip-cert-verify: true, ws-opts: {path: "/222.167.202.2:7443", headers: {"host": "2026.hhhhh.eu.org"}}, tls: true, tfo: false}
+- {name: "🇭🇰 HK-18 | Filter", type: "vless", server: "222.167.202.60", port: 7443, uuid: "06ef598c-1555-4887-b3f9-08214a2f6792", network: "ws", servername: "2026.hhhhh.eu.org", skip-cert-verify: true, ws-opts: {path: "/222.167.202.60:7443", headers: {"host": "2026.hhhhh.eu.org"}}, tls: true, tfo: false}
+- {name: "🇩🇪 DE-5 | Filter", type: "vless", server: "82.117.245.125", port: 2053, uuid: "6202b230-417c-4d8e-b624-0f71afa9c75d", network: "ws", servername: "sni.111000.v6.navy", skip-cert-verify: true, ws-opts: {path: "/", headers: {"host": "sni.111000.v6.navy"}}, tls: true, tfo: false}
 proxy-groups:
   - name: 选择线路
     type: select
     proxies:
       - 自动选择⚡️
       - 🇺🇸 US-1 | Filter
-      - 🇲🇾 MY-1 | Filter
-      - 🇮🇩 ID-1 | Filter
-      - 🇭🇰 HK-1 | Filter
+      - 🇳🇱 NL-1 | Filter
       - 🇺🇸 US-2 | Filter
-      - 🇭🇰 HK-2 | Filter
-      - 🇺🇳 UN-1 | Filter
       - 🇺🇸 US-3 | Filter
+      - 🇻🇳 VN-1 | Filter
       - 🇯🇵 JP-1 | Filter
-      - 🇨🇦 CA-1 | Filter
-      - 🇹🇼 TW-1 | Filter
+      - 🇰🇷 KR-1 | Filter
+      - 🇰🇷 KR-2 | Filter
+      - 🇺🇸 US-4 | Filter
+      - 🇺🇸 US-5 | Filter
+      - 🇯🇵 JP-2 | Filter
+      - 🇯🇵 JP-3 | Filter
+      - 🇳🇱 NL-2 | Filter
+      - 🇯🇵 JP-4 | Filter
+      - 🇪🇸 ES-1 | Filter
+      - 🇸🇬 SG-1 | Filter
+      - 🇳🇱 NL-3 | Filter
+      - 🇩🇪 DE-1 | Filter
+      - 🇭🇰 HK-1 | Filter
+      - 🇩🇪 DE-2 | Filter
+      - 🇫🇷 FR-1 | Filter
+      - 🇭🇰 HK-2 | Filter
+      - 🇯🇵 JP-5 | Filter
+      - 🇭🇰 HK-3 | Filter
+      - 🇭🇰 HK-4 | Filter
+      - 🇯🇵 JP-6 | Filter
+      - 🇯🇵 JP-7 | Filter
+      - 🇭🇰 HK-5 | Filter
+      - 🇭🇰 HK-6 | Filter
+      - 🇭🇰 HK-7 | Filter
+      - 🇫🇷 FR-2 | Filter
+      - 🇭🇰 HK-8 | Filter
+      - 🇭🇰 HK-9 | Filter
+      - 🇭🇰 HK-10 | Filter
+      - 🇭🇰 HK-11 | Filter
+      - 🇭🇰 HK-12 | Filter
+      - 🇭🇰 HK-13 | Filter
+      - 🇬🇧 GB-1 | Filter
+      - 🇬🇧 GB-2 | Filter
+      - 🇭🇰 HK-14 | Filter
+      - 🇭🇰 HK-15 | Filter
+      - 🇺🇸 US-6 | Filter
+      - 🇩🇪 DE-3 | Filter
+      - 🇩🇪 DE-4 | Filter
+      - 🇭🇰 HK-16 | Filter
+      - 🇫🇷 FR-3 | Filter
+      - 🇭🇰 HK-17 | Filter
+      - 🇭🇰 HK-18 | Filter
+      - 🇩🇪 DE-5 | Filter
   - name: 自动选择⚡️
     type: url-test
     proxies:
       - 🇺🇸 US-1 | Filter
-      - 🇲🇾 MY-1 | Filter
-      - 🇮🇩 ID-1 | Filter
-      - 🇭🇰 HK-1 | Filter
+      - 🇳🇱 NL-1 | Filter
       - 🇺🇸 US-2 | Filter
-      - 🇭🇰 HK-2 | Filter
-      - 🇺🇳 UN-1 | Filter
       - 🇺🇸 US-3 | Filter
+      - 🇻🇳 VN-1 | Filter
       - 🇯🇵 JP-1 | Filter
-      - 🇨🇦 CA-1 | Filter
-      - 🇹🇼 TW-1 | Filter
+      - 🇰🇷 KR-1 | Filter
+      - 🇰🇷 KR-2 | Filter
+      - 🇺🇸 US-4 | Filter
+      - 🇺🇸 US-5 | Filter
+      - 🇯🇵 JP-2 | Filter
+      - 🇯🇵 JP-3 | Filter
+      - 🇳🇱 NL-2 | Filter
+      - 🇯🇵 JP-4 | Filter
+      - 🇪🇸 ES-1 | Filter
+      - 🇸🇬 SG-1 | Filter
+      - 🇳🇱 NL-3 | Filter
+      - 🇩🇪 DE-1 | Filter
+      - 🇭🇰 HK-1 | Filter
+      - 🇩🇪 DE-2 | Filter
+      - 🇫🇷 FR-1 | Filter
+      - 🇭🇰 HK-2 | Filter
+      - 🇯🇵 JP-5 | Filter
+      - 🇭🇰 HK-3 | Filter
+      - 🇭🇰 HK-4 | Filter
+      - 🇯🇵 JP-6 | Filter
+      - 🇯🇵 JP-7 | Filter
+      - 🇭🇰 HK-5 | Filter
+      - 🇭🇰 HK-6 | Filter
+      - 🇭🇰 HK-7 | Filter
+      - 🇫🇷 FR-2 | Filter
+      - 🇭🇰 HK-8 | Filter
+      - 🇭🇰 HK-9 | Filter
+      - 🇭🇰 HK-10 | Filter
+      - 🇭🇰 HK-11 | Filter
+      - 🇭🇰 HK-12 | Filter
+      - 🇭🇰 HK-13 | Filter
+      - 🇬🇧 GB-1 | Filter
+      - 🇬🇧 GB-2 | Filter
+      - 🇭🇰 HK-14 | Filter
+      - 🇭🇰 HK-15 | Filter
+      - 🇺🇸 US-6 | Filter
+      - 🇩🇪 DE-3 | Filter
+      - 🇩🇪 DE-4 | Filter
+      - 🇭🇰 HK-16 | Filter
+      - 🇫🇷 FR-3 | Filter
+      - 🇭🇰 HK-17 | Filter
+      - 🇭🇰 HK-18 | Filter
+      - 🇩🇪 DE-5 | Filter
     url: https://www.gstatic.com/generate_204
     interval: 300
 rules:
