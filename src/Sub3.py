@@ -734,8 +734,7 @@ def parse_plugin(plugin_str: str):
                 opts[key] = val.lower() in ["1", "true"]
 
             elif key == "mux":
-                # 🔥 normalize mux immediately
-                opts[key] = val.lower() in ["1", "true"]
+                opts[key] = False
 
             else:
                 opts[key] = val
@@ -780,8 +779,12 @@ def sanitize_plugin_opts(node):
         if k not in VALID_KEYS:
             continue
 
-        if k in ["tls", "mux"]:
+        if k == "tls":
             cleaned[k] = bool(v)
+        
+        elif k == "mux":
+            # 🔥 ALWAYS force false
+            cleaned[k] = False
         else:
             cleaned[k] = v
 
