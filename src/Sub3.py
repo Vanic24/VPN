@@ -757,6 +757,39 @@ def parse_server_port(srvp: str):
 
     return server, int(port)
 
+# ---------------- FINAL sanitizer ----------------
+def sanitize_plugin_opts(node):
+    if "plugin-opts" not in node:
+        return node
+
+    opts = node["plugin-opts"]
+
+    if not isinstance(opts, dict):
+        node.pop("plugin-opts", None)
+        return node
+
+    cleaned = {}
+
+    for k, v in opts.items():
+        if k not in {"mode", "host", "path", "tls", "mux"}:
+            continue
+
+        if k == "tls":
+            cleaned[k] = bool(v)
+
+        elif k == "mux":
+            cleaned[k] = False  # force Clash-safe
+
+        else:
+            cleaned[k] = v
+
+    if cleaned:
+        node["plugin-opts"] = cleaned
+    else:
+        node.pop("plugin-opts", None)
+
+    return node
+
 # ---------------- SS PARSER ----------------
 def parse_ss(line, line_number=None):
     try:
