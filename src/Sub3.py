@@ -783,19 +783,21 @@ def parse_ss(line, line_number=None):
         # ---------------- query ----------------
         plugin = None
         plugin_opts = None
-
+        
         if "?" in raw:
             core, query = raw.split("?", 1)
-            params = urllib.parse.parse_qs(query, keep_blank_values=True)
-
-            if "plugin" in params:
-                plugin, plugin_opts = parse_plugin(params["plugin"][0])
-            
-                plugin_opts = enforce_plugin_types(plugin_opts)
+        
+            # manual extraction (NO parse_qs)
+            for part in query.split("&"):
+                if part.startswith("plugin="):
+                    plugin_raw = part[len("plugin="):]
+                    plugin, plugin_opts = parse_plugin(plugin_raw)
+        
+                    # enforce types
+                    plugin_opts = enforce_plugin_types(plugin_opts)
+                    break
         else:
             core = raw
-
-        core = core.strip()
 
         # ---------------- decode ----------------
         if "@" in core:
