@@ -689,12 +689,22 @@ def decode_b64(data: str) -> str:
     except Exception:
         raise ValueError("Invalid base64 encoding")
 
+def smart_cast(value: str):
+    v = value.strip().lower()
+
+    # bool handling
+    if v in ["1", "true"]:
+        return True
+    if v in ["0", "false"]:
+        return False
+
+    # int
+    if v.isdigit():
+        return int(v)
+
+    return value.strip()
 
 def parse_plugin(plugin_str: str):
-    """
-    Parse plugin string like:
-    v2ray-plugin;mode=websocket;path=/xxx;host=example.com;tls
-    """
     plugin_str = urllib.parse.unquote(plugin_str)
     plugin_str = plugin_str.replace("\\=", "=")
 
@@ -705,19 +715,36 @@ def parse_plugin(plugin_str: str):
     for p in parts[1:]:
         if not p:
             continue
+
         if "=" in p:
             k, v = p.split("=", 1)
-            opts[k.strip()] = v.strip()
+            opts[k.strip()] = smart_cast(v)
         else:
             opts[p.strip()] = True
 
     return plugin, opts
 
+def normalize_plugin_for_clash(plugin, opts):
+    """
+    Only fix types, DO NOT change structure
+    """
+    if not opts:
+        return plugin, opts
 
+    fixed = {}
+
+    for k, v in opts.items():
+        # enforce correct types only
+        if k in ["mux", "tls"]:
+            fixed[k] = bool(v)
+        else:
+            fixed[k] = v
+
+    return plugin, fixed
+    
+# ---------------- IPv6 safe ----------------
 def parse_server_port(srvp: str):
     srvp = srvp.strip()
-
-    # ---------------- IPv6 safe ----------------
     if srvp.startswith("["):
         end = srvp.find("]")
         if end == -1:
@@ -759,6 +786,9 @@ def parse_ss(line, line_number=None):
 
             if "plugin" in params:
                 plugin, plugin_opts = parse_plugin(params["plugin"][0])
+
+                # 🔥 normalize for Clash
+                plugin, plugin_opts = normalize_plugin_for_clash(plugin, plugin_opts)
         else:
             core = raw
 
@@ -766,7 +796,6 @@ def parse_ss(line, line_number=None):
 
         # ---------------- decode ----------------
         if "@" in core:
-            # format: base64(method:pass)@server:port
             b64_part, srvp = core.split("@", 1)
             decoded = decode_b64(b64_part)
 
@@ -776,7 +805,6 @@ def parse_ss(line, line_number=None):
             cipher, password = decoded.split(":", 1)
 
         else:
-            # SIP002 full base64
             decoded = decode_b64(core)
 
             if "@" not in decoded:
@@ -800,6 +828,7 @@ def parse_ss(line, line_number=None):
             "port": port,
             "cipher": cipher,
             "password": password,
+            "udp": True,  # Clash compatibility
         }
 
         if plugin:
