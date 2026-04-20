@@ -689,6 +689,7 @@ def decode_b64(data: str) -> str:
     except Exception:
         raise ValueError("Invalid base64 encoding")
 
+
 def smart_cast(value: str):
     v = value.strip().lower()
 
@@ -704,14 +705,45 @@ def smart_cast(value: str):
 
     return value.strip()
 
+# -----------------------------------------------------------
+# 🔥 SAFE plugin splitter (fixes ; inside path)
+# -----------------------------------------------------------
+def split_plugin_string(s: str):
+    parts = []
+    current = ""
+    in_path = False
+
+    for chunk in s.split(";"):
+        if chunk.startswith("path="):
+            in_path = True
+            current = chunk
+            continue
+
+        if in_path:
+            # if looks like new key=value → path ended
+            if "=" in chunk and not chunk.startswith("/"):
+                parts.append(current)
+                current = chunk
+                in_path = False
+            else:
+                current += ";" + chunk
+        else:
+            parts.append(chunk)
+
+    if current:
+        parts.append(current)
+
+    return parts
+
 def parse_plugin(plugin_str: str):
     plugin_str = urllib.parse.unquote(plugin_str)
     plugin_str = plugin_str.replace("\\=", "=")
 
-    parts = plugin_str.split(";")
-    plugin = parts[0].strip()
+    parts = split_plugin_string(plugin_str)
 
+    plugin = parts[0].strip()
     opts = {}
+
     for p in parts[1:]:
         if not p:
             continue
@@ -722,6 +754,9 @@ def parse_plugin(plugin_str: str):
         else:
             opts[p.strip()] = True
 
+    # 🔥 final enforcement
+    opts = enforce_plugin_types(opts)
+
     return plugin, opts
 
 def enforce_plugin_types(opts):
@@ -731,7 +766,7 @@ def enforce_plugin_types(opts):
     for k in list(opts.keys()):
         v = opts[k]
 
-        # force bool fields
+        # enforce bool
         if k in ["mux", "tls"]:
             if isinstance(v, str):
                 vv = v.lower()
@@ -740,15 +775,16 @@ def enforce_plugin_types(opts):
                 elif vv in ["0", "false"]:
                     opts[k] = False
 
-        # force int fields if needed
+        # enforce int
         elif isinstance(v, str) and v.isdigit():
             opts[k] = int(v)
 
     return opts
-    
-# ---------------- IPv6 safe ----------------
+
+# ---------------- IPV6 Safe ----------------
 def parse_server_port(srvp: str):
     srvp = srvp.strip()
+
     if srvp.startswith("["):
         end = srvp.find("]")
         if end == -1:
@@ -764,9 +800,7 @@ def parse_server_port(srvp: str):
 
     return server, int(port)
 
-# -----------------------------------------------------------
-# Main Parser
-# -----------------------------------------------------------
+# ---------------- Main Parser ----------------
 def parse_ss(line, line_number=None):
     try:
         if not line or not line.startswith("ss://"):
@@ -783,21 +817,21 @@ def parse_ss(line, line_number=None):
         # ---------------- query ----------------
         plugin = None
         plugin_opts = None
-        
+
         if "?" in raw:
             core, query = raw.split("?", 1)
-        
-            # manual extraction (NO parse_qs)
+
+            # manual extraction (robust)
             for part in query.split("&"):
                 if part.startswith("plugin="):
                     plugin_raw = part[len("plugin="):]
+
                     plugin, plugin_opts = parse_plugin(plugin_raw)
-        
-                    # enforce types
-                    plugin_opts = enforce_plugin_types(plugin_opts)
                     break
         else:
             core = raw
+
+        core = core.strip()
 
         # ---------------- decode ----------------
         if "@" in core:
@@ -833,7 +867,7 @@ def parse_ss(line, line_number=None):
             "port": port,
             "cipher": cipher,
             "password": password,
-            "udp": True,  # Clash compatibility
+            "udp": True,
         }
 
         if plugin:
