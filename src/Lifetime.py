@@ -772,10 +772,9 @@ def parse_ss(line, line_number=None, output="clash"):
 
         if "?" in raw:
             core, query = raw.split("?", 1)
-
-            for part in query.split("&"):
-                if part.startswith("plugin="):
-                    plugin_raw = part.split("=", 1)[1]
+            plugin_raw = None
+            if "plugin=" in query:
+                plugin_raw = query.split("plugin=", 1)[1]
                     plugin, plugin_opts = parse_plugin(plugin_raw)
                     break
         else:
