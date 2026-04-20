@@ -689,34 +689,38 @@ def decode_b64(data: str) -> str:
     except Exception:
         raise ValueError("Invalid base64 encoding")
 
-
+# -----------------------------------------------------------
+# Smart casting (generic)
+# -----------------------------------------------------------
 def smart_cast(value: str):
     v = value.strip().lower()
 
-    # ✅ correct bool handling
     if v in ["1", "true"]:
         return True
     if v in ["0", "false"]:
         return False
 
-    # int
     if v.isdigit():
         return int(v)
 
     return value.strip()
 
 # -----------------------------------------------------------
-# Plugin Parser (KEEP SIMPLE + STABLE)
+# Plugin Parser (STRICT + FINAL)
 # -----------------------------------------------------------
 def parse_plugin(plugin_str: str):
-    # 🔥 FULL decode (handles nested encoding cases)
+    # 🔥 handle double-encoded links
     plugin_str = urllib.parse.unquote(plugin_str)
     plugin_str = urllib.parse.unquote(plugin_str)
+
+    # 🔥 fix escaped chars
     plugin_str = plugin_str.replace("\\=", "=").replace("\\\\", "\\")
+
     parts = plugin_str.split(";")
     plugin = parts[0].strip()
 
     opts = {}
+
     for p in parts[1:]:
         if not p:
             continue
@@ -725,8 +729,8 @@ def parse_plugin(plugin_str: str):
             k, v = p.split("=", 1)
             key = k.strip()
             val = v.strip()
-            
-            # 🔥 HARD FIX for Clash problematic keys
+
+            # 🔥 HARD TYPE ENFORCEMENT (Clash critical)
             if key in ["mux", "tls"]:
                 if val.lower() in ["1", "true"]:
                     opts[key] = True
@@ -736,45 +740,17 @@ def parse_plugin(plugin_str: str):
                     opts[key] = False
             else:
                 opts[key] = smart_cast(val)
+
         else:
             opts[p.strip()] = True
 
     return plugin, opts
 
 # -----------------------------------------------------------
-# 🔥 Correct Clash normalization (CRITICAL FIX)
-# -----------------------------------------------------------
-def normalize_plugin_for_clash(plugin, opts):
-    if not opts:
-        return plugin, opts
-
-    fixed = {}
-
-    for k, v in opts.items():
-
-        if k in ["mux", "tls"]:
-            # ✅ FIX: proper boolean conversion
-            if isinstance(v, str):
-                vv = v.lower()
-                if vv in ["1", "true"]:
-                    fixed[k] = True
-                elif vv in ["0", "false"]:
-                    fixed[k] = False
-                else:
-                    fixed[k] = False
-            else:
-                fixed[k] = bool(v)
-
-        else:
-            fixed[k] = v
-
-    return plugin, fixed
-
-# -----------------------------------------------------------
-# IPv6 safe + FIX trailing "/"
+# IPv6 safe + trailing slash fix
 # -----------------------------------------------------------
 def parse_server_port(srvp: str):
-    srvp = srvp.strip().rstrip("/")  # 🔥 important fix
+    srvp = srvp.strip().rstrip("/")
 
     if srvp.startswith("["):
         end = srvp.find("]")
@@ -792,7 +768,7 @@ def parse_server_port(srvp: str):
     return server, int(port)
 
 # -----------------------------------------------------------
-# Main Parser
+# Main SS Parser
 # -----------------------------------------------------------
 def parse_ss(line, line_number=None):
     try:
@@ -810,23 +786,18 @@ def parse_ss(line, line_number=None):
         # ---------------- query ----------------
         plugin = None
         plugin_opts = None
-        
+
         if "?" in raw:
             core, query = raw.split("?", 1)
-        
+
             for part in query.split("&"):
                 if part.startswith("plugin="):
                     plugin_raw = part[len("plugin="):]
-        
                     plugin, plugin_opts = parse_plugin(plugin_raw)
-        
-                    # 🔥 ALWAYS normalize here
-                    plugin, plugin_opts = normalize_plugin_for_clash(plugin, plugin_opts)
-        
                     break
         else:
             core = raw
-        
+
         core = core.strip()
 
         # ---------------- decode ----------------
@@ -870,10 +841,6 @@ def parse_ss(line, line_number=None):
             node["plugin"] = plugin
 
         if plugin_opts:
-            # 🔥 FINAL HARD FIX (guarantee Clash compatibility)
-            if "tls" in plugin_opts:
-                plugin_opts["tls"] = bool(plugin_opts["tls"])
-        
             node["plugin-opts"] = plugin_opts
 
         return node
