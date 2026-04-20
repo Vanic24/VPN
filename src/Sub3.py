@@ -708,7 +708,6 @@ def parse_plugin(plugin_str: str):
     plugin_str = urllib.parse.unquote(plugin_str)
     plugin_str = urllib.parse.unquote(plugin_str)
 
-    # fix escaped chars
     plugin_str = plugin_str.replace("\\=", "=").replace("\\\\", "\\")
 
     parts = plugin_str.split(";")
@@ -716,8 +715,8 @@ def parse_plugin(plugin_str: str):
 
     opts = {}
 
-    # ✅ Only allow safe keys
-    VALID_KEYS = {"mode", "host", "path", "tls"}
+    # ✅ include mux now
+    VALID_KEYS = {"mode", "host", "path", "tls", "mux"}
 
     for p in parts[1:]:
         if not p:
@@ -734,8 +733,9 @@ def parse_plugin(plugin_str: str):
             if key == "tls":
                 opts[key] = val.lower() in ["1", "true"]
 
-            elif key == "path":
-                opts[key] = val
+            elif key == "mux":
+                # 🔥 normalize mux immediately
+                opts[key] = val.lower() in ["1", "true"]
 
             else:
                 opts[key] = val
@@ -772,7 +772,7 @@ def sanitize_plugin_opts(node):
         del node["plugin-opts"]
         return node
 
-    VALID_KEYS = {"mode", "host", "path", "tls"}
+    VALID_KEYS = {"mode", "host", "path", "tls", "mux"}
 
     cleaned = {}
 
@@ -780,7 +780,7 @@ def sanitize_plugin_opts(node):
         if k not in VALID_KEYS:
             continue
 
-        if k == "tls":
+        if k in ["tls", "mux"]:
             cleaned[k] = bool(v)
         else:
             cleaned[k] = v
@@ -860,12 +860,13 @@ def parse_ss(line, line_number=None):
             "udp": True,
         }
 
+        # 🔥 critical runtime fixes
         if plugin == "v2ray-plugin":
             node["skip-cert-verify"] = True
             node["tfo"] = False
 
-        if plugin_opts and plugin_opts.get("tls") is True:
-            node["tls"] = True
+            if plugin_opts and plugin_opts.get("tls"):
+                node["tls"] = True
 
         if plugin:
             node["plugin"] = plugin
