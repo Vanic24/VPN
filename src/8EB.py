@@ -689,62 +689,60 @@ def decode_b64(data: str) -> str:
     except Exception:
         raise ValueError("Invalid base64 encoding")
 
+# ---------------- Smart casting (generic) ----------------
 def smart_cast(value: str):
     v = value.strip().lower()
 
-    # bool handling
     if v in ["1", "true"]:
         return True
     if v in ["0", "false"]:
         return False
 
-    # int
     if v.isdigit():
         return int(v)
 
     return value.strip()
 
+# ---------------- Plugin Parser (STRICT + FINAL) ----------------
 def parse_plugin(plugin_str: str):
     plugin_str = urllib.parse.unquote(plugin_str)
-    plugin_str = plugin_str.replace("\\=", "=")
-
+    plugin_str = urllib.parse.unquote(plugin_str)
+    plugin_str = plugin_str.replace("\\=", "=").replace("\\\\", "\\")
     parts = plugin_str.split(";")
     plugin = parts[0].strip()
-
     opts = {}
+
+    # ✅ Only allow Clash-supported keys
+    VALID_KEYS = {"mode", "host", "path", "tls"}
+
     for p in parts[1:]:
         if not p:
             continue
 
         if "=" in p:
             k, v = p.split("=", 1)
-            opts[k.strip()] = smart_cast(v)
+            key = k.strip()
+            val = v.strip()
+
+            # ❌ DROP unsupported keys completely
+            if key not in VALID_KEYS:
+                continue
+
+            if key == "tls":
+                opts[key] = val.lower() in ["1", "true"]
+            else:
+                opts[key] = val  # keep string (important for path)
+
         else:
-            opts[p.strip()] = True
+            # ignore flag-style params (Clash doesn't need them)
+            continue
 
     return plugin, opts
 
-def normalize_plugin_for_clash(plugin, opts):
-    """
-    Only fix types, DO NOT change structure
-    """
-    if not opts:
-        return plugin, opts
-
-    fixed = {}
-
-    for k, v in opts.items():
-        # enforce correct types only
-        if k in ["mux", "tls"]:
-            fixed[k] = bool(v)
-        else:
-            fixed[k] = v
-
-    return plugin, fixed
-    
-# ---------------- IPv6 safe ----------------
+# ---------------- IPv6 safe + trailing slash fix ----------------
 def parse_server_port(srvp: str):
-    srvp = srvp.strip()
+    srvp = srvp.strip().rstrip("/")
+
     if srvp.startswith("["):
         end = srvp.find("]")
         if end == -1:
@@ -760,9 +758,38 @@ def parse_server_port(srvp: str):
 
     return server, int(port)
 
-# -----------------------------------------------------------
-# Main Parser
-# -----------------------------------------------------------
+def sanitize_plugin_opts(node):
+    if "plugin-opts" not in node:
+        return node
+
+    opts = node["plugin-opts"]
+
+    if not isinstance(opts, dict):
+        del node["plugin-opts"]
+        return node
+
+    # ✅ Only allow safe keys
+    VALID_KEYS = {"mode", "host", "path", "tls"}
+
+    cleaned = {}
+
+    for k, v in opts.items():
+        if k not in VALID_KEYS:
+            continue
+
+        if k == "tls":
+            cleaned[k] = bool(v)
+        else:
+            cleaned[k] = v
+
+    if cleaned:
+        node["plugin-opts"] = cleaned
+    else:
+        del node["plugin-opts"]
+
+    return node
+
+# ----------------  Main SS Parser ----------------
 def parse_ss(line, line_number=None):
     try:
         if not line or not line.startswith("ss://"):
@@ -782,13 +809,12 @@ def parse_ss(line, line_number=None):
 
         if "?" in raw:
             core, query = raw.split("?", 1)
-            params = urllib.parse.parse_qs(query, keep_blank_values=True)
 
-            if "plugin" in params:
-                plugin, plugin_opts = parse_plugin(params["plugin"][0])
-
-                # 🔥 normalize for Clash
-                plugin, plugin_opts = normalize_plugin_for_clash(plugin, plugin_opts)
+            for part in query.split("&"):
+                if part.startswith("plugin="):
+                    plugin_raw = part[len("plugin="):]
+                    plugin, plugin_opts = parse_plugin(plugin_raw)
+                    break
         else:
             core = raw
 
@@ -828,7 +854,7 @@ def parse_ss(line, line_number=None):
             "port": port,
             "cipher": cipher,
             "password": password,
-            "udp": True,  # Clash compatibility
+            "udp": True,
         }
 
         if plugin:
@@ -1316,7 +1342,8 @@ def main():
             return ordered
         
         # Apply to all renamed nodes
-        info_ordered = [reorder_info(n) for n in renamed_nodes]
+        sanitized_nodes = [sanitize_plugin_opts(n) for n in renamed_nodes]
+        info_ordered = [reorder_info(n) for n in sanitized_nodes]
         info_ordered_dicts = [dict(n) for n in info_ordered]
 
         # Line by line YAML proxies output format
