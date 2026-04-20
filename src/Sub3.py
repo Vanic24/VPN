@@ -689,6 +689,7 @@ def decode_b64(data: str) -> str:
     except Exception:
         raise ValueError("Invalid base64 encoding")
 
+
 # -----------------------------------------------------------
 # Smart casting (generic)
 # -----------------------------------------------------------
