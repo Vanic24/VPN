@@ -724,23 +724,27 @@ def parse_plugin(plugin_str: str):
 
     return plugin, opts
 
-def normalize_plugin_for_clash(plugin, opts):
-    """
-    Only fix types, DO NOT change structure
-    """
+def enforce_plugin_types(opts):
     if not opts:
-        return plugin, opts
+        return opts
 
-    fixed = {}
+    for k in list(opts.keys()):
+        v = opts[k]
 
-    for k, v in opts.items():
-        # enforce correct types only
+        # force bool fields
         if k in ["mux", "tls"]:
-            fixed[k] = bool(v)
-        else:
-            fixed[k] = v
+            if isinstance(v, str):
+                vv = v.lower()
+                if vv in ["1", "true"]:
+                    opts[k] = True
+                elif vv in ["0", "false"]:
+                    opts[k] = False
 
-    return plugin, fixed
+        # force int fields if needed
+        elif isinstance(v, str) and v.isdigit():
+            opts[k] = int(v)
+
+    return opts
     
 # ---------------- IPv6 safe ----------------
 def parse_server_port(srvp: str):
@@ -786,9 +790,8 @@ def parse_ss(line, line_number=None):
 
             if "plugin" in params:
                 plugin, plugin_opts = parse_plugin(params["plugin"][0])
-
-                # 🔥 normalize for Clash
-                plugin, plugin_opts = normalize_plugin_for_clash(plugin, plugin_opts)
+            
+                plugin_opts = enforce_plugin_types(plugin_opts)
         else:
             core = raw
 
