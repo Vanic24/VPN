@@ -755,6 +755,10 @@ def parse_plugin(plugin_str: str):
 def parse_server_port(srvp: str):
     srvp = srvp.strip()
 
+    # 🔥 FIX: remove trailing slash
+    if srvp.endswith("/"):
+        srvp = srvp[:-1]
+
     if srvp.startswith("["):
         end = srvp.find("]")
         if end == -1:
