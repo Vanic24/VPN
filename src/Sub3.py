@@ -723,7 +723,19 @@ def parse_plugin(plugin_str: str):
 
         if "=" in p:
             k, v = p.split("=", 1)
-            opts[k.strip()] = smart_cast(v)
+            key = k.strip()
+            val = v.strip()
+            
+            # 🔥 HARD FIX for Clash problematic keys
+            if key in ["mux", "tls"]:
+                if val.lower() in ["1", "true"]:
+                    opts[key] = True
+                elif val.lower() in ["0", "false"]:
+                    opts[key] = False
+                else:
+                    opts[key] = False
+            else:
+                opts[key] = smart_cast(val)
         else:
             opts[p.strip()] = True
 
@@ -859,8 +871,6 @@ def parse_ss(line, line_number=None):
 
         if plugin_opts:
             # 🔥 FINAL HARD FIX (guarantee Clash compatibility)
-            if "mux" in plugin_opts:
-                plugin_opts["mux"] = bool(plugin_opts["mux"])
             if "tls" in plugin_opts:
                 plugin_opts["tls"] = bool(plugin_opts["tls"])
         
