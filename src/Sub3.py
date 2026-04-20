@@ -710,17 +710,15 @@ def smart_cast(value: str):
 # Plugin Parser (STRICT + FINAL)
 # -----------------------------------------------------------
 def parse_plugin(plugin_str: str):
-    # 🔥 handle double-encoded links
     plugin_str = urllib.parse.unquote(plugin_str)
     plugin_str = urllib.parse.unquote(plugin_str)
-
-    # 🔥 fix escaped chars
     plugin_str = plugin_str.replace("\\=", "=").replace("\\\\", "\\")
-
     parts = plugin_str.split(";")
     plugin = parts[0].strip()
-
     opts = {}
+
+    # ✅ Only allow Clash-supported keys
+    VALID_KEYS = {"mode", "host", "path", "tls"}
 
     for p in parts[1:]:
         if not p:
@@ -731,19 +729,18 @@ def parse_plugin(plugin_str: str):
             key = k.strip()
             val = v.strip()
 
-            # 🔥 HARD TYPE ENFORCEMENT (Clash critical)
-            if key in ["mux", "tls"]:
-                if val.lower() in ["1", "true"]:
-                    opts[key] = True
-                elif val.lower() in ["0", "false"]:
-                    opts[key] = False
-                else:
-                    opts[key] = False
+            # ❌ DROP unsupported keys completely
+            if key not in VALID_KEYS:
+                continue
+
+            if key == "tls":
+                opts[key] = val.lower() in ["1", "true"]
             else:
-                opts[key] = smart_cast(val)
+                opts[key] = val  # keep string (important for path)
 
         else:
-            opts[p.strip()] = True
+            # ignore flag-style params (Clash doesn't need them)
+            continue
 
     return plugin, opts
 
