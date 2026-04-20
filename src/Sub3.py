@@ -765,6 +765,37 @@ def parse_server_port(srvp: str):
 
     return server, int(port)
 
+def sanitize_plugin_opts(node):
+    if "plugin-opts" not in node:
+        return node
+
+    opts = node["plugin-opts"]
+
+    if not isinstance(opts, dict):
+        del node["plugin-opts"]
+        return node
+
+    # ✅ Only allow safe keys
+    VALID_KEYS = {"mode", "host", "path", "tls"}
+
+    cleaned = {}
+
+    for k, v in opts.items():
+        if k not in VALID_KEYS:
+            continue
+
+        if k == "tls":
+            cleaned[k] = bool(v)
+        else:
+            cleaned[k] = v
+
+    if cleaned:
+        node["plugin-opts"] = cleaned
+    else:
+        del node["plugin-opts"]
+
+    return node
+
 # -----------------------------------------------------------
 # Main SS Parser
 # -----------------------------------------------------------
