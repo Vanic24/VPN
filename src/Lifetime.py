@@ -705,38 +705,28 @@ def smart_cast(value: str):
 
 # ---------------- Plugin Parser (STRICT + FINAL) ----------------
 def parse_plugin(plugin_str: str):
-    # 🔥 handle double-encoded links
-    plugin_str = urllib.parse.unquote(plugin_str)
-    plugin_str = urllib.parse.unquote(plugin_str)
+    for _ in range(2):
+        plugin_str = urllib.parse.unquote(plugin_str)
 
-    # 🔥 fix escaped chars
     plugin_str = plugin_str.replace("\\=", "=").replace("\\\\", "\\")
 
     parts = plugin_str.split(";")
     plugin = parts[0].strip()
-
     opts = {}
-
+    
     for p in parts[1:]:
         if not p:
             continue
-
         if "=" in p:
             k, v = p.split("=", 1)
             key = k.strip()
             val = v.strip()
 
-            # 🔥 HARD TYPE ENFORCEMENT (Clash critical)
-            if key in ["mux", "tls"]:
-                if val.lower() in ["1", "true"]:
-                    opts[key] = True
-                elif val.lower() in ["0", "false"]:
-                    opts[key] = False
-                else:
-                    opts[key] = False
+            # normalize booleans
+            if key in ["tls", "mux"]:
+                opts[key] = val.lower() in ["1", "true"]
             else:
-                opts[key] = smart_cast(val)
-
+                opts[key] = val
         else:
             opts[p.strip()] = True
 
@@ -781,10 +771,10 @@ def parse_ss(line, line_number=None):
 
         if "?" in raw:
             core, query = raw.split("?", 1)
-
+        
             for part in query.split("&"):
                 if part.startswith("plugin="):
-                    plugin_raw = part[len("plugin="):]
+                    plugin_raw = part.split("=", 1)[1]
                     plugin, plugin_opts = parse_plugin(plugin_raw)
                     break
         else:
