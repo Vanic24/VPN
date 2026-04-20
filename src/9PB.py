@@ -681,77 +681,123 @@ def parse_tuic(line, line_number=None):
 # -----------------------------------------------------------
 # SHADOWSOCKS (SS) Parser
 # -----------------------------------------------------------
+def decode_b64(data: str) -> str:
+    try:
+        data = data.strip()
+        data += '=' * (-len(data) % 4)
+        return base64.urlsafe_b64decode(data).decode('utf-8')
+    except Exception:
+        raise ValueError("Invalid base64 encoding")
+
+
+def parse_plugin(plugin_str: str):
+    """
+    Parse plugin string like:
+    v2ray-plugin;mode=websocket;path=/xxx;host=example.com;tls
+    """
+    plugin_str = urllib.parse.unquote(plugin_str)
+    plugin_str = plugin_str.replace("\\=", "=")
+
+    parts = plugin_str.split(";")
+    plugin = parts[0].strip()
+
+    opts = {}
+    for p in parts[1:]:
+        if not p:
+            continue
+        if "=" in p:
+            k, v = p.split("=", 1)
+            opts[k.strip()] = v.strip()
+        else:
+            opts[p.strip()] = True
+
+    return plugin, opts
+
+
+def parse_server_port(srvp: str):
+    srvp = srvp.strip()
+
+    # ---------------- IPv6 safe ----------------
+    if srvp.startswith("["):
+        end = srvp.find("]")
+        if end == -1:
+            raise ValueError("Invalid IPv6 format")
+
+        server = srvp[1:end]
+        port = srvp[end + 2:]
+    else:
+        if ":" not in srvp:
+            raise ValueError("Missing port")
+
+        server, port = srvp.rsplit(":", 1)
+
+    return server, int(port)
+
+# -----------------------------------------------------------
+# Main Parser
+# -----------------------------------------------------------
 def parse_ss(line, line_number=None):
     try:
-        if not line.startswith("ss://"):
+        if not line or not line.startswith("ss://"):
             return None
 
-        line = line[5:].strip()
+        raw = line[5:].strip()
 
+        # ---------------- name ----------------
         name = ""
-        if "#" in line:
-            line, name = line.split("#", 1)
-            name = urllib.parse.unquote(name)
+        if "#" in raw:
+            raw, name = raw.split("#", 1)
+            name = urllib.parse.unquote(name.strip())
 
+        # ---------------- query ----------------
         plugin = None
         plugin_opts = None
 
-        # ---------------- query ----------------
-        if "/?" in line:
-            core, q = line.split("/?", 1)
-            qd = urllib.parse.parse_qs(q)
+        if "?" in raw:
+            core, query = raw.split("?", 1)
+            params = urllib.parse.parse_qs(query, keep_blank_values=True)
 
-            if "plugin" in qd:
-                plugin_full = urllib.parse.unquote(qd["plugin"][0])
-
-                parts = plugin_full.split(";")
-                plugin = parts[0]
-
-                plugin_opts = {}
-
-                for p in parts[1:]:
-                    if "=" in p:
-                        k, v = p.split("=", 1)
-                        plugin_opts[k] = v
-                    else:
-                        plugin_opts[p] = True
+            if "plugin" in params:
+                plugin, plugin_opts = parse_plugin(params["plugin"][0])
         else:
-            core = line
+            core = raw
+
+        core = core.strip()
 
         # ---------------- decode ----------------
         if "@" in core:
-            b64, srvp = core.split("@", 1)
+            # format: base64(method:pass)@server:port
+            b64_part, srvp = core.split("@", 1)
+            decoded = decode_b64(b64_part)
 
-            decoded = decode_b64(b64)
+            if ":" not in decoded:
+                raise ValueError("Invalid userinfo")
+
             cipher, password = decoded.split(":", 1)
 
         else:
+            # SIP002 full base64
             decoded = decode_b64(core)
+
+            if "@" not in decoded:
+                raise ValueError("Invalid SIP002 format")
+
             userinfo, srvp = decoded.split("@", 1)
+
+            if ":" not in userinfo:
+                raise ValueError("Invalid userinfo")
+
             cipher, password = userinfo.split(":", 1)
 
-        # ---------------- IPv6 safe ----------------
-        srvp = srvp.strip()
+        # ---------------- server / port ----------------
+        server, port = parse_server_port(srvp)
 
-        if srvp.startswith("["):
-            end = srvp.find("]")
-            if end == -1:
-                return None
-
-            server = srvp[1:end]
-            port = srvp[end + 2:]
-
-        else:
-            if ":" not in srvp:
-                return None
-
-            server, port = srvp.rsplit(":", 1)
-
+        # ---------------- build node ----------------
         node = {
             "type": "ss",
             "name": name or "SS Node",
             "server": server,
-            "port": int(port),
+            "port": port,
             "cipher": cipher,
             "password": password,
         }
@@ -765,7 +811,7 @@ def parse_ss(line, line_number=None):
         return node
 
     except Exception as e:
-        print(f"[warn] ❗SS parse error -> Line {line_number}")
+        print(f"[warn] ❗SS parse error -> Line {line_number}: {e}")
         return None
         
 # -----------------------------------------------------------
