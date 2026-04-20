@@ -705,16 +705,14 @@ def smart_cast(value: str):
 
     return value.strip()
 
-
 # -----------------------------------------------------------
 # Plugin Parser (KEEP SIMPLE + STABLE)
 # -----------------------------------------------------------
 def parse_plugin(plugin_str: str):
+    # 🔥 FULL decode (handles nested encoding cases)
     plugin_str = urllib.parse.unquote(plugin_str)
-
-    # 🔥 FIX: clean escaped characters
+    plugin_str = urllib.parse.unquote(plugin_str)
     plugin_str = plugin_str.replace("\\=", "=").replace("\\\\", "\\")
-
     parts = plugin_str.split(";")
     plugin = parts[0].strip()
 
@@ -860,6 +858,12 @@ def parse_ss(line, line_number=None):
             node["plugin"] = plugin
 
         if plugin_opts:
+            # 🔥 FINAL HARD FIX (guarantee Clash compatibility)
+            if "mux" in plugin_opts:
+                plugin_opts["mux"] = bool(plugin_opts["mux"])
+            if "tls" in plugin_opts:
+                plugin_opts["tls"] = bool(plugin_opts["tls"])
+        
             node["plugin-opts"] = plugin_opts
 
         return node
