@@ -1351,7 +1351,8 @@ def main():
             return ordered
         
         # Apply to all renamed nodes
-        info_ordered = [reorder_info(n) for n in renamed_nodes]
+        sanitized_nodes = [sanitize_plugin_opts(n) for n in renamed_nodes]
+        info_ordered = [reorder_info(n) for n in sanitized_nodes]
         info_ordered_dicts = [dict(n) for n in info_ordered]
 
         # Line by line YAML proxies output format
