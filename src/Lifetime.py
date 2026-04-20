@@ -737,18 +737,19 @@ def parse_server_port(srvp: str):
 def build_karing_plugin_opts(opts: dict):
     parts = []
 
+    # 🔥 build everything EXCEPT mux first
     for k, v in opts.items():
         if k == "mux":
-            parts.append(f"mux={'1' if v else '0'}")
+            continue
         elif k == "tls":
             if v:
                 parts.append("tls")
         else:
             parts.append(f"{k}={v}")
 
-    # 🔥 CRITICAL FIX: ensure mux ALWAYS exists for Karing
-    if "mux" not in opts:
-        parts.append("mux=0")
+    # 🔥 ALWAYS append mux LAST (critical)
+    mux_val = opts.get("mux", False)
+    parts.append(f"mux={'1' if mux_val else '0'}")
 
     return ";".join(parts)
 
