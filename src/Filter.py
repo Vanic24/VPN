@@ -726,46 +726,25 @@ def parse_plugin(plugin_str: str):
 
 def normalize_plugin_for_clash(plugin, opts):
     """
-    Convert plugin opts into Clash-friendly format
+    Only fix types, DO NOT change structure
     """
-    if plugin != "v2ray-plugin":
-        return plugin, opts
-
     if not opts:
         return plugin, opts
 
-    # ---- normalize ----
-    normalized = {}
+    fixed = {}
 
-    # mode → network
-    if "mode" in opts:
-        if opts["mode"] == "websocket":
-            normalized["network"] = "ws"
+    for k, v in opts.items():
+        # enforce correct types only
+        if k in ["mux", "tls"]:
+            fixed[k] = bool(v)
+        else:
+            fixed[k] = v
 
-    # path
-    if "path" in opts:
-        normalized["path"] = opts["path"]
-
-    # host → headers
-    if "host" in opts:
-        normalized["headers"] = {
-            "Host": opts["host"]
-        }
-
-    # tls
-    if "tls" in opts:
-        normalized["tls"] = opts["tls"]
-
-    # mux (ensure bool)
-    if "mux" in opts:
-        normalized["mux"] = bool(opts["mux"])
-
-    return plugin, normalized
-
+    return plugin, fixed
+    
+# ---------------- IPv6 safe ----------------
 def parse_server_port(srvp: str):
     srvp = srvp.strip()
-
-    # ---------------- IPv6 safe ----------------
     if srvp.startswith("["):
         end = srvp.find("]")
         if end == -1:
