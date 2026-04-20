@@ -775,8 +775,7 @@ def parse_ss(line, line_number=None, output="clash"):
             plugin_raw = None
             if "plugin=" in query:
                 plugin_raw = query.split("plugin=", 1)[1]
-                    plugin, plugin_opts = parse_plugin(plugin_raw)
-                    break
+                plugin, plugin_opts = parse_plugin(plugin_raw)
         else:
             core = raw
 
