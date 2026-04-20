@@ -689,6 +689,7 @@ def decode_b64(data: str) -> str:
     except Exception:
         raise ValueError("Invalid base64 encoding")
 
+
 def smart_cast(value: str):
     v = value.strip().lower()
 
@@ -705,61 +706,48 @@ def smart_cast(value: str):
     return value.strip()
 
 # -----------------------------------------------------------
-# 🔥 FINAL plugin parser (regex-based, robust)
+# 🔥 Hybrid plugin parser (SAFE + COMPAT)
 # -----------------------------------------------------------
 def parse_plugin(plugin_str: str):
-    plugin_str = urllib.parse.unquote(plugin_str)
-    plugin_str = plugin_str.replace("\\=", "=")
+    raw = urllib.parse.unquote(plugin_str)
+    raw = raw.replace("\\=", "=")
 
-    # split plugin name
-    if ";" in plugin_str:
-        plugin, rest = plugin_str.split(";", 1)
-    else:
-        return plugin_str.strip(), {}
+    if ";" not in raw:
+        return raw.strip(), {}
 
+    plugin, rest = raw.split(";", 1)
     plugin = plugin.strip()
+
     opts = {}
 
-    # 🔥 robust extraction (NO splitting!)
-    patterns = {
+    # ---------------- SAFE fields ----------------
+    safe_patterns = {
         "mode": r"(?:^|;)mode=([^;]+)",
         "host": r"(?:^|;)host=([^;]+)",
-        "path": r"(?:^|;)path=([^;]+(?:;[^;=]+)*)",
-        "mux": r"(?:^|;)mux=([^;]+)",
         "tls": r"(?:^|;)tls=([^;]+)",
     }
 
-    for key, pattern in patterns.items():
-        match = re.search(pattern, rest)
-        if match:
-            opts[key] = smart_cast(match.group(1))
+    for key, pattern in safe_patterns.items():
+        m = re.search(pattern, rest)
+        if m:
+            opts[key] = smart_cast(m.group(1))
 
-    # enforce types for clash
-    opts = enforce_plugin_types(opts)
+    # ---------------- PATH (RAW SAFE) ----------------
+    path_match = re.search(r"(?:^|;)path=(.+)", rest)
+    has_path = False
+
+    if path_match:
+        opts["path"] = path_match.group(1)  # DO NOT SPLIT
+        has_path = True
+
+    # ---------------- mux (conditional) ----------------
+    # ONLY extract mux if NO path exists (avoid breaking nodes)
+    if not has_path:
+        m = re.search(r"(?:^|;)mux=([^;]+)", rest)
+        if m:
+            opts["mux"] = smart_cast(m.group(1))
 
     return plugin, opts
-
-def enforce_plugin_types(opts):
-    if not opts:
-        return opts
-
-    for k in list(opts.keys()):
-        v = opts[k]
-
-        # force bool
-        if k in ["mux", "tls"]:
-            if isinstance(v, str):
-                vv = v.lower()
-                if vv in ["1", "true"]:
-                    opts[k] = True
-                elif vv in ["0", "false"]:
-                    opts[k] = False
-
-        # force int
-        elif isinstance(v, str) and v.isdigit():
-            opts[k] = int(v)
-
-    return opts
 
 # -----------------------------------------------------------
 # IPv6 safe
