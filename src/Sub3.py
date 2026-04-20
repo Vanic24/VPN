@@ -681,11 +681,6 @@ def parse_tuic(line, line_number=None):
 # -----------------------------------------------------------
 # SHADOWSOCKS (SS) Parser
 # -----------------------------------------------------------
-import base64
-import urllib.parse
-import json
-
-# ---------------- Base64 ----------------
 def decode_b64(data: str) -> str:
     try:
         data = data.strip()
@@ -694,7 +689,9 @@ def decode_b64(data: str) -> str:
     except Exception:
         raise ValueError("Invalid base64 encoding")
 
-# ---------------- Smart casting ----------------
+# -----------------------------------------------------------
+# Smart casting (generic)
+# -----------------------------------------------------------
 def smart_cast(value: str):
     v = value.strip().lower()
 
@@ -702,23 +699,27 @@ def smart_cast(value: str):
         return True
     if v in ["0", "false"]:
         return False
+
     if v.isdigit():
         return int(v)
 
     return value.strip()
 
-# ---------------- Plugin Parser ----------------
+# -----------------------------------------------------------
+# Plugin Parser (STRICT + FINAL)
+# -----------------------------------------------------------
 def parse_plugin(plugin_str: str):
+    # 🔥 handle double-encoded links
     plugin_str = urllib.parse.unquote(plugin_str)
     plugin_str = urllib.parse.unquote(plugin_str)
+
+    # 🔥 fix escaped chars
     plugin_str = plugin_str.replace("\\=", "=").replace("\\\\", "\\")
 
     parts = plugin_str.split(";")
     plugin = parts[0].strip()
 
     opts = {}
-
-    VALID_KEYS = {"mode", "host", "path", "tls", "mux"}
 
     for p in parts[1:]:
         if not p:
@@ -729,81 +730,60 @@ def parse_plugin(plugin_str: str):
             key = k.strip()
             val = v.strip()
 
-            if key not in VALID_KEYS:
-                continue
-
-            if key == "tls":
-                opts[key] = val.lower() in ["1", "true", "tls"]
-
-            elif key == "mux":
-                # store raw value first (IMPORTANT FIX)
-                opts[key] = val
-
+            # 🔥 HARD TYPE ENFORCEMENT (Clash critical)
+            if key in ["mux", "tls"]:
+                if val.lower() in ["1", "true"]:
+                    opts[key] = True
+                elif val.lower() in ["0", "false"]:
+                    opts[key] = False
+                else:
+                    opts[key] = False
             else:
-                opts[key] = val
+                opts[key] = smart_cast(val)
+
+        else:
+            opts[p.strip()] = True
 
     return plugin, opts
 
-# ---------------- IPv6 safe ----------------
+# -----------------------------------------------------------
+# IPv6 safe + trailing slash fix
+# -----------------------------------------------------------
 def parse_server_port(srvp: str):
     srvp = srvp.strip().rstrip("/")
 
     if srvp.startswith("["):
         end = srvp.find("]")
+        if end == -1:
+            raise ValueError("Invalid IPv6 format")
+
         server = srvp[1:end]
         port = srvp[end + 2:]
     else:
+        if ":" not in srvp:
+            raise ValueError("Missing port")
+
         server, port = srvp.rsplit(":", 1)
 
     return server, int(port)
 
-# ---------------- FINAL sanitizer ----------------
-def sanitize_plugin_opts(node):
-    if "plugin-opts" not in node:
-        return node
-
-    opts = node["plugin-opts"]
-
-    if not isinstance(opts, dict):
-        node.pop("plugin-opts", None)
-        return node
-
-    cleaned = {}
-
-    for k, v in opts.items():
-        if k not in {"mode", "host", "path", "tls", "mux"}:
-            continue
-
-        if k == "tls":
-            cleaned[k] = bool(v)
-
-        elif k == "mux":
-            cleaned[k] = False  # force Clash-safe
-
-        else:
-            cleaned[k] = v
-
-    if cleaned:
-        node["plugin-opts"] = cleaned
-    else:
-        node.pop("plugin-opts", None)
-
-    return node
-
-# ---------------- SS PARSER ----------------
+# -----------------------------------------------------------
+# Main SS Parser
+# -----------------------------------------------------------
 def parse_ss(line, line_number=None):
     try:
-        if not line.startswith("ss://"):
+        if not line or not line.startswith("ss://"):
             return None
 
         raw = line[5:].strip()
 
-        # name
+        # ---------------- name ----------------
         name = ""
         if "#" in raw:
             raw, name = raw.split("#", 1)
-            name = urllib.parse.unquote(name)
+            name = urllib.parse.unquote(name.strip())
 
+        # ---------------- query ----------------
         plugin = None
         plugin_opts = None
 
@@ -812,23 +792,41 @@ def parse_ss(line, line_number=None):
 
             for part in query.split("&"):
                 if part.startswith("plugin="):
-                    plugin_raw = part.split("=", 1)[1]
+                    plugin_raw = part[len("plugin="):]
                     plugin, plugin_opts = parse_plugin(plugin_raw)
+                    break
         else:
             core = raw
 
-        # decode
+        core = core.strip()
+
+        # ---------------- decode ----------------
         if "@" in core:
             b64_part, srvp = core.split("@", 1)
             decoded = decode_b64(b64_part)
+
+            if ":" not in decoded:
+                raise ValueError("Invalid userinfo")
+
             cipher, password = decoded.split(":", 1)
+
         else:
             decoded = decode_b64(core)
+
+            if "@" not in decoded:
+                raise ValueError("Invalid SIP002 format")
+
             userinfo, srvp = decoded.split("@", 1)
+
+            if ":" not in userinfo:
+                raise ValueError("Invalid userinfo")
+
             cipher, password = userinfo.split(":", 1)
 
+        # ---------------- server / port ----------------
         server, port = parse_server_port(srvp)
 
+        # ---------------- build node ----------------
         node = {
             "type": "ss",
             "name": name or "SS Node",
@@ -848,101 +846,8 @@ def parse_ss(line, line_number=None):
         return node
 
     except Exception as e:
-        print(f"[warn] SS parse error line {line_number}: {e}")
+        print(f"[warn] ❗SS parse error -> Line {line_number}: {e}")
         return None
-
-# =========================================================
-# 🔥 SANITIZE (CLASH SAFE)
-# =========================================================
-def sanitize_for_clash(node):
-    if "plugin-opts" not in node:
-        return node
-
-    opts = node["plugin-opts"]
-
-    if not isinstance(opts, dict):
-        del node["plugin-opts"]
-        return node
-
-    cleaned = {}
-
-    for k, v in opts.items():
-        if k not in {"mode", "host", "path", "tls", "mux"}:
-            continue
-
-        if k == "tls":
-            cleaned[k] = bool(v)
-
-        elif k == "mux":
-            # Clash ALWAYS boolean false
-            cleaned[k] = False
-
-        else:
-            cleaned[k] = v
-
-    node["plugin-opts"] = cleaned if cleaned else None
-    if node["plugin-opts"] is None:
-        del node["plugin-opts"]
-
-    return node
-
-# =========================================================
-# 🔥 KARING BUILDER (CRITICAL FIX)
-# =========================================================
-def build_karing_plugin(plugin, opts):
-    if not plugin:
-        return None
-
-    parts = []
-
-    if opts.get("tls"):
-        parts.append("tls")
-
-    if opts.get("host"):
-        parts.append(f"host={opts['host']}")
-
-    if opts.get("path"):
-        parts.append(f"path={opts['path']}")
-
-    if opts.get("mode"):
-        parts.append(f"mode={opts['mode']}")
-
-    # 🔥 IMPORTANT FIX:
-    # Karing REQUIRES mux=0 string, not false/true/None
-    parts.append("mux=0")
-
-    return plugin + ";" + ";".join(parts)
-
-# =========================================================
-# 🔥 DUAL OUTPUT CONVERTER
-# =========================================================
-def convert_ss(line, target="clash"):
-    node = parse_ss(line)
-
-    if not node:
-        return None
-
-    # ---------------- CLASH ----------------
-    if target == "clash":
-        return sanitize_for_clash(node)
-
-    # ---------------- KARING ----------------
-    if target == "karing":
-        plugin = node.get("plugin")
-        opts = node.get("plugin-opts", {})
-
-        return {
-            "server": node["server"],
-            "server_port": node["port"],
-            "tag": node["name"],
-            "type": "shadowsocks",
-            "method": node["cipher"],
-            "password": node["password"],
-            "plugin": plugin,
-            "plugin_opts": build_karing_plugin(plugin, opts) if plugin else None
-        }
-
-    raise ValueError("Unknown target")
        
 # -----------------------------------------------------------
 # SHADOWSOCKSR (SSR) Parser
@@ -1417,8 +1322,7 @@ def main():
             return ordered
         
         # Apply to all renamed nodes
-        sanitized_nodes = [sanitize_plugin_opts(n) for n in renamed_nodes]
-        info_ordered = [reorder_info(n) for n in sanitized_nodes]
+        info_ordered = [reorder_info(n) for n in renamed_nodes]
         info_ordered_dicts = [dict(n) for n in info_ordered]
 
         # Line by line YAML proxies output format
