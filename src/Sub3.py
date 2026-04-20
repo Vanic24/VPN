@@ -689,9 +689,7 @@ def decode_b64(data: str) -> str:
     except Exception:
         raise ValueError("Invalid base64 encoding")
 
-# -----------------------------------------------------------
-# Smart casting (generic)
-# -----------------------------------------------------------
+# ---------------- Smart casting (generic) ----------------
 def smart_cast(value: str):
     v = value.strip().lower()
 
@@ -705,9 +703,7 @@ def smart_cast(value: str):
 
     return value.strip()
 
-# -----------------------------------------------------------
-# Plugin Parser (STRICT + FINAL)
-# -----------------------------------------------------------
+# ---------------- Plugin Parser (STRICT + FINAL) ----------------
 def parse_plugin(plugin_str: str):
     # 🔥 handle double-encoded links
     plugin_str = urllib.parse.unquote(plugin_str)
@@ -746,9 +742,7 @@ def parse_plugin(plugin_str: str):
 
     return plugin, opts
 
-# -----------------------------------------------------------
-# IPv6 safe + trailing slash fix
-# -----------------------------------------------------------
+# ---------------- IPv6 safe + trailing slash fix ----------------
 def parse_server_port(srvp: str):
     srvp = srvp.strip().rstrip("/")
 
@@ -767,9 +761,7 @@ def parse_server_port(srvp: str):
 
     return server, int(port)
 
-# -----------------------------------------------------------
-# Main SS Parser
-# -----------------------------------------------------------
+# ----------------  Main SS Parser ----------------
 def parse_ss(line, line_number=None):
     try:
         if not line or not line.startswith("ss://"):
