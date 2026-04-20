@@ -735,8 +735,6 @@ def parse_plugin(plugin_str: str):
                 opts[key] = val.lower() in ["1", "true"]
 
             elif key == "path":
-                # 🔥 IMPORTANT: escape "=" for Clash YAML safety
-                val = val.replace("=", "\\=")
                 opts[key] = val
 
             else:
@@ -862,10 +860,12 @@ def parse_ss(line, line_number=None):
             "udp": True,
         }
 
-        # 🔥 CRITICAL: fix TLS runtime failures
         if plugin == "v2ray-plugin":
             node["skip-cert-verify"] = True
             node["tfo"] = False
+
+        if plugin_opts and plugin_opts.get("tls") is True:
+            node["tls"] = True
 
         if plugin:
             node["plugin"] = plugin
