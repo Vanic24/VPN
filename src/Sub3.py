@@ -800,20 +800,23 @@ def parse_ss(line, line_number=None):
         # ---------------- query ----------------
         plugin = None
         plugin_opts = None
-
+        
         if "?" in raw:
             core, query = raw.split("?", 1)
-
-            params = urllib.parse.parse_qs(query, keep_blank_values=True)
-
-            if "plugin" in params:
-                plugin, plugin_opts = parse_plugin(params["plugin"][0])
-
-                # 🔥 FINAL FIX HERE
-                plugin, plugin_opts = normalize_plugin_for_clash(plugin, plugin_opts)
+        
+            for part in query.split("&"):
+                if part.startswith("plugin="):
+                    plugin_raw = part[len("plugin="):]
+        
+                    plugin, plugin_opts = parse_plugin(plugin_raw)
+        
+                    # 🔥 ALWAYS normalize here
+                    plugin, plugin_opts = normalize_plugin_for_clash(plugin, plugin_opts)
+        
+                    break
         else:
             core = raw
-
+        
         core = core.strip()
 
         # ---------------- decode ----------------
