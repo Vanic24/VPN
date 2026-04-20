@@ -682,29 +682,13 @@ def parse_tuic(line, line_number=None):
 # SHADOWSOCKS (SS) Parser
 # -----------------------------------------------------------
 def decode_b64(data: str) -> str:
-    try:
-        data = data.strip()
-        data += '=' * (-len(data) % 4)
-        return base64.urlsafe_b64decode(data).decode('utf-8')
-    except Exception:
-        raise ValueError("Invalid base64 encoding")
+    data = data.strip()
+    data += '=' * (-len(data) % 4)
+    return base64.urlsafe_b64decode(data).decode('utf-8')
 
-# ---------------- Smart casting (generic) ----------------
-def smart_cast(value: str):
-    v = value.strip().lower()
-
-    if v in ["1", "true"]:
-        return True
-    if v in ["0", "false"]:
-        return False
-
-    if v.isdigit():
-        return int(v)
-
-    return value.strip()
-
-# ---------------- Plugin Parser (STRICT + FINAL) ----------------
+# ---------------- Plugin Parser ----------------
 def parse_plugin(plugin_str: str):
+    # 🔥 normalize (handle encoded + double encoded)
     for _ in range(2):
         plugin_str = urllib.parse.unquote(plugin_str)
 
@@ -712,17 +696,19 @@ def parse_plugin(plugin_str: str):
 
     parts = plugin_str.split(";")
     plugin = parts[0].strip()
+
     opts = {}
-    
+
     for p in parts[1:]:
         if not p:
             continue
+
         if "=" in p:
             k, v = p.split("=", 1)
             key = k.strip()
             val = v.strip()
 
-            # normalize booleans
+            # 🔥 normalize booleans
             if key in ["tls", "mux"]:
                 opts[key] = val.lower() in ["1", "true"]
             else:
@@ -732,49 +718,60 @@ def parse_plugin(plugin_str: str):
 
     return plugin, opts
 
-# ---------------- IPv6 safe + trailing slash fix ----------------
+# ---------------- Server / Port ----------------
 def parse_server_port(srvp: str):
     srvp = srvp.strip().rstrip("/")
 
     if srvp.startswith("["):
         end = srvp.find("]")
-        if end == -1:
-            raise ValueError("Invalid IPv6 format")
-
         server = srvp[1:end]
         port = srvp[end + 2:]
     else:
-        if ":" not in srvp:
-            raise ValueError("Missing port")
-
         server, port = srvp.rsplit(":", 1)
 
     return server, int(port)
 
-# ----------------  Main SS Parser ----------------
-def parse_ss(line, line_number=None):
+# ---------------- Build Karing plugin_opts ----------------
+def build_karing_plugin_opts(opts: dict):
+    parts = []
+
+    for k, v in opts.items():
+        if k == "mux":
+            parts.append(f"mux={'1' if v else '0'}")
+        elif k == "tls":
+            if v:
+                parts.append("tls")
+        else:
+            parts.append(f"{k}={v}")
+
+    return ";".join(parts)
+
+# ---------------- Main Parser ----------------
+def parse_ss(line, line_number=None, output="clash"):
     try:
-        if not line or not line.startswith("ss://"):
+        if not line.startswith("ss://"):
             return None
 
         raw = line[5:].strip()
 
-        # ---------------- name ----------------
+        # -------- name --------
         name = ""
         if "#" in raw:
             raw, name = raw.split("#", 1)
             name = urllib.parse.unquote(name.strip())
 
-        # ---------------- query ----------------
+        # -------- query --------
         plugin = None
         plugin_opts = None
 
         if "?" in raw:
             core, query = raw.split("?", 1)
-        
+
             for part in query.split("&"):
                 if part.startswith("plugin="):
                     plugin_raw = part.split("=", 1)[1]
+
+                    # 🔥 DO NOT unquote here (handled inside parser)
                     plugin, plugin_opts = parse_plugin(plugin_raw)
                     break
         else:
@@ -782,50 +779,63 @@ def parse_ss(line, line_number=None):
 
         core = core.strip()
 
-        # ---------------- decode ----------------
+        # -------- decode --------
         if "@" in core:
             b64_part, srvp = core.split("@", 1)
             decoded = decode_b64(b64_part)
-
-            if ":" not in decoded:
-                raise ValueError("Invalid userinfo")
-
             cipher, password = decoded.split(":", 1)
-
         else:
             decoded = decode_b64(core)
-
-            if "@" not in decoded:
-                raise ValueError("Invalid SIP002 format")
-
             userinfo, srvp = decoded.split("@", 1)
-
-            if ":" not in userinfo:
-                raise ValueError("Invalid userinfo")
-
             cipher, password = userinfo.split(":", 1)
 
-        # ---------------- server / port ----------------
+        # -------- server --------
         server, port = parse_server_port(srvp)
 
-        # ---------------- build node ----------------
-        node = {
-            "type": "ss",
-            "name": name or "SS Node",
-            "server": server,
-            "port": port,
-            "cipher": cipher,
-            "password": password,
-            "udp": True,
-        }
+        # =========================
+        # 🎯 OUTPUT: CLASH
+        # =========================
+        if output == "clash":
+            node = {
+                "type": "ss",
+                "name": name or "SS Node",
+                "server": server,
+                "port": port,
+                "cipher": cipher,
+                "password": password,
+                "udp": True,
+            }
 
-        if plugin:
-            node["plugin"] = plugin
+            if plugin:
+                node["plugin"] = plugin
 
-        if plugin_opts:
-            node["plugin-opts"] = plugin_opts
+            if plugin_opts:
+                # 🔥 FORCE mux false for Clash stability
+                if "mux" in plugin_opts:
+                    plugin_opts["mux"] = False
 
-        return node
+                node["plugin-opts"] = plugin_opts
+
+            return node
+
+        # =========================
+        # 🎯 OUTPUT: KARING
+        # =========================
+        elif output == "karing":
+            node = {
+                "server": server,
+                "server_port": port,
+                "tag": name or "SS Node",
+                "type": "shadowsocks",
+                "method": cipher,
+                "password": password,
+                "plugin": plugin,
+            }
+
+            if plugin_opts:
+                node["plugin_opts"] = build_karing_plugin_opts(plugin_opts)
+
+            return node
 
     except Exception as e:
         print(f"[warn] ❗SS parse error -> Line {line_number}: {e}")
