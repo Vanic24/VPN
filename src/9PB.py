@@ -705,15 +705,17 @@ def smart_cast(value: str):
 
 # ---------------- Plugin Parser (STRICT + FINAL) ----------------
 def parse_plugin(plugin_str: str):
+    # 🔥 handle double-encoded links
     plugin_str = urllib.parse.unquote(plugin_str)
     plugin_str = urllib.parse.unquote(plugin_str)
+
+    # 🔥 fix escaped chars
     plugin_str = plugin_str.replace("\\=", "=").replace("\\\\", "\\")
+
     parts = plugin_str.split(";")
     plugin = parts[0].strip()
-    opts = {}
 
-    # ✅ Only allow Clash-supported keys
-    VALID_KEYS = {"mode", "host", "path", "tls"}
+    opts = {}
 
     for p in parts[1:]:
         if not p:
@@ -724,18 +726,19 @@ def parse_plugin(plugin_str: str):
             key = k.strip()
             val = v.strip()
 
-            # ❌ DROP unsupported keys completely
-            if key not in VALID_KEYS:
-                continue
-
-            if key == "tls":
-                opts[key] = val.lower() in ["1", "true"]
+            # 🔥 HARD TYPE ENFORCEMENT (Clash critical)
+            if key in ["mux", "tls"]:
+                if val.lower() in ["1", "true"]:
+                    opts[key] = True
+                elif val.lower() in ["0", "false"]:
+                    opts[key] = False
+                else:
+                    opts[key] = False
             else:
-                opts[key] = val  # keep string (important for path)
+                opts[key] = smart_cast(val)
 
         else:
-            # ignore flag-style params (Clash doesn't need them)
-            continue
+            opts[p.strip()] = True
 
     return plugin, opts
 
@@ -757,37 +760,6 @@ def parse_server_port(srvp: str):
         server, port = srvp.rsplit(":", 1)
 
     return server, int(port)
-
-def sanitize_plugin_opts(node):
-    if "plugin-opts" not in node:
-        return node
-
-    opts = node["plugin-opts"]
-
-    if not isinstance(opts, dict):
-        del node["plugin-opts"]
-        return node
-
-    # ✅ Only allow safe keys
-    VALID_KEYS = {"mode", "host", "path", "tls"}
-
-    cleaned = {}
-
-    for k, v in opts.items():
-        if k not in VALID_KEYS:
-            continue
-
-        if k == "tls":
-            cleaned[k] = bool(v)
-        else:
-            cleaned[k] = v
-
-    if cleaned:
-        node["plugin-opts"] = cleaned
-    else:
-        del node["plugin-opts"]
-
-    return node
 
 # ----------------  Main SS Parser ----------------
 def parse_ss(line, line_number=None):
@@ -868,7 +840,7 @@ def parse_ss(line, line_number=None):
     except Exception as e:
         print(f"[warn] ❗SS parse error -> Line {line_number}: {e}")
         return None
-        
+       
 # -----------------------------------------------------------
 # SHADOWSOCKSR (SSR) Parser
 # -----------------------------------------------------------
@@ -1342,8 +1314,7 @@ def main():
             return ordered
         
         # Apply to all renamed nodes
-        sanitized_nodes = [sanitize_plugin_opts(n) for n in renamed_nodes]
-        info_ordered = [reorder_info(n) for n in sanitized_nodes]
+        info_ordered = [reorder_info(n) for n in renamed_nodes]
         info_ordered_dicts = [dict(n) for n in info_ordered]
 
         # Line by line YAML proxies output format
