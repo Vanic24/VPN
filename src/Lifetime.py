@@ -708,8 +708,10 @@ def parse_plugin(plugin_str: str):
             key = k.strip()
             val = v.strip()
 
-            # 🔥 normalize booleans
-            if key in ["tls", "mux"]:
+            # 🔥 normalize booleans (KEEP mux ALWAYS)
+            if key == "mux":
+                opts[key] = val.lower() in ["1", "true"]
+            elif key == "tls":
                 opts[key] = val.lower() in ["1", "true"]
             else:
                 opts[key] = val
@@ -744,6 +746,10 @@ def build_karing_plugin_opts(opts: dict):
         else:
             parts.append(f"{k}={v}")
 
+    # 🔥 CRITICAL FIX: ensure mux ALWAYS exists for Karing
+    if "mux" not in opts:
+        parts.append("mux=0")
+
     return ";".join(parts)
 
 # ---------------- Main Parser ----------------
@@ -770,8 +776,6 @@ def parse_ss(line, line_number=None, output="clash"):
             for part in query.split("&"):
                 if part.startswith("plugin="):
                     plugin_raw = part.split("=", 1)[1]
-
-                    # 🔥 DO NOT unquote here (handled inside parser)
                     plugin, plugin_opts = parse_plugin(plugin_raw)
                     break
         else:
@@ -810,11 +814,14 @@ def parse_ss(line, line_number=None, output="clash"):
                 node["plugin"] = plugin
 
             if plugin_opts:
-                # 🔥 FORCE mux false for Clash stability
-                if "mux" in plugin_opts:
-                    plugin_opts["mux"] = False
+                # 🔥 FIX: COPY dict (avoid mutation bug)
+                clash_opts = plugin_opts.copy()
 
-                node["plugin-opts"] = plugin_opts
+                # 🔥 FORCE mux false for Clash
+                if "mux" in clash_opts:
+                    clash_opts["mux"] = False
+
+                node["plugin-opts"] = clash_opts
 
             return node
 
@@ -833,7 +840,10 @@ def parse_ss(line, line_number=None, output="clash"):
             }
 
             if plugin_opts:
-                node["plugin_opts"] = build_karing_plugin_opts(plugin_opts)
+                # 🔥 FIX: COPY dict (avoid Clash side effects)
+                karing_opts = plugin_opts.copy()
+
+                node["plugin_opts"] = build_karing_plugin_opts(karing_opts)
 
             return node
 
