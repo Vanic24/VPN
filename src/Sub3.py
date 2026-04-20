@@ -693,71 +693,78 @@ def decode_b64(data: str) -> str:
 def smart_cast(value: str):
     v = value.strip().lower()
 
+    # ✅ correct bool handling
     if v in ["1", "true"]:
         return True
     if v in ["0", "false"]:
         return False
 
-    try:
+    # int
+    if v.isdigit():
         return int(v)
-    except:
-        pass
 
     return value.strip()
 
+
 # -----------------------------------------------------------
-# 🔥 Hybrid plugin parser (SAFE + COMPAT)
+# Plugin Parser (KEEP SIMPLE + STABLE)
 # -----------------------------------------------------------
 def parse_plugin(plugin_str: str):
-    raw = urllib.parse.unquote(plugin_str)
-    raw = raw.replace("\\=", "=")
+    plugin_str = urllib.parse.unquote(plugin_str)
 
-    if ";" not in raw:
-        return raw.strip(), {}
+    # 🔥 FIX: clean escaped characters
+    plugin_str = plugin_str.replace("\\=", "=").replace("\\\\", "\\")
 
-    plugin, rest = raw.split(";", 1)
-    plugin = plugin.strip()
+    parts = plugin_str.split(";")
+    plugin = parts[0].strip()
 
     opts = {}
+    for p in parts[1:]:
+        if not p:
+            continue
 
-    # ---------------- SAFE fields ----------------
-    safe_patterns = {
-        "mode": r"(?:^|;)mode=([^;]+)",
-        "host": r"(?:^|;)host=([^;]+)",
-        "tls": r"(?:^|;)tls=([^;]+)",
-    }
-
-    for key, pattern in safe_patterns.items():
-        m = re.search(pattern, rest)
-        if m:
-            opts[key] = smart_cast(m.group(1))
-
-    # ---------------- PATH (RAW SAFE) ----------------
-    path_match = re.search(r"(?:^|;)path=(.+)", rest)
-    has_path = False
-
-    if path_match:
-        opts["path"] = path_match.group(1)  # DO NOT SPLIT
-        has_path = True
-
-    # ---------------- mux (conditional) ----------------
-    # ONLY extract mux if NO path exists (avoid breaking nodes)
-    if not has_path:
-        m = re.search(r"(?:^|;)mux=([^;]+)", rest)
-        if m:
-            opts["mux"] = smart_cast(m.group(1))
+        if "=" in p:
+            k, v = p.split("=", 1)
+            opts[k.strip()] = smart_cast(v)
+        else:
+            opts[p.strip()] = True
 
     return plugin, opts
 
 # -----------------------------------------------------------
-# IPv6 safe
+# 🔥 Correct Clash normalization (CRITICAL FIX)
+# -----------------------------------------------------------
+def normalize_plugin_for_clash(plugin, opts):
+    if not opts:
+        return plugin, opts
+
+    fixed = {}
+
+    for k, v in opts.items():
+
+        if k in ["mux", "tls"]:
+            # ✅ FIX: proper boolean conversion
+            if isinstance(v, str):
+                vv = v.lower()
+                if vv in ["1", "true"]:
+                    fixed[k] = True
+                elif vv in ["0", "false"]:
+                    fixed[k] = False
+                else:
+                    fixed[k] = False
+            else:
+                fixed[k] = bool(v)
+
+        else:
+            fixed[k] = v
+
+    return plugin, fixed
+
+# -----------------------------------------------------------
+# IPv6 safe + FIX trailing "/"
 # -----------------------------------------------------------
 def parse_server_port(srvp: str):
-    srvp = srvp.strip()
-
-    # 🔥 FIX: remove trailing slash
-    if srvp.endswith("/"):
-        srvp = srvp[:-1]
+    srvp = srvp.strip().rstrip("/")  # 🔥 important fix
 
     if srvp.startswith("["):
         end = srvp.find("]")
@@ -797,11 +804,13 @@ def parse_ss(line, line_number=None):
         if "?" in raw:
             core, query = raw.split("?", 1)
 
-            for part in query.split("&"):
-                if part.startswith("plugin="):
-                    plugin_raw = part[len("plugin="):]
-                    plugin, plugin_opts = parse_plugin(plugin_raw)
-                    break
+            params = urllib.parse.parse_qs(query, keep_blank_values=True)
+
+            if "plugin" in params:
+                plugin, plugin_opts = parse_plugin(params["plugin"][0])
+
+                # 🔥 FINAL FIX HERE
+                plugin, plugin_opts = normalize_plugin_for_clash(plugin, plugin_opts)
         else:
             core = raw
 
