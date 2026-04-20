@@ -769,17 +769,31 @@ def parse_ss(line, line_number=None, output="clash"):
         # -------- query --------
         plugin = None
         plugin_opts = None
-
+        
+        # 🔥 STEP 1: extract mux FIRST (from raw)
+        mux_value = None
+        if "mux=" in raw:
+            raw_mux = raw.split("mux=", 1)[1].split(";")[0]
+            mux_value = raw_mux.lower() in ["1", "true"]
+        
+        # 🔥 STEP 2: parse plugin
         if "?" in raw:
             core, query = raw.split("?", 1)
-            plugin_raw = None
+        
             if "plugin=" in query:
                 plugin_raw = query.split("plugin=", 1)[1]
                 plugin, plugin_opts = parse_plugin(plugin_raw)
         else:
             core = raw
-
+        
         core = core.strip()
+        
+        # 🔥 STEP 3: FORCE inject mux
+        if plugin_opts is None:
+            plugin_opts = {}
+        
+        if mux_value is not None:
+            plugin_opts["mux"] = mux_value
 
         # -------- decode --------
         if "@" in core:
