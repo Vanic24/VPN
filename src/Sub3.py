@@ -692,15 +692,15 @@ def decode_b64(data: str) -> str:
 def smart_cast(value: str):
     v = value.strip().lower()
 
-    # bool handling
     if v in ["1", "true"]:
         return True
     if v in ["0", "false"]:
         return False
 
-    # int
-    if v.isdigit():
+    try:
         return int(v)
+    except:
+        pass
 
     return value.strip()
 
