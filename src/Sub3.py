@@ -689,7 +689,7 @@ def decode_b64(data: str) -> str:
     except Exception:
         raise ValueError("Invalid base64 encoding")
 
-# ---------------- Smart casting (generic) ----------------
+# ---------------- Smart casting ----------------
 def smart_cast(value: str):
     v = value.strip().lower()
 
@@ -703,16 +703,20 @@ def smart_cast(value: str):
 
     return value.strip()
 
-# ---------------- Plugin Parser (STRICT + FINAL) ----------------
+# ---------------- Plugin Parser ----------------
 def parse_plugin(plugin_str: str):
     plugin_str = urllib.parse.unquote(plugin_str)
     plugin_str = urllib.parse.unquote(plugin_str)
+
+    # fix escaped chars
     plugin_str = plugin_str.replace("\\=", "=").replace("\\\\", "\\")
+
     parts = plugin_str.split(";")
     plugin = parts[0].strip()
+
     opts = {}
 
-    # ✅ Only allow Clash-supported keys
+    # ✅ Only allow safe keys
     VALID_KEYS = {"mode", "host", "path", "tls"}
 
     for p in parts[1:]:
@@ -724,22 +728,23 @@ def parse_plugin(plugin_str: str):
             key = k.strip()
             val = v.strip()
 
-            # ❌ DROP unsupported keys completely
             if key not in VALID_KEYS:
                 continue
 
             if key == "tls":
                 opts[key] = val.lower() in ["1", "true"]
-            else:
-                opts[key] = val  # keep string (important for path)
 
-        else:
-            # ignore flag-style params (Clash doesn't need them)
-            continue
+            elif key == "path":
+                # 🔥 IMPORTANT: escape "=" for Clash YAML safety
+                val = val.replace("=", "\\=")
+                opts[key] = val
+
+            else:
+                opts[key] = val
 
     return plugin, opts
 
-# ---------------- IPv6 safe + trailing slash fix ----------------
+# ---------------- IPv6 + port ----------------
 def parse_server_port(srvp: str):
     srvp = srvp.strip().rstrip("/")
 
@@ -758,6 +763,7 @@ def parse_server_port(srvp: str):
 
     return server, int(port)
 
+# ---------------- FINAL sanitizer ----------------
 def sanitize_plugin_opts(node):
     if "plugin-opts" not in node:
         return node
@@ -768,7 +774,6 @@ def sanitize_plugin_opts(node):
         del node["plugin-opts"]
         return node
 
-    # ✅ Only allow safe keys
     VALID_KEYS = {"mode", "host", "path", "tls"}
 
     cleaned = {}
@@ -789,7 +794,7 @@ def sanitize_plugin_opts(node):
 
     return node
 
-# ----------------  Main SS Parser ----------------
+# ---------------- Main SS Parser ----------------
 def parse_ss(line, line_number=None):
     try:
         if not line or not line.startswith("ss://"):
@@ -797,13 +802,13 @@ def parse_ss(line, line_number=None):
 
         raw = line[5:].strip()
 
-        # ---------------- name ----------------
+        # -------- name --------
         name = ""
         if "#" in raw:
             raw, name = raw.split("#", 1)
             name = urllib.parse.unquote(name.strip())
 
-        # ---------------- query ----------------
+        # -------- query --------
         plugin = None
         plugin_opts = None
 
@@ -820,7 +825,7 @@ def parse_ss(line, line_number=None):
 
         core = core.strip()
 
-        # ---------------- decode ----------------
+        # -------- decode --------
         if "@" in core:
             b64_part, srvp = core.split("@", 1)
             decoded = decode_b64(b64_part)
@@ -843,10 +848,10 @@ def parse_ss(line, line_number=None):
 
             cipher, password = userinfo.split(":", 1)
 
-        # ---------------- server / port ----------------
+        # -------- server / port --------
         server, port = parse_server_port(srvp)
 
-        # ---------------- build node ----------------
+        # -------- build node --------
         node = {
             "type": "ss",
             "name": name or "SS Node",
@@ -856,6 +861,11 @@ def parse_ss(line, line_number=None):
             "password": password,
             "udp": True,
         }
+
+        # 🔥 CRITICAL: fix TLS runtime failures
+        if plugin == "v2ray-plugin":
+            node["skip-cert-verify"] = True
+            node["tfo"] = False
 
         if plugin:
             node["plugin"] = plugin
