@@ -682,183 +682,134 @@ def parse_tuic(line, line_number=None):
 # SHADOWSOCKS (SS) Parser
 # -----------------------------------------------------------
 def decode_b64(data: str) -> str:
-    data = data.strip()
-    data += '=' * (-len(data) % 4)
-    return base64.urlsafe_b64decode(data).decode('utf-8')
+    try:
+        data = data.strip()
+        data += '=' * (-len(data) % 4)
+        return base64.urlsafe_b64decode(data).decode('utf-8')
+    except Exception:
+        raise ValueError("Invalid base64 encoding")
 
-# ---------------- Plugin Parser ----------------
+
 def parse_plugin(plugin_str: str):
-    # 🔥 normalize (handle encoded + double encoded)
-    for _ in range(2):
-        plugin_str = urllib.parse.unquote(plugin_str)
-
-    plugin_str = plugin_str.replace("\\=", "=").replace("\\\\", "\\")
+    """
+    Parse plugin string like:
+    v2ray-plugin;mode=websocket;path=/xxx;host=example.com;tls
+    """
+    plugin_str = urllib.parse.unquote(plugin_str)
+    plugin_str = plugin_str.replace("\\=", "=")
 
     parts = plugin_str.split(";")
     plugin = parts[0].strip()
 
     opts = {}
-
     for p in parts[1:]:
         if not p:
             continue
-
         if "=" in p:
             k, v = p.split("=", 1)
-            key = k.strip()
-            val = v.strip()
-
-            # 🔥 normalize booleans (KEEP mux ALWAYS)
-            if key == "mux":
-                opts[key] = val.lower() in ["1", "true"]
-            elif key == "tls":
-                opts[key] = val.lower() in ["1", "true"]
-            else:
-                opts[key] = val
+            opts[k.strip()] = v.strip()
         else:
             opts[p.strip()] = True
 
     return plugin, opts
 
-# ---------------- Server / Port ----------------
-def parse_server_port(srvp: str):
-    srvp = srvp.strip().rstrip("/")
 
+def parse_server_port(srvp: str):
+    srvp = srvp.strip()
+
+    # IPv6
     if srvp.startswith("["):
         end = srvp.find("]")
+        if end == -1:
+            raise ValueError("Invalid IPv6 format")
+
         server = srvp[1:end]
         port = srvp[end + 2:]
     else:
+        if ":" not in srvp:
+            raise ValueError("Missing port")
+
         server, port = srvp.rsplit(":", 1)
 
     return server, int(port)
 
-# ---------------- Build Karing plugin_opts ----------------
-def build_karing_plugin_opts(opts: dict):
-    parts = []
 
-    # 🔥 build everything EXCEPT mux first
-    for k, v in opts.items():
-        if k == "mux":
-            continue
-        elif k == "tls":
-            if v:
-                parts.append("tls")
-        else:
-            parts.append(f"{k}={v}")
-
-    # 🔥 ALWAYS append mux LAST (critical)
-    mux_val = opts.get("mux", False)
-    parts.append(f"mux={'1' if mux_val else '0'}")
-
-    return ";".join(parts)
-
-# ---------------- Main Parser ----------------
-def parse_ss(line, line_number=None, output="clash"):
+# -----------------------------------------------------------
+# Main Parser
+# -----------------------------------------------------------
+def parse_ss(line, line_number=None):
     try:
-        if not line.startswith("ss://"):
+        if not line or not line.startswith("ss://"):
             return None
 
         raw = line[5:].strip()
 
-        # -------- name --------
+        # ---------------- name ----------------
         name = ""
         if "#" in raw:
             raw, name = raw.split("#", 1)
             name = urllib.parse.unquote(name.strip())
 
-        # -------- query --------
+        # ---------------- query ----------------
         plugin = None
         plugin_opts = None
-        
-        # 🔥 STEP 1: extract mux FIRST (from raw)
-        mux_value = None
-        if "mux=" in raw:
-            raw_mux = raw.split("mux=", 1)[1].split(";")[0]
-            mux_value = raw_mux.lower() in ["1", "true"]
-        
-        # 🔥 STEP 2: parse plugin
+
         if "?" in raw:
             core, query = raw.split("?", 1)
-        
-            if "plugin=" in query:
-                plugin_raw = query.split("plugin=", 1)[1]
-                plugin, plugin_opts = parse_plugin(plugin_raw)
+            params = urllib.parse.parse_qs(query, keep_blank_values=True)
+
+            if "plugin" in params:
+                plugin, plugin_opts = parse_plugin(params["plugin"][0])
         else:
             core = raw
-        
-        core = core.strip()
-        
-        # 🔥 STEP 3: FORCE inject mux
-        if plugin_opts is None:
-            plugin_opts = {}
-        
-        if mux_value is not None:
-            plugin_opts["mux"] = mux_value
 
-        # -------- decode --------
+        core = core.strip()
+
+        # ---------------- decode core ----------------
         if "@" in core:
+            # format: base64(method:pass)@server:port
             b64_part, srvp = core.split("@", 1)
             decoded = decode_b64(b64_part)
+
+            if ":" not in decoded:
+                raise ValueError("Invalid userinfo")
+
             cipher, password = decoded.split(":", 1)
+
         else:
+            # SIP002 full base64
             decoded = decode_b64(core)
+
+            if "@" not in decoded:
+                raise ValueError("Invalid SIP002 format")
+
             userinfo, srvp = decoded.split("@", 1)
+
+            if ":" not in userinfo:
+                raise ValueError("Invalid userinfo")
+
             cipher, password = userinfo.split(":", 1)
 
-        # -------- server --------
+        # ---------------- server / port ----------------
         server, port = parse_server_port(srvp)
 
-        # =========================
-        # 🎯 OUTPUT: CLASH
-        # =========================
-        if output == "clash":
-            node = {
-                "type": "ss",
-                "name": name or "SS Node",
-                "server": server,
-                "port": port,
-                "cipher": cipher,
-                "password": password,
-                "udp": True,
-            }
+        # ---------------- build node ----------------
+        node = {
+            "type": "ss",
+            "name": name or "SS Node",
+            "server": server,
+            "port": port,
+            "cipher": cipher,
+            "password": password,
+        }
 
-            if plugin:
-                node["plugin"] = plugin
+        if plugin:
+            node["plugin"] = plugin
 
-            if plugin_opts:
-                # 🔥 FIX: COPY dict (avoid mutation bug)
-                clash_opts = plugin_opts.copy()
+        if plugin_opts:
+            node["plugin-opts"] = plugin_opts
 
-                # 🔥 FORCE mux false for Clash
-                if "mux" in clash_opts:
-                    clash_opts["mux"] = False
-
-                node["plugin-opts"] = clash_opts
-
-            return node
-
-        # =========================
-        # 🎯 OUTPUT: KARING
-        # =========================
-        elif output == "karing":
-            node = {
-                "server": server,
-                "server_port": port,
-                "tag": name or "SS Node",
-                "type": "shadowsocks",
-                "method": cipher,
-                "password": password,
-                "plugin": plugin,
-            }
-
-            if plugin_opts:
-                # 🔥 FIX: COPY dict (avoid Clash side effects)
-                karing_opts = plugin_opts.copy()
-
-                node["plugin_opts"] = build_karing_plugin_opts(karing_opts)
-
-            return node
+        return node
 
     except Exception as e:
         print(f"[warn] ❗SS parse error -> Line {line_number}: {e}")
