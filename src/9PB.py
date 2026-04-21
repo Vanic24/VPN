@@ -689,7 +689,7 @@ def decode_b64(data: str) -> str:
     except Exception:
         raise ValueError("Invalid base64 encoding")
 
-# ---------------- Smart casting (generic) ----------------
+# ---------------- Smart casting ----------------
 def smart_cast(value: str):
     v = value.strip().lower()
 
@@ -703,11 +703,11 @@ def smart_cast(value: str):
 
     return value.strip()
 
-# ---------------- Plugin Parser (STRICT + FINAL) ----------------
+# ---------------- Plugin parser ----------------
 def parse_plugin(plugin_str: str):
     # 🔥 handle double-encoded links
-    plugin_str = urllib.parse.unquote(plugin_str)
-    plugin_str = urllib.parse.unquote(plugin_str)
+    for _ in range(2):
+        plugin_str = urllib.parse.unquote(plugin_str)
 
     # 🔥 fix escaped chars
     plugin_str = plugin_str.replace("\\=", "=").replace("\\\\", "\\")
@@ -726,26 +726,22 @@ def parse_plugin(plugin_str: str):
             key = k.strip()
             val = v.strip()
 
-            # 🔥 HARD TYPE ENFORCEMENT (Clash critical)
-            if key in ["mux", "tls"]:
-                if val.lower() in ["1", "true"]:
-                    opts[key] = True
-                elif val.lower() in ["0", "false"]:
-                    opts[key] = False
-                else:
-                    opts[key] = False
+            # ✅ type safety for critical fields
+            if key in ["tls", "mux"]:
+                opts[key] = val.lower() in ["1", "true"]
             else:
                 opts[key] = smart_cast(val)
-
         else:
+            # flags like "tls"
             opts[p.strip()] = True
 
     return plugin, opts
 
-# ---------------- IPv6 safe + trailing slash fix ----------------
+# ---------------- Server / Port ----------------
 def parse_server_port(srvp: str):
     srvp = srvp.strip().rstrip("/")
 
+    # IPv6
     if srvp.startswith("["):
         end = srvp.find("]")
         if end == -1:
@@ -761,7 +757,7 @@ def parse_server_port(srvp: str):
 
     return server, int(port)
 
-# ----------------  Main SS Parser ----------------
+# ---------------- Main SS parser ----------------
 def parse_ss(line, line_number=None):
     try:
         if not line or not line.startswith("ss://"):
@@ -769,13 +765,13 @@ def parse_ss(line, line_number=None):
 
         raw = line[5:].strip()
 
-        # ---------------- name ----------------
+        # -------- name --------
         name = ""
         if "#" in raw:
             raw, name = raw.split("#", 1)
             name = urllib.parse.unquote(name.strip())
 
-        # ---------------- query ----------------
+        # -------- query --------
         plugin = None
         plugin_opts = None
 
@@ -792,8 +788,9 @@ def parse_ss(line, line_number=None):
 
         core = core.strip()
 
-        # ---------------- decode ----------------
+        # -------- decode --------
         if "@" in core:
+            # base64(method:password)@server:port
             b64_part, srvp = core.split("@", 1)
             decoded = decode_b64(b64_part)
 
@@ -803,6 +800,7 @@ def parse_ss(line, line_number=None):
             cipher, password = decoded.split(":", 1)
 
         else:
+            # SIP002 full base64
             decoded = decode_b64(core)
 
             if "@" not in decoded:
@@ -815,10 +813,10 @@ def parse_ss(line, line_number=None):
 
             cipher, password = userinfo.split(":", 1)
 
-        # ---------------- server / port ----------------
+        # -------- server / port --------
         server, port = parse_server_port(srvp)
 
-        # ---------------- build node ----------------
+        # -------- build node --------
         node = {
             "type": "ss",
             "name": name or "SS Node",
