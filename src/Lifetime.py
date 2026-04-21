@@ -689,33 +689,57 @@ def decode_b64(data: str) -> str:
     except Exception:
         raise ValueError("Invalid base64 encoding")
 
+# ---------------- Smart casting ----------------
+def smart_cast(value: str):
+    v = value.strip().lower()
 
+    if v in ["1", "true"]:
+        return True
+    if v in ["0", "false"]:
+        return False
+
+    if v.isdigit():
+        return int(v)
+
+    return value.strip()
+
+# ---------------- Plugin parser ----------------
 def parse_plugin(plugin_str: str):
-    """
-    Parse plugin string like:
-    v2ray-plugin;mode=websocket;path=/xxx;host=example.com;tls
-    """
-    plugin_str = urllib.parse.unquote(plugin_str)
-    plugin_str = plugin_str.replace("\\=", "=")
+    # 🔥 handle double-encoded links
+    for _ in range(2):
+        plugin_str = urllib.parse.unquote(plugin_str)
+
+    # 🔥 fix escaped chars
+    plugin_str = plugin_str.replace("\\=", "=").replace("\\\\", "\\")
 
     parts = plugin_str.split(";")
     plugin = parts[0].strip()
 
     opts = {}
+
     for p in parts[1:]:
         if not p:
             continue
+
         if "=" in p:
             k, v = p.split("=", 1)
-            opts[k.strip()] = v.strip()
+            key = k.strip()
+            val = v.strip()
+
+            # ✅ type safety for critical fields
+            if key in ["tls", "mux"]:
+                opts[key] = val.lower() in ["1", "true"]
+            else:
+                opts[key] = smart_cast(val)
         else:
+            # flags like "tls"
             opts[p.strip()] = True
 
     return plugin, opts
 
-
+# ---------------- Server / Port ----------------
 def parse_server_port(srvp: str):
-    srvp = srvp.strip()
+    srvp = srvp.strip().rstrip("/")
 
     # IPv6
     if srvp.startswith("["):
@@ -733,10 +757,7 @@ def parse_server_port(srvp: str):
 
     return server, int(port)
 
-
-# -----------------------------------------------------------
-# Main Parser
-# -----------------------------------------------------------
+# ---------------- Main SS parser ----------------
 def parse_ss(line, line_number=None):
     try:
         if not line or not line.startswith("ss://"):
@@ -744,30 +765,32 @@ def parse_ss(line, line_number=None):
 
         raw = line[5:].strip()
 
-        # ---------------- name ----------------
+        # -------- name --------
         name = ""
         if "#" in raw:
             raw, name = raw.split("#", 1)
             name = urllib.parse.unquote(name.strip())
 
-        # ---------------- query ----------------
+        # -------- query --------
         plugin = None
         plugin_opts = None
 
         if "?" in raw:
             core, query = raw.split("?", 1)
-            params = urllib.parse.parse_qs(query, keep_blank_values=True)
 
-            if "plugin" in params:
-                plugin, plugin_opts = parse_plugin(params["plugin"][0])
+            for part in query.split("&"):
+                if part.startswith("plugin="):
+                    plugin_raw = part[len("plugin="):]
+                    plugin, plugin_opts = parse_plugin(plugin_raw)
+                    break
         else:
             core = raw
 
         core = core.strip()
 
-        # ---------------- decode core ----------------
+        # -------- decode --------
         if "@" in core:
-            # format: base64(method:pass)@server:port
+            # base64(method:password)@server:port
             b64_part, srvp = core.split("@", 1)
             decoded = decode_b64(b64_part)
 
@@ -790,10 +813,10 @@ def parse_ss(line, line_number=None):
 
             cipher, password = userinfo.split(":", 1)
 
-        # ---------------- server / port ----------------
+        # -------- server / port --------
         server, port = parse_server_port(srvp)
 
-        # ---------------- build node ----------------
+        # -------- build node --------
         node = {
             "type": "ss",
             "name": name or "SS Node",
@@ -801,6 +824,7 @@ def parse_ss(line, line_number=None):
             "port": port,
             "cipher": cipher,
             "password": password,
+            "udp": True,
         }
 
         if plugin:
