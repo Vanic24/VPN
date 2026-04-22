@@ -313,16 +313,21 @@ def parse_vless(line, line_number=None):
         if "#" in line:
             line, name = line.split("#", 1)
             name = urllib.parse.unquote(name)
+
         core = line[len("vless://"):]
         if "@" not in core:
             return None
+
         uuid, rest = core.split("@", 1)
+
         query = {}
         if "?" in rest:
             host_port, q = rest.split("?", 1)
             query = dict(urllib.parse.parse_qsl(q))
         else:
             host_port = rest
+
+        host_port = host_port.strip().rstrip("/")
 
         # ---------------- IPv6 / IPv4 handling ----------------
         if host_port.startswith("["):  # IPv6
@@ -341,11 +346,16 @@ def parse_vless(line, line_number=None):
                 return None
             host, port = host_port.rsplit(":", 1)
 
+        try:
+            port = int(port)
+        except ValueError:
+            port = int(port.strip("/"))
+
         node = {
             "type": "vless",
             "name": name or "VLESS Node",
             "server": host,
-            "port": int(port),
+            "port": port,
             "uuid": uuid,
             "encryption": query.get("encryption", "none"),
         }
@@ -357,8 +367,13 @@ def parse_vless(line, line_number=None):
             node["skip-cert-verify"] = query.get("allowInsecure", "0") in ("1", "true", "yes")
             if "fp" in query:
                 node["client-fingerprint"] = query["fp"]
+
         elif query.get("security") == "reality":
-            node["reality-opts"] = {"public-key": query.get("pbk", ""), "short-id": query.get("sid", ""), "server-name": query.get("sni", "")}
+            node["reality-opts"] = {
+                "public-key": query.get("pbk", ""),
+                "short-id": query.get("sid", ""),
+                "server-name": query.get("sni", "")
+            }
             node["tls"] = True
 
         # Network
@@ -366,13 +381,17 @@ def parse_vless(line, line_number=None):
             node["network"] = query["type"]
 
         if node.get("network") == "ws":
-            ws_opts = {"path": urllib.parse.unquote(query.get("path", "/"))}
+            ws_opts = {
+                "path": urllib.parse.unquote(query.get("path", "/"))
+            }
             if "host" in query:
                 ws_opts["headers"] = {"Host": query["host"]}
             node["ws-opts"] = ws_opts
 
         if node.get("network") == "grpc":
-            node["grpc-opts"] = {"grpc-service-name": query.get("serviceName", "")}
+            node["grpc-opts"] = {
+                "grpc-service-name": query.get("serviceName", "")
+            }
 
         node = merge_dynamic_fields(node, query)
         return node
