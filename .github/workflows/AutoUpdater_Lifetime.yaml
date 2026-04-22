@@ -85,52 +85,44 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          
-          MAX_RETRIES=5
-          COUNT=0
-          SUCCESS=0
-          
-          while [ $COUNT -lt $MAX_RETRIES ]; do
-            echo "Attempt $(($COUNT + 1)) to commit & push..."
-          
-            git add Lifetime
-            if ! git diff --cached --quiet; then
-              git commit -m "🎉Lifetime Auto update successful🎉 - $TIMESTAMP"
-            fi
-   
-            git add Lifetime_Clash
-            if ! git diff --cached --quiet; then
-              git commit -m "🎉Lifetime_Clash Auto update successful🎉 - $TIMESTAMP"
-            fi
-          
-            # --- Push once ---
-            git push --force-with-lease origin main && SUCCESS=1 && break
-          
-            COUNT=$(($COUNT + 1))
-            echo "Push failed, retrying in 5 seconds..."
-            sleep 5
-          done
-          
-          if [ $SUCCESS -eq 1 ]; then
-            echo "Push successful!"
+      
+          git add Lifetime
+      
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
           else
-            echo "Push failed after $MAX_RETRIES attempts."
-            exit 1
+            MAX_RETRIES=3
+            COUNT=0
+            SUCCESS=0
+      
+            while [ $COUNT -lt $MAX_RETRIES ]; do
+              echo "Attempt $(($COUNT + 1)) to commit & push..."
+              git commit -m "🎉Lifetime Auto update successful🎉 - $TIMESTAMP" && \
+              git push --force-with-lease origin main && \
+              SUCCESS=1 && break
+      
+              COUNT=$(($COUNT + 1))
+              echo "Push failed, retrying in 5 seconds..."
+              sleep 5
+            done
+      
+            if [ $SUCCESS -eq 1 ]; then
+              echo "Push successful!"
+            else
+              echo "Push failed after $MAX_RETRIES attempts."
+              exit 1
+            fi
           fi
 
       - name: Set subscription extension
-        run: |
-          cp Lifetime Lifetime.yaml
-          cp Lifetime_Clash Lifetime_Clash.yaml
+        run: cp Lifetime Lifetime.yaml
 
       - name: Upload subscription artifact for backup
         id: upload_artifact
         uses: actions/upload-artifact@v4
         with:
           name: Lifetime
-          path: |
-            Lifetime.yaml
-            Lifetime_Clash.yaml
+          path: Lifetime.yaml
           retention-days: 30
       
       - name: Cleanup old artifacts (keep latest 60)
@@ -139,7 +131,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const PREFIXES = ["Lifetime", "Lifetime_Clash"];
+            const PREFIX = "Lifetime";
             const MAX_KEEP = 60;
             const PER_PAGE = 30;
             const EMPTY_PAGE_LIMIT = 5;
@@ -164,7 +156,7 @@ jobs:
               }
       
               const filtered = artifacts.filter(a =>
-                PREFIXES.some(prefix => a.name.startsWith(prefix)) && !a.expired
+                a.name.startsWith(PREFIX) && !a.expired
               );
       
               matched = matched.concat(filtered);
