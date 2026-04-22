@@ -355,7 +355,7 @@ def parse_vless(line, line_number=None):
             "type": "vless",
             "name": name or "VLESS Node",
             "server": host,
-            "port": port,
+            "port": int(port),
             "uuid": uuid,
             "encryption": query.get("encryption", "none"),
         }
@@ -367,13 +367,8 @@ def parse_vless(line, line_number=None):
             node["skip-cert-verify"] = query.get("allowInsecure", "0") in ("1", "true", "yes")
             if "fp" in query:
                 node["client-fingerprint"] = query["fp"]
-
         elif query.get("security") == "reality":
-            node["reality-opts"] = {
-                "public-key": query.get("pbk", ""),
-                "short-id": query.get("sid", ""),
-                "server-name": query.get("sni", "")
-            }
+            node["reality-opts"] = {"public-key": query.get("pbk", ""), "short-id": query.get("sid", ""), "server-name": query.get("sni", "")}
             node["tls"] = True
 
         # Network
@@ -381,17 +376,13 @@ def parse_vless(line, line_number=None):
             node["network"] = query["type"]
 
         if node.get("network") == "ws":
-            ws_opts = {
-                "path": urllib.parse.unquote(query.get("path", "/"))
-            }
+            ws_opts = {"path": urllib.parse.unquote(query.get("path", "/"))}
             if "host" in query:
                 ws_opts["headers"] = {"Host": query["host"]}
             node["ws-opts"] = ws_opts
 
         if node.get("network") == "grpc":
-            node["grpc-opts"] = {
-                "grpc-service-name": query.get("serviceName", "")
-            }
+            node["grpc-opts"] = {"grpc-service-name": query.get("serviceName", "")}
 
         node = merge_dynamic_fields(node, query)
         return node
