@@ -85,52 +85,44 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          
-          MAX_RETRIES=5
-          COUNT=0
-          SUCCESS=0
-          
-          while [ $COUNT -lt $MAX_RETRIES ]; do
-            echo "Attempt $(($COUNT + 1)) to commit & push..."
-          
-            git add 9PB
-            if ! git diff --cached --quiet; then
-              git commit -m "🎉9PB Auto update successful🎉 - $TIMESTAMP"
-            fi
-   
-            git add 9PB_Clash
-            if ! git diff --cached --quiet; then
-              git commit -m "🎉9PB_Clash Auto update successful🎉 - $TIMESTAMP"
-            fi
-          
-            # --- Push once ---
-            git push --force-with-lease origin main && SUCCESS=1 && break
-          
-            COUNT=$(($COUNT + 1))
-            echo "Push failed, retrying in 5 seconds..."
-            sleep 5
-          done
-          
-          if [ $SUCCESS -eq 1 ]; then
-            echo "Push successful!"
+      
+          git add 9PB
+      
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
           else
-            echo "Push failed after $MAX_RETRIES attempts."
-            exit 1
+            MAX_RETRIES=3
+            COUNT=0
+            SUCCESS=0
+      
+            while [ $COUNT -lt $MAX_RETRIES ]; do
+              echo "Attempt $(($COUNT + 1)) to commit & push..."
+              git commit -m "🎉9PB Auto update successful🎉 - $TIMESTAMP" && \
+              git push --force-with-lease origin main && \
+              SUCCESS=1 && break
+      
+              COUNT=$(($COUNT + 1))
+              echo "Push failed, retrying in 5 seconds..."
+              sleep 5
+            done
+      
+            if [ $SUCCESS -eq 1 ]; then
+              echo "Push successful!"
+            else
+              echo "Push failed after $MAX_RETRIES attempts."
+              exit 1
+            fi
           fi
 
       - name: Set subscription extension
-        run: |
-          cp 9PB 9PB.yaml
-          cp 9PB_Clash 9PB_Clash.yaml
+        run: cp 9PB 9PB.yaml
 
       - name: Upload subscription artifact for backup
         id: upload_artifact
         uses: actions/upload-artifact@v4
         with:
           name: 9PB
-          path: |
-            9PB.yaml
-            9PB_Clash.yaml
+          path: 9PB.yaml
           retention-days: 30
       
       - name: Cleanup old artifacts (keep latest 60)
@@ -139,7 +131,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const PREFIXES = ["9PB", "9PB_Clash"];
+            const PREFIX = "9PB";
             const MAX_KEEP = 60;
             const PER_PAGE = 30;
             const EMPTY_PAGE_LIMIT = 5;
@@ -164,7 +156,7 @@ jobs:
               }
       
               const filtered = artifacts.filter(a =>
-                PREFIXES.some(prefix => a.name.startsWith(prefix)) && !a.expired
+                a.name.startsWith(PREFIX) && !a.expired
               );
       
               matched = matched.concat(filtered);
