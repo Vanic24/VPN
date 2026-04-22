@@ -313,16 +313,21 @@ def parse_vless(line, line_number=None):
         if "#" in line:
             line, name = line.split("#", 1)
             name = urllib.parse.unquote(name)
+
         core = line[len("vless://"):]
         if "@" not in core:
             return None
+
         uuid, rest = core.split("@", 1)
+
         query = {}
         if "?" in rest:
             host_port, q = rest.split("?", 1)
             query = dict(urllib.parse.parse_qsl(q))
         else:
             host_port = rest
+
+        host_port = host_port.strip().rstrip("/")
 
         # ---------------- IPv6 / IPv4 handling ----------------
         if host_port.startswith("["):  # IPv6
@@ -340,6 +345,11 @@ def parse_vless(line, line_number=None):
             if ":" not in host_port:
                 return None
             host, port = host_port.rsplit(":", 1)
+
+        try:
+            port = int(port)
+        except ValueError:
+            port = int(port.strip("/"))
 
         node = {
             "type": "vless",
