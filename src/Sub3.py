@@ -910,6 +910,29 @@ def parse_ssr(line, line_number=None):
         return None
 
 # -----------------------------------------------------------
+# Normalize MUX
+# -----------------------------------------------------------
+def normalize_mux(node):
+    try:
+        if "plugin-opts" in node and isinstance(node["plugin-opts"], dict):
+            mux_val = node["plugin-opts"].get("mux")
+
+            if mux_val is not None:
+                v = str(mux_val).lower()
+
+                if v in ["0", "false"]:
+                    node["plugin-opts"]["mux"] = 0
+                elif v in ["1", "true"]:
+                    node["plugin-opts"]["mux"] = 1
+                else:
+                    node["plugin-opts"]["mux"] = int(v) if v.isdigit() else 0
+
+    except Exception:
+        pass
+
+    return node
+
+# -----------------------------------------------------------
 # Dispatcher
 # -----------------------------------------------------------
 def parse_node_line(line, line_number=None):
@@ -1261,6 +1284,7 @@ def main():
         renamed_nodes = []
         cn_to_cc = load_cn_to_cc()
         skipped_nodes = 0
+        
         for n in filtered_nodes:
             res = rename_node(n, country_counter, cn_to_cc)
             if res:
@@ -1323,7 +1347,8 @@ def main():
             return ordered
         
         # Apply to all renamed nodes
-        info_ordered = [reorder_info(n) for n in renamed_nodes]
+        normalized_nodes = [normalize_mux(n) for n in renamed_nodes]
+        info_ordered = [reorder_info(n) for n in normalized_nodes]
         info_ordered_dicts = [dict(n) for n in info_ordered]
 
         # Line by line YAML proxies output format
