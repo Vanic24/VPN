@@ -19,7 +19,7 @@ from urllib.parse import unquote, urlparse, parse_qs
 # ---------------- Config ----------------
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 OUTPUT_FILE = os.path.join(REPO_ROOT, "9PB")
-OUTPUT_FILE_Clash = os.path.join(REPO_ROOT, "9PB_Clash")
+OUTPUT_FILE_CLASH = os.path.join(REPO_ROOT, "9PB_Clash")
 SOURCES_FILE = os.path.join(REPO_ROOT, "SUB_9PB")
 CLASH_TEMPLATE = os.path.join(REPO_ROOT, "ClashTemplate.ini")
 TEXTDB_API = "https://textdb.online/update/?key=9PB_SHFX&value={}"
