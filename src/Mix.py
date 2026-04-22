@@ -693,9 +693,9 @@ def decode_b64(data: str) -> str:
 def smart_cast(value: str):
     v = value.strip().lower()
 
-    if v in ["1", "true"]:
+    if v in ["true"]:
         return True
-    if v in ["0", "false"]:
+    if v in ["false"]:
         return False
 
     if v.isdigit():
@@ -727,8 +727,19 @@ def parse_plugin(plugin_str: str):
             val = v.strip()
 
             # ✅ type safety for critical fields
-            if key in ["tls", "mux"]:
+            if key == "tls":
                 opts[key] = val.lower() in ["1", "true"]
+            
+            elif key == "mux":
+                v = str(val).lower()
+            
+                if v in ["0", "false"]:
+                    opts[key] = 0
+                elif v in ["1", "true"]:
+                    opts[key] = 1
+                else:
+                    opts[key] = int(v) if v.isdigit() else 0
+            
             else:
                 opts[key] = smart_cast(val)
         else:
@@ -897,6 +908,29 @@ def parse_ssr(line, line_number=None):
     except Exception as e:
         print(f"[warn] ❗SSR parse error -> Line {line_number}")
         return None
+
+# -----------------------------------------------------------
+# Normalize MUX
+# -----------------------------------------------------------
+def normalize_mux(node):
+    try:
+        if "plugin-opts" in node and isinstance(node["plugin-opts"], dict):
+            mux_val = node["plugin-opts"].get("mux")
+
+            if mux_val is not None:
+                v = str(mux_val).lower()
+
+                if v in ["0", "false"]:
+                    node["plugin-opts"]["mux"] = 0
+                elif v in ["1", "true"]:
+                    node["plugin-opts"]["mux"] = 1
+                else:
+                    node["plugin-opts"]["mux"] = int(v) if v.isdigit() else 0
+
+    except Exception:
+        pass
+
+    return node
 
 # -----------------------------------------------------------
 # Dispatcher
@@ -1250,6 +1284,7 @@ def main():
         renamed_nodes = []
         cn_to_cc = load_cn_to_cc()
         skipped_nodes = 0
+        
         for n in filtered_nodes:
             res = rename_node(n, country_counter, cn_to_cc)
             if res:
@@ -1312,7 +1347,8 @@ def main():
             return ordered
         
         # Apply to all renamed nodes
-        info_ordered = [reorder_info(n) for n in renamed_nodes]
+        normalized_nodes = [normalize_mux(n) for n in renamed_nodes]
+        info_ordered = [reorder_info(n) for n in normalized_nodes]
         info_ordered_dicts = [dict(n) for n in info_ordered]
 
         # Line by line YAML proxies output format
