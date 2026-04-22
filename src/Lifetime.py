@@ -2,6 +2,7 @@ import os
 import sys
 import time
 import yaml
+import copy
 import requests
 import socket
 import threading
@@ -18,9 +19,11 @@ from urllib.parse import unquote, urlparse, parse_qs
 # ---------------- Config ----------------
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 OUTPUT_FILE = os.path.join(REPO_ROOT, "Lifetime")
+OUTPUT_FILE_CLASH = os.path.join(REPO_ROOT, "Lifetime_Clash")
 SOURCES_FILE = os.path.join(REPO_ROOT, "SUB_LIFETIME")
 CLASH_TEMPLATE = os.path.join(REPO_ROOT, "ClashTemplate.ini")
 TEXTDB_API = "https://textdb.online/update/?key=Lifetime_SHFX&value={}"
+TEXTDB_API2 = "https://textdb.online/update/?key=Lifetime_Clash_SHFX&value={}"
 USE_ONLY_GEOIP = os.getenv("USE_ONLY_GEOIP", "false").lower() == "true"
 
 # ---------------- Inputs ----------------
@@ -693,9 +696,9 @@ def decode_b64(data: str) -> str:
 def smart_cast(value: str):
     v = value.strip().lower()
 
-    if v in ["1", "true"]:
+    if v in ["true"]:
         return True
-    if v in ["0", "false"]:
+    if v in ["false"]:
         return False
 
     if v.isdigit():
@@ -727,7 +730,7 @@ def parse_plugin(plugin_str: str):
             val = v.strip()
 
             # ✅ type safety for critical fields
-            if key in ["tls", "mux"]:
+            if key == "tls":
                 opts[key] = val.lower() in ["1", "true"]
             else:
                 opts[key] = smart_cast(val)
@@ -838,7 +841,7 @@ def parse_ss(line, line_number=None):
     except Exception as e:
         print(f"[warn] ❗SS parse error -> Line {line_number}: {e}")
         return None
-       
+        
 # -----------------------------------------------------------
 # SHADOWSOCKSR (SSR) Parser
 # -----------------------------------------------------------
@@ -897,7 +900,7 @@ def parse_ssr(line, line_number=None):
     except Exception as e:
         print(f"[warn] ❗SSR parse error -> Line {line_number}")
         return None
-
+    
 # -----------------------------------------------------------
 # Dispatcher
 # -----------------------------------------------------------
@@ -1091,6 +1094,53 @@ def rename_node(p, country_counter, CN_TO_CC):
             p["name"] = build_name(flag, cc, index, ipv6_tag)
             return p
 
+# ---------------- Check Sub: type ----------------
+def quote_nonascii_strings(yaml_text):
+    """
+    Wrap values containing non-ASCII characters in quotes to ensure YAML parses correctly.
+    """
+    def replacer(match):
+        key, value = match.groups()
+        # If value contains non-ASCII or spaces, wrap in quotes
+        if any(ord(c) > 127 for c in value) or " " in value:
+            value = f'"{value}"'
+        return f"{key}: {value}"
+    
+    # Match key: value pairs inside inline { ... } mappings
+    return re.sub(r"(\b[\w\-]+):\s*([^,}\n]+)", replacer, yaml_text)
+
+# -----------------------------------------------------------
+# Mux for clash
+# -----------------------------------------------------------
+def convert_mux_for_clash(nodes):
+    converted = []
+
+    for n in nodes:
+        node = copy.deepcopy(n)
+
+        if "mux" in node:
+            val = node["mux"]
+            if str(val).lower() in ["0", "false"]:
+                node["mux"] = False
+            elif str(val).lower() in ["1", "true"]:
+                node["mux"] = True
+            else:
+                node["mux"] = False
+
+        if "plugin-opts" in node and isinstance(node["plugin-opts"], dict):
+            if "mux" in node["plugin-opts"]:
+                val = node["plugin-opts"]["mux"]
+                if str(val).lower() in ["0", "false"]:
+                    node["plugin-opts"]["mux"] = False
+                elif str(val).lower() in ["1", "true"]:
+                    node["plugin-opts"]["mux"] = True
+                else:
+                    node["plugin-opts"]["mux"] = False
+
+        converted.append(node)
+
+    return converted
+    
 # ---------------- Load proxies ----------------
 def load_proxies(url, retries=5):
     attempt = 0
@@ -1315,7 +1365,7 @@ def main():
         info_ordered = [reorder_info(n) for n in renamed_nodes]
         info_ordered_dicts = [dict(n) for n in info_ordered]
 
-        # Line by line YAML proxies output format
+         # Line by line YAML proxies output format
         def make_single_line_yaml(proxies):
             lines = []
             for p in proxies:
@@ -1336,6 +1386,17 @@ def main():
         
             return "\n".join(lines)
 
+        # ---------------- Clash-compatible nodes ----------------
+        clash_nodes = convert_mux_for_clash(renamed_nodes)
+        clash_info_ordered = [reorder_info(n) for n in clash_nodes]
+        clash_info_dicts = [dict(n) for n in clash_info_ordered]
+
+        clash_proxies_yaml = make_single_line_yaml(clash_info_dicts)
+        clash_proxy_names = "\n".join([f"      - {unquote(p['name'])}" for p in clash_info_dicts])
+
+        clash_output_text = template_text.replace("{{PROXIES}}", clash_proxies_yaml)
+        clash_output_text = clash_output_text.replace("{{PROXY_NAMES}}", clash_proxy_names)
+
         # ---------------- Convert to YAML ----------------
         proxies_yaml_block = make_single_line_yaml(info_ordered_dicts)    #If multiple lines format is needed, Delete Line by line YAML proxies output format code block, proxies_yaml_block = yaml.dump(info_ordered_dicts, allow_unicode=True, default_flow_style=False, sort_keys=False)
         proxy_names_block = "\n".join([f"      - {unquote(p['name'])}" for p in info_ordered_dicts])
@@ -1355,6 +1416,10 @@ def main():
             f.write(f"# Last update: {timestamp}\n" + output_text)
         print(f"[done] 💾 Wrote {OUTPUT_FILE}")
 
+        with open(OUTPUT_FILE_CLASH, "w", encoding="utf-8") as f:
+            f.write(f"# Last update: {timestamp}\n" + clash_output_text)
+        print(f"[done] 💾 Wrote {OUTPUT_FILE_CLASH}")
+
         # Upload to textdb only after all upper processes successful processing
         upload_to_textdb()
 
@@ -1373,9 +1438,9 @@ def upload_to_textdb():
         # Step 2: Delete old data
         delete_resp = session.post(TEXTDB_API, data={"value": ""})
         if delete_resp.status_code == 200:
-            print("[info] 🗑️ Successfully deleted old data on textdb")
+            print("[info] 🗑️ Successfully deleted old data1 on textdb")
         else:
-            print(f"[warn] ❌ Failed to delete old data on textdb: {delete_resp.status_code}")
+            print(f"[warn] ❌ Failed to delete old data1 on textdb: {delete_resp.status_code}")
             print(f"[warn] ❗Response: {delete_resp.text}")
 
         # Wait 3 seconds
@@ -1384,9 +1449,32 @@ def upload_to_textdb():
         # Step 3: Upload new data
         upload_resp = session.post(TEXTDB_API, data={"value": output_text})
         if upload_resp.status_code == 200:
-            print("[info] 📤 Successfully uploaded new data on textdb")
+            print("[info] 📤 Successfully uploaded new data1 on textdb")
         else:
-            print(f"[warn] ❌Failed to upload new data on textdb: {upload_resp.status_code}")
+            print(f"[warn] ❌Failed to upload new data1 on textdb: {upload_resp.status_code}")
+            print(f"[warn] ❗Response: {upload_resp.text}")
+
+        # Step 1: Read freshly generated subscription file (local, not GitHub raw)
+        with open(OUTPUT_FILE_CLASH, "r", encoding="utf-8") as f:
+            output_text = f.read()
+
+        # Step 2: Delete old data
+        delete_resp = session.post(TEXTDB_API2, data={"value": ""})
+        if delete_resp.status_code == 200:
+            print("[info] 🗑️ Successfully deleted old data2 on textdb")
+        else:
+            print(f"[warn] ❌ Failed to delete old data2 on textdb: {delete_resp.status_code}")
+            print(f"[warn] ❗Response: {delete_resp.text}")
+
+        # Wait 3 seconds
+        time.sleep(3)
+
+        # Step 3: Upload new data
+        upload_resp = session.post(TEXTDB_API2, data={"value": output_text})
+        if upload_resp.status_code == 200:
+            print("[info] 📤 Successfully uploaded new data2 on textdb")
+        else:
+            print(f"[warn] ❌Failed to upload new data2 on textdb: {upload_resp.status_code}")
             print(f"[warn] ❗Response: {upload_resp.text}")
 
     except Exception as e:
@@ -1395,3 +1483,4 @@ def upload_to_textdb():
 # ---------------- Entry ----------------
 if __name__ == "__main__":
     main()
+    
