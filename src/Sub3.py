@@ -222,9 +222,9 @@ def load_sources():
     return sources
 
 # -----------------------------------------------------------
-# Helper: Safe base64 decode & normalize vmess json
+# Helper: Safe base64 decode
 # -----------------------------------------------------------
-def decode_b64(data: str) -> str:
+def decode_base64(data: str) -> str:
     try:
         data = data.strip()
         data += "=" * (-len(data) % 4)
@@ -300,7 +300,7 @@ def parse_vmess(line, line_number=None):
             
         # ---------------- Decode ----------------
         raw = line[8:]
-        decoded = decode_b64(raw)
+        decoded = decode_base64(raw)
 
         if not decoded:
             raise ValueError("Empty decode result")
@@ -864,7 +864,7 @@ def parse_ss(line, line_number=None):
         if "@" in core:
             # base64(method:password)@server:port
             b64_part, srvp = core.split("@", 1)
-            decoded = decode_b64(b64_part)
+            decoded = decode_base64(b64_part)
 
             if ":" not in decoded:
                 raise ValueError("Invalid userinfo")
@@ -873,7 +873,7 @@ def parse_ss(line, line_number=None):
 
         else:
             # SIP002 full base64
-            decoded = decode_b64(core)
+            decoded = decode_base64(core)
 
             if "@" not in decoded:
                 raise ValueError("Invalid SIP002 format")
@@ -919,7 +919,7 @@ def parse_ssr(line, line_number=None):
         if not line.startswith("ssr://"):
             return None
 
-        decoded = decode_b64(line[6:]).strip()
+        decoded = decode_base64(line[6:]).strip()
 
         if "/?" in decoded:
             main, query_str = decoded.split("/?", 1)
@@ -934,12 +934,12 @@ def parse_ssr(line, line_number=None):
 
         server, port, protocol, method, obfs, pwd_b64 = main.rsplit(":", 5)
 
-        password = decode_b64(pwd_b64)
+        password = decode_base64(pwd_b64)
 
         name = ""
 
         if "remarks" in qs:
-            name = urllib.parse.unquote(decode_b64(qs["remarks"]))
+            name = urllib.parse.unquote(decode_base64(qs["remarks"]))
 
         node = {
             "type": "ssr",
@@ -954,13 +954,13 @@ def parse_ssr(line, line_number=None):
 
         # ---------------- optional fields ----------------
         if "group" in qs:
-            node["group"] = decode_b64(qs["group"])
+            node["group"] = decode_base64(qs["group"])
 
         if "obfsparam" in qs:
-            node["obfs-param"] = decode_b64(qs["obfsparam"])
+            node["obfs-param"] = decode_base64(qs["obfsparam"])
 
         if "protoparam" in qs:
-            node["protocol-param"] = decode_b64(qs["protoparam"])
+            node["protocol-param"] = decode_base64(qs["protoparam"])
 
         node = merge_dynamic_fields(node, qs)
 
