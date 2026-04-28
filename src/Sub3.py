@@ -231,6 +231,14 @@ def decode_b64(b64str):
     except Exception:
         return ""
 
+def safe_int(value, default=0):
+    try:
+        if value is None or value == "":
+            return default
+        return int(value)
+    except Exception:
+        return default
+
 def normalize_vmess_json(data):
     normalized = {}
     for k, v in data.items():
@@ -342,7 +350,7 @@ def parse_vmess(line, line_number=None):
             }
 
         # ---------------- Dynamic Fields (Safe) ----------------
-        node = merge_dynamic_fields_safe(node, data)
+        node = merge_dynamic_fields_universal(node, data)
 
         return node
 
