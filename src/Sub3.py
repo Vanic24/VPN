@@ -224,10 +224,11 @@ def load_sources():
 # -----------------------------------------------------------
 # Helper: Safe base64 decode & normalize vmess json
 # -----------------------------------------------------------
-def decode_b64(b64str):
+def decode_b64(data: str) -> str:
     try:
-        padded = b64str + "=" * (-len(b64str) % 4)
-        return base64.urlsafe_b64decode(padded).decode("utf-8")
+        data = data.strip()
+        data += "=" * (-len(data) % 4)
+        return base64.urlsafe_b64decode(data).decode("utf-8")
     except Exception:
         return ""
 
@@ -253,7 +254,7 @@ def normalize_vmess_json(data):
 # -----------------------------------------------------------
 # Helper: Generic dynamic query merger
 # -----------------------------------------------------------
-def merge_dynamic_fields_universal(node, data):
+def merge_dynamic_fields(node, data):
     """
     Universal dynamic field merger:
     - Works for BOTH JSON (vmess) and URL query (vless/trojan/ss/etc.)
@@ -350,7 +351,7 @@ def parse_vmess(line, line_number=None):
             }
 
         # ---------------- Dynamic Fields (Safe) ----------------
-        node = merge_dynamic_fields_universal(node, data)
+        node = merge_dynamic_fields(node, data)
 
         return node
 
@@ -749,15 +750,6 @@ def parse_tuic(line, line_number=None):
 # -----------------------------------------------------------
 # SHADOWSOCKS (SS) Parser
 # -----------------------------------------------------------
-def decode_b64(data: str) -> str:
-    try:
-        data = data.strip()
-        data += '=' * (-len(data) % 4)
-        return base64.urlsafe_b64decode(data).decode('utf-8')
-    except Exception:
-        raise ValueError("Invalid base64 encoding")
-
-# ---------------- Smart casting ----------------
 def smart_cast(value: str):
     v = value.strip().lower()
 
