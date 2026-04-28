@@ -240,17 +240,6 @@ def safe_int(value, default=0):
     except Exception:
         return default
 
-def normalize_vmess_json(data):
-    normalized = {}
-    for k, v in data.items():
-        if v is None:
-            normalized[k] = ""
-        elif isinstance(v, (int, float, bool)):
-            normalized[k] = str(v)
-        else:
-            normalized[k] = v
-    return normalized
-
 # -----------------------------------------------------------
 # Helper: Generic dynamic query merger
 # -----------------------------------------------------------
@@ -292,6 +281,18 @@ def merge_dynamic_fields(node, data):
 # -----------------------------------------------------------
 # VMESS Parser
 # -----------------------------------------------------------
+def normalize_vmess_json(data):
+    normalized = {}
+    for k, v in data.items():
+        if v is None:
+            normalized[k] = ""
+        elif isinstance(v, (int, float, bool)):
+            normalized[k] = str(v)
+        else:
+            normalized[k] = v
+    return normalized
+    
+# ---------------- Main VMESS parser ----------------
 def parse_vmess(line, line_number=None):
     try:
         if not line or not line.startswith("vmess://"):
