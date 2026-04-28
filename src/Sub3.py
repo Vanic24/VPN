@@ -222,7 +222,7 @@ def load_sources():
     return sources
 
 # -----------------------------------------------------------
-# Helper: Safe base64 decode
+# Helper: Safe base64 decode & normalize vmess json
 # -----------------------------------------------------------
 def decode_b64(b64str):
     try:
@@ -231,21 +231,53 @@ def decode_b64(b64str):
     except Exception:
         return ""
 
+def normalize_vmess_json(data):
+    normalized = {}
+    for k, v in data.items():
+        if v is None:
+            normalized[k] = ""
+        elif isinstance(v, (int, float, bool)):
+            normalized[k] = str(v)
+        else:
+            normalized[k] = v
+    return normalized
+
 # -----------------------------------------------------------
 # Helper: Generic dynamic query merger
 # -----------------------------------------------------------
-def merge_dynamic_fields(node, query):
-    """Attach all unrecognized query fields dynamically, without injecting defaults."""
+def merge_dynamic_fields_universal(node, data):
+    """
+    Universal dynamic field merger:
+    - Works for BOTH JSON (vmess) and URL query (vless/trojan/ss/etc.)
+    - Safe against None, int, bool
+    - Supports ALPN parsing
+    - Supports URL decoding
+    """
     known = set(node.keys())
-    for k, v in query.items():
-        if k not in known and v:  # only non-empty
-            v_decoded = urllib.parse.unquote(v)
-            if k == "alpn":  # only ALPN is a list
-                v_list = [x.strip() for x in v_decoded.split(",") if x.strip()]
-                if v_list:
-                    node[k] = v_list
-            else:  # everything else stays as string
-                node[k] = v_decoded
+
+    for k, v in data.items():
+        if k in known:
+            continue
+
+        # Skip empty / None
+        if v is None or v == "":
+            continue
+
+        # Convert to string safely
+        if not isinstance(v, str):
+            v = str(v)
+
+        # URL decode (safe for both cases)
+        v = urllib.parse.unquote(v)
+
+        # Special handling
+        if k.lower() == "alpn":
+            v_list = [x.strip() for x in v.split(",") if x.strip()]
+            if v_list:
+                node[k] = v_list
+        else:
+            node[k] = v
+
     return node
 
 # -----------------------------------------------------------
@@ -253,53 +285,71 @@ def merge_dynamic_fields(node, query):
 # -----------------------------------------------------------
 def parse_vmess(line, line_number=None):
     try:
-        if not line.startswith("vmess://"):
+        if not line or not line.startswith("vmess://"):
             return None
-        raw = line[8:].strip().replace("\n", "").replace(" ", "")
-        missing_padding = len(raw) % 4
-        if missing_padding:
-            raw += "=" * (4 - missing_padding)
-        decoded = base64.b64decode(raw).decode("utf-8")
-        data = json.loads(decoded)
-        tls_value = str(data.get("tls", "")).lower()
+            
+        # ---------------- Decode ----------------
+        raw = line[8:]
+        decoded = safe_base64_decode(raw)
 
+        if not decoded:
+            raise ValueError("Empty decode result")
+
+        data = json.loads(decoded)
+
+        # Normalize ALL values (critical fix)
+        data = normalize_vmess_json(data)
+
+        # ---------------- Core Fields ----------------
         node = {
             "type": "vmess",
-            "name": data.get("ps", "VMESS Node"),
-            "server": data.get("add", ""),
-            "port": int(data.get("port", 0)),
-            "uuid": data.get("id", ""),
-            "alterId": int(data.get("aid", 0)),
-            "cipher": data.get("scy", "auto"),
-            "tls": tls_value in ("tls", "1", "true", "yes"),
-            "network": data.get("net", "tcp"),
+            "name": data.get("ps") or "VMESS Node",
+            "server": data.get("add") or "",
+            "port": safe_int(data.get("port")),
+            "uuid": data.get("id") or "",
+            "alterId": safe_int(data.get("aid")),
+            "cipher": data.get("scy") or "auto",
+            "network": data.get("net") or "tcp",
         }
 
-        # ---------------- WS ----------------
-        if node["network"] == "ws":
-            node["ws-opts"] = {"path": data.get("path", "/"), "headers": {"Host": data.get("host", "")}}
+        # ---------------- TLS Handling ----------------
+        tls_raw = (data.get("tls") or "").lower()
+        node["tls"] = tls_raw in ("tls", "1", "true", "yes")
 
-        # ---------------- gRPC ----------------
-        if node["network"] == "grpc":
-            node["grpc-opts"] = {"grpc-service-name": data.get("path", "")}
-
-        # ---------------- HTTP/2 ----------------
-        if node["network"] == "h2":
-            node["h2-opts"] = {"path": data.get("path", "/"), "host": [data.get("host", "")]}
-
-        # ---------------- TLS Server Name ----------------
         if node["tls"]:
-            node["servername"] = data.get("sni") or data.get("host", "")
+            node["servername"] = data.get("sni") or data.get("host") or ""
 
-        # dynamic fields
-        node = merge_dynamic_fields(node, data)
+        # ---------------- Network Handling ----------------
+        net = node["network"]
+
+        if net == "ws":
+            node["ws-opts"] = {
+                "path": data.get("path") or "/",
+                "headers": {
+                    "Host": data.get("host") or ""
+                }
+            }
+
+        elif net == "grpc":
+            node["grpc-opts"] = {
+                "grpc-service-name": data.get("path") or ""
+            }
+
+        elif net == "h2":
+            node["h2-opts"] = {
+                "path": data.get("path") or "/",
+                "host": [data.get("host") or ""]
+            }
+
+        # ---------------- Dynamic Fields (Safe) ----------------
+        node = merge_dynamic_fields_safe(node, data)
 
         return node
 
-    except Exception:
-        print(f"[warn] ❗Vmess parse error -> Line {line_number}")
+    except Exception as e:
+        print(f"[warn] ❗Vmess parse error -> Line {line_number} | {e}")
         return None
-
+        
 # -----------------------------------------------------------
 # VLESS Parser
 # -----------------------------------------------------------
