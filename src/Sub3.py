@@ -290,7 +290,7 @@ def parse_vmess(line, line_number=None):
             
         # ---------------- Decode ----------------
         raw = line[8:]
-        decoded = safe_base64_decode(raw)
+        decoded = base64_decode(raw)
 
         if not decoded:
             raise ValueError("Empty decode result")
