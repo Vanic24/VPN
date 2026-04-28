@@ -224,82 +224,142 @@ def load_sources():
 # -----------------------------------------------------------
 # Helper: Safe base64 decode
 # -----------------------------------------------------------
-def decode_b64(b64str):
+def decode_base64(data: str) -> str:
     try:
-        padded = b64str + "=" * (-len(b64str) % 4)
-        return base64.urlsafe_b64decode(padded).decode("utf-8")
+        data = data.strip()
+        data += "=" * (-len(data) % 4)
+        return base64.urlsafe_b64decode(data).decode("utf-8")
     except Exception:
         return ""
+
+def safe_int(value, default=0):
+    try:
+        if value is None or value == "":
+            return default
+        return int(value)
+    except Exception:
+        return default
 
 # -----------------------------------------------------------
 # Helper: Generic dynamic query merger
 # -----------------------------------------------------------
-def merge_dynamic_fields(node, query):
-    """Attach all unrecognized query fields dynamically, without injecting defaults."""
+def merge_dynamic_fields(node, data):
+    """
+    Universal dynamic field merger:
+    - Works for BOTH JSON (vmess) and URL query (vless/trojan/ss/etc.)
+    - Safe against None, int, bool
+    - Supports ALPN parsing
+    - Supports URL decoding
+    """
     known = set(node.keys())
-    for k, v in query.items():
-        if k not in known and v:  # only non-empty
-            v_decoded = urllib.parse.unquote(v)
-            if k == "alpn":  # only ALPN is a list
-                v_list = [x.strip() for x in v_decoded.split(",") if x.strip()]
-                if v_list:
-                    node[k] = v_list
-            else:  # everything else stays as string
-                node[k] = v_decoded
+
+    for k, v in data.items():
+        if k in known:
+            continue
+
+        # Skip empty / None
+        if v is None or v == "":
+            continue
+
+        # Convert to string safely
+        if not isinstance(v, str):
+            v = str(v)
+
+        # URL decode (safe for both cases)
+        v = urllib.parse.unquote(v)
+
+        # Special handling
+        if k.lower() == "alpn":
+            v_list = [x.strip() for x in v.split(",") if x.strip()]
+            if v_list:
+                node[k] = v_list
+        else:
+            node[k] = v
+
     return node
 
 # -----------------------------------------------------------
 # VMESS Parser
 # -----------------------------------------------------------
+def normalize_vmess_json(data):
+    normalized = {}
+    for k, v in data.items():
+        if v is None:
+            normalized[k] = ""
+        elif isinstance(v, (int, float, bool)):
+            normalized[k] = str(v)
+        else:
+            normalized[k] = v
+    return normalized
+    
+# ---------------- Main VMESS parser ----------------
 def parse_vmess(line, line_number=None):
     try:
-        if not line.startswith("vmess://"):
+        if not line or not line.startswith("vmess://"):
             return None
-        raw = line[8:].strip().replace("\n", "").replace(" ", "")
-        missing_padding = len(raw) % 4
-        if missing_padding:
-            raw += "=" * (4 - missing_padding)
-        decoded = base64.b64decode(raw).decode("utf-8")
-        data = json.loads(decoded)
-        tls_value = str(data.get("tls", "")).lower()
+            
+        # ---------------- Decode ----------------
+        raw = line[8:]
+        decoded = decode_base64(raw)
 
+        if not decoded:
+            raise ValueError("Empty decode result")
+
+        data = json.loads(decoded)
+
+        # Normalize ALL values (critical fix)
+        data = normalize_vmess_json(data)
+
+        # ---------------- Core Fields ----------------
         node = {
             "type": "vmess",
-            "name": data.get("ps", "VMESS Node"),
-            "server": data.get("add", ""),
-            "port": int(data.get("port", 0)),
-            "uuid": data.get("id", ""),
-            "alterId": int(data.get("aid", 0)),
-            "cipher": data.get("scy", "auto"),
-            "tls": tls_value in ("tls", "1", "true", "yes"),
-            "network": data.get("net", "tcp"),
+            "name": data.get("ps") or "VMESS Node",
+            "server": data.get("add") or "",
+            "port": safe_int(data.get("port")),
+            "uuid": data.get("id") or "",
+            "alterId": safe_int(data.get("aid")),
+            "cipher": data.get("scy") or "auto",
+            "network": data.get("net") or "tcp",
         }
 
-        # ---------------- WS ----------------
-        if node["network"] == "ws":
-            node["ws-opts"] = {"path": data.get("path", "/"), "headers": {"Host": data.get("host", "")}}
+        # ---------------- TLS Handling ----------------
+        tls_raw = (data.get("tls") or "").lower()
+        node["tls"] = tls_raw in ("tls", "1", "true", "yes")
 
-        # ---------------- gRPC ----------------
-        if node["network"] == "grpc":
-            node["grpc-opts"] = {"grpc-service-name": data.get("path", "")}
-
-        # ---------------- HTTP/2 ----------------
-        if node["network"] == "h2":
-            node["h2-opts"] = {"path": data.get("path", "/"), "host": [data.get("host", "")]}
-
-        # ---------------- TLS Server Name ----------------
         if node["tls"]:
-            node["servername"] = data.get("sni") or data.get("host", "")
+            node["servername"] = data.get("sni") or data.get("host") or ""
 
-        # dynamic fields
+        # ---------------- Network Handling ----------------
+        net = node["network"]
+
+        if net == "ws":
+            node["ws-opts"] = {
+                "path": data.get("path") or "/",
+                "headers": {
+                    "Host": data.get("host") or ""
+                }
+            }
+
+        elif net == "grpc":
+            node["grpc-opts"] = {
+                "grpc-service-name": data.get("path") or ""
+            }
+
+        elif net == "h2":
+            node["h2-opts"] = {
+                "path": data.get("path") or "/",
+                "host": [data.get("host") or ""]
+            }
+
+        # ---------------- Dynamic Fields (Safe) ----------------
         node = merge_dynamic_fields(node, data)
 
         return node
 
-    except Exception:
-        print(f"[warn] ❗Vmess parse error -> Line {line_number}")
+    except Exception as e:
+        print(f"[warn] ❗Vmess parse error -> Line {line_number} | {e}")
         return None
-
+        
 # -----------------------------------------------------------
 # VLESS Parser
 # -----------------------------------------------------------
@@ -691,15 +751,6 @@ def parse_tuic(line, line_number=None):
 # -----------------------------------------------------------
 # SHADOWSOCKS (SS) Parser
 # -----------------------------------------------------------
-def decode_b64(data: str) -> str:
-    try:
-        data = data.strip()
-        data += '=' * (-len(data) % 4)
-        return base64.urlsafe_b64decode(data).decode('utf-8')
-    except Exception:
-        raise ValueError("Invalid base64 encoding")
-
-# ---------------- Smart casting ----------------
 def smart_cast(value: str):
     v = value.strip().lower()
 
@@ -813,7 +864,7 @@ def parse_ss(line, line_number=None):
         if "@" in core:
             # base64(method:password)@server:port
             b64_part, srvp = core.split("@", 1)
-            decoded = decode_b64(b64_part)
+            decoded = decode_base64(b64_part)
 
             if ":" not in decoded:
                 raise ValueError("Invalid userinfo")
@@ -822,7 +873,7 @@ def parse_ss(line, line_number=None):
 
         else:
             # SIP002 full base64
-            decoded = decode_b64(core)
+            decoded = decode_base64(core)
 
             if "@" not in decoded:
                 raise ValueError("Invalid SIP002 format")
@@ -868,7 +919,7 @@ def parse_ssr(line, line_number=None):
         if not line.startswith("ssr://"):
             return None
 
-        decoded = decode_b64(line[6:]).strip()
+        decoded = decode_base64(line[6:]).strip()
 
         if "/?" in decoded:
             main, query_str = decoded.split("/?", 1)
@@ -883,12 +934,12 @@ def parse_ssr(line, line_number=None):
 
         server, port, protocol, method, obfs, pwd_b64 = main.rsplit(":", 5)
 
-        password = decode_b64(pwd_b64)
+        password = decode_base64(pwd_b64)
 
         name = ""
 
         if "remarks" in qs:
-            name = urllib.parse.unquote(decode_b64(qs["remarks"]))
+            name = urllib.parse.unquote(decode_base64(qs["remarks"]))
 
         node = {
             "type": "ssr",
@@ -903,13 +954,13 @@ def parse_ssr(line, line_number=None):
 
         # ---------------- optional fields ----------------
         if "group" in qs:
-            node["group"] = decode_b64(qs["group"])
+            node["group"] = decode_base64(qs["group"])
 
         if "obfsparam" in qs:
-            node["obfs-param"] = decode_b64(qs["obfsparam"])
+            node["obfs-param"] = decode_base64(qs["obfsparam"])
 
         if "protoparam" in qs:
-            node["protocol-param"] = decode_b64(qs["protoparam"])
+            node["protocol-param"] = decode_base64(qs["protoparam"])
 
         node = merge_dynamic_fields(node, qs)
 
@@ -980,7 +1031,6 @@ def parse_node_line(line, line_number=None):
     except Exception as e:
         print(f"[warn] ❗Dispatcher error -> Line {line_number}")
         return None
-
 # ----------------------------
 # Global counters for rename fallback
 # ----------------------------
