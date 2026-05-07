@@ -92,6 +92,7 @@ def deduplicate_nodes(nodes):
     removed = 0
 
     for n in nodes:
+        # --- basic ---
         server = str(n.get("server", "")).strip()
         port = int(n.get("port", 0))
         user = str(n.get("uuid") or n.get("password") or "").strip()
@@ -101,27 +102,26 @@ def deduplicate_nodes(nodes):
             unique_nodes.append(n)
             continue
 
-        # --- security ---
+        # --- security detection ---
         if n.get("reality-opts"):
             security = "reality"
-        elif n.get("tls") or n.get("skip-cert-verify") is not None:
+        elif n.get("tls") is True:
             security = "tls"
         else:
             security = ""
 
-        # --- SNI ---
+        # --- SNI (Clash uses 'servername' OR 'sni') ---
         sni = (
             n.get("sni")
             or n.get("servername")
             or ""
         )
-        sni = str(sni).strip().lower()
+        sni = str(sni).strip()
 
-        # --- network ---
-        network = str(n.get("network") or "tcp").strip()
-
-        # --- path ---
+        # --- transport / path ---
+        network = str(n.get("network", "")).strip()
         path = ""
+
         if network == "ws":
             path = str(n.get("ws-opts", {}).get("path", "")).strip()
         elif network == "grpc":
@@ -129,8 +129,9 @@ def deduplicate_nodes(nodes):
         else:
             path = str(n.get("path", "")).strip()
 
+        # --- final dedup key ---
         key = (
-            node_type,
+            node_type,   # hysteria2 vs vless MUST be separated
             server,
             port,
             user,
