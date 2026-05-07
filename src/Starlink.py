@@ -159,14 +159,9 @@ def deduplicate_nodes(nodes):
         if sid:
             key_parts.append(sid)
 
-        name = str(n.get("name", "")).strip()
-        if name:
-            key_parts.append(name)
-
         key = tuple(key_parts)
 
         if key in seen:
-            print("DUP KEY:", key)   # 👈 add here
             removed += 1
             continue
 
