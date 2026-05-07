@@ -87,9 +87,6 @@ def tcp_latency_ms(host, port, timeout=2.0):
         return 9999
 
 def deduplicate_nodes(nodes):
-    """
-    Smarter deduplication based on connection-defining fields.
-    """
     seen = set()
     unique_nodes = []
     removed = 0
@@ -100,42 +97,76 @@ def deduplicate_nodes(nodes):
 
         uuid = str(n.get("uuid", "")).strip()
         password = str(n.get("password", "")).strip()
-
-        network = str(n.get("network", "")).strip()   # tcp / ws / grpc
-        security = str(n.get("security", "")).strip() # tls / reality / none
-        sni = str(n.get("sni", "")).strip()
-        flow = str(n.get("flow", "")).strip()
-
-        # transport-specific
-        path = str(n.get("path", "")).strip()
-        host = str(n.get("host", "")).strip()
-
-        # reality-specific
-        pbk = str(n.get("pbk", "")).strip()
-        sid = str(n.get("sid", "")).strip()
-
-        # Build identity
-        user = uuid if uuid else password
+        user = uuid or password
 
         if not user:
             unique_nodes.append(n)
             continue
 
-        key = (
+        network = str(n.get("network", "")).strip()
+        security = str(n.get("security", "")).strip()
+        sni = str(n.get("sni", "")).strip()
+        flow = str(n.get("flow", "")).strip()
+
+        # --- transport-specific extraction ---
+        path = ""
+        host = ""
+
+        if network == "ws":
+            ws_opts = n.get("ws-opts", {})
+            path = str(ws_opts.get("path", "")).strip()
+            headers = ws_opts.get("headers", {})
+            host = str(headers.get("Host", "")).strip()
+
+        elif network == "grpc":
+            grpc_opts = n.get("grpc-opts", {})
+            path = str(grpc_opts.get("serviceName", "")).strip()
+
+        else:
+            # fallback (some parsers flatten fields)
+            path = str(n.get("path", "")).strip()
+            host = str(n.get("host", "")).strip()
+
+        # --- reality-specific ---
+        pbk = ""
+        sid = ""
+
+        if security == "reality":
+            reality_opts = n.get("reality-opts", {})
+            pbk = str(reality_opts.get("public-key", "")).strip()
+            sid = str(reality_opts.get("short-id", "")).strip()
+
+        # --- build smarter key ---
+        key_parts = [
             server,
             port,
             user,
             network,
             security,
-            sni,
-            flow,
-            path,
-            host,
-            pbk,
-            sid
-        )
+        ]
+
+        # only include fields if they actually exist
+        if sni:
+            key_parts.append(sni)
+        if flow:
+            key_parts.append(flow)
+        if path:
+            key_parts.append(path)
+        if host:
+            key_parts.append(host)
+        if pbk:
+            key_parts.append(pbk)
+        if sid:
+            key_parts.append(sid)
+
+        name = str(n.get("name", "")).strip()
+        if name:
+            key_parts.append(name)
+
+        key = tuple(key_parts)
 
         if key in seen:
+            print("DUP KEY:", key)   # 👈 add here
             removed += 1
             continue
 
