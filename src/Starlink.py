@@ -88,11 +88,7 @@ def tcp_latency_ms(host, port, timeout=2.0):
 
 def deduplicate_nodes(nodes):
     """
-    Remove duplicate nodes based on:
-    - (server, port, uuid) OR
-    - (server, port, password)
-
-    Server string must match EXACTLY.
+    Smarter deduplication based on connection-defining fields.
     """
     seen = set()
     unique_nodes = []
@@ -101,18 +97,43 @@ def deduplicate_nodes(nodes):
     for n in nodes:
         server = str(n.get("server", "")).strip()
         port = int(n.get("port", 0))
+
         uuid = str(n.get("uuid", "")).strip()
         password = str(n.get("password", "")).strip()
 
-        # Build key
-        if uuid:
-            key = ("uuid", server, port, uuid)
-        elif password:
-            key = ("password", server, port, password)
-        else:
-            # No dedup key → keep it
+        network = str(n.get("network", "")).strip()   # tcp / ws / grpc
+        security = str(n.get("security", "")).strip() # tls / reality / none
+        sni = str(n.get("sni", "")).strip()
+        flow = str(n.get("flow", "")).strip()
+
+        # transport-specific
+        path = str(n.get("path", "")).strip()
+        host = str(n.get("host", "")).strip()
+
+        # reality-specific
+        pbk = str(n.get("pbk", "")).strip()
+        sid = str(n.get("sid", "")).strip()
+
+        # Build identity
+        user = uuid if uuid else password
+
+        if not user:
             unique_nodes.append(n)
             continue
+
+        key = (
+            server,
+            port,
+            user,
+            network,
+            security,
+            sni,
+            flow,
+            path,
+            host,
+            pbk,
+            sid
+        )
 
         if key in seen:
             removed += 1
