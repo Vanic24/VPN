@@ -92,47 +92,53 @@ def deduplicate_nodes(nodes):
     removed = 0
 
     for n in nodes:
+        # --- basic ---
         server = str(n.get("server", "")).strip()
         port = int(n.get("port", 0))
-
-        uuid = str(n.get("uuid", "")).strip()
-        password = str(n.get("password", "")).strip()
-        user = uuid or password
+        user = str(n.get("uuid") or n.get("password") or "").strip()
+        node_type = str(n.get("type", "")).strip()
 
         if not user:
             unique_nodes.append(n)
             continue
 
-        network = str(n.get("network", "")).strip()
-        security = str(n.get("security", "")).strip()
-        sni = str(n.get("sni", "")).strip()
-        flow = str(n.get("flow", "")).strip()
+        # --- security detection ---
+        if n.get("reality-opts"):
+            security = "reality"
+        elif n.get("tls") is True:
+            security = "tls"
+        else:
+            security = ""
 
-        # --- transport-specific extraction ---
+        # --- SNI (Clash uses 'servername' OR 'sni') ---
+        sni = (
+            n.get("sni")
+            or n.get("servername")
+            or ""
+        )
+        sni = str(sni).strip()
+
+        # --- transport / path ---
+        network = str(n.get("network", "")).strip()
         path = ""
 
         if network == "ws":
-            ws_opts = n.get("ws-opts", {})
-            path = str(ws_opts.get("path", "")).strip()
-
+            path = str(n.get("ws-opts", {}).get("path", "")).strip()
         elif network == "grpc":
-            grpc_opts = n.get("grpc-opts", {})
-            path = str(grpc_opts.get("serviceName", "")).strip()
-
+            path = str(n.get("grpc-opts", {}).get("serviceName", "")).strip()
         else:
-            # fallback (flattened configs)
             path = str(n.get("path", "")).strip()
 
-        # --- balanced dedup key ---
+        # --- final dedup key ---
         key = (
+            node_type,   # hysteria2 vs vless MUST be separated
             server,
             port,
             user,
-            network,
             security,
-            sni or "",
-            flow or "",
-            path or "",
+            sni,
+            network,
+            path,
         )
 
         if key in seen:
