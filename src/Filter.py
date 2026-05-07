@@ -81,13 +81,6 @@ def tcp_latency_ms(host, port, timeout=2.0):
         return 9999
 
 def deduplicate_nodes(nodes):
-    """
-    Remove duplicate nodes based on:
-    - (server, port, uuid) OR
-    - (server, port, password)
-
-    Server string must match EXACTLY.
-    """
     seen = set()
     unique_nodes = []
     removed = 0
@@ -95,18 +88,51 @@ def deduplicate_nodes(nodes):
     for n in nodes:
         server = str(n.get("server", "")).strip()
         port = int(n.get("port", 0))
-        uuid = str(n.get("uuid", "")).strip()
-        password = str(n.get("password", "")).strip()
+        user = str(n.get("uuid") or n.get("password") or "").strip()
+        node_type = str(n.get("type", "")).strip()
 
-        # Build key
-        if uuid:
-            key = ("uuid", server, port, uuid)
-        elif password:
-            key = ("password", server, port, password)
-        else:
-            # No dedup key → keep it
+        if not user:
             unique_nodes.append(n)
             continue
+
+        # --- security ---
+        if n.get("reality-opts"):
+            security = "reality"
+        elif n.get("tls") or n.get("skip-cert-verify") is not None:
+            security = "tls"
+        else:
+            security = ""
+
+        # --- SNI ---
+        sni = (
+            n.get("sni")
+            or n.get("servername")
+            or ""
+        )
+        sni = str(sni).strip().lower()
+
+        # --- network ---
+        network = str(n.get("network") or "tcp").strip()
+
+        # --- path ---
+        path = ""
+        if network == "ws":
+            path = str(n.get("ws-opts", {}).get("path", "")).strip()
+        elif network == "grpc":
+            path = str(n.get("grpc-opts", {}).get("serviceName", "")).strip()
+        else:
+            path = str(n.get("path", "")).strip()
+
+        key = (
+            node_type,
+            server,
+            port,
+            user,
+            security,
+            sni,
+            network,
+            path,
+        )
 
         if key in seen:
             removed += 1
@@ -116,7 +142,6 @@ def deduplicate_nodes(nodes):
         unique_nodes.append(n)
 
     return unique_nodes, removed
-
 def geo_ip(host_or_ip):
     ip = None
 
