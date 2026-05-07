@@ -142,6 +142,7 @@ def deduplicate_nodes(nodes):
         unique_nodes.append(n)
 
     return unique_nodes, removed
+    
 def geo_ip(host_or_ip):
     ip = None
 
