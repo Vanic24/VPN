@@ -110,63 +110,32 @@ def deduplicate_nodes(nodes):
 
         # --- transport-specific extraction ---
         path = ""
-        host = ""
 
         if network == "ws":
             ws_opts = n.get("ws-opts", {})
             path = str(ws_opts.get("path", "")).strip()
-            headers = ws_opts.get("headers", {})
-            host = str(headers.get("Host", "")).strip()
 
         elif network == "grpc":
             grpc_opts = n.get("grpc-opts", {})
             path = str(grpc_opts.get("serviceName", "")).strip()
 
         else:
-            # fallback (some parsers flatten fields)
+            # fallback (flattened configs)
             path = str(n.get("path", "")).strip()
-            host = str(n.get("host", "")).strip()
 
-        # --- reality-specific ---
-        pbk = ""
-        sid = ""
-
-        if security == "reality":
-            reality_opts = n.get("reality-opts", {})
-            pbk = str(reality_opts.get("public-key", "")).strip()
-            sid = str(reality_opts.get("short-id", "")).strip()
-
-        # --- build smarter key ---
-        key_parts = [
+        # --- balanced dedup key ---
+        key = (
             server,
             port,
             user,
             network,
             security,
-        ]
-
-        # only include fields if they actually exist
-        if sni:
-            key_parts.append(sni)
-        if flow:
-            key_parts.append(flow)
-        if path:
-            key_parts.append(path)
-        if host:
-            key_parts.append(host)
-        if pbk:
-            key_parts.append(pbk)
-        if sid:
-            key_parts.append(sid)
-
-        name = str(n.get("name", "")).strip()
-        if name:
-            key_parts.append(name)
-
-        key = tuple(key_parts)
+            sni or "",
+            flow or "",
+            path or "",
+        )
 
         if key in seen:
-            print("DUP KEY:", key)
             removed += 1
             continue
 
