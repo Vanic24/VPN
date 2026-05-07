@@ -1518,3 +1518,4 @@ def upload_to_textdb():
 # ---------------- Entry ----------------
 if __name__ == "__main__":
     main()
+    
