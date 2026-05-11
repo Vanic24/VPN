@@ -277,7 +277,11 @@ def merge_dynamic_fields(node, data):
     - Supports ALPN parsing
     - Supports URL decoding
     """
-    # ---------------- Reserved / normalized keys ----------------
+
+    # ---------------- remove metadata universally ---------------- 
+    node.pop("metadata", None)
+
+    # Reserved / normalized keys
     reserved = {
         # common normalized fields
         "name", "server", "port", "uuid", "password",
