@@ -298,6 +298,11 @@ def merge_dynamic_fields(node, data):
     known = set(node.keys()) | reserved
 
     for k, v in data.items():
+
+        # Ignore metadata completely
+        if k.lower() == "metadata":
+            continue
+
         if k in known:
             continue
 
