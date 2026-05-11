@@ -80,149 +80,163 @@ def tcp_latency_ms(host, port, timeout=2.0):
     except Exception:
         return 9999
 
-def deduplicate_nodes(nodes):
-    seen = set()
-    unique_nodes = []
-    removed = 0
+def normalize_node(n):
 
-    for n in nodes:
-        
-        # safe object extraction
-        if not isinstance(n, dict):
-            continue
+    if not isinstance(n, dict):
+        return None
 
-        tls_obj = n.get("tls")
-        if not isinstance(tls_obj, dict):
-            tls_obj = {}
+    n = copy.deepcopy(n)
 
-        transport_obj = n.get("transport")
-        if not isinstance(transport_obj, dict):
-            transport_obj = {}
+    # ---------------- safe nested objects ----------------
+    tls_obj = n.get("tls")
+    if not isinstance(tls_obj, dict):
+        tls_obj = {}
 
-        ws_opts = n.get("ws-opts")
-        if not isinstance(ws_opts, dict):
-            ws_opts = {}
+    transport_obj = n.get("transport")
+    if not isinstance(transport_obj, dict):
+        transport_obj = {}
 
-        grpc_opts = n.get("grpc-opts")
-        if not isinstance(grpc_opts, dict):
-            grpc_opts = {}
+    ws_opts = n.get("ws-opts")
+    if not isinstance(ws_opts, dict):
+        ws_opts = {}
 
-        reality_opts = n.get("reality-opts")
-        if not isinstance(reality_opts, dict):
-            reality_opts = {}
+    grpc_opts = n.get("grpc-opts")
+    if not isinstance(grpc_opts, dict):
+        grpc_opts = {}
 
-        # normalize basic fields
-        server = str(
-            n.get("server") or ""
-        ).strip().lower()
+    reality_opts = n.get("reality-opts")
+    if not isinstance(reality_opts, dict):
+        reality_opts = {}
 
-        raw_port = (
+    # ---------------- canonical fields ----------------
+    n["server"] = str(
+        n.get("server") or ""
+    ).strip().lower()
+
+    try:
+        n["port"] = int(
             n.get("port")
             or n.get("server_port")
             or 0
         )
+    except:
+        n["port"] = 0
 
-        try:
-            port = int(raw_port)
-        except (ValueError, TypeError):
-            port = 0
+    n["type"] = str(
+        n.get("type") or ""
+    ).strip().lower()
 
-        user = str(
-            n.get("uuid")
-            or n.get("password")
+    # ---------------- auth ----------------
+    auth = (
+        n.get("uuid")
+        or n.get("password")
+        or ""
+    )
+
+    n["_auth"] = str(auth).strip()
+
+    # ---------------- security ----------------
+    if reality_opts:
+        n["_security"] = "reality"
+
+    elif tls_obj or n.get("tls") is True:
+        n["_security"] = "tls"
+
+    else:
+        n["_security"] = ""
+
+    # ---------------- sni ----------------
+    sni = (
+        n.get("sni")
+        or n.get("servername")
+        or n.get("server_name")
+        or tls_obj.get("server_name")
+        or ""
+    )
+
+    n["_sni"] = str(sni).strip().lower()
+
+    # ---------------- network ----------------
+    network = (
+        n.get("network")
+        or transport_obj.get("type")
+        or "tcp"
+    )
+
+    n["_network"] = str(network).strip().lower()
+
+    # ---------------- path ----------------
+    path = ""
+
+    if n["_network"] == "ws":
+
+        path = (
+            ws_opts.get("path")
+            or transport_obj.get("path")
+            or n.get("path")
             or ""
-        ).strip()
+        )
 
-        node_type = str(
-            n.get("type")
+    elif n["_network"] == "grpc":
+
+        path = (
+            grpc_opts.get("serviceName")
+            or grpc_opts.get("grpc-service-name")
+            or transport_obj.get("service_name")
             or ""
-        ).strip().lower()
+        )
 
-        if not user:
+    n["_path"] = str(path).strip()
+
+    return n
+
+
+def deduplicate_nodes(nodes):
+
+    seen = set()
+    unique_nodes = []
+    removed = 0
+
+    for raw_node in nodes:
+
+        n = normalize_node(raw_node)
+
+        if not n:
+            continue
+
+        if not n["_auth"]:
             unique_nodes.append(n)
             continue
 
-        # security normalization
-        if reality_opts:
-            security = "reality"
-
-        elif tls_obj or n.get("tls") is True:
-            security = "tls"
-
-        else:
-            security = ""
-
-        security = security.lower()
-
-        # sni / servername
-        sni = (
-            n.get("sni")
-            or n.get("servername")
-            or n.get("server_name")
-            or tls_obj.get("server_name")
-            or ""
-        )
-
-        sni = str(sni).strip().lower()
-
-        # network normalization
-        network = (
-            n.get("network")
-            or transport_obj.get("type")
-            or "tcp"
-        )
-
-        network = str(network).strip().lower()
-
-        # transport path
-        path = ""
-
-        if network == "ws":
-
-            path = (
-                ws_opts.get("path")
-                or transport_obj.get("path")
-                or n.get("path")
-                or ""
-            )
-
-        elif network == "grpc":
-
-            path = (
-                grpc_opts.get("serviceName")
-                or transport_obj.get("service_name")
-                or ""
-            )
-
-        else:
-
-            path = (
-                n.get("path")
-                or ""
-            )
-
-        path = str(path).strip()
-
-        # dedup key
         key = (
-            node_type,
-            server,
-            port,
-            user,
-            security,
-            sni,
-            network,
-            path,
+            n["type"],
+            n["server"],
+            n["port"],
+            n["_auth"],
+            n["_security"],
+            n["_sni"],
+            n["_network"],
+            n["_path"],
         )
 
         print("DEDUP KEY:", key)
-        print("NODE:", n)
-        
+
         if key in seen:
             removed += 1
             continue
 
         seen.add(key)
+
+        # cleanup temp fields
+        for k in [
+            "_auth",
+            "_security",
+            "_sni",
+            "_network",
+            "_path",
+        ]:
+            n.pop(k, None)
+
         unique_nodes.append(n)
 
     return unique_nodes, removed
