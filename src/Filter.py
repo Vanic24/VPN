@@ -2,7 +2,7 @@ import os
 import sys
 import time
 import yaml
-import requests, copy
+import requests
 import socket
 import threading
 import concurrent.futures
@@ -10,7 +10,7 @@ import traceback
 from collections import defaultdict, OrderedDict
 from datetime import datetime, timedelta, timezone
 import base64
-import re
+import re, copy
 import json
 import urllib.parse
 from urllib.parse import unquote, urlparse, parse_qs
@@ -111,7 +111,7 @@ def normalize_node(n):
     # ---------------- canonical fields ----------------
     n["server"] = str(
         n.get("server") or ""
-    ).strip().lower()
+    ).strip().lower().rstrip(".")
 
     try:
         n["port"] = int(
@@ -186,7 +186,7 @@ def normalize_node(n):
             or ""
         )
 
-    n["_path"] = str(path).strip()
+    n["_path"] = str(path).strip().lower()
 
     return n
 
@@ -218,8 +218,6 @@ def deduplicate_nodes(nodes):
             n["_network"],
             n["_path"],
         )
-
-        print("DEDUP KEY:", key)
 
         if key in seen:
             removed += 1
@@ -386,7 +384,7 @@ def merge_dynamic_fields(node, data):
         "cipher", "network", "tls", "alterId",
         "servername", "type", "encryption",
 
-        # vmess raw fields (already normalized)
+        # raw fields (already normalized)
         "v", "ps", "add", "id", "aid", "net",
         "scy", "host", "path", "tls", "sni",
 
@@ -433,14 +431,23 @@ def merge_dynamic_fields(node, data):
 # VMESS Parser
 # -----------------------------------------------------------
 def normalize_vmess_json(data):
+
     normalized = {}
+
     for k, v in data.items():
+
+        # null safety
         if v is None:
             normalized[k] = ""
-        elif isinstance(v, (int, float, bool)):
-            normalized[k] = str(v)
-        else:
+
+        # keep valid primitive types
+        elif isinstance(v, (str, int, float, bool, list, dict)):
             normalized[k] = v
+
+        # weird objects
+        else:
+            normalized[k] = str(v)
+
     return normalized
     
 # ---------------- Main VMESS parser ----------------
@@ -474,7 +481,13 @@ def parse_vmess(line, line_number=None):
         }
 
         # ---------------- TLS Handling ----------------
-        tls_raw = (data.get("tls") or "").lower()
+        tls_val = data.get("tls")
+
+        if isinstance(tls_val, str):
+            tls_raw = tls_val.lower()
+        else:
+            tls_raw = str(tls_val).lower()
+        
         node["tls"] = tls_raw in ("tls", "1", "true", "yes")
 
         if node["tls"]:
