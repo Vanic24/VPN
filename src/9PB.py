@@ -277,7 +277,22 @@ def merge_dynamic_fields(node, data):
     - Supports ALPN parsing
     - Supports URL decoding
     """
-    known = set(node.keys())
+    # ---------------- Reserved / normalized keys ----------------
+    reserved = {
+        # common normalized fields
+        "name", "server", "port", "uuid", "password",
+        "cipher", "network", "tls", "alterId",
+        "servername", "type", "encryption",
+
+        # vmess raw fields (already normalized)
+        "v", "ps", "add", "id", "aid", "net",
+        "scy", "host", "path", "tls", "sni",
+
+        # protocol transport fields
+        "security", "type", "flow"
+    }
+
+    known = set(node.keys()) | reserved
 
     for k, v in data.items():
         if k in known:
@@ -291,7 +306,7 @@ def merge_dynamic_fields(node, data):
         if not isinstance(v, str):
             v = str(v)
 
-        # URL decode (safe for both cases)
+        # URL decode
         v = urllib.parse.unquote(v)
 
         # Special handling
