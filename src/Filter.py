@@ -2,7 +2,7 @@ import os
 import sys
 import time
 import yaml
-import requests
+import requests, copy
 import socket
 import threading
 import concurrent.futures
