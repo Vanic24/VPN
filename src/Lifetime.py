@@ -86,10 +86,29 @@ def deduplicate_nodes(nodes):
     removed = 0
 
     for n in nodes:
-        server = str(n.get("server", "")).strip()
-        port = int(n.get("port", 0))
-        user = str(n.get("uuid") or n.get("password") or "").strip()
-        node_type = str(n.get("type", "")).strip()
+
+        # --- basic ---
+        server = str(
+            n.get("server")
+            or ""
+        ).strip()
+
+        port = int(
+            n.get("port")
+            or n.get("server_port")
+            or 0
+        )
+
+        user = str(
+            n.get("uuid")
+            or n.get("password")
+            or ""
+        ).strip()
+
+        node_type = str(
+            n.get("type")
+            or ""
+        ).strip()
 
         if not user:
             unique_nodes.append(n)
@@ -98,8 +117,13 @@ def deduplicate_nodes(nodes):
         # --- security ---
         if n.get("reality-opts"):
             security = "reality"
-        elif n.get("tls") or n.get("skip-cert-verify") is not None:
+
+        elif isinstance(n.get("tls"), dict):
             security = "tls"
+
+        elif n.get("tls") is True:
+            security = "tls"
+
         else:
             security = ""
 
@@ -107,22 +131,55 @@ def deduplicate_nodes(nodes):
         sni = (
             n.get("sni")
             or n.get("servername")
+            or n.get("server_name")
+            or n.get("tls", {}).get("server_name")
             or ""
         )
         sni = str(sni).strip().lower()
 
         # --- network ---
-        network = str(n.get("network") or "tcp").strip()
+        network = (
+            n.get("network")
+            or n.get("transport", {}).get("type")
+            or "tcp"
+        )
+        network = str(network).strip()
 
         # --- path ---
         path = ""
-        if network == "ws":
-            path = str(n.get("ws-opts", {}).get("path", "")).strip()
-        elif network == "grpc":
-            path = str(n.get("grpc-opts", {}).get("serviceName", "")).strip()
-        else:
-            path = str(n.get("path", "")).strip()
 
+        if network == "ws":
+
+            # Clash YAML
+            path = (
+                n.get("ws-opts", {}).get("path")
+                or ""
+            )
+
+            # sing-box JSON fallback
+            if not path:
+                path = (
+                    n.get("transport", {}).get("path")
+                    or ""
+                )
+
+        elif network == "grpc":
+
+            path = (
+                n.get("grpc-opts", {}).get("serviceName")
+                or n.get("transport", {}).get("service_name")
+                or ""
+            )
+
+        else:
+            path = (
+                n.get("path")
+                or ""
+            )
+
+        path = str(path).strip()
+
+        # --- final key ---
         key = (
             node_type,
             server,
