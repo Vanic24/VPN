@@ -86,18 +86,46 @@ def deduplicate_nodes(nodes):
     removed = 0
 
     for n in nodes:
+        
+        # safe object extraction
+        if not isinstance(n, dict):
+            continue
 
-        # --- basic ---
+        tls_obj = n.get("tls")
+        if not isinstance(tls_obj, dict):
+            tls_obj = {}
+
+        transport_obj = n.get("transport")
+        if not isinstance(transport_obj, dict):
+            transport_obj = {}
+
+        ws_opts = n.get("ws-opts")
+        if not isinstance(ws_opts, dict):
+            ws_opts = {}
+
+        grpc_opts = n.get("grpc-opts")
+        if not isinstance(grpc_opts, dict):
+            grpc_opts = {}
+
+        reality_opts = n.get("reality-opts")
+        if not isinstance(reality_opts, dict):
+            reality_opts = {}
+
+        # normalize basic fields
         server = str(
-            n.get("server")
-            or ""
-        ).strip()
+            n.get("server") or ""
+        ).strip().lower()
 
-        port = int(
+        raw_port = (
             n.get("port")
             or n.get("server_port")
             or 0
         )
+
+        try:
+            port = int(raw_port)
+        except (ValueError, TypeError):
+            port = 0
 
         user = str(
             n.get("uuid")
@@ -108,70 +136,66 @@ def deduplicate_nodes(nodes):
         node_type = str(
             n.get("type")
             or ""
-        ).strip()
+        ).strip().lower()
 
         if not user:
             unique_nodes.append(n)
             continue
 
-        # --- security ---
-        if n.get("reality-opts"):
+        # security normalization
+        if reality_opts:
             security = "reality"
 
-        elif isinstance(n.get("tls"), dict):
-            security = "tls"
-
-        elif n.get("tls") is True:
+        elif tls_obj or n.get("tls") is True:
             security = "tls"
 
         else:
             security = ""
 
-        # --- SNI ---
+        security = security.lower()
+
+        # sni / servername
         sni = (
             n.get("sni")
             or n.get("servername")
             or n.get("server_name")
-            or n.get("tls", {}).get("server_name")
+            or tls_obj.get("server_name")
             or ""
         )
+
         sni = str(sni).strip().lower()
 
-        # --- network ---
+        # network normalization
         network = (
             n.get("network")
-            or n.get("transport", {}).get("type")
+            or transport_obj.get("type")
             or "tcp"
         )
-        network = str(network).strip()
 
-        # --- path ---
+        network = str(network).strip().lower()
+
+        # transport path
         path = ""
 
         if network == "ws":
 
-            # Clash YAML
             path = (
-                n.get("ws-opts", {}).get("path")
+                ws_opts.get("path")
+                or transport_obj.get("path")
+                or n.get("path")
                 or ""
             )
-
-            # sing-box JSON fallback
-            if not path:
-                path = (
-                    n.get("transport", {}).get("path")
-                    or ""
-                )
 
         elif network == "grpc":
 
             path = (
-                n.get("grpc-opts", {}).get("serviceName")
-                or n.get("transport", {}).get("service_name")
+                grpc_opts.get("serviceName")
+                or transport_obj.get("service_name")
                 or ""
             )
 
         else:
+
             path = (
                 n.get("path")
                 or ""
@@ -179,7 +203,7 @@ def deduplicate_nodes(nodes):
 
         path = str(path).strip()
 
-        # --- final key ---
+        # dedup key
         key = (
             node_type,
             server,
