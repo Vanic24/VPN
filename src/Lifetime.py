@@ -10,7 +10,7 @@ import traceback
 from collections import defaultdict, OrderedDict
 from datetime import datetime, timedelta, timezone
 import base64
-import re
+import re, copy
 import json
 import urllib.parse
 from urllib.parse import unquote, urlparse, parse_qs
@@ -80,115 +80,140 @@ def tcp_latency_ms(host, port, timeout=2.0):
     except Exception:
         return 9999
 
+def normalize_node(n):
+    if not isinstance(n, dict):
+        return None
+
+    n = copy.deepcopy(n)
+
+    # ---------------- safe nested objects ----------------
+    tls_obj = n.get("tls")
+    if not isinstance(tls_obj, dict):
+        tls_obj = {}
+
+    transport_obj = n.get("transport")
+    if not isinstance(transport_obj, dict):
+        transport_obj = {}
+
+    ws_opts = n.get("ws-opts")
+    if not isinstance(ws_opts, dict):
+        ws_opts = {}
+
+    grpc_opts = n.get("grpc-opts")
+    if not isinstance(grpc_opts, dict):
+        grpc_opts = {}
+
+    reality_opts = n.get("reality-opts")
+    if not isinstance(reality_opts, dict):
+        reality_opts = {}
+
+    # ---------------- canonical fields ----------------
+    n["server"] = str(
+        n.get("server") or ""
+    ).strip().lower().rstrip(".")
+
+    try:
+        n["port"] = int(
+            n.get("port")
+            or n.get("server_port")
+            or 0
+        )
+    except:
+        n["port"] = 0
+
+    n["type"] = str(
+        n.get("type") or ""
+    ).strip().lower()
+
+    # ---------------- auth ----------------
+    auth = (
+        n.get("uuid")
+        or n.get("password")
+        or ""
+    )
+
+    n["_auth"] = str(auth).strip()
+
+    # ---------------- security ----------------
+    if reality_opts:
+        n["_security"] = "reality"
+
+    elif tls_obj or n.get("tls") is True:
+        n["_security"] = "tls"
+
+    else:
+        n["_security"] = ""
+
+    # ---------------- sni ----------------
+    sni = (
+        n.get("sni")
+        or n.get("servername")
+        or n.get("server_name")
+        or tls_obj.get("server_name")
+        or ""
+    )
+
+    n["_sni"] = str(sni).strip().lower()
+
+    # ---------------- network ----------------
+    network = (
+        n.get("network")
+        or transport_obj.get("type")
+        or "tcp"
+    )
+
+    n["_network"] = str(network).strip().lower()
+
+    # ---------------- path ----------------
+    path = ""
+
+    if n["_network"] == "ws":
+
+        path = (
+            ws_opts.get("path")
+            or transport_obj.get("path")
+            or n.get("path")
+            or ""
+        )
+
+    elif n["_network"] == "grpc":
+
+        path = (
+            grpc_opts.get("serviceName")
+            or grpc_opts.get("grpc-service-name")
+            or transport_obj.get("service_name")
+            or ""
+        )
+
+    n["_path"] = str(path).strip().lower()
+
+    return n
+
 def deduplicate_nodes(nodes):
     seen = set()
     unique_nodes = []
     removed = 0
 
-    for n in nodes:
+    for raw_node in nodes:
 
-        # --- basic ---
-        server = str(
-            n.get("server")
-            or ""
-        ).strip()
+        n = normalize_node(raw_node)
 
-        port = int(
-            n.get("port")
-            or n.get("server_port")
-            or 0
-        )
+        if not n:
+            continue
 
-        user = str(
-            n.get("uuid")
-            or n.get("password")
-            or ""
-        ).strip()
-
-        node_type = str(
-            n.get("type")
-            or ""
-        ).strip()
-
-        if not user:
+        if not n["_auth"]:
             unique_nodes.append(n)
             continue
 
-        # --- security ---
-        if n.get("reality-opts"):
-            security = "reality"
-
-        elif isinstance(n.get("tls"), dict):
-            security = "tls"
-
-        elif n.get("tls") is True:
-            security = "tls"
-
-        else:
-            security = ""
-
-        # --- SNI ---
-        sni = (
-            n.get("sni")
-            or n.get("servername")
-            or n.get("server_name")
-            or n.get("tls", {}).get("server_name")
-            or ""
-        )
-        sni = str(sni).strip().lower()
-
-        # --- network ---
-        network = (
-            n.get("network")
-            or n.get("transport", {}).get("type")
-            or "tcp"
-        )
-        network = str(network).strip()
-
-        # --- path ---
-        path = ""
-
-        if network == "ws":
-
-            # Clash YAML
-            path = (
-                n.get("ws-opts", {}).get("path")
-                or ""
-            )
-
-            # sing-box JSON fallback
-            if not path:
-                path = (
-                    n.get("transport", {}).get("path")
-                    or ""
-                )
-
-        elif network == "grpc":
-
-            path = (
-                n.get("grpc-opts", {}).get("serviceName")
-                or n.get("transport", {}).get("service_name")
-                or ""
-            )
-
-        else:
-            path = (
-                n.get("path")
-                or ""
-            )
-
-        path = str(path).strip()
-
-        # --- final key ---
         key = (
-            node_type,
-            server,
-            port,
-            user,
-            security,
-            sni,
-            network,
-            path,
+            n["type"],
+            n["server"],
+            n["port"],
+            n["_auth"],
+            n["_security"],
+            n["_sni"],
+            n["_network"],
+            n["_path"],
         )
 
         if key in seen:
@@ -196,6 +221,17 @@ def deduplicate_nodes(nodes):
             continue
 
         seen.add(key)
+
+        # cleanup temp fields
+        for k in [
+            "_auth",
+            "_security",
+            "_sni",
+            "_network",
+            "_path",
+        ]:
+            n.pop(k, None)
+
         unique_nodes.append(n)
 
     return unique_nodes, removed
@@ -345,7 +381,7 @@ def merge_dynamic_fields(node, data):
         "cipher", "network", "tls", "alterId",
         "servername", "type", "encryption",
 
-        # vmess raw fields (already normalized)
+        # raw fields (already normalized)
         "v", "ps", "add", "id", "aid", "net",
         "scy", "host", "path", "tls", "sni",
 
@@ -392,14 +428,23 @@ def merge_dynamic_fields(node, data):
 # VMESS Parser
 # -----------------------------------------------------------
 def normalize_vmess_json(data):
+
     normalized = {}
+
     for k, v in data.items():
+
+        # null safety
         if v is None:
             normalized[k] = ""
-        elif isinstance(v, (int, float, bool)):
-            normalized[k] = str(v)
-        else:
+
+        # keep valid primitive types
+        elif isinstance(v, (str, int, float, bool, list, dict)):
             normalized[k] = v
+
+        # weird objects
+        else:
+            normalized[k] = str(v)
+
     return normalized
     
 # ---------------- Main VMESS parser ----------------
@@ -433,7 +478,13 @@ def parse_vmess(line, line_number=None):
         }
 
         # ---------------- TLS Handling ----------------
-        tls_raw = (data.get("tls") or "").lower()
+        tls_val = data.get("tls")
+
+        if isinstance(tls_val, str):
+            tls_raw = tls_val.lower()
+        else:
+            tls_raw = str(tls_val).lower()
+        
         node["tls"] = tls_raw in ("tls", "1", "true", "yes")
 
         if node["tls"]:
