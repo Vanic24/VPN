@@ -289,7 +289,10 @@ def merge_dynamic_fields(node, data):
         "scy", "host", "path", "tls", "sni",
 
         # protocol transport fields
-        "security", "type", "flow"
+        "security", "type", "flow",
+
+        # ignore metadata
+        "metadata"
     }
 
     known = set(node.keys()) | reserved
