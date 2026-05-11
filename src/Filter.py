@@ -215,6 +215,9 @@ def deduplicate_nodes(nodes):
             path,
         )
 
+        print("DEDUP KEY:", key)
+        print("NODE:", n)
+        
         if key in seen:
             removed += 1
             continue
