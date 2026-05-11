@@ -1291,12 +1291,17 @@ def load_proxies(url, retries=5):
                     if data and "proxies" in data:
                         for idx, p in enumerate(data["proxies"], start=1):
                             original_name = str(p.get("name", "") or "").strip()
-
+                    
                             if not original_name:
                                 p["name"] = f"Node-{idx}"
+                    
+                            # remove metadata
+                            p.pop("metadata", None)
+                    
                             nodes.append(p)
+                    
                             protocol = str(p.get("type", "NODE")).upper()
-
+                    
                             print(
                                 f"[parse] 🔎 YAML to {protocol} node: {idx} parsed",
                                 flush=True
