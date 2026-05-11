@@ -277,7 +277,11 @@ def merge_dynamic_fields(node, data):
     - Supports ALPN parsing
     - Supports URL decoding
     """
-    # ---------------- Reserved / normalized keys ----------------
+
+    # ---------------- remove metadata universally ---------------- 
+    node.pop("metadata", None)
+
+    # Reserved / normalized keys
     reserved = {
         # common normalized fields
         "name", "server", "port", "uuid", "password",
@@ -289,12 +293,20 @@ def merge_dynamic_fields(node, data):
         "scy", "host", "path", "tls", "sni",
 
         # protocol transport fields
-        "security", "type", "flow"
+        "security", "type", "flow",
+
+        # ignore metadata
+        "metadata"
     }
 
     known = set(node.keys()) | reserved
 
     for k, v in data.items():
+
+        # Ignore metadata completely
+        if k.lower() == "metadata":
+            continue
+
         if k in known:
             continue
 
@@ -318,7 +330,7 @@ def merge_dynamic_fields(node, data):
             node[k] = v
 
     return node
-    
+
 # -----------------------------------------------------------
 # VMESS Parser
 # -----------------------------------------------------------
@@ -1279,12 +1291,17 @@ def load_proxies(url, retries=5):
                     if data and "proxies" in data:
                         for idx, p in enumerate(data["proxies"], start=1):
                             original_name = str(p.get("name", "") or "").strip()
-
+                    
                             if not original_name:
                                 p["name"] = f"Node-{idx}"
+                    
+                            # remove metadata
+                            p.pop("metadata", None)
+                    
                             nodes.append(p)
+                    
                             protocol = str(p.get("type", "NODE")).upper()
-
+                    
                             print(
                                 f"[parse] 🔎 YAML to {protocol} node: {idx} parsed",
                                 flush=True
