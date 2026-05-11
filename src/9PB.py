@@ -472,7 +472,12 @@ def parse_vless(line, line_number=None):
             "uuid": uuid,
             "encryption": query.get("encryption", "none"),
         }
-
+        
+        # preserve important raw fields
+        for key in ["security", "flow", "sni", "fp"]:
+            if key in query and query[key] != "":
+                node[key] = query[key]
+                
         # Security (TLS / Reality)
         if query.get("security") == "tls":
             node["tls"] = True
