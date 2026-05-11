@@ -81,7 +81,6 @@ def tcp_latency_ms(host, port, timeout=2.0):
         return 9999
 
 def normalize_node(n):
-
     if not isinstance(n, dict):
         return None
 
@@ -190,9 +189,7 @@ def normalize_node(n):
 
     return n
 
-
 def deduplicate_nodes(nodes):
-
     seen = set()
     unique_nodes = []
     removed = 0
