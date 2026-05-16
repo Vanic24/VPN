@@ -649,10 +649,8 @@ def parse_trojan(line, line_number=None):
             "password": password.strip(),
         }
 
-        node["skip-cert-verify"] = query.get(
-            "allowInsecure", "0"
-        ) in ("1", "true", "yes")
-
+        # TLS / Security
+        node["skip-cert-verify"] = query.get("allowInsecure", "0") in ("1", "true", "yes")
         node["security"] = query.get("security", "tls")
 
         sni = query.get("sni") or query.get("peer")
@@ -660,26 +658,21 @@ def parse_trojan(line, line_number=None):
             node["sni"] = sni
             node["servername"] = sni
 
+        # Network
         if "type" in query:
             node["network"] = query["type"]
 
+        # WS
         if node.get("network") == "ws":
-            ws_opts = {
-                "path": unquote(query.get("path", "/"))
-            }
-
+            ws_opts = {"path": urllib.parse.unquote(query.get("path", "/"))}
             if "host" in query:
-                ws_opts["headers"] = {
-                    "Host": query["host"]
-                }
-
+                ws_opts["headers"] = {"Host": query["host"]}
             node["ws-opts"] = ws_opts
 
+        # gRPC
         elif node.get("network") == "grpc":
             node["grpc-opts"] = {
-                "grpc-service-name": query.get(
-                    "serviceName", ""
-                )
+                "grpc-service-name": query.get("serviceName", "")
             }
 
         node = merge_dynamic_fields(node, query)
