@@ -646,6 +646,9 @@ def parse_trojan(line, line_number=None):
             query = dict(urllib.parse.parse_qsl(q))
         else:
             host_port = rest
+        
+        # Remove optional trailing slash
+        host_port = host_port.rstrip("/")
 
         # ---------------- IPv6 / IPv4 handling ----------------
         if host_port.startswith("["):  # IPv6
