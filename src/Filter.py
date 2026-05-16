@@ -628,49 +628,25 @@ def parse_trojan(line, line_number=None):
         if not line.startswith("trojan://"):
             return None
 
-        name = ""
-        if "#" in line:
-            line, name = line.split("#", 1)
-            name = urllib.parse.unquote(name.strip())
+        parsed = urlparse(line)
 
-        core = line[len("trojan://"):]
+        host = parsed.hostname
+        port = parsed.port
+        password = unquote(parsed.username or "")
 
-        if "@" not in core:
-            return None
+        query = {
+            k: v[-1]
+            for k, v in parse_qs(parsed.query).items()
+        }
 
-        password, rest = core.split("@", 1)
-
-        query = {}
-        if "?" in rest:
-            host_port, q = rest.split("?", 1)
-            query = dict(urllib.parse.parse_qsl(q))
-        else:
-            host_port = rest
-
-        # ---------------- IPv6 / IPv4 handling ----------------
-        if host_port.startswith("["):  # IPv6
-            end = host_port.find("]")
-            if end == -1:
-                return None
-
-            host = host_port[1:end]
-
-            if len(host_port) <= end + 2:
-                return None
-
-            port = host_port[end + 2:]
-
-        else:
-            if ":" not in host_port:
-                return None
-            host, port = host_port.rsplit(":", 1)
+        name = unquote(parsed.fragment) if parsed.fragment else ""
 
         node = {
             "type": "trojan",
             "name": name or "Trojan Node",
             "server": host.strip(),
-            "port": int(port.strip()),
-            "password": urllib.parse.unquote(password.strip()),
+            "port": int(port),
+            "password": password.strip(),
         }
 
         # TLS / Security
