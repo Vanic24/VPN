@@ -86,6 +86,115 @@ def tcp_latency_ms(host, port, timeout=2.0):
     except Exception:
         return 9999
 
+def normalize_node(n):
+    if not isinstance(n, dict):
+        return None
+
+    n = copy.deepcopy(n)
+
+    # ---------------- safe nested objects ----------------
+    tls_obj = n.get("tls")
+    if not isinstance(tls_obj, dict):
+        tls_obj = {}
+
+    transport_obj = n.get("transport")
+    if not isinstance(transport_obj, dict):
+        transport_obj = {}
+
+    ws_opts = n.get("ws-opts")
+    if not isinstance(ws_opts, dict):
+        ws_opts = {}
+
+    grpc_opts = n.get("grpc-opts")
+    if not isinstance(grpc_opts, dict):
+        grpc_opts = {}
+
+    reality_opts = n.get("reality-opts")
+    if not isinstance(reality_opts, dict):
+        reality_opts = {}
+
+    # ---------------- canonical fields ----------------
+    n["server"] = str(
+        n.get("server") or ""
+    ).strip().lower().rstrip(".")
+
+    try:
+        n["port"] = int(
+            n.get("port")
+            or n.get("server_port")
+            or 0
+        )
+    except:
+        n["port"] = 0
+
+    n["type"] = str(
+        n.get("type") or ""
+    ).strip().lower()
+
+    # ---------------- auth ----------------
+    auth = (
+        n.get("uuid")
+        or n.get("password")
+        or ""
+    )
+
+    n["_auth"] = str(auth).strip()
+
+    # ---------------- security ----------------
+    if reality_opts:
+        n["_security"] = "reality"
+
+    elif tls_obj or n.get("tls") is True:
+        n["_security"] = "tls"
+
+    else:
+        n["_security"] = ""
+
+    # ---------------- sni ----------------
+    sni = (
+        n.get("sni")
+        or n.get("servername")
+        or n.get("server_name")
+        or tls_obj.get("server_name")
+        or ""
+    )
+
+    n["_sni"] = str(sni).strip().lower()
+
+    # ---------------- network ----------------
+    network = (
+        n.get("network")
+        or transport_obj.get("type")
+        or "tcp"
+    )
+
+    n["_network"] = str(network).strip().lower()
+
+    # ---------------- path ----------------
+    path = ""
+
+    if n["_network"] == "ws":
+
+        path = (
+            ws_opts.get("path")
+            or transport_obj.get("path")
+            or n.get("path")
+            or ""
+        )
+
+    elif n["_network"] == "grpc":
+
+        path = (
+            grpc_opts.get("serviceName")
+            or grpc_opts.get("grpc-service-name")
+            or transport_obj.get("service_name")
+            or ""
+        )
+
+    n["_path"] = str(path).strip().lower()
+
+    return n
+
 def deduplicate_nodes(nodes):
     seen = set()
     unique_nodes = []
@@ -273,373 +382,6 @@ def build_name(flag, cc, index, ipv6_tag=False):
     suffix = " [ipv6]" if ipv6_tag else ""
     return f"{flag} {cc}-{index}{suffix} | Starlink"
 
-# ---------------- Parse Node Links ----------------
-def parse_node_link(link: str):
-    node = {"raw": link, "name": "Unknown", "type": "unknown"}
-    try:
-        if link.startswith("vmess://"):
-            decoded = base64.urlsafe_b64decode(link[8:] + "===")
-            data = json.loads(decoded)
-            node.update({
-                "type": "vmess",
-                "server": data.get("add"),
-                "port": int(data.get("port", 0)),
-                "uuid": data.get("id"),
-                "alterId": data.get("aid"),
-                "security": data.get("scy"),
-                "network": data.get("net"),
-                "remark": data.get("ps")
-            })
-            node["name"] = data.get("ps") or f"VM-{data.get('add')}"
-        elif link.startswith("vless://"):
-            parsed = urlparse(link)
-            node.update({
-                "type": "vless",
-                "server": parsed.hostname,
-                "port": parsed.port,
-                "uuid": parsed.username,
-                "remark": parsed.fragment
-            })
-            node["name"] = parsed.fragment or f"VL-{parsed.hostname}"
-        elif link.startswith("ss://"):
-            parsed = urlparse(link)
-            node.update({
-                "type": "ss",
-                "server": parsed.hostname,
-                "port": parsed.port,
-                "remark": parsed.fragment
-            })
-            node["name"] = parsed.fragment or f"SS-{parsed.hostname}"
-        elif link.startswith("trojan://"):
-            parsed = urlparse(link)
-            node.update({
-                "type": "trojan",
-                "server": parsed.hostname,
-                "port": parsed.port,
-                "password": parsed.username,
-                "remark": parsed.fragment
-            })
-            node["name"] = parsed.fragment or f"TR-{parsed.hostname}"
-    except Exception as e:
-        print(f"[warn] Failed to parse node: {link} -> {e}")
-    return node
-
-# ---------------- Load Subscription ----------------
-with open(SOURCES_FILE, "r", encoding="utf-8") as f:
-    source_data = f.read().strip()
-
-renamed_nodes = []
-try:
-    decoded_bytes = base64.urlsafe_b64decode(source_data + "===")
-    decoded_str = decoded_bytes.decode("utf-8")
-    try:
-        yaml_data = yaml.safe_load(decoded_str)
-        if isinstance(yaml_data, dict) and "proxies" in yaml_data:
-            for p in yaml_data["proxies"]:
-                p["name"] = p.get("name") or f"Node-{len(renamed_nodes)+1}"
-                renamed_nodes.append(p)
-        else:
-            for line in decoded_str.splitlines():
-                line = line.strip()
-                if line:
-                    renamed_nodes.append(parse_node_link(line))
-    except yaml.YAMLError:
-        for line in decoded_str.splitlines():
-            line = line.strip()
-            if line:
-                renamed_nodes.append(parse_node_link(line))
-except Exception:
-    for idx, line in enumerate(source_data.splitlines(), start=1):
-        line = line.strip()
-        if line:
-            node = parse_node_link(line)
-            node["name"] = node.get("name") or f"Node-{idx}"
-            renamed_nodes.append(node)
-
-print(f"[info] Loaded {len(renamed_nodes)} nodes from subscription.")
-
-# ---------------- Filter unsupported nodes ----------------
-valid_nodes = []
-for n in renamed_nodes:
-    if n.get("type") in ["vmess", "vless", "ss", "trojan"]:
-        valid_nodes.append(n)
-    else:
-        print(f"[warn] ⚠️ Skipping unsupported node type: {n.get('type')} ({n.get('name')})")
-print(f"[info] {len(valid_nodes)} valid nodes will be sent to Mihomo.")
-
-# ---------------- Run Mihomo ----------------
-def run_mihomo(nodes):
-    if not nodes:
-        print("[mihomo] ⚠️ No nodes to run Mihomo on, skipping.")
-        return nodes
-
-    print("[mihomo] 🔹 Starting Mihomo run...")
-    temp_config_file = tempfile.NamedTemporaryFile(delete=False, suffix=".yaml")
-    config = {"mixed-port": 7890, "mode": "global", "external-controller": "127.0.0.1:9090", "proxies": []}
-
-    for n in nodes:
-        config["proxies"].append({
-            "name": n.get("name", "TempNode"),
-            "type": n.get("type"),
-            "server": n.get("server"),
-            "port": n.get("port"),
-            "uuid": n.get("uuid", ""),
-            "password": n.get("password", "")
-        })
-
-    try:
-        with open(temp_config_file.name, "w", encoding="utf-8") as f:
-            yaml.dump(config, f, allow_unicode=True)
-        print(f"[mihomo] 🔹 Writing temporary config to {temp_config_file.name} ... ✅ Done")
-
-        mihomo_bin = "./mihomo"
-        print(f"[mihomo] 🔹 Executing Mihomo binary: {mihomo_bin}")
-        proc = subprocess.run([mihomo_bin, "-f", temp_config_file.name],
-                              stdout=subprocess.PIPE,
-                              stderr=subprocess.PIPE,
-                              timeout=30)
-
-        print(f"[mihomo] 🔹 Mihomo return code: {proc.returncode}")
-        print(f"[mihomo] 🔹 STDOUT:\n{proc.stdout.decode()}")
-        print(f"[mihomo] 🔹 STDERR:\n{proc.stderr.decode()}")
-
-        if proc.returncode != 0:
-            print("[warn] ❌ Mihomo failed.")
-            return nodes
-
-        output_file = "mihomo_output.json"
-        try:
-            with open(output_file, "r", encoding="utf-8") as f:
-                results = json.load(f)
-                for node in nodes:
-                    matched = False
-                    for r in results:
-                        if r.get("name") == node.get("name"):
-                            node["exit_ip"] = r.get("exit_ip", "")
-                            node["exit_country"] = r.get("exit_country", "")
-                            matched = True
-                            break
-                    if not matched:
-                        print(f"[warn] ⚠️ No Mihomo output for node: {node.get('name')}")
-            print("[mihomo] ✅ Mihomo output parsed successfully")
-        except FileNotFoundError:
-            print("[warn] ⚠️ Mihomo output file not found, skipping exit_ip updates")
-
-    except subprocess.TimeoutExpired:
-        print("[warn] ❌ Mihomo execution timed out")
-    except Exception as e:
-        print(f"[warn] ❌ Mihomo execution error: {e}")
-    finally:
-        try:
-            if os.path.exists(temp_config_file.name):
-                os.remove(temp_config_file.name)
-                print("[mihomo] 🔹 Temporary config file removed.")
-        except Exception as e:
-            print(f"[warn] ⚠️ Failed to delete temp config file: {e}")
-
-    return nodes
-    
-def detect_real_ip(nodes):
-    """
-    Detect the real public IP for each node using an HTTP request.
-    Adds 'real_ip' and 'real_country' fields to each node.
-    """
-    for n in nodes:
-        server = n.get("server")
-        port = n.get("port")
-        if not server or not port:
-            n["real_ip"] = "N/A"
-            n["real_country"] = "UN"
-            continue
-
-        try:
-            # Example using a simple HTTP request via requests
-            proxies = None
-            if n.get("type", "") in ["http", "https", "socks5", "vmess"]:
-                proxies = {"http": f"socks5://{server}:{port}", "https": f"socks5://{server}:{port}"}
-            r = session.get("https://ipinfo.io/json", proxies=proxies, timeout=5)
-            if r.status_code == 200:
-                data = r.json()
-                n["real_ip"] = data.get("ip", "N/A")
-                n["real_country"] = data.get("country", "UN")
-            else:
-                n["real_ip"] = "N/A"
-                n["real_country"] = "UN"
-
-        except Exception:
-            n["real_ip"] = "N/A"
-            n["real_country"] = "UN"
-
-    return nodes
-
-def filter_nodes_by_country(nodes, allowed_countries):
-    """
-    Keep only nodes whose 'real_country' or 'exit_country' is in allowed_countries.
-    """
-    filtered = []
-    for n in nodes:
-        country = n.get("real_country") or n.get("exit_country") or "UN"
-        if country.upper() in [c.upper() for c in allowed_countries]:
-            filtered.append(n)
-    return filtered
-
-def run_mihomo(nodes):
-    """
-    Run Mihomo locally to detect exit country for each server.
-    Updates each node with 'exit_ip' and 'exit_country' if detected.
-    """
-    if not nodes:
-        print("[mihomo] ⚠️ No nodes to run Mihomo on, skipping.")
-        return nodes
-
-    print("[mihomo] 🔹 Starting Mihomo run...")
-    temp_config_file = tempfile.NamedTemporaryFile(delete=False, suffix=".yaml")
-    config = {"mixed-port": 7890, "mode": "global", "external-controller": "127.0.0.1:9090", "proxies": []}
-
-    for n in nodes:
-        config["proxies"].append({
-            "name": n.get("name", "TempNode"),
-            "type": n.get("type", "vmess"),
-            "server": n.get("server"),
-            "port": n.get("port"),
-            "uuid": n.get("uuid", ""),
-            "password": n.get("password", "")
-        })
-
-    try:
-        with open(temp_config_file.name, "w", encoding="utf-8") as f:
-            yaml.dump(config, f, allow_unicode=True)
-        print(f"[mihomo] 🔹 Writing temporary config to {temp_config_file.name} ... ✅ Done")
-
-        mihomo_bin = "./mihomo"
-        print(f"[mihomo] 🔹 Executing Mihomo binary: {mihomo_bin}")
-        proc = subprocess.run([mihomo_bin, "-f", temp_config_file.name],
-                              stdout=subprocess.PIPE,
-                              stderr=subprocess.PIPE,
-                              timeout=30)
-
-        print(f"[mihomo] 🔹 Mihomo return code: {proc.returncode}")
-        print(f"[mihomo] 🔹 STDOUT:\n{proc.stdout.decode()}")
-        print(f"[mihomo] 🔹 STDERR:\n{proc.stderr.decode()}")
-
-        if proc.returncode != 0:
-            print("[warn] ❌ Mihomo failed.")
-            return nodes
-
-        # Parse Mihomo JSON output
-        output_file = "mihomo_output.json"
-        try:
-            with open(output_file, "r", encoding="utf-8") as f:
-                results = json.load(f)
-                for node in nodes:
-                    matched = False
-                    for r in results:
-                        if r.get("name") == node.get("name"):
-                            node["exit_ip"] = r.get("exit_ip", "")
-                            node["exit_country"] = r.get("exit_country", "")
-                            matched = True
-                            break
-                    if not matched:
-                        print(f"[warn] ⚠️ No Mihomo output for node: {node.get('name')}")
-            print("[mihomo] ✅ Mihomo output parsed successfully")
-        except FileNotFoundError:
-            print("[warn] ⚠️ Mihomo output file not found, skipping exit_ip updates")
-
-    except subprocess.TimeoutExpired:
-        print("[warn] ❌ Mihomo execution timed out")
-    except Exception as e:
-        print(f"[warn] ❌ Mihomo execution error: {e}")
-    finally:
-        try:
-            if os.path.exists(temp_config_file.name):
-                os.remove(temp_config_file.name)
-                print("[mihomo] 🔹 Temporary config file removed.")
-        except Exception as e:
-            print(f"[warn] ⚠️ Failed to delete temp config file: {e}")
-
-    return nodes
-
-# ---------------- Group nodes by MiHoYo server ----------------
-def group_by_mihoyo_server(nodes):
-    """
-    Group nodes based on their MiHoYo server (China, Global, etc.)
-    nodes: list of node dicts with 'exit_country'
-    Returns a dict: {server_region: [node1, node2, ...]}
-    """
-    server_groups = {}
-    for n in nodes:
-        region = n.get('exit_country', 'Unknown')
-        if region not in server_groups:
-            server_groups[region] = []
-        server_groups[region].append(n)
-    return server_groups
-
-# ---------------- Generate Clash YAML for MiHoYo server groups ----------------
-def generate_clash_groups(server_groups, clash_yaml_path="clash_mihoyo.yaml"):
-        clash_config = {"proxies": [], "proxy-groups": []}
-        # Add nodes to proxies list
-        for group_nodes in server_groups.values():
-            for n in group_nodes:
-                proxy_entry = {
-                    "name": n['name'],
-                    "type": n.get("type", "vmess"),
-                    "server": n['server'],
-                    "port": n['port'],
-                    "uuid": n.get("uuid", ""),
-                    "password": n.get("password", "")
-                }
-                clash_config["proxies"].append(proxy_entry)
-
-        # Add groups
-        for region, group_nodes in server_groups.items():
-            group_entry = {
-                "name": f"MiHoYo-{region}",
-                "type": "select",
-                "proxies": [n['name'] for n in group_nodes]
-            }
-            clash_config["proxy-groups"].append(group_entry)
-    
-        # Save to file
-        with open(clash_yaml_path, "w", encoding="utf-8") as f:
-            yaml.dump(clash_config, f, allow_unicode=True)
-    
-        print(f"[clash] ✅ Clash YAML generated: {clash_yaml_path}")
-
-# ---------------- Main Workflow ----------------
-# Step 1: Run Mihomo
-nodes_with_exit = run_mihomo(renamed_nodes)
-
-# Step 2: Detect real IP
-nodes_with_real_ip = detect_real_ip(nodes_with_exit)
-
-# Step 3: Filter by allowed countries
-allowed_countries = ["CN", "JP", "US"]
-filtered_nodes = filter_nodes_by_country(nodes_with_real_ip, allowed_countries)
-
-# Step 4: Print filtered nodes
-for n in filtered_nodes:
-    print(f"{n['name']} -> exit_ip: {n.get('exit_ip','N/A')}, exit_country: {n.get('exit_country','N/A')}, "
-          f"real_ip: {n.get('real_ip','N/A')}, real_country: {n.get('real_country','N/A')}")
-
-# Step 5: Group nodes
-server_groups = group_by_mihoyo_server(filtered_nodes)
-cn_to_cc = load_cn_to_cc()
-
-# Step 6: Rename nodes for Clash
-for region, group_nodes in server_groups.items():
-    for idx, node in enumerate(group_nodes, start=1):
-        exit_cc = node.get('exit_country', 'UN')
-        flag = country_to_flag(exit_cc)
-        mapped_cc = cn_to_cc.get(exit_cc, exit_cc)
-        node['name'] = build_name(flag, mapped_cc, idx, ipv6_tag=False)
-
-# Step 7: Print grouped nodes
-for region, group_nodes in server_groups.items():
-    print(f"Region: {region} -> Nodes: {[n['name'] for n in group_nodes]}")
-
-# Step 8: Generate Clash YAML
-generate_clash_groups(server_groups, clash_yaml_path="clash_mihoyo.yaml")
-
 # ---------------- Load sources ----------------
 def load_sources():
     if not os.path.exists(SOURCES_FILE):
@@ -655,82 +397,184 @@ def load_sources():
 # -----------------------------------------------------------
 # Helper: Safe base64 decode
 # -----------------------------------------------------------
-def decode_b64(b64str):
+def decode_base64(data: str) -> str:
     try:
-        padded = b64str + "=" * (-len(b64str) % 4)
-        return base64.urlsafe_b64decode(padded).decode("utf-8")
+        data = data.strip()
+        data += "=" * (-len(data) % 4)
+        return base64.urlsafe_b64decode(data).decode("utf-8")
     except Exception:
         return ""
+
+def safe_int(value, default=0):
+    try:
+        if value is None or value == "":
+            return default
+        return int(value)
+    except Exception:
+        return default
 
 # -----------------------------------------------------------
 # Helper: Generic dynamic query merger
 # -----------------------------------------------------------
-def merge_dynamic_fields(node, query):
-    """Attach all unrecognized query fields dynamically, without injecting defaults."""
-    known = set(node.keys())
-    for k, v in query.items():
-        if k not in known and v:  # only non-empty
-            v_decoded = urllib.parse.unquote(v)
-            if k == "alpn":  # only ALPN is a list
-                v_list = [x.strip() for x in v_decoded.split(",") if x.strip()]
-                if v_list:
-                    node[k] = v_list
-            else:  # everything else stays as string
-                node[k] = v_decoded
+def merge_dynamic_fields(node, data):
+    """
+    Universal dynamic field merger:
+    - Works for BOTH JSON (vmess) and URL query (vless/trojan/ss/etc.)
+    - Safe against None, int, bool
+    - Supports ALPN parsing
+    - Supports URL decoding
+    """
+
+    # ---------------- remove metadata universally ---------------- 
+    node.pop("metadata", None)
+
+    # Reserved / normalized keys
+    reserved = {
+        # common normalized fields
+        "name", "server", "port", "uuid", "password",
+        "cipher", "network", "tls", "alterId",
+        "servername", "type", "encryption",
+
+        # raw fields (already normalized)
+        "v", "ps", "add", "id", "aid", "net",
+        "scy", "host", "path", "tls", "sni",
+
+        # protocol transport fields
+        "security", "type", "flow",
+
+        # ignore metadata
+        "metadata"
+    }
+
+    known = set(node.keys()) | reserved
+
+    for k, v in data.items():
+
+        # Ignore metadata completely
+        if k.lower() == "metadata":
+            continue
+
+        if k in known:
+            continue
+
+        # Skip empty / None
+        if v is None or v == "":
+            continue
+
+        # Convert to string safely
+        if not isinstance(v, str):
+            v = str(v)
+
+        # URL decode
+        v = urllib.parse.unquote(v)
+
+        # Special handling
+        if k.lower() == "alpn":
+            v_list = [x.strip() for x in v.split(",") if x.strip()]
+            if v_list:
+                node[k] = v_list
+        else:
+            node[k] = v
+
     return node
 
 # -----------------------------------------------------------
 # VMESS Parser
 # -----------------------------------------------------------
+def normalize_vmess_json(data):
+
+    normalized = {}
+
+    for k, v in data.items():
+
+        # null safety
+        if v is None:
+            normalized[k] = ""
+
+        # keep valid primitive types
+        elif isinstance(v, (str, int, float, bool, list, dict)):
+            normalized[k] = v
+
+        # weird objects
+        else:
+            normalized[k] = str(v)
+
+    return normalized
+    
+# ---------------- Main VMESS parser ----------------
 def parse_vmess(line, line_number=None):
     try:
-        if not line.startswith("vmess://"):
+        if not line or not line.startswith("vmess://"):
             return None
-        raw = line[8:].strip().replace("\n", "").replace(" ", "")
-        missing_padding = len(raw) % 4
-        if missing_padding:
-            raw += "=" * (4 - missing_padding)
-        decoded = base64.b64decode(raw).decode("utf-8")
-        data = json.loads(decoded)
-        tls_value = str(data.get("tls", "")).lower()
+            
+        # ---------------- Decode ----------------
+        raw = line[8:]
+        decoded = decode_base64(raw)
 
+        if not decoded:
+            raise ValueError("Empty decode result")
+
+        data = json.loads(decoded)
+
+        # Normalize ALL values (critical fix)
+        data = normalize_vmess_json(data)
+
+        # ---------------- Core Fields ----------------
         node = {
             "type": "vmess",
-            "name": data.get("ps", "VMESS Node"),
-            "server": data.get("add", ""),
-            "port": int(data.get("port", 0)),
-            "uuid": data.get("id", ""),
-            "alterId": int(data.get("aid", 0)),
-            "cipher": data.get("scy", "auto"),
-            "tls": tls_value in ("tls", "1", "true", "yes"),
-            "network": data.get("net", "tcp"),
+            "name": data.get("ps") or "VMESS Node",
+            "server": data.get("add") or "",
+            "port": safe_int(data.get("port")),
+            "uuid": data.get("id") or "",
+            "alterId": safe_int(data.get("aid")),
+            "cipher": data.get("scy") or "auto",
+            "network": data.get("net") or "tcp",
         }
 
-        # ---------------- WS ----------------
-        if node["network"] == "ws":
-            node["ws-opts"] = {"path": data.get("path", "/"), "headers": {"Host": data.get("host", "")}}
+        # ---------------- TLS Handling ----------------
+        tls_val = data.get("tls")
 
-        # ---------------- gRPC ----------------
-        if node["network"] == "grpc":
-            node["grpc-opts"] = {"grpc-service-name": data.get("path", "")}
+        if isinstance(tls_val, str):
+            tls_raw = tls_val.lower()
+        else:
+            tls_raw = str(tls_val).lower()
+        
+        node["tls"] = tls_raw in ("tls", "1", "true", "yes")
 
-        # ---------------- HTTP/2 ----------------
-        if node["network"] == "h2":
-            node["h2-opts"] = {"path": data.get("path", "/"), "host": [data.get("host", "")]}
-
-        # ---------------- TLS Server Name ----------------
         if node["tls"]:
-            node["servername"] = data.get("sni") or data.get("host", "")
+            node["servername"] = data.get("sni") or data.get("host") or ""
 
-        # dynamic fields
+        # ---------------- Network Handling ----------------
+        net = node["network"]
+
+        if net == "ws":
+            node["ws-opts"] = {
+                "path": data.get("path") or "/",
+                "headers": {
+                    "Host": data.get("host") or ""
+                }
+            }
+
+        elif net == "grpc":
+            node["grpc-opts"] = {
+                "grpc-service-name": data.get("path") or ""
+            }
+
+        elif net == "h2":
+            node["h2-opts"] = {
+                "path": data.get("path") or "/",
+                "host": [data.get("host") or ""]
+            }
+
+        # ---------------- Dynamic Fields (Safe) ----------------
         node = merge_dynamic_fields(node, data)
 
         return node
 
-    except Exception:
-        print(f"[warn] ❗Vmess parse error -> Line {line_number}")
+    except Exception as e:
+        print(f"[warn] ❗Vmess parse error -> Line {line_number} | {e}")
         return None
-
+        
 # -----------------------------------------------------------
 # VLESS Parser
 # -----------------------------------------------------------
@@ -790,6 +634,11 @@ def parse_vless(line, line_number=None):
             "uuid": uuid,
             "encryption": query.get("encryption", "none"),
         }
+        
+        # preserve important raw fields
+        for key in ["security", "flow", "sni", "fp"]:
+            if key in query and query[key] != "":
+                node[key] = query[key]
 
         # Security (TLS / Reality)
         if query.get("security") == "tls":
@@ -833,49 +682,25 @@ def parse_trojan(line, line_number=None):
         if not line.startswith("trojan://"):
             return None
 
-        name = ""
-        if "#" in line:
-            line, name = line.split("#", 1)
-            name = urllib.parse.unquote(name.strip())
+        parsed = urlparse(line)
 
-        core = line[len("trojan://"):]
+        host = parsed.hostname
+        port = parsed.port
+        password = unquote(parsed.username or "")
 
-        if "@" not in core:
-            return None
+        query = {
+            k: v[-1]
+            for k, v in parse_qs(parsed.query).items()
+        }
 
-        password, rest = core.split("@", 1)
-
-        query = {}
-        if "?" in rest:
-            host_port, q = rest.split("?", 1)
-            query = dict(urllib.parse.parse_qsl(q))
-        else:
-            host_port = rest
-
-        # ---------------- IPv6 / IPv4 handling ----------------
-        if host_port.startswith("["):  # IPv6
-            end = host_port.find("]")
-            if end == -1:
-                return None
-
-            host = host_port[1:end]
-
-            if len(host_port) <= end + 2:
-                return None
-
-            port = host_port[end + 2:]
-
-        else:
-            if ":" not in host_port:
-                return None
-            host, port = host_port.rsplit(":", 1)
+        name = unquote(parsed.fragment) if parsed.fragment else ""
 
         node = {
             "type": "trojan",
             "name": name or "Trojan Node",
             "server": host.strip(),
-            "port": int(port.strip()),
-            "password": urllib.parse.unquote(password.strip()),
+            "port": int(port),
+            "password": password.strip(),
         }
 
         # TLS / Security
@@ -1122,15 +947,6 @@ def parse_tuic(line, line_number=None):
 # -----------------------------------------------------------
 # SHADOWSOCKS (SS) Parser
 # -----------------------------------------------------------
-def decode_b64(data: str) -> str:
-    try:
-        data = data.strip()
-        data += '=' * (-len(data) % 4)
-        return base64.urlsafe_b64decode(data).decode('utf-8')
-    except Exception:
-        raise ValueError("Invalid base64 encoding")
-
-# ---------------- Smart casting ----------------
 def smart_cast(value: str):
     v = value.strip().lower()
 
@@ -1170,6 +986,17 @@ def parse_plugin(plugin_str: str):
             # ✅ type safety for critical fields
             if key == "tls":
                 opts[key] = val.lower() in ["1", "true"]
+            
+            elif key == "mux":
+                v = str(val).lower()
+            
+                if v in ["0", "false"]:
+                    opts[key] = 0
+                elif v in ["1", "true"]:
+                    opts[key] = 1
+                else:
+                    opts[key] = int(v) if v.isdigit() else 0
+            
             else:
                 opts[key] = smart_cast(val)
         else:
@@ -1233,7 +1060,7 @@ def parse_ss(line, line_number=None):
         if "@" in core:
             # base64(method:password)@server:port
             b64_part, srvp = core.split("@", 1)
-            decoded = decode_b64(b64_part)
+            decoded = decode_base64(b64_part)
 
             if ":" not in decoded:
                 raise ValueError("Invalid userinfo")
@@ -1242,7 +1069,7 @@ def parse_ss(line, line_number=None):
 
         else:
             # SIP002 full base64
-            decoded = decode_b64(core)
+            decoded = decode_base64(core)
 
             if "@" not in decoded:
                 raise ValueError("Invalid SIP002 format")
@@ -1279,7 +1106,7 @@ def parse_ss(line, line_number=None):
     except Exception as e:
         print(f"[warn] ❗SS parse error -> Line {line_number}: {e}")
         return None
-        
+       
 # -----------------------------------------------------------
 # SHADOWSOCKSR (SSR) Parser
 # -----------------------------------------------------------
@@ -1288,7 +1115,7 @@ def parse_ssr(line, line_number=None):
         if not line.startswith("ssr://"):
             return None
 
-        decoded = decode_b64(line[6:]).strip()
+        decoded = decode_base64(line[6:]).strip()
 
         if "/?" in decoded:
             main, query_str = decoded.split("/?", 1)
@@ -1303,12 +1130,12 @@ def parse_ssr(line, line_number=None):
 
         server, port, protocol, method, obfs, pwd_b64 = main.rsplit(":", 5)
 
-        password = decode_b64(pwd_b64)
+        password = decode_base64(pwd_b64)
 
         name = ""
 
         if "remarks" in qs:
-            name = urllib.parse.unquote(decode_b64(qs["remarks"]))
+            name = urllib.parse.unquote(decode_base64(qs["remarks"]))
 
         node = {
             "type": "ssr",
@@ -1323,13 +1150,13 @@ def parse_ssr(line, line_number=None):
 
         # ---------------- optional fields ----------------
         if "group" in qs:
-            node["group"] = decode_b64(qs["group"])
+            node["group"] = decode_base64(qs["group"])
 
         if "obfsparam" in qs:
-            node["obfs-param"] = decode_b64(qs["obfsparam"])
+            node["obfs-param"] = decode_base64(qs["obfsparam"])
 
         if "protoparam" in qs:
-            node["protocol-param"] = decode_b64(qs["protoparam"])
+            node["protocol-param"] = decode_base64(qs["protoparam"])
 
         node = merge_dynamic_fields(node, qs)
 
@@ -1338,7 +1165,30 @@ def parse_ssr(line, line_number=None):
     except Exception as e:
         print(f"[warn] ❗SSR parse error -> Line {line_number}")
         return None
-    
+
+# -----------------------------------------------------------
+# Normalize MUX
+# -----------------------------------------------------------
+def normalize_mux(node):
+    try:
+        if "plugin-opts" in node and isinstance(node["plugin-opts"], dict):
+            mux_val = node["plugin-opts"].get("mux")
+
+            if mux_val is not None:
+                v = str(mux_val).lower()
+
+                if v in ["0", "false"]:
+                    node["plugin-opts"]["mux"] = 0
+                elif v in ["1", "true"]:
+                    node["plugin-opts"]["mux"] = 1
+                else:
+                    node["plugin-opts"]["mux"] = int(v) if v.isdigit() else 0
+
+    except Exception:
+        pass
+
+    return node
+
 # -----------------------------------------------------------
 # Dispatcher
 # -----------------------------------------------------------
@@ -1578,7 +1428,7 @@ def convert_mux_for_clash(nodes):
         converted.append(node)
 
     return converted
-    
+
 # ---------------- Load proxies ----------------
 def load_proxies(url, retries=5):
     attempt = 0
@@ -1631,12 +1481,17 @@ def load_proxies(url, retries=5):
                     if data and "proxies" in data:
                         for idx, p in enumerate(data["proxies"], start=1):
                             original_name = str(p.get("name", "") or "").strip()
-
+                    
                             if not original_name:
                                 p["name"] = f"Node-{idx}"
+                    
+                            # remove metadata
+                            p.pop("metadata", None)
+                    
                             nodes.append(p)
+                    
                             protocol = str(p.get("type", "NODE")).upper()
-
+                    
                             print(
                                 f"[parse] 🔎 YAML to {protocol} node: {idx} parsed",
                                 flush=True
@@ -1738,6 +1593,7 @@ def main():
         renamed_nodes = []
         cn_to_cc = load_cn_to_cc()
         skipped_nodes = 0
+        
         for n in filtered_nodes:
             res = rename_node(n, country_counter, cn_to_cc)
             if res:
@@ -1800,10 +1656,11 @@ def main():
             return ordered
         
         # Apply to all renamed nodes
-        info_ordered = [reorder_info(n) for n in renamed_nodes]
+        normalized_nodes = [normalize_mux(n) for n in renamed_nodes]
+        info_ordered = [reorder_info(n) for n in normalized_nodes]
         info_ordered_dicts = [dict(n) for n in info_ordered]
 
-         # Line by line YAML proxies output format
+        # Line by line YAML proxies output format
         def make_single_line_yaml(proxies):
             lines = []
             for p in proxies:
