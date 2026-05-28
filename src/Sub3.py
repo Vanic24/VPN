@@ -625,44 +625,30 @@ def parse_vless(line, line_number=None):
 # -----------------------------------------------------------
 def parse_trojan(line, line_number=None):
     try:
-        if not line.startswith("trojan://"):
-            return None
+        if not line.startswith("trojan://"): return None
 
+        # Fix malformed links with raw '#' inside password
         name = ""
         if "#" in line:
             line, frag = line.rsplit("#", 1)
             name = unquote(frag.strip())
 
         parsed = urlparse(line)
+        host, port = parsed.hostname, parsed.port
 
-        host = parsed.hostname
-        port = parsed.port
-        
+        # Recover password safely
         password = ""
+        if parsed.username:
+            password = unquote(parsed.username)
+        else:
+            core = line[len("trojan://"):]
+            if "@" not in core: return None
+            password = unquote(core.split("@", 1)[0])
 
-        try:
-            if parsed.username:
-                password = unquote(parsed.username)
-            else:
-                # fallback manual extraction
-                core = line[len("trojan://"):]
+        if not host or not port: return None
 
-                if "@" not in core:
-                    return None
-
-                password = core.split("@", 1)[0]
-                password = unquote(password)
-
-        except Exception:
-            return None
-
-        if not host or not port:
-            return None
-
-        query = {
-            k: v[-1]
-            for k, v in parse_qs(parsed.query).items()
-        }
+        # Query params
+        query = {k: v[-1] for k, v in parse_qs(parsed.query).items()}
 
         node = {
             "type": "trojan",
@@ -673,7 +659,7 @@ def parse_trojan(line, line_number=None):
         }
 
         # TLS / Security
-        node["skip-cert-verify"] = query.get("allowInsecure", "0") in ("1", "true", "yes")
+        node["skip-cert-verify"] = query.get("allowInsecure", "0").lower() in ("1", "true", "yes")
         node["security"] = query.get("security", "tls")
 
         sni = query.get("sni") or query.get("peer")
@@ -682,32 +668,26 @@ def parse_trojan(line, line_number=None):
             node["servername"] = sni
 
         # Fingerprint
-        if "fp" in query:
-            node["client-fingerprint"] = query["fp"]
+        if "fp" in query: node["client-fingerprint"] = query["fp"]
 
         # Network
-        if "type" in query:
-            node["network"] = query["type"]
+        if "type" in query: node["network"] = query["type"]
 
         # WebSocket
         if node.get("network") == "ws":
-            ws_opts = {"path": urllib.parse.unquote(query.get("path", "/"))}
-            if "host" in query:
-                ws_opts["headers"] = {"Host": query["host"]}
+            ws_opts = {"path": unquote(query.get("path", "/"))}
+            if "host" in query: ws_opts["headers"] = {"Host": query["host"]}
             node["ws-opts"] = ws_opts
 
         # gRPC
         elif node.get("network") == "grpc":
-            node["grpc-opts"] = {
-                "grpc-service-name": query.get("serviceName", "")
-            }
+            node["grpc-opts"] = {"grpc-service-name": query.get("serviceName", "")}
 
         node = merge_dynamic_fields(node, query)
-
         return node
 
-    except Exception:
-        print(f"[warn] ❗Trojan parse error -> Line {line_number}")
+    except Exception as e:
+        print(f"[warn] ❗Trojan parse error -> Line {line_number}: {e}")
         return None
 
 # -----------------------------------------------------------
