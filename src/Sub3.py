@@ -627,35 +627,49 @@ def parse_trojan(line, line_number=None):
     try:
         if not line.startswith("trojan://"): return None
 
-        # Fix malformed links with raw '#' inside password
+        # Split node name from LAST '#'
         name = ""
         if "#" in line:
-            line, frag = line.rsplit("#", 1)
-            name = unquote(frag.strip())
+            line, name = line.rsplit("#", 1)
+            name = urllib.parse.unquote(name.strip())
 
-        parsed = urlparse(line)
-        host, port = parsed.hostname, parsed.port
+        core = line[len("trojan://"):]
 
-        # Recover password safely
-        password = ""
-        if parsed.username:
-            password = unquote(parsed.username)
-        else:
-            core = line[len("trojan://"):]
-            if "@" not in core: return None
-            password = unquote(core.split("@", 1)[0])
-
-        if not host or not port: return None
+        if "@" not in core: return None
+        password, rest = core.split("@", 1)
 
         # Query params
-        query = {k: v[-1] for k, v in parse_qs(parsed.query).items()}
+        query = {}
+        if "?" in rest:
+            host_port, q = rest.split("?", 1)
+            query = {k: v[-1] for k, v in urllib.parse.parse_qs(q).items()}
+        else:
+            host_port = rest
+
+        # Remove optional trailing slash
+        host_port = host_port.rstrip("/")
+
+        # IPv6
+        if host_port.startswith("["):
+            end = host_port.find("]")
+            if end == -1: return None
+
+            host = host_port[1:end]
+
+            if len(host_port) <= end + 2: return None
+            port = host_port[end + 2:]
+
+        # IPv4 / domain
+        else:
+            if ":" not in host_port: return None
+            host, port = host_port.rsplit(":", 1)
 
         node = {
             "type": "trojan",
             "name": name or "Trojan Node",
             "server": host.strip(),
-            "port": int(port),
-            "password": password.strip(),
+            "port": int(port.strip()),
+            "password": urllib.parse.unquote(password.strip()),
         }
 
         # TLS / Security
@@ -668,15 +682,18 @@ def parse_trojan(line, line_number=None):
             node["servername"] = sni
 
         # Fingerprint
-        if "fp" in query: node["client-fingerprint"] = query["fp"]
+        if "fp" in query:
+            node["client-fingerprint"] = query["fp"]
 
         # Network
-        if "type" in query: node["network"] = query["type"]
+        if "type" in query:
+            node["network"] = query["type"]
 
         # WebSocket
         if node.get("network") == "ws":
-            ws_opts = {"path": unquote(query.get("path", "/"))}
-            if "host" in query: ws_opts["headers"] = {"Host": query["host"]}
+            ws_opts = {"path": urllib.parse.unquote(query.get("path", "/"))}
+            if "host" in query:
+                ws_opts["headers"] = {"Host": query["host"]}
             node["ws-opts"] = ws_opts
 
         # gRPC
@@ -689,7 +706,7 @@ def parse_trojan(line, line_number=None):
     except Exception as e:
         print(f"[warn] ❗Trojan parse error -> Line {line_number}: {e}")
         return None
-
+        
 # -----------------------------------------------------------
 # HYSTERIA2 Parser
 # -----------------------------------------------------------
