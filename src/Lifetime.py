@@ -625,32 +625,55 @@ def parse_vless(line, line_number=None):
 # -----------------------------------------------------------
 def parse_trojan(line, line_number=None):
     try:
-        if not line.startswith("trojan://"):
-            return None
+        if not line.startswith("trojan://"): return None
 
-        parsed = urlparse(line)
+        # Split node name from LAST '#'
+        name = ""
+        if "#" in line:
+            line, name = line.rsplit("#", 1)
+            name = urllib.parse.unquote(name.strip())
 
-        host = parsed.hostname
-        port = parsed.port
-        password = unquote(parsed.username or "")
+        core = line[len("trojan://"):]
 
-        query = {
-            k: v[-1]
-            for k, v in parse_qs(parsed.query).items()
-        }
+        if "@" not in core: return None
+        password, rest = core.split("@", 1)
 
-        name = unquote(parsed.fragment) if parsed.fragment else ""
+        # Query params
+        query = {}
+        if "?" in rest:
+            host_port, q = rest.split("?", 1)
+            query = {k: v[-1] for k, v in urllib.parse.parse_qs(q).items()}
+        else:
+            host_port = rest
+
+        # Remove optional trailing slash
+        host_port = host_port.rstrip("/")
+
+        # IPv6
+        if host_port.startswith("["):
+            end = host_port.find("]")
+            if end == -1: return None
+
+            host = host_port[1:end]
+
+            if len(host_port) <= end + 2: return None
+            port = host_port[end + 2:]
+
+        # IPv4 / domain
+        else:
+            if ":" not in host_port: return None
+            host, port = host_port.rsplit(":", 1)
 
         node = {
             "type": "trojan",
             "name": name or "Trojan Node",
             "server": host.strip(),
-            "port": int(port),
-            "password": password.strip(),
+            "port": int(port.strip()),
+            "password": urllib.parse.unquote(password.strip()),
         }
 
         # TLS / Security
-        node["skip-cert-verify"] = query.get("allowInsecure", "0") in ("1", "true", "yes")
+        node["skip-cert-verify"] = query.get("allowInsecure", "0").lower() in ("1", "true", "yes")
         node["security"] = query.get("security", "tls")
 
         sni = query.get("sni") or query.get("peer")
@@ -658,11 +681,15 @@ def parse_trojan(line, line_number=None):
             node["sni"] = sni
             node["servername"] = sni
 
+        # Fingerprint
+        if "fp" in query:
+            node["client-fingerprint"] = query["fp"]
+
         # Network
         if "type" in query:
             node["network"] = query["type"]
 
-        # WS
+        # WebSocket
         if node.get("network") == "ws":
             ws_opts = {"path": urllib.parse.unquote(query.get("path", "/"))}
             if "host" in query:
@@ -671,16 +698,13 @@ def parse_trojan(line, line_number=None):
 
         # gRPC
         elif node.get("network") == "grpc":
-            node["grpc-opts"] = {
-                "grpc-service-name": query.get("serviceName", "")
-            }
+            node["grpc-opts"] = {"grpc-service-name": query.get("serviceName", "")}
 
         node = merge_dynamic_fields(node, query)
-
         return node
 
-    except Exception:
-        print(f"[warn] ❗Trojan parse error -> Line {line_number}")
+    except Exception as e:
+        print(f"[warn] ❗Trojan parse error -> Line {line_number}: {e}")
         return None
 
 # -----------------------------------------------------------
@@ -1639,4 +1663,3 @@ def upload_to_textdb():
 # ---------------- Entry ----------------
 if __name__ == "__main__":
     main()
-    
