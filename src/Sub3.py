@@ -628,18 +628,41 @@ def parse_trojan(line, line_number=None):
         if not line.startswith("trojan://"):
             return None
 
+        name = ""
+        if "#" in line:
+            line, frag = line.rsplit("#", 1)
+            name = unquote(frag.strip())
+
         parsed = urlparse(line)
 
         host = parsed.hostname
         port = parsed.port
-        password = unquote(parsed.username or "")
+        
+        password = ""
+
+        try:
+            if parsed.username:
+                password = unquote(parsed.username)
+            else:
+                # fallback manual extraction
+                core = line[len("trojan://"):]
+
+                if "@" not in core:
+                    return None
+
+                password = core.split("@", 1)[0]
+                password = unquote(password)
+
+        except Exception:
+            return None
+
+        if not host or not port:
+            return None
 
         query = {
             k: v[-1]
             for k, v in parse_qs(parsed.query).items()
         }
-
-        name = unquote(parsed.fragment) if parsed.fragment else ""
 
         node = {
             "type": "trojan",
@@ -658,11 +681,15 @@ def parse_trojan(line, line_number=None):
             node["sni"] = sni
             node["servername"] = sni
 
+        # Fingerprint
+        if "fp" in query:
+            node["client-fingerprint"] = query["fp"]
+
         # Network
         if "type" in query:
             node["network"] = query["type"]
 
-        # WS
+        # WebSocket
         if node.get("network") == "ws":
             ws_opts = {"path": urllib.parse.unquote(query.get("path", "/"))}
             if "host" in query:
