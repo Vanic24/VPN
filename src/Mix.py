@@ -1141,7 +1141,7 @@ def parse_ssr(line, line_number=None):
 # -----------------------------------------------------------
 def parse_socks(line, line_number=None):
     try:
-        if not line or not line.startswith("socks://"):
+        if not line or not line.startswith("socks5://"):
             return None
 
         raw = line[8:].strip()
@@ -1244,7 +1244,7 @@ def parse_node_line(line, line_number=None):
         if line.startswith("ssr://"):
             return parse_ssr(line, line_number)
 
-        if line.startswith("socks://"):
+        if line.startswith("socks5://"):
             return parse_socks(line, line_number)
 
         return None
