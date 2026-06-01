@@ -1137,6 +1137,58 @@ def parse_ssr(line, line_number=None):
         return None
 
 # -----------------------------------------------------------
+# SOCKS Parser
+# -----------------------------------------------------------
+def parse_socks(line, line_number=None):
+    try:
+        if not line or not line.startswith("socks://"):
+            return None
+
+        raw = line[8:].strip()
+
+        # -------- tag --------
+        tag = ""
+
+        if "#" in raw:
+            raw, tag = raw.split("#", 1)
+            tag = urllib.parse.unquote(tag.strip())
+
+        raw = raw.strip()
+
+        username = ""
+        password = ""
+
+        # -------- auth --------
+        if "@" in raw:
+            auth, srvp = raw.rsplit("@", 1)
+
+            if ":" in auth:
+                username, password = auth.split(":", 1)
+            else:
+                username = auth
+        else:
+            srvp = raw
+
+        # -------- server / port --------
+        server, port = parse_server_port(srvp)
+
+        node = {
+            "server": server,
+            "server_port": port,
+            "tag": tag or "SOCKS Node",
+            "type": "socks",
+            "attach": "",
+            "username": username,
+            "password": password
+        }
+
+        return node
+
+    except Exception as e:
+        print(f"[warn] ❗SOCKS parse error -> Line {line_number}: {e}")
+        return None
+
+# -----------------------------------------------------------
 # Normalize MUX
 # -----------------------------------------------------------
 def normalize_mux(node):
