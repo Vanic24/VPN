@@ -1079,7 +1079,24 @@ def parse_ss(line, line_number=None):
             node["plugin"] = plugin
 
         if plugin_opts:
-            node["plugin-opts"] = plugin_opts
+            # normalize obfs-local for Clash compatibility
+            if plugin == "obfs-local":
+                normalized_opts = {}
+        
+                if "obfs" in plugin_opts:
+                    normalized_opts["mode"] = plugin_opts["obfs"]
+        
+                if "obfs-host" in plugin_opts:
+                    normalized_opts["host"] = plugin_opts["obfs-host"]
+        
+                # preserve extras
+                for k, v in plugin_opts.items():
+                    if k not in ("obfs", "obfs-host"):
+                        normalized_opts[k] = v
+        
+                node["plugin-opts"] = normalized_opts
+            else:
+                node["plugin-opts"] = plugin_opts
 
         return node
 
@@ -1156,8 +1173,6 @@ def parse_socks(line, line_number=None):
             
         elif line.startswith("socks://"):
             raw = line[len("socks://"):].strip()
-
-        raw = line[8:].strip()
 
         # -------- tag --------
         tag = ""
