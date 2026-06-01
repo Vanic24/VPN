@@ -1244,6 +1244,9 @@ def parse_node_line(line, line_number=None):
         if line.startswith("ssr://"):
             return parse_ssr(line, line_number)
 
+        if line.startswith("socks://"):
+            return parse_socks(line, line_number)
+
         return None
 
     except Exception as e:
