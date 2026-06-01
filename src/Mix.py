@@ -351,16 +351,6 @@ def decode_base64(data: str) -> str:
     except Exception:
         return ""
 
-# -----------------------------------------------------------
-# Helper: base64 encode without padding
-# -----------------------------------------------------------
-def encode_base64(data: str) -> str:
-    try:
-        return base64.urlsafe_b64encode(data.encode("utf-8")).decode("utf-8").rstrip("=")
-
-    except Exception:
-        return ""
-
 def safe_int(value, default=0):
     try:
         if value is None or value == "":
