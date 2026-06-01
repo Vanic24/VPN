@@ -1201,13 +1201,12 @@ def parse_socks(line, line_number=None):
         server, port = parse_server_port(srvp)
 
         node = {
-            "server": server,
-            "server_port": port,
-            "tag": tag or "SOCKS Node",
             "type": "socks",
-            "attach": "",
+            "name": tag or "SOCKS Node",
+            "server": server,
+            "port": port,
             "username": username,
-            "password": password
+            "password": password,
         }
 
         return node
