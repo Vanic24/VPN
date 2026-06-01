@@ -1137,6 +1137,58 @@ def parse_ssr(line, line_number=None):
         return None
 
 # -----------------------------------------------------------
+# SOCKS / SOCKS5 Parser
+# -----------------------------------------------------------
+def parse_socks(line, line_number=None):
+    try:
+        if line.startswith("socks5://"):
+            raw = line[len("socks5://"):].strip()
+            
+        elif line.startswith("socks://"):
+            raw = line[len("socks://"):].strip()
+
+        # -------- tag --------
+        tag = ""
+
+        if "#" in raw:
+            raw, tag = raw.split("#", 1)
+            tag = urllib.parse.unquote(tag.strip())
+
+        raw = raw.strip()
+
+        username = ""
+        password = ""
+
+        # -------- auth --------
+        if "@" in raw:
+            auth, srvp = raw.rsplit("@", 1)
+
+            if ":" in auth:
+                username, password = auth.split(":", 1)
+            else:
+                username = auth
+        else:
+            srvp = raw
+
+        # -------- server / port --------
+        server, port = parse_server_port(srvp)
+
+        node = {
+            "type": "socks",
+            "name": tag or "SOCKS Node",
+            "server": server,
+            "port": port,
+            "username": username,
+            "password": password,
+        }
+
+        return node
+
+    except Exception as e:
+        print(f"[warn] ❗SOCKS parse error -> Line {line_number}: {e}")
+        return None
+
+# -----------------------------------------------------------
 # Normalize MUX
 # -----------------------------------------------------------
 def normalize_mux(node):
@@ -1191,6 +1243,9 @@ def parse_node_line(line, line_number=None):
         
         if line.startswith("ssr://"):
             return parse_ssr(line, line_number)
+
+        if line.startswith(("socks://", "socks5://")):
+            return parse_socks(line, line_number)
 
         return None
 
@@ -1663,4 +1718,3 @@ def upload_to_textdb():
 # ---------------- Entry ----------------
 if __name__ == "__main__":
     main()
-    
