@@ -1,4 +1,4 @@
-# Last update: 12.06.2026 19:21:40
+# Last update: 13.06.2026 02:33:20
 mixed-port: 7897
 allow-lan: false
 mode: rule
@@ -121,47 +121,80 @@ dns:
       - +.googleapis.com
       - +.gvt1.com
 proxies:
+- {name: "🇺🇸 US-1 | Filter", type: "anytls", server: "ae8413f3-teisg0-tgl134-1h240.se.hyhuawei.com", port: 443, password: "28a5ce18-e7a1-11ec-91b2-f23c91cfbbc9", sni: "ae8413f3-teisg0-tgl134-1h240.se.hyhuawei.com", servername: "ae8413f3-teisg0-tgl134-1h240.se.hyhuawei.com", skip-cert-verify: true, udp: false, tfo: false}
 - {name: "🇨🇭 CH-1 | Filter", type: "vless", server: "83.228.235.106", port: 2082, uuid: "b300edfb-02c0-4a1d-bbb5-1817d9e16927", network: "xhttp", sni: "cdn.nobitex.ir", servername: "cdn.nobitex.ir", skip-cert-verify: true, client-fingerprint: "chrome", xhttp-opts: {host: "cdn.nobitex.ir", headers: {"Host": "cdn.nobitex.ir"}}, tls: true, reality-opts: {public-key: "KuyvsRNilBVQddf249fQhud8aPESqNMZLRb7UXwVgWI", short-id: "d6d0"}, tfo: false, udp: false}
 - {name: "🇸🇬 SG-1 | Filter", type: "vless", server: "172.66.40.229", port: 2096, uuid: "70252937-5c61-4fb0-8656-d1a16261b795", network: "ws", sni: "group.shalana.xyz", servername: "group.shalana.xyz", skip-cert-verify: true, client-fingerprint: "chrome", ws-opts: {path: "/shalana", headers: {"Host": "group.shalana.xyz"}}, tls: true, tfo: false, udp: false}
 - {name: "🇨🇭 CH-2 | Filter", type: "vless", server: "172.65.111.43", port: 22, uuid: "monacoVPN", network: "http", skip-cert-verify: true, tfo: false, udp: false}
 - {name: "🇰🇷 KR-1 | Filter", type: "vless", server: "15.164.228.35", port: 8686, uuid: "1a17b19d-4896-4531-af79-6e91d8ef8228", sni: "www.apple.com", servername: "www.apple.com", skip-cert-verify: true, client-fingerprint: "chrome", tls: true, reality-opts: {public-key: "A3NXnUIT-W0m1Y_leRnv5so2IeCvk9FCFgL31PulfTw", short-id: "628b3c90c98ead4f"}, tfo: false, udp: false}
-- {name: "🇩🇪 DE-1 | Filter", type: "vless", server: "167.82.0.1", port: 80, uuid: "0058c215-ab1e-400c-a403-b5b2fda7e846", network: "ws", skip-cert-verify: true, ws-opts: {path: "/", headers: {"Host": "max-gb1.global.ssl.fastly.net"}}, tfo: false, udp: false}
-- {name: "🇺🇸 US-1 | Filter", type: "vless", server: "185.170.154.202", port: 443, uuid: "df7a61b3-fcfb-4e88-aea6-460f83a32823", sni: "nodg.me3op.site", servername: "nodg.me3op.site", skip-cert-verify: true, client-fingerprint: "chrome", tls: true, reality-opts: {public-key: "T6p0Kn_9VfKQfBrDoBEuPoNZYNeY0VFrl6H6bmh3xhk", short-id: "3fa80f1d8a977c80"}, flow: "xtls-rprx-vision", tfo: false, udp: false}
+- {name: "🇩🇪 DE-1 | Filter", type: "vless", server: "167.82.0.1", port: 80, uuid: "cabbfe13-038b-4dbb-9c45-5079c829abfa", network: "ws", skip-cert-verify: true, ws-opts: {path: "/", headers: {"Host": "max-gb1.global.ssl.fastly.net"}}, tfo: false, udp: false}
+- {name: "🇺🇸 US-2 | Filter", type: "vless", server: "185.170.154.202", port: 443, uuid: "df7a61b3-fcfb-4e88-aea6-460f83a32823", sni: "nodg.me3op.site", servername: "nodg.me3op.site", skip-cert-verify: true, client-fingerprint: "chrome", tls: true, reality-opts: {public-key: "T6p0Kn_9VfKQfBrDoBEuPoNZYNeY0VFrl6H6bmh3xhk", short-id: "3fa80f1d8a977c80"}, flow: "xtls-rprx-vision", tfo: false, udp: false}
 - {name: "🇬🇧 GB-1 | Filter", type: "vless", server: "31.76.115.10", port: 443, uuid: "df7a61b3-fcfb-4e88-aea6-460f83a32823", sni: "help.me3op.site", servername: "help.me3op.site", skip-cert-verify: true, client-fingerprint: "chrome", tls: true, reality-opts: {public-key: "AT8TNQB1qRljPMmLuTa2Rj765qAr8XbC3D9YpEpxkw0", short-id: "abcdef12"}, flow: "xtls-rprx-vision", tfo: false, udp: false}
 - {name: "🇸🇪 SE-1 | Filter", type: "vless", server: "194.26.229.161", port: 443, uuid: "5729c1fc-c7cf-41b7-8c17-f9b5f59772da", sni: "se.sellflow.org", servername: "se.sellflow.org", skip-cert-verify: true, client-fingerprint: "chrome", tls: true, reality-opts: {public-key: "SbVKOEMjK0sIlbwg4akyBg5mL5KZwwB-ed4eEE7YnRc"}, flow: "xtls-rprx-vision", tfo: false, udp: false}
 - {name: "🇳🇱 NL-1 | Filter", type: "vless", server: "nl08.abvpn.ru", port: 443, uuid: "95e118b4-4352-4218-8493-f20cc7fc467a", network: "ws", skip-cert-verify: true, client-fingerprint: "chrome", ws-opts: {path: "/websocket"}, tls: true, tfo: false, udp: false}
-- {name: "🇩🇪 DE-2 | Filter", type: "vless", server: "192.0.63.255", port: 2083, uuid: "8ccf871b-6586-44ad-9b4c-e7c6097eac59", network: "ws", sni: "liz1.jooje.lat", servername: "liz1.jooje.lat", skip-cert-verify: true, client-fingerprint: "chrome", ws-opts: {path: "/?ed=2560", headers: {"Host": "liz1.jooje.lat"}}, tls: true, tfo: false, udp: false}
-- {name: "🇳🇱 NL-2 | Filter", type: "vless", server: "77.91.127.214", port: 443, uuid: "3bb03d0d-d44d-47e9-9611-0f4a3a29498f", sni: "reg.rtnode.site", servername: "reg.rtnode.site", skip-cert-verify: true, client-fingerprint: "chrome", tls: true, reality-opts: {public-key: "0Go-FYYj0kU_Q39z3ssrlt_RwkbCyAJLBF7cjRBxSHQ", short-id: "3604d8ae786a553d"}, flow: "xtls-rprx-vision", tfo: false, udp: false}
+- {name: "🇩🇪 DE-2 | Filter", type: "vless", server: "151.101.0.1", port: 80, uuid: "0058c215-ab1e-400c-a403-b5b2fda7e846", network: "ws", skip-cert-verify: true, ws-opts: {path: "/", headers: {"Host": "max-gb1.global.ssl.fastly.net"}}, tfo: false, udp: false}
+- {name: "🇩🇪 DE-3 | Filter", type: "vless", server: "speedtest.net", port: 80, uuid: "cabbfe13-038b-4dbb-9c45-5079c829abfa", network: "ws", sni: "max-gb1.global.ssl.fastly.net", servername: "max-gb1.global.ssl.fastly.net", skip-cert-verify: true, ws-opts: {path: "/", headers: {"Host": "max-gb1.global.ssl.fastly.net"}}, tfo: false, udp: false}
+- {name: "🇩🇪 DE-4 | Filter", type: "vless", server: "151.101.2.219", port: 80, uuid: "0058c215-ab1e-400c-a403-b5b2fda7e846", network: "ws", skip-cert-verify: true, ws-opts: {path: "/", headers: {"Host": "max-gb1.global.ssl.fastly.net"}}, tfo: false, udp: false}
+- {name: "🇩🇪 DE-5 | Filter", type: "vless", server: "151.101.194.219", port: 80, uuid: "0058c215-ab1e-400c-a403-b5b2fda7e846", network: "ws", sni: "max-gb1.global.ssl.fastly.net", servername: "max-gb1.global.ssl.fastly.net", skip-cert-verify: true, ws-opts: {path: "/", headers: {"Host": "max-gb1.global.ssl.fastly.net"}}, tfo: false, udp: false}
+- {name: "🇩🇪 DE-6 | Filter", type: "vless", server: "151.101.130.219", port: 80, uuid: "0058c215-ab1e-400c-a403-b5b2fda7e846", network: "ws", skip-cert-verify: true, ws-opts: {path: "/", headers: {"Host": "max-gb1.global.ssl.fastly.net"}}, tfo: false, udp: false}
+- {name: "🇩🇪 DE-7 | Filter", type: "vless", server: "151.101.66.219", port: 80, uuid: "cabbfe13-038b-4dbb-9c45-5079c829abfa", network: "ws", skip-cert-verify: true, ws-opts: {path: "/", headers: {"Host": "max-gb1.global.ssl.fastly.net"}}, tfo: false, udp: false}
+- {name: "🇺🇸 US-3 | Filter", type: "vless", server: "1.sdwan.realm-sync.com", port: 60776, uuid: "8faf6e38-0531-4d63-91f0-2aba5b9ff864", sni: "swcdn.apple.com", servername: "swcdn.apple.com", skip-cert-verify: true, client-fingerprint: "random", tls: true, reality-opts: {public-key: "rPR7TUpmOpwShZeyLs2QFa46zzCBNkNdYkxe7-trUUc", short-id: "63290ae7179078"}, flow: "xtls-rprx-vision", tfo: false, udp: false}
+- {name: "🇳🇱 NL-2 | Filter", type: "vless", server: "cdn3-87.vk-cdnvideo.com", port: 8443, uuid: "931729a8-3c20-4841-89a1-f18dc9ce0a6f", sni: "cdn3-87.vk-cdnvideo.com", servername: "cdn3-87.vk-cdnvideo.com", skip-cert-verify: true, client-fingerprint: "chrome", tls: true, tfo: false, udp: false}
+- {name: "🇸🇰 SK-1 | Filter", type: "vless", server: "cdn7-39.vk-cdnvideo.com", port: 8443, uuid: "931729a8-3c20-4841-89a1-f18dc9ce0a6f", sni: "cdn7-39.vk-cdnvideo.com", servername: "cdn7-39.vk-cdnvideo.com", skip-cert-verify: true, client-fingerprint: "chrome", tls: true, tfo: false, udp: false}
+- {name: "🇩🇪 DE-8 | Filter", type: "vless", server: "sw.pink-perfect.ru", port: 443, uuid: "8ea0665e-dee3-418c-8822-1f70f350f2db", sni: "yandex.net", servername: "yandex.net", skip-cert-verify: true, client-fingerprint: "chrome", tls: true, reality-opts: {public-key: "2fgsbEAn-ALVpjnE4ZTPrzaZY70vVplYwldCnslInE0", short-id: "86b80f1e713a33ad"}, flow: "xtls-rprx-vision", tfo: false, udp: false}
+- {name: "🇮🇪 IE-1 | Filter", type: "vmess", server: "103.182.97.12", port: 30808, uuid: "cbb3f877-d1fb-344c-87a9-d153bffd5484", skip-cert-verify: true, alterId: 2, cipher: "auto", tfo: false, udp: false}
+- {name: "🇮🇪 IE-2 | Filter", type: "vmess", server: "v8.hdacd.com", port: 30808, uuid: "cbb3f877-d1fb-344c-87a9-d153bffd5484", skip-cert-verify: true, alterId: 2, cipher: "auto", tfo: false, udp: false}
 proxy-groups:
   - name: 选择线路
     type: select
     proxies:
       - 自动选择⚡️
+      - 🇺🇸 US-1 | Filter
       - 🇨🇭 CH-1 | Filter
       - 🇸🇬 SG-1 | Filter
       - 🇨🇭 CH-2 | Filter
       - 🇰🇷 KR-1 | Filter
       - 🇩🇪 DE-1 | Filter
-      - 🇺🇸 US-1 | Filter
+      - 🇺🇸 US-2 | Filter
       - 🇬🇧 GB-1 | Filter
       - 🇸🇪 SE-1 | Filter
       - 🇳🇱 NL-1 | Filter
       - 🇩🇪 DE-2 | Filter
+      - 🇩🇪 DE-3 | Filter
+      - 🇩🇪 DE-4 | Filter
+      - 🇩🇪 DE-5 | Filter
+      - 🇩🇪 DE-6 | Filter
+      - 🇩🇪 DE-7 | Filter
+      - 🇺🇸 US-3 | Filter
       - 🇳🇱 NL-2 | Filter
+      - 🇸🇰 SK-1 | Filter
+      - 🇩🇪 DE-8 | Filter
+      - 🇮🇪 IE-1 | Filter
+      - 🇮🇪 IE-2 | Filter
   - name: 自动选择⚡️
     type: url-test
     proxies:
+      - 🇺🇸 US-1 | Filter
       - 🇨🇭 CH-1 | Filter
       - 🇸🇬 SG-1 | Filter
       - 🇨🇭 CH-2 | Filter
       - 🇰🇷 KR-1 | Filter
       - 🇩🇪 DE-1 | Filter
-      - 🇺🇸 US-1 | Filter
+      - 🇺🇸 US-2 | Filter
       - 🇬🇧 GB-1 | Filter
       - 🇸🇪 SE-1 | Filter
       - 🇳🇱 NL-1 | Filter
       - 🇩🇪 DE-2 | Filter
+      - 🇩🇪 DE-3 | Filter
+      - 🇩🇪 DE-4 | Filter
+      - 🇩🇪 DE-5 | Filter
+      - 🇩🇪 DE-6 | Filter
+      - 🇩🇪 DE-7 | Filter
+      - 🇺🇸 US-3 | Filter
       - 🇳🇱 NL-2 | Filter
+      - 🇸🇰 SK-1 | Filter
+      - 🇩🇪 DE-8 | Filter
+      - 🇮🇪 IE-1 | Filter
+      - 🇮🇪 IE-2 | Filter
     url: https://www.gstatic.com/generate_204
     interval: 300
 rules:
