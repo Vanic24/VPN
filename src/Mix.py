@@ -642,13 +642,13 @@ def parse_trojan(line, line_number=None):
         query = {}
         if "?" in rest:
             host_port, q = rest.split("?", 1)
-            query = {k: v[-1] for k, v in urllib.parse.parse_qs(q).items()}
-        
-            print("RAW QUERY :", q)
-        
-            if "path" in query:
-                print("PARSED PATH:", repr(query["path"]))
-        
+            query = {}
+
+            for part in q.split("&"):
+                if "=" in part:
+                    k, v = part.split("=", 1)
+                    query[k] = urllib.parse.unquote(v)
+                    
         else:
             host_port = rest
 
