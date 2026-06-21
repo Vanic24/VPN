@@ -693,7 +693,7 @@ def parse_trojan(line, line_number=None):
         if node.get("network") == "ws":
             ws_opts = {"path": urllib.parse.unquote(query.get("path", "/"))}
             if "host" in query:
-                ws_opts["headers"] = {"Host": [query["host"]]}
+                ws_opts["headers"] = {"Host": query["host"]}
             node["ws-opts"] = ws_opts
 
         # gRPC
@@ -1641,46 +1641,21 @@ def main():
         # Line by line YAML proxies output format
         def make_single_line_yaml(proxies):
             lines = []
-        
             for p in proxies:
-        
-                def yaml_value(v):
+                # Convert nested dicts safely
+                def to_yaml_value(v):
                     if isinstance(v, dict):
-                        inner = ", ".join(
-                            f"{k}: {yaml_value(vv)}"
-                            for k, vv in v.items()
-                        )
-                        return "{ " + inner + " }"
-        
-                    elif isinstance(v, list):
-                        return "[" + ", ".join(
-                            yaml_value(x) for x in v
-                        ) + "]"
-        
-                    elif isinstance(v, bool):
-                        return "true" if v else "false"
-        
-                    elif isinstance(v, (int, float)):
-                        return str(v)
-        
+                        inner = ", ".join(f"{k}: {json.dumps(vv, ensure_ascii=False)}" for k, vv in v.items())
+                        return "{" + inner + "}"
                     else:
-                        # IMPORTANT:
-                        # preserve emoji and special chars
-                        return json.dumps(
-                            str(v),
-                            ensure_ascii=False
-                        )
+                        return json.dumps(v, ensure_ascii=False)
         
                 parts = []
-        
                 for k, v in p.items():
-                    parts.append(
-                        f"{k}: {yaml_value(v)}"
-                    )
+                    parts.append(f"{k}: {to_yaml_value(v)}")
         
-                lines.append(
-                    "- { " + ", ".join(parts) + " }"
-                )
+                line = "- {" + ", ".join(parts) + "}"
+                lines.append(line)
         
             return "\n".join(lines)
             
