@@ -1640,12 +1640,49 @@ def main():
 
         # Line by line YAML proxies output format
         def make_single_line_yaml(proxies):
-            return yaml.dump(
-                proxies,
-                allow_unicode=True,
-                default_flow_style=True,
-                sort_keys=False
-            )
+            lines = []
+        
+            for p in proxies:
+        
+                def yaml_value(v):
+                    if isinstance(v, dict):
+                        inner = ", ".join(
+                            f"{k}: {yaml_value(vv)}"
+                            for k, vv in v.items()
+                        )
+                        return "{ " + inner + " }"
+        
+                    elif isinstance(v, list):
+                        return "[" + ", ".join(
+                            yaml_value(x) for x in v
+                        ) + "]"
+        
+                    elif isinstance(v, bool):
+                        return "true" if v else "false"
+        
+                    elif isinstance(v, (int, float)):
+                        return str(v)
+        
+                    else:
+                        # IMPORTANT:
+                        # preserve emoji and special chars
+                        return json.dumps(
+                            str(v),
+                            ensure_ascii=False
+                        )
+        
+                parts = []
+        
+                for k, v in p.items():
+                    parts.append(
+                        f"{k}: {yaml_value(v)}"
+                    )
+        
+                lines.append(
+                    "- { " + ", ".join(parts) + " }"
+                )
+        
+            return "\n".join(lines)
             
         # ---------------- Convert to YAML ----------------
         proxies_yaml_block = make_single_line_yaml(info_ordered_dicts)    #If multiple lines format is needed, Delete Line by line YAML proxies output format code block, proxies_yaml_block = yaml.dump(info_ordered_dicts, allow_unicode=True, default_flow_style=False, sort_keys=False)
