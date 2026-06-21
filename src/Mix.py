@@ -693,7 +693,7 @@ def parse_trojan(line, line_number=None):
         if node.get("network") == "ws":
             ws_opts = {"path": urllib.parse.unquote(query.get("path", "/"))}
             if "host" in query:
-                ws_opts["headers"] = {"Host": query["host"]}
+                ws_opts["headers"] = {"Host": [query["host"]]}
             node["ws-opts"] = ws_opts
 
         # gRPC
