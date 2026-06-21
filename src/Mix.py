@@ -645,9 +645,6 @@ def parse_trojan(line, line_number=None):
             query = {k: v[-1] for k, v in urllib.parse.parse_qs(q).items()}
         else:
             host_port = rest
-                    
-        else:
-            host_port = rest
 
         # Remove optional trailing slash
         host_port = host_port.rstrip("/")
