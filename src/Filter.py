@@ -727,7 +727,7 @@ def parse_hysteria2(line, line_number=None):
         query = dict(urllib.parse.parse_qsl(parsed.query))
         name = urllib.parse.unquote(parsed.fragment or "Hysteria2 Node")
 
-        if not host or not port:
+        if not host or port is None:
             return None
 
         node = {
