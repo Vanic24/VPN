@@ -727,6 +727,14 @@ def parse_hysteria2(line, line_number=None):
         query = dict(urllib.parse.parse_qsl(parsed.query))
         name = urllib.parse.unquote(parsed.fragment or "Hysteria2 Node")
 
+        if port == 0 and "mport" in query:
+            mport = query["mport"]
+        
+            if "-" in mport:
+                port = safe_int(mport.split("-", 1)[0])
+            else:
+                port = safe_int(mport)
+
         if not host or port is None:
             return None
 
