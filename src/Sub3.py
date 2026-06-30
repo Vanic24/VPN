@@ -727,13 +727,16 @@ def parse_hysteria2(line, line_number=None):
         query = dict(urllib.parse.parse_qsl(parsed.query))
         name = urllib.parse.unquote(parsed.fragment or "Hysteria2 Node")
 
+        # ---------------------------------------------------
+        # Port hopping support (port=0 + mport)
+        # ---------------------------------------------------
         if port == 0 and "mport" in query:
-            mport = query["mport"]
-        
-            if "-" in mport:
-                port = safe_int(mport.split("-", 1)[0])
+            rng = query["mport"]
+
+            if "-" in rng:
+                port = safe_int(rng.split("-", 1)[0])
             else:
-                port = safe_int(mport)
+                port = safe_int(rng)
 
         if not host or port is None:
             return None
@@ -744,47 +747,96 @@ def parse_hysteria2(line, line_number=None):
             "server": host,
             "port": int(port),
             "password": password,
+            "udp": True,
         }
 
-        # ---------------- TLS ----------------
-        tls = {}
+        # ---------------------------------------------------
+        # mport / server_ports
+        # ---------------------------------------------------
+        if "mport" in query:
+            node["mport"] = query["mport"]
+            node["server_ports"] = [
+                query["mport"].replace("-", ":")
+            ]
+
+        # ---------------------------------------------------
+        # TLS
+        # ---------------------------------------------------
+        tls = {
+            "enabled": True
+        }
 
         if "sni" in query:
             tls["server_name"] = query["sni"]
+            node["sni"] = query["sni"]
 
-        if "insecure" in query:
-            tls["insecure"] = query["insecure"].lower() in ("1", "true", "yes")
+        # pinSHA256 -> fingerprint
+        if "pinSHA256" in query:
+            node["fingerprint"] = query["pinSHA256"]
 
-        if tls:
-            tls["enabled"] = True
-            node["tls"] = tls
-            node["skip-cert-verify"] = tls.get("insecure", False)
+            # Karing imports certificate pinning as insecure=true
+            tls["insecure"] = True
 
-        # ---------------- OBFS ----------------
+        elif "allowInsecure" in query:
+            tls["insecure"] = query["allowInsecure"].lower() in (
+                "1", "true", "yes"
+            )
+
+        elif "insecure" in query:
+            tls["insecure"] = query["insecure"].lower() in (
+                "1", "true", "yes"
+            )
+
+        else:
+            tls["insecure"] = False
+
+        node["tls"] = tls
+        node["skip-cert-verify"] = tls["insecure"]
+
+        # ---------------------------------------------------
+        # OBFS
+        # ---------------------------------------------------
         if "obfs" in query:
             node["obfs"] = query["obfs"]
 
         if "obfs-password" in query:
             node["obfs-password"] = query["obfs-password"]
 
-        # ---------------- ALPN ----------------
+        # ---------------------------------------------------
+        # ALPN
+        # ---------------------------------------------------
         if "alpn" in query:
-            node["alpn"] = query["alpn"].split(",")
+            node["alpn"] = [
+                x.strip()
+                for x in query["alpn"].split(",")
+                if x.strip()
+            ]
 
-        # ---------------- Speed ----------------
+        # ---------------------------------------------------
+        # Speed
+        # ---------------------------------------------------
         if "up" in query:
             node["up"] = query["up"]
 
         if "down" in query:
             node["down"] = query["down"]
 
+        # ---------------------------------------------------
+        # Prevent duplicate fields
+        # ---------------------------------------------------
+        query.pop("sni", None)
+        query.pop("insecure", None)
+        query.pop("allowInsecure", None)
+        query.pop("pinSHA256", None)
+
         node = merge_dynamic_fields(node, query)
 
         return node
 
-    except Exception:
-        print(f"[warn] ❗Hysteria2 parse error -> Line {line_number}")
+    except Exception as e:
+        print(f"[warn] ❗Hysteria2 parse error -> Line {line_number}: {e}")
         return None
+        
 # -----------------------------------------------------------
 # ANYTLS Parser
 # -----------------------------------------------------------
@@ -1726,4 +1778,3 @@ def upload_to_textdb():
 # ---------------- Entry ----------------
 if __name__ == "__main__":
     main()
-    
