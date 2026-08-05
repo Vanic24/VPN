@@ -458,6 +458,41 @@ def parse_vmess(line, line_number=None):
         if not line or not line.startswith("vmess://"):
             return None
 
+        # VMESS URI FORMAT
+        if "@" in line:
+            parsed = urllib.parse.urlparse(line)
+            uuid = urllib.parse.unquote(parsed.username or "")
+            host = parsed.hostname
+            port = parsed.port
+            query = {k: v[-1] for k, v in urllib.parse.parse_qs(parsed.query, keep_blank_values=True).items()}
+            name = urllib.parse.unquote(parsed.fragment or "VMESS Node")
+
+            if not uuid or not host or not port:
+                return None
+
+            node = {
+                "type": "vmess",
+                "name": name,
+                "server": host,
+                "port": int(port),
+                "uuid": uuid,
+                "alterId": 0,
+                "cipher": query.get("encryption", "auto"),
+                "network": query.get("type", "tcp"),
+                "udp": True,
+            }
+
+            # TLS
+            security = query.get("security")
+            if security == "tls": node["tls"] = {"enabled": True}
+
+            # TCP
+            if node["network"] == "tcp": node["network"] = "tcp"
+            node = merge_dynamic_fields(node, query)
+            node["_key_order"] = list(node.keys())
+
+            return node
+
         # Decode
         raw = line[8:]
         decoded = decode_base64(raw)
