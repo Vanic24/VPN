@@ -1899,16 +1899,16 @@ def main():
         local_time = utc_now + offset
         timestamp = local_time.strftime("%d.%m.%Y %H:%M:%S")
 
-        # ---------------- Write output ----------------
+        # ---------------- Final output ----------------
         with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
             f.write(f"# Last update: {timestamp}\n" + output_text)
-        print(f"[done] 💾 Wrote {OUTPUT_FILE}")
+        print(f"[done] 💾 Final subscription generated using clash template")
 
         # Upload to textdb only after all upper processes successful processing
         upload_to_textdb()
 
     except Exception as e:
-        print("[⚠️FATAL ERROR in main]", str(e))
+        print("[⚠️ FATAL ERROR in main]", str(e))
         traceback.print_exc()
         sys.exit(1)
 
@@ -1921,6 +1921,7 @@ def upload_to_textdb():
 
         # Step 2: Delete old data
         delete_resp = session.post(TEXTDB_API, data={"value": ""})
+        
         if delete_resp.status_code == 200:
             print("[info] 🗑️ Successfully deleted old data on textdb")
         else:
@@ -1932,6 +1933,7 @@ def upload_to_textdb():
 
         # Step 3: Upload new data
         upload_resp = session.post(TEXTDB_API, data={"value": output_text})
+        
         if upload_resp.status_code == 200:
             print("[info] 📤 Successfully uploaded new data on textdb")
         else:
