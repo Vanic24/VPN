@@ -1441,7 +1441,7 @@ def parse_node_line(line, line_number=None):
             return parse_socks(line, line_number)
 
         if line.startswith(("http://", "https://")):
-            return parse_https(line, line_number)
+            return parse_http(line, line_number)
 
         return None
 
