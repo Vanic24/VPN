@@ -725,7 +725,7 @@ def parse_trojan(line, line_number=None):
 # -----------------------------------------------------------
 def parse_hysteria2(line, line_number=None):
     try:
-        if not (line.startswith("hysteria2://") or line.startswith("hy2://")):
+        if not (line.startswith("hysteria://") or line.startswith("hysteria2://") or line.startswith("hy2://")):
             return None
 
         # normalize
@@ -1324,7 +1324,7 @@ def parse_node_line(line, line_number=None):
         if line.startswith("trojan://"):
             return parse_trojan(line, line_number)
         
-        if line.startswith("hysteria2://") or line.startswith("hy2://"):
+        if line.startswith("hysteria://") or line.startswith("hysteria2://") or line.startswith("hy2://"):
             return parse_hysteria2(line, line_number)
         
         if line.startswith("anytls://"):
