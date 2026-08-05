@@ -1319,6 +1319,69 @@ def parse_socks(line, line_number=None):
         return None
 
 # -----------------------------------------------------------
+# HTTP / HTTPS Proxy Parser
+# -----------------------------------------------------------
+def parse_http(line, line_number=None):
+    try:
+        if not (
+            line.startswith("http://")
+            or line.startswith("https://")
+        ):
+            return None
+
+        # ---------------- Parse URL ----------------
+        parsed = urllib.parse.urlparse(line)
+        host = parsed.hostname
+        port = parsed.port
+
+        if not host:
+            return None
+
+        # Default ports
+        if not port:
+            if parsed.scheme == "https":
+                port = 443
+
+            else:
+                port = 80
+
+        # ---------------- Authentication ----------------
+        username = urllib.parse.unquote(parsed.username or "")
+        password = urllib.parse.unquote(parsed.password or "")
+
+        # ---------------- Name ----------------
+        name = urllib.parse.unquote(parsed.fragment or "HTTP Node")
+        node = {
+            "type": "http",
+            "name": name,
+            "server": host,
+            "port": int(port),
+        }
+
+        # ---------------- Auth ----------------
+        if username:
+            node["username"] = username
+
+        if password:
+            node["password"] = password
+
+        # ---------------- TLS ----------------
+        if parsed.scheme == "https": node["tls"] = {"enabled": True}
+
+        # ---------------- Query fields ----------------
+        query = {k: v[-1] for k, v in urllib.parse.parse_qs(parsed.query, keep_blank_values=True).items()}
+
+        # ---------------- Dynamic Fields ----------------
+        node = merge_dynamic_fields(node, query)
+        node["_key_order"] = list(node.keys())
+
+        return node
+
+    except Exception as e:
+        print(f"[warn] ❗HTTP parse error -> Line {line_number}: {e}")
+        return None
+
+# -----------------------------------------------------------
 # Normalize MUX
 # -----------------------------------------------------------
 def normalize_mux(node):
@@ -1359,7 +1422,7 @@ def parse_node_line(line, line_number=None):
         if line.startswith("trojan://"):
             return parse_trojan(line, line_number)
         
-        if line.startswith("hysteria://") or line.startswith("hysteria2://") or line.startswith("hy2://"):
+        if line.startswith(("hysteria://", "hysteria2://", "hy2://")):
             return parse_hysteria2(line, line_number)
         
         if line.startswith("anytls://"):
@@ -1376,6 +1439,9 @@ def parse_node_line(line, line_number=None):
 
         if line.startswith(("socks://", "socks5://")):
             return parse_socks(line, line_number)
+
+        if line.startswith(("http://", "https://")):
+            return parse_https(line, line_number)
 
         return None
 
