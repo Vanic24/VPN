@@ -1937,7 +1937,7 @@ def upload_to_textdb():
         if upload_resp.status_code == 200:
             print("[info] 📤 Successfully uploaded new data on textdb")
         else:
-            print(f"[warn] ❌Failed to upload new data on textdb: {upload_resp.status_code}")
+            print(f"[warn] ❌ Failed to upload new data on textdb: {upload_resp.status_code}")
             print(f"[warn] ❗Response: {upload_resp.text}")
 
     except Exception as e:
