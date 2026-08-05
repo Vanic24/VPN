@@ -1902,7 +1902,7 @@ def main():
         # ---------------- Final output ----------------
         with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
             f.write(f"# Last update: {timestamp}\n" + output_text)
-        print(f"[done] 💾Final subscription generated using clash template")
+        print(f"[done] 💾 Final subscription generated using clash template")
 
         # Upload to textdb only after all upper processes successful processing
         upload_to_textdb()
