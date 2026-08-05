@@ -458,6 +458,41 @@ def parse_vmess(line, line_number=None):
         if not line or not line.startswith("vmess://"):
             return None
 
+        # VMESS URI FORMAT
+        if "@" in line:
+            parsed = urllib.parse.urlparse(line)
+            uuid = urllib.parse.unquote(parsed.username or "")
+            host = parsed.hostname
+            port = parsed.port
+            query = {k: v[-1] for k, v in urllib.parse.parse_qs(parsed.query, keep_blank_values=True).items()}
+            name = urllib.parse.unquote(parsed.fragment or "VMESS Node")
+
+            if not uuid or not host or not port:
+                return None
+
+            node = {
+                "type": "vmess",
+                "name": name,
+                "server": host,
+                "port": int(port),
+                "uuid": uuid,
+                "alterId": 0,
+                "cipher": query.get("encryption", "auto"),
+                "network": query.get("type", "tcp"),
+                "udp": True,
+            }
+
+            # TLS
+            security = query.get("security")
+            if security == "tls": node["tls"] = {"enabled": True}
+
+            # TCP
+            if node["network"] == "tcp": node["network"] = "tcp"
+            node = merge_dynamic_fields(node, query)
+            node["_key_order"] = list(node.keys())
+
+            return node
+
         # Decode
         raw = line[8:]
         decoded = decode_base64(raw)
@@ -704,9 +739,7 @@ def parse_trojan(line, line_number=None):
             ws_opts = {"path": urllib.parse.unquote(query.get("path", "/"))}
             host_header = (query.get("host") or sni)
 
-            if host_header:
-                ws_opts["headers"] = {"Host": query["host"]}
-
+            if host_header: ws_opts["headers"] = {"Host": host_header}
             node["ws-opts"] = ws_opts
 
         # gRPC
@@ -727,7 +760,7 @@ def parse_trojan(line, line_number=None):
 # -----------------------------------------------------------
 def parse_hysteria2(line, line_number=None):
     try:
-        if not (line.startswith("hysteria2://") or line.startswith("hy2://")):
+        if not (line.startswith("hysteria://") or line.startswith("hysteria2://") or line.startswith("hy2://")):
             return None
 
         # normalize
@@ -1326,7 +1359,7 @@ def parse_node_line(line, line_number=None):
         if line.startswith("trojan://"):
             return parse_trojan(line, line_number)
         
-        if line.startswith("hysteria2://") or line.startswith("hy2://"):
+        if line.startswith("hysteria://") or line.startswith("hysteria2://") or line.startswith("hy2://"):
             return parse_hysteria2(line, line_number)
         
         if line.startswith("anytls://"):
