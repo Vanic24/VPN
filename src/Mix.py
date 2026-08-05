@@ -81,111 +81,125 @@ def tcp_latency_ms(host, port, timeout=2.0):
         return 9999
 
 def normalize_node(n):
+    """
+    Advanced non-destructive normalizer.
+    Purpose:
+    - Duplicate detection only
+    - Never used for final export
+    - Supports Clash + Sing-box/Karing formats
+    Original node remains untouched.
+    """
     if not isinstance(n, dict):
         return None
-
     n = copy.deepcopy(n)
 
-    # ---------------- safe nested objects ----------------
+    # Safe nested objects
     tls_obj = n.get("tls")
     if not isinstance(tls_obj, dict):
         tls_obj = {}
-
     transport_obj = n.get("transport")
+
     if not isinstance(transport_obj, dict):
         transport_obj = {}
-
     ws_opts = n.get("ws-opts")
+
     if not isinstance(ws_opts, dict):
         ws_opts = {}
-
     grpc_opts = n.get("grpc-opts")
+
     if not isinstance(grpc_opts, dict):
         grpc_opts = {}
-
     reality_opts = n.get("reality-opts")
+
     if not isinstance(reality_opts, dict):
         reality_opts = {}
+    plugin_opts = n.get("plugin-opts")
 
-    # ---------------- canonical fields ----------------
-    n["server"] = str(
-        n.get("server") or ""
-    ).strip().lower().rstrip(".")
+    if not isinstance(plugin_opts, dict):
+        plugin_opts = {}
 
+    # Server normalization
+    server = (n.get("server") or n.get("host") or "")
+    n["server"] = (str(server).strip().lower().rstrip("."))
+
+    # Port normalization
     try:
-        n["port"] = int(
-            n.get("port")
-            or n.get("server_port")
-            or 0
-        )
-    except:
+        n["port"] = int(n.get("port") or n.get("server_port") or 0)
+    except Exception:
         n["port"] = 0
 
-    n["type"] = str(
-        n.get("type") or ""
-    ).strip().lower()
+    # Protocol
+    n["type"] = (str(n.get("type") or "").strip().lower())
 
-    # ---------------- auth ----------------
-    auth = (
-        n.get("uuid")
-        or n.get("password")
-        or ""
-    )
+    # ---------------------------------------------------
+    # Authentication
+    # VMESS -> uuid
+    # VLESS -> uuid
+    # Trojan/HY2/SS -> password
+    # ---------------------------------------------------
+    auth = (n.get("uuid") or n.get("password") or "")
+    n["_auth"] = (str(auth).strip())
 
-    n["_auth"] = str(auth).strip()
-
-    # ---------------- security ----------------
+    # Security detection
     if reality_opts:
         n["_security"] = "reality"
 
-    elif tls_obj or n.get("tls") is True:
+    elif tls_obj:
         n["_security"] = "tls"
+
+    elif n.get("security"):
+        n["_security"] = str(n.get("security")).lower()
 
     else:
         n["_security"] = ""
 
-    # ---------------- sni ----------------
-    sni = (
-        n.get("sni")
-        or n.get("servername")
-        or n.get("server_name")
-        or tls_obj.get("server_name")
-        or ""
-    )
-
+    # SNI detection
+    sni = (n.get("sni") or n.get("servername") or n.get("server_name") or tls_obj.get("server_name") or "")
     n["_sni"] = str(sni).strip().lower()
 
-    # ---------------- network ----------------
-    network = (
-        n.get("network")
-        or transport_obj.get("type")
-        or "tcp"
-    )
+    # Network detection
+    network = (n.get("network") or transport_obj.get("type") or "")
+    if not network:
+        if ws_opts:
+            network = "ws"
 
-    n["_network"] = str(network).strip().lower()
+        elif grpc_opts:
+            network = "grpc"
 
-    # ---------------- path ----------------
+        else:
+            network = "tcp"
+    n["_network"] = (str(network).strip().lower())
+
+    # Path / service normalization
     path = ""
-
     if n["_network"] == "ws":
-
-        path = (
-            ws_opts.get("path")
-            or transport_obj.get("path")
-            or n.get("path")
-            or ""
-        )
+        path = (ws_opts.get("path") or transport_obj.get("path") or n.get("path") or "")
 
     elif n["_network"] == "grpc":
+        path = (grpc_opts.get("grpc-service-name") or grpc_opts.get("serviceName") or transport_obj.get("service_name") or n.get("serviceName") or "")
+    n["_path"] = (str(path).strip().lower())
 
-        path = (
-            grpc_opts.get("serviceName")
-            or grpc_opts.get("grpc-service-name")
-            or transport_obj.get("service_name")
-            or ""
-        )
+    # Reality public key / short id
+    reality_key = (reality_opts.get("public-key") or reality_opts.get("pbk") or n.get("pbk") or "")
+    reality_sid = (reality_opts.get("short-id") or reality_opts.get("sid") or n.get("sid") or "")
+    n["_reality_key"] = str(reality_key).strip()
+    n["_reality_sid"] = str(reality_sid).strip()
 
-    n["_path"] = str(path).strip().lower()
+    # HY2 special handling
+    n.pop("mport", None)
+    n.pop("server_ports", None)
+
+    # Remove unstable fields
+    for key in (
+        "name",
+        "tag",
+        "remark",
+        "ps",
+        "metadata",
+        "_original",
+        "_key_order"
+    ):
+        n.pop(key, None)
 
     return n
 
@@ -195,44 +209,39 @@ def deduplicate_nodes(nodes):
     removed = 0
 
     for raw_node in nodes:
-
-        n = normalize_node(raw_node)
-
-        if not n:
+        normalized = normalize_node(raw_node)
+        if not normalized:
             continue
 
-        if not n["_auth"]:
-            unique_nodes.append(n)
-            continue
-
+        # Build stable duplicate key
         key = (
-            n["type"],
-            n["server"],
-            n["port"],
-            n["_auth"],
-            n["_security"],
-            n["_sni"],
-            n["_network"],
-            n["_path"],
+            normalized.get("type", ""),
+            normalized.get("server", ""),
+            normalized.get("port", ""),
+
+            # authentication
+            normalized.get("_auth", ""),
+
+            # TLS / Reality
+            normalized.get("_security", ""),
+            normalized.get("_sni", ""),
+
+            # transport
+            normalized.get("_network", ""),
+            normalized.get("_path", ""),
+
+            # Reality
+            normalized.get("_reality_key", ""),
+            normalized.get("_reality_sid", ""),
         )
 
         if key in seen:
             removed += 1
-            continue
-
+            continue 
         seen.add(key)
 
-        # cleanup temp fields
-        for k in [
-            "_auth",
-            "_security",
-            "_sni",
-            "_network",
-            "_path",
-        ]:
-            n.pop(k, None)
-
-        unique_nodes.append(n)
+        # Keep original node, not normalized copy
+        unique_nodes.append(raw_node)
 
     return unique_nodes, removed
 
@@ -345,9 +354,11 @@ def load_sources():
 # -----------------------------------------------------------
 def decode_base64(data: str) -> str:
     try:
-        data = data.strip()
+        data = urllib.parse.unquote(data.strip())
         data += "=" * (-len(data) % 4)
-        return base64.urlsafe_b64decode(data).decode("utf-8")
+
+        return base64.urlsafe_b64decode(data).decode("utf-8", errors="ignore")
+
     except Exception:
         return ""
 
@@ -370,7 +381,6 @@ def merge_dynamic_fields(node, data):
     - Supports ALPN parsing
     - Supports URL decoding
     """
-
     # ---------------- remove metadata universally ---------------- 
     node.pop("metadata", None)
 
@@ -378,15 +388,15 @@ def merge_dynamic_fields(node, data):
     reserved = {
         # common normalized fields
         "name", "server", "port", "uuid", "password",
-        "cipher", "network", "tls", "alterId",
-        "servername", "type", "encryption",
+        "cipher", "network", "tls", "alterId", "fp", "client-fingerprint",
+        "type", "encryption", "headerType", "quicSecurity", "server_ports", "mport",
 
+        # tls / security fields
+        "sni", "servername", "server_name", "insecure", "allowInsecure", "security", "flow",
+        
         # raw fields (already normalized)
         "v", "ps", "add", "id", "aid", "net",
-        "scy", "host", "path", "tls", "sni",
-
-        # protocol transport fields
-        "security", "type", "flow",
+        "scy", "host", "path", "pbk", "sid",
 
         # ignore metadata
         "metadata"
@@ -428,32 +438,27 @@ def merge_dynamic_fields(node, data):
 # VMESS Parser
 # -----------------------------------------------------------
 def normalize_vmess_json(data):
-
     normalized = {}
 
     for k, v in data.items():
-
-        # null safety
         if v is None:
             normalized[k] = ""
 
-        # keep valid primitive types
         elif isinstance(v, (str, int, float, bool, list, dict)):
             normalized[k] = v
 
-        # weird objects
         else:
             normalized[k] = str(v)
 
     return normalized
-    
+
 # ---------------- Main VMESS parser ----------------
 def parse_vmess(line, line_number=None):
     try:
         if not line or not line.startswith("vmess://"):
             return None
-            
-        # ---------------- Decode ----------------
+
+        # Decode
         raw = line[8:]
         decoded = decode_base64(raw)
 
@@ -461,11 +466,10 @@ def parse_vmess(line, line_number=None):
             raise ValueError("Empty decode result")
 
         data = json.loads(decoded)
-
-        # Normalize ALL values (critical fix)
         data = normalize_vmess_json(data)
 
-        # ---------------- Core Fields ----------------
+        # ---------------- Core ----------------
+        network = (data.get("net") or data.get("type") or "tcp")
         node = {
             "type": "vmess",
             "name": data.get("ps") or "VMESS Node",
@@ -474,51 +478,71 @@ def parse_vmess(line, line_number=None):
             "uuid": data.get("id") or "",
             "alterId": safe_int(data.get("aid")),
             "cipher": data.get("scy") or "auto",
-            "network": data.get("net") or "tcp",
+            "network": network,
+            "udp": True,
         }
 
-        # ---------------- TLS Handling ----------------
+        # ---------------- TLS ----------------
         tls_val = data.get("tls")
-
-        if isinstance(tls_val, str):
-            tls_raw = tls_val.lower()
-        else:
-            tls_raw = str(tls_val).lower()
+        tls_enabled = False
         
-        node["tls"] = tls_raw in ("tls", "1", "true", "yes")
+        if isinstance(tls_val, str):
+            tls_enabled = tls_val.lower() in (
+                "tls",
+                "1",
+                "true",
+                "yes"
+            )
 
-        if node["tls"]:
-            node["servername"] = data.get("sni") or data.get("host") or ""
+        elif isinstance(tls_val, bool):
+            tls_enabled = tls_val
 
-        # ---------------- Network Handling ----------------
-        net = node["network"]
+        if tls_enabled:
+            tls = {"enabled": True}
+            sni = (data.get("sni") or data.get("host"))
 
-        if net == "ws":
-            node["ws-opts"] = {
-                "path": data.get("path") or "/",
-                "headers": {
-                    "Host": data.get("host") or ""
-                }
-            }
+            if sni:
+                tls["server_name"] = sni
+            node["tls"] = tls
 
-        elif net == "grpc":
-            node["grpc-opts"] = {
-                "grpc-service-name": data.get("path") or ""
-            }
+        # ---------------- Fingerprint ----------------
+        if data.get("fp"):
+            node["client-fingerprint"] = data["fp"]
 
-        elif net == "h2":
-            node["h2-opts"] = {
-                "path": data.get("path") or "/",
-                "host": [data.get("host") or ""]
-            }
+        # ---------------- Network ----------------
+        if network == "ws":
+            ws_opts = {"path": data.get("path") or "/", "headers": {"Host": data.get("host") or ""}}
+            node["ws-opts"] = ws_opts
 
-        # ---------------- Dynamic Fields (Safe) ----------------
+        elif network == "grpc":
+            node["grpc-opts"] = {"grpc-service-name": data.get("path") or ""}
+
+        elif network == "h2":
+            node["h2-opts"] = {"path": data.get("path") or "/", "host": [data.get("host") or ""]}
+
+        # ---------------- Remove raw duplicate keys ----------------
+        for key in (
+            "ps",
+            "add",
+            "port",
+            "id",
+            "aid",
+            "net",
+            "type",
+            "tls"
+        ):
+
+            data.pop(key, None)
+
+        # ---------------- Dynamic ----------------
         node = merge_dynamic_fields(node, data)
-
+        node["_key_order"] = list(node.keys())
+        
         return node
 
     except Exception as e:
-        print(f"[warn] ❗Vmess parse error -> Line {line_number} | {e}")
+        print(f"[warn] ❗Vmess parse error -> Line {line_number}: {e}")
+
         return None
         
 # -----------------------------------------------------------
@@ -545,6 +569,7 @@ def parse_vless(line, line_number=None):
         if "?" in rest:
             host_port, q = rest.split("?", 1)
             query = dict(urllib.parse.parse_qsl(q))
+            
         else:
             host_port = rest
 
@@ -578,25 +603,37 @@ def parse_vless(line, line_number=None):
             "server": host,
             "port": int(port),
             "uuid": uuid,
-            "encryption": query.get("encryption", "none"),
+            "udp": True,
         }
         
         # preserve important raw fields
-        for key in ["security", "flow", "sni", "fp"]:
-            if key in query and query[key] != "":
+        for key in ["flow"]:
+            if key in query and query[key]:
                 node[key] = query[key]
 
         # Security (TLS / Reality)
         if query.get("security") == "tls":
             node["tls"] = True
-            node["servername"] = query.get("sni", "")
-            node["skip-cert-verify"] = query.get("allowInsecure", "0") in ("1", "true", "yes")
-            if "fp" in query:
+            node["skip-cert-verify"] = (query.get("allowInsecure", "0") in ("1", "true"))
+        
+            sni = query.get("sni") or query.get("peer")
+            if sni:
+                node["servername"] = sni
+            if query.get("fp"):
                 node["client-fingerprint"] = query["fp"]
-        elif query.get("security") == "reality":
-            node["reality-opts"] = {"public-key": query.get("pbk", ""), "short-id": query.get("sid", ""), "server-name": query.get("sni", "")}
-            node["tls"] = True
 
+        elif query.get("security") == "reality":
+            node["tls"] = True
+            node["skip-cert-verify"] = (query.get("insecure", "0") in ("1", "true"))
+        
+            if query.get("sni"):
+                node["servername"] = query["sni"]
+        
+            if query.get("fp"):
+                node["client-fingerprint"] = query["fp"]
+        
+            node["reality-opts"] = {"public-key": query.get("pbk", ""), "short-id": query.get("sid", "")}
+            
         # Network
         if "type" in query:
             node["network"] = query["type"]
@@ -610,103 +647,81 @@ def parse_vless(line, line_number=None):
         if node.get("network") == "grpc":
             node["grpc-opts"] = {"grpc-service-name": query.get("serviceName", "")}
 
+        # ---------------- Dynamic Fields ----------------
         node = merge_dynamic_fields(node, query)
+        node["_key_order"] = list(node.keys())
         return node
 
     except Exception as e:
         if line_number:
-            print(f"[warn] ❗VLESS parse error -> Line {line_number}")
-        else:
-            print(f"[warn] ❗VLESS parse error -> {e}")
+            print(f"[warn] ❗VLESS parse error -> Line {line_number}: {e}")
         return None
-
+        
 # -----------------------------------------------------------
 # TROJAN Parser
 # -----------------------------------------------------------
 def parse_trojan(line, line_number=None):
     try:
-        if not line.startswith("trojan://"): return None
+        if not line.startswith("trojan://"):
+            return None
 
-        # Split node name from LAST '#'
-        name = ""
-        if "#" in line:
-            line, name = line.rsplit("#", 1)
-            name = urllib.parse.unquote(name.strip())
-
-        core = line[len("trojan://"):]
-
-        if "@" not in core: return None
-        password, rest = core.split("@", 1)
-
-        # Query params
-        query = {}
-        if "?" in rest:
-            host_port, q = rest.split("?", 1)
-            query = {k: v[-1] for k, v in urllib.parse.parse_qs(q).items()}
-        else:
-            host_port = rest
-
-        # Remove optional trailing slash
-        host_port = host_port.rstrip("/")
-
-        # IPv6
-        if host_port.startswith("["):
-            end = host_port.find("]")
-            if end == -1: return None
-
-            host = host_port[1:end]
-
-            if len(host_port) <= end + 2: return None
-            port = host_port[end + 2:]
-
-        # IPv4 / domain
-        else:
-            if ":" not in host_port: return None
-            host, port = host_port.rsplit(":", 1)
+        parsed = urlparse(line)
+        host = parsed.hostname
+        port = parsed.port
+        password = unquote(parsed.username or "")
+        query = {k: v[-1] for k, v in parse_qs(parsed.query, keep_blank_values=True).items()}
+        name = unquote(parsed.fragment) if parsed.fragment else ""
 
         node = {
             "type": "trojan",
             "name": name or "Trojan Node",
             "server": host.strip(),
-            "port": int(port.strip()),
-            "password": urllib.parse.unquote(password.strip()),
+            "port": int(port),
+            "password": password.strip(),
         }
 
-        # TLS / Security
-        node["skip-cert-verify"] = query.get("allowInsecure", "0").lower() in ("1", "true", "yes")
+        # TLS
+        node["skip-cert-verify"] = query.get("allowInsecure", "0") in ("1", "true", "yes")
         node["security"] = query.get("security", "tls")
-
         sni = query.get("sni") or query.get("peer")
+        
         if sni:
             node["sni"] = sni
             node["servername"] = sni
 
-        # Fingerprint
-        if "fp" in query:
+        # uTLS
+        if query.get("fp"):
             node["client-fingerprint"] = query["fp"]
 
         # Network
-        if "type" in query:
-            node["network"] = query["type"]
+        network = query.get("type")
+
+        if network:
+            node["network"] = network
 
         # WebSocket
-        if node.get("network") == "ws":
+        if network == "ws":
             ws_opts = {"path": urllib.parse.unquote(query.get("path", "/"))}
-            if "host" in query:
+            host_header = (query.get("host") or sni)
+
+            if host_header:
                 ws_opts["headers"] = {"Host": query["host"]}
+
             node["ws-opts"] = ws_opts
 
         # gRPC
-        elif node.get("network") == "grpc":
+        elif network == "grpc":
             node["grpc-opts"] = {"grpc-service-name": query.get("serviceName", "")}
 
+        # Dynamic fields
         node = merge_dynamic_fields(node, query)
+        node["_key_order"] = list(node.keys())
         return node
 
     except Exception as e:
         print(f"[warn] ❗Trojan parse error -> Line {line_number}: {e}")
         return None
-
+        
 # -----------------------------------------------------------
 # HYSTERIA2 Parser
 # -----------------------------------------------------------
@@ -720,7 +735,6 @@ def parse_hysteria2(line, line_number=None):
             line = "hysteria2://" + line[len("hy2://"):]
 
         parsed = urllib.parse.urlparse(line)
-
         password = urllib.parse.unquote(parsed.username or "")
         host = parsed.hostname
         port = parsed.port
@@ -754,44 +768,34 @@ def parse_hysteria2(line, line_number=None):
         # mport / server_ports
         # ---------------------------------------------------
         if "mport" in query:
+            node["ports"] = query["mport"]
             node["mport"] = query["mport"]
-            node["server_ports"] = [
-                query["mport"].replace("-", ":")
-            ]
 
         # ---------------------------------------------------
-        # TLS
+        # TLS/SNI handeling
         # ---------------------------------------------------
-        tls = {
-            "enabled": True
-        }
-
-        if "sni" in query:
-            tls["server_name"] = query["sni"]
+        if query.get("sni"):
             node["sni"] = query["sni"]
-
-        # pinSHA256 -> fingerprint
-        if "pinSHA256" in query:
+                
+        # Certificate fingerprint
+        if query.get("pinSHA256"):
             node["fingerprint"] = query["pinSHA256"]
-
-            # Karing imports certificate pinning as insecure=true
-            tls["insecure"] = True
-
-        elif "allowInsecure" in query:
-            tls["insecure"] = query["allowInsecure"].lower() in (
-                "1", "true", "yes"
-            )
-
-        elif "insecure" in query:
-            tls["insecure"] = query["insecure"].lower() in (
-                "1", "true", "yes"
-            )
-
-        else:
-            tls["insecure"] = False
-
-        node["tls"] = tls
-        node["skip-cert-verify"] = tls["insecure"]
+        
+        # Insecure TLS
+        insecure = False
+        
+        if query.get("insecure", "").lower() in ("1", "true", "yes"):
+            insecure = True
+        
+        if query.get("allowInsecure", "").lower() in ("1", "true", "yes"):
+            insecure = True
+        
+        # pinSHA256 usually works with insecure mode
+        if query.get("pinSHA256"):
+            insecure = True
+        
+        if insecure:
+            node["skip-cert-verify"] = True
 
         # ---------------------------------------------------
         # OBFS
@@ -821,16 +825,14 @@ def parse_hysteria2(line, line_number=None):
         if "down" in query:
             node["down"] = query["down"]
 
-        # ---------------------------------------------------
-        # Prevent duplicate fields
-        # ---------------------------------------------------
-        query.pop("sni", None)
-        query.pop("insecure", None)
-        query.pop("allowInsecure", None)
-        query.pop("pinSHA256", None)
+        # Preserve original HY2 fields
+        for key, value in query.items():
+            if key not in node:
+                node[key] = value
 
-        node = merge_dynamic_fields(node, query)
-
+        # ---------------- Dynamic Fields ----------------
+        node = merge_dynamic_fields(node, query)       
+        node["_key_order"] = list(node.keys())
         return node
 
     except Exception as e:
@@ -846,7 +848,6 @@ def parse_anytls(line, line_number=None):
             return None
 
         parsed = urllib.parse.urlparse(line)
-
         password = urllib.parse.unquote(parsed.username or "")
         host = parsed.hostname
         port = parsed.port
@@ -862,26 +863,19 @@ def parse_anytls(line, line_number=None):
             "server": host,
             "port": int(port),
             "password": password,
+            "udp": True,
         }
 
-        # ---------------- TLS ----------------
-        tls = {}
-
+        # ---------------- TLS / SNI ----------------
         if "sni" in query:
-            tls["server_name"] = query["sni"]
-            node["servername"] = query["sni"]
-
+            node["sni"] = query["sni"]
+        
         if "insecure" in query:
-            tls["insecure"] = query["insecure"].lower() in ("1", "true", "yes")
-
-        if "allowInsecure" in query:
-            tls["insecure"] = query["allowInsecure"].lower() in ("1", "true", "yes")
-
-        if tls:
-            tls["enabled"] = True
-            node["tls"] = tls
-            node["skip-cert-verify"] = tls.get("insecure", False)
-
+            node["skip-cert-verify"] = (
+                query["insecure"].lower()
+                in ("1", "true", "yes")
+            )
+        
         # ---------------- ALPN ----------------
         if "alpn" in query:
             node["alpn"] = query["alpn"].split(",")
@@ -890,9 +884,9 @@ def parse_anytls(line, line_number=None):
         if "fp" in query:
             node["client-fingerprint"] = query["fp"]
 
-        # dynamic fields
+        # ---------------- Dynamic Fields ----------------
         node = merge_dynamic_fields(node, query)
-
+        node["_key_order"] = list(node.keys())
         return node
 
     except Exception as e:
@@ -908,12 +902,11 @@ def parse_tuic(line, line_number=None):
             return None
 
         parsed = urllib.parse.urlparse(line)
-
         uuid = urllib.parse.unquote(parsed.username or "")
         password = urllib.parse.unquote(parsed.password or "")
         host = parsed.hostname
         port = parsed.port
-        query = dict(urllib.parse.parse_qsl(parsed.query))
+        query = {k: v[-1] for k, v in urllib.parse.parse_qs(parsed.query, keep_blank_values=True).items()}
         name = urllib.parse.unquote(parsed.fragment or "TUIC Node")
 
         if not host or not port or not uuid:
@@ -929,49 +922,66 @@ def parse_tuic(line, line_number=None):
         }
 
         # ---------------- TLS ----------------
-        tls = {}
+        tls = {"enabled": True}
+        sni = query.get("sni")
 
-        if "sni" in query:
-            tls["server_name"] = query["sni"]
-            node["servername"] = query["sni"]
+        if sni:
+            tls["server_name"] = sni
+        insecure = (query.get("insecure") or query.get("allowInsecure") or "false")
+        tls["insecure"] = str(insecure).lower() in ("1", "true", "yes")
 
-        if "insecure" in query:
-            tls["insecure"] = query["insecure"].lower() in ("1", "true", "yes")
+        # uTLS fingerprint support
+        if query.get("fp"):
+            tls["utls"] = {"enabled": True}
+            node["client-fingerprint"] = query["fp"]
+        node["tls"] = tls
 
-        if "allowInsecure" in query:
-            tls["insecure"] = query["allowInsecure"].lower() in ("1", "true", "yes")
-
-        if tls:
-            tls["enabled"] = True
-            node["tls"] = tls
-            node["skip-cert-verify"] = tls.get("insecure", False)
+        if tls["insecure"]:
+            node["skip-cert-verify"] = True
 
         # ---------------- ALPN ----------------
         if "alpn" in query:
-            node["alpn"] = query["alpn"].split(",")
+            node["alpn"] = [x.strip() for x in query["alpn"].split(",") if x.strip()]
 
-        # ---------------- congestion ----------------
+        # ---------------- Congestion ----------------
         if "congestion_control" in query:
-            node["congestion-controller"] = query["congestion_control"]
+            node["congestion-controller"] = (query["congestion_control"])
 
-        # ---------------- udp relay ----------------
+        # ---------------- UDP relay ----------------
         if "udp_relay_mode" in query:
-            node["udp-relay-mode"] = query["udp_relay_mode"]
+            node["udp-relay-mode"] = (query["udp_relay_mode"])
 
-        # ---------------- reduce rtt ----------------
+        # ---------------- Reduce RTT ----------------
         if "reduce_rtt" in query:
-            node["reduce-rtt"] = query["reduce_rtt"].lower() in ("1", "true", "yes")
+            node["reduce-rtt"] = str(query["reduce_rtt"]).lower() in ("1", "true", "yes")
 
-        # ---------------- disable sni ----------------
+        # ---------------- Disable SNI ----------------
         if "disable_sni" in query:
-            node["disable-sni"] = query["disable_sni"].lower() in ("1", "true", "yes")
+            node["disable-sni"] = str(query["disable_sni"]).lower() in ("1", "true", "yes")
 
+        # ---------------- Remove converted fields ----------------
+        for key in (
+            "sni",
+            "insecure",
+            "allowInsecure",
+            "fp",
+            "alpn",
+            "congestion_control",
+            "udp_relay_mode",
+            "reduce_rtt",
+            "disable_sni"
+        ):
+            query.pop(key, None)
+
+        # ---------------- Dynamic Fields ----------------
         node = merge_dynamic_fields(node, query)
-
+        node["_key_order"] = list(node.keys())
         return node
 
     except Exception as e:
-        print(f"[warn] ❗TUIC parse error -> Line {line_number}")
+        print(
+            f"[warn] ❗TUIC parse error -> Line {line_number}: {e}"
+        )
         return None
 
 # -----------------------------------------------------------
@@ -998,10 +1008,8 @@ def parse_plugin(plugin_str: str):
 
     # 🔥 fix escaped chars
     plugin_str = plugin_str.replace("\\=", "=").replace("\\\\", "\\")
-
     parts = plugin_str.split(";")
     plugin = parts[0].strip()
-
     opts = {}
 
     for p in parts[1:]:
@@ -1025,14 +1033,9 @@ def parse_plugin(plugin_str: str):
                 elif v in ["1", "true"]:
                     opts[key] = 1
                 else:
-                    opts[key] = int(v) if v.isdigit() else 0
-            
-            else:
-                opts[key] = smart_cast(val)
+                    opts[key] = smart_cast(val)
         else:
-            # flags like "tls"
             opts[p.strip()] = True
-
     return plugin, opts
 
 # ---------------- Server / Port ----------------
@@ -1047,10 +1050,10 @@ def parse_server_port(srvp: str):
 
         server = srvp[1:end]
         port = srvp[end + 2:]
+        
     else:
         if ":" not in srvp:
             raise ValueError("Missing port")
-
         server, port = srvp.rsplit(":", 1)
 
     return server, int(port)
@@ -1072,18 +1075,18 @@ def parse_ss(line, line_number=None):
         # -------- query --------
         plugin = None
         plugin_opts = None
+        query = {}
 
         if "?" in raw:
-            core, query = raw.split("?", 1)
-
-            for part in query.split("&"):
-                if part.startswith("plugin="):
-                    plugin_raw = part[len("plugin="):]
-                    plugin, plugin_opts = parse_plugin(plugin_raw)
-                    break
+            core, query_raw = raw.split("?", 1)
+            query = {k: v[-1] for k, v in urllib.parse.parse_qs(query_raw, keep_blank_values=True).items()}
+        
+            if "plugin" in query:
+                plugin, plugin_opts = parse_plugin(query["plugin"])
+                query.pop("plugin", None)
+        
         else:
             core = raw
-
         core = core.strip()
 
         # -------- decode --------
@@ -1091,24 +1094,21 @@ def parse_ss(line, line_number=None):
             # base64(method:password)@server:port
             b64_part, srvp = core.split("@", 1)
             decoded = decode_base64(b64_part)
-
+        
             if ":" not in decoded:
                 raise ValueError("Invalid userinfo")
-
             cipher, password = decoded.split(":", 1)
-
+        
         else:
             # SIP002 full base64
             decoded = decode_base64(core)
-
+        
             if "@" not in decoded:
-                raise ValueError("Invalid SIP002 format")
-
+                raise ValueError("Invalid SS format")
             userinfo, srvp = decoded.split("@", 1)
-
+        
             if ":" not in userinfo:
                 raise ValueError("Invalid userinfo")
-
             cipher, password = userinfo.split(":", 1)
 
         # -------- server / port --------
@@ -1131,6 +1131,9 @@ def parse_ss(line, line_number=None):
         if plugin_opts:
             node["plugin-opts"] = plugin_opts
 
+        # ---------------- Dynamic Fields ----------------
+        node = merge_dynamic_fields(node, query)
+        node["_key_order"] = list(node.keys())
         return node
 
     except Exception as e:
@@ -1144,24 +1147,28 @@ def parse_ssr(line, line_number=None):
     try:
         if not line.startswith("ssr://"):
             return None
-
         decoded = decode_base64(line[6:]).strip()
 
+        if not decoded:
+            return None
+
+        # ---------------- Query ----------------
         if "/?" in decoded:
             main, query_str = decoded.split("/?", 1)
-            qs = dict(urllib.parse.parse_qsl(query_str))
+            qs = {k: v[-1] for k, v in urllib.parse.parse_qs(query_str,keep_blank_values=True).items()}
+
         else:
             main = decoded
             qs = {}
 
-        # ---------------- IPv6 safe ----------------
-        if main.count(":") < 5:
+        # ---------------- Parse Core ----------------
+        try:
+            server, port, protocol, method, obfs, pwd_b64 = (main.rsplit(":", 5))
+
+        except ValueError:
             return None
 
-        server, port, protocol, method, obfs, pwd_b64 = main.rsplit(":", 5)
-
         password = decode_base64(pwd_b64)
-
         name = ""
 
         if "remarks" in qs:
@@ -1171,14 +1178,14 @@ def parse_ssr(line, line_number=None):
             "type": "ssr",
             "name": name or "SSR Node",
             "server": server,
-            "port": int(port),
+            "port": safe_int(port),
             "protocol": protocol,
             "cipher": method,
             "obfs": obfs,
-            "password": password
+            "password": password,
         }
 
-        # ---------------- optional fields ----------------
+        # ---------------- Optional Fields ----------------
         if "group" in qs:
             node["group"] = decode_base64(qs["group"])
 
@@ -1188,12 +1195,22 @@ def parse_ssr(line, line_number=None):
         if "protoparam" in qs:
             node["protocol-param"] = decode_base64(qs["protoparam"])
 
-        node = merge_dynamic_fields(node, qs)
+        # ---------------- Remove Converted Fields ----------------
+        for key in (
+            "remarks",
+            "group",
+            "obfsparam",
+            "protoparam"
+        ):
+            qs.pop(key, None)
 
+        # ---------------- Dynamic Fields ----------------
+        node = merge_dynamic_fields(node, qs)
+        node["_key_order"] = list(node.keys())
         return node
 
     except Exception as e:
-        print(f"[warn] ❗SSR parse error -> Line {line_number}")
+        print(f"[warn] ❗SSR parse error -> Line {line_number}: {e}")
         return None
 
 # -----------------------------------------------------------
@@ -1203,9 +1220,12 @@ def parse_socks(line, line_number=None):
     try:
         if line.startswith("socks5://"):
             raw = line[len("socks5://"):].strip()
-            
+
         elif line.startswith("socks://"):
             raw = line[len("socks://"):].strip()
+
+        else:
+            return None
 
         # -------- tag --------
         tag = ""
@@ -1213,20 +1233,27 @@ def parse_socks(line, line_number=None):
         if "#" in raw:
             raw, tag = raw.split("#", 1)
             tag = urllib.parse.unquote(tag.strip())
-
         raw = raw.strip()
-
         username = ""
         password = ""
+
+        # -------- query --------
+        query = {}
+
+        if "?" in raw:
+            raw, query_raw = raw.split("?", 1)
+            query = {k: v[-1] for k, v in urllib.parse.parse_qs(query_raw, keep_blank_values=True).items()}
 
         # -------- auth --------
         if "@" in raw:
             auth, srvp = raw.rsplit("@", 1)
+            auth = urllib.parse.unquote(auth)
 
             if ":" in auth:
                 username, password = auth.split(":", 1)
             else:
                 username = auth
+
         else:
             srvp = raw
 
@@ -1242,6 +1269,16 @@ def parse_socks(line, line_number=None):
             "password": password,
         }
 
+        # Remove empty auth fields
+        if not username:
+            node.pop("username", None)
+
+        if not password:
+            node.pop("password", None)
+
+        # ---------------- Dynamic Fields ----------------
+        node = merge_dynamic_fields(node, query)
+        node["_key_order"] = list(node.keys())
         return node
 
     except Exception as e:
@@ -1331,6 +1368,7 @@ def rename_node(p, country_counter, CN_TO_CC):
 
     # Original name
     original_name = str(p.get("name", "") or "").strip()
+    backup = copy.deepcopy(p)
     host = p.get("server") or p.get("add") or ""
 
     # Detect ipv6 tag
@@ -1465,6 +1503,13 @@ def rename_node(p, country_counter, CN_TO_CC):
             country_counter[cc] += 1
             index = country_counter[cc]
             p["name"] = build_name(flag, cc, index, ipv6_tag)
+
+            # Restore everything except name
+            old_name = p["name"]
+            p.clear()
+            p.update(backup)
+            p["name"] = old_name
+            
             return p
 
 # ---------------- Load proxies ----------------
@@ -1483,16 +1528,12 @@ def load_proxies(url, retries=5):
 
             if len(lines) == 1 and re.match(r'^[A-Za-z0-9+/=]+$', text.strip()):
                 try:
-                    decoded = base64.b64decode(
-                        text.strip() + "=" * (-len(text.strip()) % 4)
-                    ).decode("utf-8", errors="ignore")
-
+                    decoded = base64.b64decode(text.strip() + "=" * (-len(text.strip()) % 4)).decode("utf-8", errors="ignore")
                     decoded_lines = decoded.splitlines()
 
                     if len(decoded_lines) > 3 and "://" in decoded:
                         text = decoded
                         sub_type = "BASE64"
-
                         print("[fetch] 📥 Base64 subscription detected", flush=True)
 
                     else:
@@ -1515,29 +1556,22 @@ def load_proxies(url, retries=5):
             if sub_type == "YAML":
                 try:
                     data = yaml.safe_load(text)
-
+            
                     if data and "proxies" in data:
                         for idx, p in enumerate(data["proxies"], start=1):
                             original_name = str(p.get("name", "") or "").strip()
-                    
+            
                             if not original_name:
                                 p["name"] = f"Node-{idx}"
-                    
-                            # remove metadata
+            
                             p.pop("metadata", None)
-                    
                             nodes.append(p)
-                    
                             protocol = str(p.get("type", "NODE")).upper()
-                    
-                            print(
-                                f"[parse] 🔎 YAML to {protocol} node: {idx} parsed",
-                                flush=True
-                            )
-
+                            print(f"[parse] 🔎 YAML to {protocol} node: {idx} parsed", flush=True)
+            
                     else:
                         print("[warn] 😭 YAML structure invalid or empty", flush=True)
-
+            
                 except Exception:
                     print("[warn] 😭 YAML parsing failed", flush=True)
 
@@ -1553,6 +1587,9 @@ def load_proxies(url, retries=5):
                         node = parse_node_line(line, idx)
 
                         if node:
+                            # Preserve original parsed data
+                            node["_original"] = copy.deepcopy(node)
+                        
                             nodes.append(node)
                             protocol = (
                                 line.split("://")[0].upper()
@@ -1561,8 +1598,7 @@ def load_proxies(url, retries=5):
                             )
 
                             if sub_type == "BASE64":
-                                print(
-                                    f"[parse] 🔎 Base64 to {protocol} node: {idx} parsed", flush=True )
+                                print(f"[parse] 🔎 Base64 to {protocol} node: {idx} parsed", flush=True )
                             else:
                                 print(f"[parse] 🔎 {protocol} node: {idx} parsed", flush=True )
 
@@ -1570,8 +1606,7 @@ def load_proxies(url, retries=5):
                             print(f"[skip] ⛔ Invalid or unsupported line ({idx})", flush=True)
 
                     except Exception:
-                        print(
-                            f"[warn] 😭 Error parsing line ({idx})", flush=True)
+                        print(f"[warn] 😭 Error parsing line ({idx})", flush=True)
 
             return nodes
 
@@ -1585,7 +1620,7 @@ def load_proxies(url, retries=5):
 
 # ---------------- Main ----------------
 def main():
-    try:
+    try:   
         CN_TO_CC = load_cn_to_cc()
         sources = load_sources()
         print(f"[start] 🖥️ Loaded ({len(sources)}) subscription links from source")
@@ -1631,27 +1666,22 @@ def main():
         renamed_nodes = []
         cn_to_cc = load_cn_to_cc()
         skipped_nodes = 0
-        
+                
         for n in filtered_nodes:
             res = rename_node(n, country_counter, cn_to_cc)
             if res:
                 renamed_nodes.append(res)
-            else:
-                skipped_nodes += 1
 
         if USE_ONLY_GEOIP:
-            print(
-                f"[rename] 🌍 GeoIP-only mode: Failed to rename {geoip_primary_fail} nodes and fallback to Name-based detection"
-            )
+            print(f"[rename] 🌍 GeoIP-only mode: Failed to rename {geoip_primary_fail} nodes and fallback to Name-based detection")
+            
         else:
-            print(
-                f"[rename] 🏷️ Name-based mode: Failed to rename ({name_primary_fail}) nodes and fallback to GeoIP detection"
-            )
+            print(f"[rename] 🏷️ Name-based mode: Failed to rename ({name_primary_fail}) nodes and fallback to GeoIP detection")
 
         if skipped_nodes > 0:
             print(f"[rename] ⚠️ Skipped ({skipped_nodes}) nodes that could not be assigned a name or include forbidden emoji")
         print(f"[rename] 🖨️ Final [{len(renamed_nodes)}] nodes remain after name correction")
-
+        
         if not renamed_nodes:
             print("[FATAL] 🅾️ valid nodes after processing. Abort upload.")
             sys.exit(1)
@@ -1660,43 +1690,75 @@ def main():
         try:
             with open(CLASH_TEMPLATE, "r", encoding="utf-8") as f:
                 template_text = f.read()
-            print("[INFO] Loaded ClashTemplate from local file")
+            print("[INFO] Loaded ClashTemplate")
         except Exception as e_local:
             print(f"[FATAL] ⚠️ Failed to load ClashTemplate -> {e_local}")
             sys.exit(1)
-
-        # ---------------- Preferred key order ----------------
-        INFO_ORDER = [
-            "name", "type", "server", "port", "uuid", "password",
-            "encryption", "network", "security", "sni", "servername",
-            "skip-cert-verify", "fp", "client-fingerprint",
-            "path", "ws-opts", "grpc-opts", "h2-opts"
-        ]
+  
+        # ---------------- Remove empyt fields ----------------
+        def remove_empty_fields(obj):
+            if isinstance(obj, dict):
+                cleaned = {}
         
+                for k, v in obj.items():
+                    v = remove_empty_fields(v)
+        
+                    if v is None:
+                        continue
+        
+                    if isinstance(v, str) and v == "":
+                        continue
+        
+                    if isinstance(v, dict) and not v:
+                        continue
+        
+                    cleaned[k] = v
+        
+                return cleaned
+        
+            elif isinstance(obj, list):
+                return [
+                    remove_empty_fields(x)
+                    for x in obj
+                    if x is not None
+                ]
+        
+            return obj
+            
         # ---------------- Function to reorder keys ----------------
         def reorder_info(node):
+            node = copy.deepcopy(node)
             ordered = OrderedDict()
-            # Add preferred keys only if they exist in the node
-            for key in INFO_ORDER:
+            original_order = node.get("_key_order", [])
+        
+            # Restore original parser order
+            for key in original_order:
                 if key in node:
-                    val = node[key]
-                    # Convert string to list only if original value is a list or comma string
-                    if key in ("alpn") and isinstance(val, str):
-                        # Only split if val is not empty
-                        val_list = [x.strip() for x in val.split(",") if x.strip()]
-                        ordered[key] = val_list if val_list else val
-                    else:
-                        ordered[key] = val
-            # Append extra keys not in preferred order
-            for key in node:
-                if key not in ordered:
                     ordered[key] = node[key]
+        
+            # Add fields without recorded order
+            for key in node:
+                if key not in ordered and key != "_key_order":
+                    ordered[key] = node[key]
+        
+            # remove internal field
+            ordered.pop("_key_order", None)
             return ordered
         
         # Apply to all renamed nodes
-        normalized_nodes = [normalize_mux(n) for n in renamed_nodes]
+        normalized_nodes = [normalize_mux(copy.deepcopy(n)) for n in renamed_nodes]
         info_ordered = [reorder_info(n) for n in normalized_nodes]
-        info_ordered_dicts = [dict(n) for n in info_ordered]
+        info_ordered_dicts = [remove_empty_fields(dict(n)) for n in info_ordered]
+
+        # Remove internal parser metadata before final export
+        for n in info_ordered_dicts:
+            n.pop("_original", None)
+            n.pop("_key_order", None)
+        
+            # Remove raw HY2 URL-only fields
+            if n.get("type") == "hysteria2":
+                n.pop("insecure", None)
+                n.pop("pinSHA256", None)
 
         # Line by line YAML proxies output format
         def make_single_line_yaml(proxies):
@@ -1704,9 +1766,14 @@ def main():
             for p in proxies:
                 # Convert nested dicts safely
                 def to_yaml_value(v):
+
                     if isinstance(v, dict):
-                        inner = ", ".join(f"{k}: {json.dumps(vv, ensure_ascii=False)}" for k, vv in v.items())
+                        inner = ", ".join(f"{k}: {to_yaml_value(vv)}" for k, vv in v.items())
                         return "{" + inner + "}"
+                
+                    elif isinstance(v, list):
+                        return "[" + ", ".join(json.dumps(x, ensure_ascii=False) for x in v) + "]"
+                
                     else:
                         return json.dumps(v, ensure_ascii=False)
         
@@ -1718,7 +1785,7 @@ def main():
                 lines.append(line)
         
             return "\n".join(lines)
-            
+
         # ---------------- Convert to YAML ----------------
         proxies_yaml_block = make_single_line_yaml(info_ordered_dicts)    #If multiple lines format is needed, Delete Line by line YAML proxies output format code block, proxies_yaml_block = yaml.dump(info_ordered_dicts, allow_unicode=True, default_flow_style=False, sort_keys=False)
         proxy_names_block = "\n".join([f"      - {unquote(p['name'])}" for p in info_ordered_dicts])
