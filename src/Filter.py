@@ -1623,8 +1623,8 @@ def rename_node(p, country_counter, CN_TO_CC):
             
             return p
 
-    # ---------------- Fetch subscription ----------------
-    def fetch_subscription(url, retries=5):
+# ---------------- Fetch subscription ----------------
+def fetch_subscription(url, retries=5):
         headers_list = [
             # Chrome
             {
@@ -1671,7 +1671,7 @@ def rename_node(p, country_counter, CN_TO_CC):
                     print("[wait] Waiting 3 seconds...", flush=True)
                     time.sleep(3)
     
-        return None
+        return None        
 
 # ---------------- Load proxies ----------------
 def load_proxies(url, retries=5):
