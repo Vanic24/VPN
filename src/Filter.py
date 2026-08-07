@@ -1652,7 +1652,7 @@ def fetch_subscription(url, retries=5):
         for attempt in range(retries):
             headers = headers_list[attempt % len(headers_list)]
             try:
-                r = session.get(url_with_cache, headers=headers, timeout=20, allow_redirects=True)
+                r = session.get(url, headers=headers, timeout=20, allow_redirects=True)
                 print("[debug] Status:", r.status_code, flush=True)
                 print("[debug] Final URL:", r.url, flush=True)
                 print("[debug] Content-Type:", r.headers.get("content-type"), flush=True)
