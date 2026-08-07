@@ -1685,7 +1685,7 @@ def load_proxies(url, retries=5):
             # ---------- For Base64 (single-line subscription) decode ----------
             lines = text.splitlines()
 
-            if len(lines) == 1 and re.match(r'^[A-Za-z0-9+/_=-]+$', text.strip())
+            if len(lines) == 1 and re.match(r'^[A-Za-z0-9+/_=-]+$', text.strip()):
                 try:
                     decoded = base64.b64decode(text.strip() + "=" * (-len(text.strip()) % 4)).decode("utf-8", errors="ignore")
                     decoded_lines = decoded.splitlines()
