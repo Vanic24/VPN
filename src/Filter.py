@@ -1654,19 +1654,22 @@ def rename_node(p, country_counter, CN_TO_CC):
             try:
                 # -------- Cache bypass for CDN --------
                 url_with_cache = (url + ("&" if "?" in url else "?") + f"_={int(time.time())}")
-                r = session.get(url, headers=headers, timeout=20, allow_redirects=True)
+                print(f"[fetch] Attempt {attempt+1}/{retries}", flush=True)
+
+                r = session.get(url_with_cache, headers=headers, timeout=20, allow_redirects=True)
                 r.raise_for_status()
                 text = r.text.strip()
     
                 # Detect CDN error pages
                 if ("<html" in text.lower() or "<!doctype" in text.lower()):
                     print("[warn] HTML response received, retrying...")
-                    
-                    continue
                 return text
     
             except Exception as e:
                 print(f"[warn] Fetch attempt {attempt+1}/{retries}: {e}")
+                if attempt < retries - 1:
+                print("[wait] Waiting 3 seconds...", flush=True)
+                time.sleep(3)
     
         return None
 
