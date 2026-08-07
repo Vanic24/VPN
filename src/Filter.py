@@ -1668,8 +1668,8 @@ def rename_node(p, country_counter, CN_TO_CC):
             except Exception as e:
                 print(f"[warn] Fetch attempt {attempt+1}/{retries}: {e}")
                 if attempt < retries - 1:
-                print("[wait] Waiting 3 seconds...", flush=True)
-                time.sleep(3)
+                    print("[wait] Waiting 3 seconds...", flush=True)
+                    time.sleep(3)
     
         return None
 
