@@ -1652,11 +1652,11 @@ def fetch_subscription(url, retries=5):
         for attempt in range(retries):
             headers = headers_list[attempt % len(headers_list)]
             try:
-                # -------- Cache bypass for CDN --------
-                url_with_cache = (url + ("&" if "?" in url else "?") + f"_={int(time.time())}")
-                print(f"[fetch] Attempt {attempt+1}/{retries}", flush=True)
-
                 r = session.get(url_with_cache, headers=headers, timeout=20, allow_redirects=True)
+                print("[debug] Status:", r.status_code, flush=True)
+                print("[debug] Final URL:", r.url, flush=True)
+                print("[debug] Content-Type:", r.headers.get("content-type"), flush=True)
+                print("[debug] First 200 chars:", r.text[:200], flush=True)
                 r.raise_for_status()
                 text = r.text.strip()
     
