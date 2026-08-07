@@ -1652,6 +1652,8 @@ def rename_node(p, country_counter, CN_TO_CC):
         for attempt in range(retries):
             headers = headers_list[attempt % len(headers_list)]
             try:
+                # -------- Cache bypass for CDN --------
+                url_with_cache = (url + ("&" if "?" in url else "?") + f"_={int(time.time())}")
                 r = session.get(url, headers=headers, timeout=20, allow_redirects=True)
                 r.raise_for_status()
                 text = r.text.strip()
@@ -1683,7 +1685,7 @@ def load_proxies(url, retries=5):
             # ---------- For Base64 (single-line subscription) decode ----------
             lines = text.splitlines()
 
-            if len(lines) == 1 and re.match(r'^[A-Za-z0-9+/=]+$', text.strip()):
+            if len(lines) == 1 and re.match(r'^[A-Za-z0-9+/_=-]+$', text.strip())
                 try:
                     decoded = base64.b64decode(text.strip() + "=" * (-len(text.strip()) % 4)).decode("utf-8", errors="ignore")
                     decoded_lines = decoded.splitlines()
