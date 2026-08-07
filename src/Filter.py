@@ -1625,48 +1625,48 @@ def rename_node(p, country_counter, CN_TO_CC):
 
     # ---------------- Fetch subscription ----------------
     def fetch_subscription(url, retries=5):
-    headers_list = [
-        # Chrome
-        {
-            "User-Agent":
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-            "AppleWebKit/537.36 Chrome/131 Safari/537.36",
-            "Accept": "*/*",
-        },
-
-        # Android / Karing style
-        {
-            "User-Agent":
-            "okhttp/4.12.0",
-            "Accept": "*/*",
-        },
-
-        # V2Ray client style
-        {
-            "User-Agent":
-            "v2rayNG/1.9.20",
-            "Accept": "*/*",
-        }
-    ]
-
-    for attempt in range(retries):
-        headers = headers_list[attempt % len(headers_list)]
-        try:
-            r = session.get(url, headers=headers, timeout=20, allow_redirects=True)
-            r.raise_for_status()
-            text = r.text.strip()
-
-            # Detect CDN error pages
-            if ("<html" in text.lower() or "<!doctype" in text.lower()):
-                print("[warn] HTML response received, retrying...")
-                
-                continue
-            return text
-
-        except Exception as e:
-            print(f"[warn] Fetch attempt {attempt+1}/{retries}: {e}")
-
-    return None
+        headers_list = [
+            # Chrome
+            {
+                "User-Agent":
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                "AppleWebKit/537.36 Chrome/131 Safari/537.36",
+                "Accept": "*/*",
+            },
+    
+            # Android / Karing style
+            {
+                "User-Agent":
+                "okhttp/4.12.0",
+                "Accept": "*/*",
+            },
+    
+            # V2Ray client style
+            {
+                "User-Agent":
+                "v2rayNG/1.9.20",
+                "Accept": "*/*",
+            }
+        ]
+    
+        for attempt in range(retries):
+            headers = headers_list[attempt % len(headers_list)]
+            try:
+                r = session.get(url, headers=headers, timeout=20, allow_redirects=True)
+                r.raise_for_status()
+                text = r.text.strip()
+    
+                # Detect CDN error pages
+                if ("<html" in text.lower() or "<!doctype" in text.lower()):
+                    print("[warn] HTML response received, retrying...")
+                    
+                    continue
+                return text
+    
+            except Exception as e:
+                print(f"[warn] Fetch attempt {attempt+1}/{retries}: {e}")
+    
+        return None
 
 # ---------------- Load proxies ----------------
 def load_proxies(url, retries=5):
