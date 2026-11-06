@@ -213,6 +213,14 @@ def deduplicate_nodes(nodes):
         if not normalized:
             continue
 
+        # Some YAML values cannot be serialized (e.g., mixed-type dict keys).
+        # Keep such nodes rather than accidentally dropping them or aborting.
+        try:
+            config_key = json.dumps(normalized, sort_keys=True, ensure_ascii=False, default=str)
+        except (TypeError, ValueError):
+            unique_nodes.append(raw_node)
+            continue
+
         # Build stable duplicate key
         key = (
             normalized.get("type", ""),
@@ -233,6 +241,13 @@ def deduplicate_nodes(nodes):
             # Reality
             normalized.get("_reality_key", ""),
             normalized.get("_reality_sid", ""),
+
+            # Compare every remaining configuration field, including nested TLS,
+            # plugin, cipher, transport, credentials, and protocol-specific options.
+            # Sorting keys ignores dict insertion order; names/metadata are removed
+            # by normalize_node(). Prefer retaining uncertain nodes to dropping
+            # potentially different (and valid) connections.
+            config_key,
         )
 
         if key in seen:
@@ -1067,6 +1082,9 @@ def parse_plugin(plugin_str: str):
                     opts[key] = 1
                 else:
                     opts[key] = smart_cast(val)
+            else:
+                # Preserve other plugin-specific values without changing their type.
+                opts[key] = val
         else:
             opts[p.strip()] = True
     return plugin, opts
@@ -1719,6 +1737,7 @@ def load_proxies(url, retries=5):
 
 # ---------------- Main ----------------
 def main():
+    global geoip_primary_fail, name_primary_fail
     try:   
         CN_TO_CC = load_cn_to_cc()
         sources = load_sources()
@@ -1736,13 +1755,26 @@ def main():
         if USE_LATENCY:
             print(f"[latency] 🚫 Filtering nodes > {LATENCY_THRESHOLD} ms")
             filtered_nodes = []
+            # UDP-only protocols cannot be assessed by a TCP connect test.
+            udp_only_types = {"hysteria", "hysteria2", "hy2", "tuic", "wireguard", "wg"}
+            udp_untested = 0
             with concurrent.futures.ThreadPoolExecutor(max_workers=50) as ex:
-                futures = [ex.submit(tcp_latency_ms, n.get("server"), n.get("port")) for n in all_nodes]
+                futures = [
+                    None if str(n.get("type", "")).lower() in udp_only_types
+                    else ex.submit(tcp_latency_ms, n.get("server"), n.get("port"))
+                    for n in all_nodes
+                ]
                 for n, f in zip(all_nodes, futures):
+                    if f is None:
+                        filtered_nodes.append(n)
+                        udp_untested += 1
+                        continue
                     latency = f.result()
                     if latency <= LATENCY_THRESHOLD:
                         filtered_nodes.append(n)
 
+            if udp_untested:
+                print(f"[latency] ℹ️ Kept {udp_untested} UDP-only nodes without TCP testing (not verified)")
             num_filtered = len(all_nodes) - len(filtered_nodes)
             print(f"[latency] ❗Filtered {num_filtered} nodes due to latency")
             print(f"[latency]  🖨️ Total [{len(filtered_nodes)}] nodes remain after latency filtering")
@@ -1764,18 +1796,23 @@ def main():
         # ---------------- Renamed nodes ----------------
         renamed_nodes = []
         cn_to_cc = load_cn_to_cc()
+        # Per-run diagnostics only; naming and country numbering are unchanged.
+        geoip_primary_fail = 0
+        name_primary_fail = 0
         skipped_nodes = 0
                 
         for n in filtered_nodes:
             res = rename_node(n, country_counter, cn_to_cc)
             if res:
                 renamed_nodes.append(res)
+            else:
+                skipped_nodes += 1
 
         if USE_ONLY_GEOIP:
-            print(f"[rename] 🌍 GeoIP-only mode: Failed to rename {geoip_primary_fail} nodes and fallback to Name-based detection")
+            print(f"[rename] 🌍 GeoIP-only mode: Renamed via name-based fallback: {geoip_primary_fail}")
             
         else:
-            print(f"[rename] 🏷️ Name-based mode: Failed to rename ({name_primary_fail}) nodes and fallback to GeoIP detection")
+            print(f"[rename] 🏷️ Name-based mode: Renamed via GeoIP fallback: {name_primary_fail}")
 
         if skipped_nodes > 0:
             print(f"[rename] ⚠️ Skipped ({skipped_nodes}) nodes that could not be assigned a name or include forbidden emoji")
@@ -1861,13 +1898,22 @@ def main():
 
         # Line by line YAML proxies output format
         def make_single_line_yaml(proxies):
+            # Keep ordinary keys unquoted for the existing single-line style.
+            # Quote special / YAML 1.1 implicit-type keys so they remain strings.
+            def to_yaml_key(k):
+                if (isinstance(k, str)
+                        and re.fullmatch(r"[A-Za-z_][A-Za-z0-9_-]*", k)
+                        and k.lower() not in {"yes", "no", "on", "off", "true", "false", "null"}):
+                    return k
+                return json.dumps(k, ensure_ascii=False)
+
             lines = []
             for p in proxies:
                 # Convert nested dicts safely
                 def to_yaml_value(v):
 
                     if isinstance(v, dict):
-                        inner = ", ".join(f"{k}: {to_yaml_value(vv)}" for k, vv in v.items())
+                        inner = ", ".join(f"{to_yaml_key(k)}: {to_yaml_value(vv)}" for k, vv in v.items())
                         return "{" + inner + "}"
                 
                     elif isinstance(v, list):
@@ -1878,7 +1924,7 @@ def main():
         
                 parts = []
                 for k, v in p.items():
-                    parts.append(f"{k}: {to_yaml_value(v)}")
+                    parts.append(f"{to_yaml_key(k)}: {to_yaml_value(v)}")
         
                 line = "- {" + ", ".join(parts) + "}"
                 lines.append(line)
@@ -1915,33 +1961,27 @@ def main():
 # ---------------- Upload to TextDB ----------------
 def upload_to_textdb():
     try:
-        # Step 1: Read freshly generated subscription file (local, not GitHub raw)
+        # Read the freshly generated subscription (local, not GitHub raw).
         with open(OUTPUT_FILE, "r", encoding="utf-8") as f:
             output_text = f.read()
 
-        # Step 2: Delete old data
-        delete_resp = session.post(TEXTDB_API, data={"value": ""})
-        
-        if delete_resp.status_code == 200:
-            print("[info] 🗑️ Successfully deleted old data on textdb")
-        else:
-            print(f"[warn] ❌ Failed to delete old data on textdb: {delete_resp.status_code}")
-            print(f"[warn] ❗Response: {delete_resp.text}")
+        if not output_text.strip():
+            raise ValueError("Subscription file is empty; TextDB update cancelled")
 
-        # Wait 3 seconds
-        time.sleep(3)
+        #  Updates TextDB.
+        upload_resp = session.post(TEXTDB_API, data={"value": output_text}, timeout=60)
 
-        # Step 3: Upload new data
-        upload_resp = session.post(TEXTDB_API, data={"value": output_text})
-        
-        if upload_resp.status_code == 200:
-            print("[info] 📤 Successfully uploaded new data on textdb")
-        else:
-            print(f"[warn] ❌ Failed to upload new data on textdb: {upload_resp.status_code}")
-            print(f"[warn] ❗Response: {upload_resp.text}")
+        # HTTP 200 alone is not proof of success: TextDB returns status=1 on success.
+        if upload_resp.status_code != 200:
+            raise RuntimeError(f"HTTP {upload_resp.status_code}")
+        if upload_resp.json().get("status") != 1:
+            raise RuntimeError("API reported an unsuccessful update")
+
+        print("[info] 📤 Successfully uploaded new data on textdb")
 
     except Exception as e:
-        print(f"[error] ⛔ Unexpected error: {e}")
+        print(f"[error] ⛔ TextDB update failed: {e}")
+        raise  # Propagate failure to main, which already exits non-zero.
 
 # ---------------- Entry ----------------
 if __name__ == "__main__":
