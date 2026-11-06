@@ -241,6 +241,7 @@ def deduplicate_nodes(nodes):
             # Reality
             normalized.get("_reality_key", ""),
             normalized.get("_reality_sid", ""),
+            
             # Compare every remaining configuration field, including nested TLS,
             # plugin, cipher, transport, credentials, and protocol-specific options.
             # Sorting keys ignores dict insertion order; names/metadata are removed
@@ -1897,13 +1898,22 @@ def main():
 
         # Line by line YAML proxies output format
         def make_single_line_yaml(proxies):
+            # Keep ordinary keys unquoted for the existing single-line style.
+            # Quote special / YAML 1.1 implicit-type keys so they remain strings.
+            def to_yaml_key(k):
+                if (isinstance(k, str)
+                        and re.fullmatch(r"[A-Za-z_][A-Za-z0-9_-]*", k)
+                        and k.lower() not in {"yes", "no", "on", "off", "true", "false", "null"}):
+                    return k
+                return json.dumps(k, ensure_ascii=False)
+
             lines = []
             for p in proxies:
                 # Convert nested dicts safely
                 def to_yaml_value(v):
 
                     if isinstance(v, dict):
-                        inner = ", ".join(f"{k}: {to_yaml_value(vv)}" for k, vv in v.items())
+                        inner = ", ".join(f"{to_yaml_key(k)}: {to_yaml_value(vv)}" for k, vv in v.items())
                         return "{" + inner + "}"
                 
                     elif isinstance(v, list):
@@ -1914,7 +1924,7 @@ def main():
         
                 parts = []
                 for k, v in p.items():
-                    parts.append(f"{k}: {to_yaml_value(v)}")
+                    parts.append(f"{to_yaml_key(k)}: {to_yaml_value(v)}")
         
                 line = "- {" + ", ".join(parts) + "}"
                 lines.append(line)
