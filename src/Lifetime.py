@@ -241,7 +241,7 @@ def deduplicate_nodes(nodes):
             # Reality
             normalized.get("_reality_key", ""),
             normalized.get("_reality_sid", ""),
-            
+
             # Compare every remaining configuration field, including nested TLS,
             # plugin, cipher, transport, credentials, and protocol-specific options.
             # Sorting keys ignores dict insertion order; names/metadata are removed
